@@ -1,0 +1,38 @@
+/*
+* Copyright (c) 2003 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Local variation flags for OMA Provisioning
+*
+*/
+
+
+#ifndef FMRADIOVARIANT_HRH
+#define FMRADIOVARIANT_HRH
+
+/**
+* Local variation flags for FM Radio
+*/
+
+// flag to determine whether an internnal antenna is supported
+#define KFMRadioInternalAntennaSupported    0x02
+
+#ifdef ASW_CORE_AUDIO_PLATFORM_VERSION // Nokia specific adaptation.
+
+#define __FMRADIO_ADVANCED_AUTO_RESUME
+
+#endif // ASW_CORE_AUDIO_PLATFORM_VERSION
+
+
+#endif // FMRADIOVARIANT_HRH
+
+// End of File

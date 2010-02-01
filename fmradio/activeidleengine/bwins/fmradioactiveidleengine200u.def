@@ -1,0 +1,19 @@
+EXPORTS
+	?FrequencyDecimalCount@CFMRadioActiveIdleEngine@@QBE?AW4TFMRadioPSFrequencyDecimalCount@@XZ @ 1 NONAME ; enum TFMRadioPSFrequencyDecimalCount CFMRadioActiveIdleEngine::FrequencyDecimalCount(void) const
+	?SetMuteState@CFMRadioActiveIdleEngine@@QBEXW4TFMRadioPSRadioMuteState@@@Z @ 2 NONAME ; void CFMRadioActiveIdleEngine::SetMuteState(enum TFMRadioPSRadioMuteState) const
+	?Channel@CFMRadioActiveIdleEngine@@QBEHXZ @ 3 NONAME ; int CFMRadioActiveIdleEngine::Channel(void) const
+	??1CFMRadioActiveIdleEngine@@UAE@XZ @ 4 NONAME ; CFMRadioActiveIdleEngine::~CFMRadioActiveIdleEngine(void)
+	?Cancel@CFMRadioActiveIdleEngine@@QAEXXZ @ 5 NONAME ; void CFMRadioActiveIdleEngine::Cancel(void)
+	?ApplicationRunningState@CFMRadioActiveIdleEngine@@QBE?AW4TFMRadioPSApplicationRunningState@@XZ @ 6 NONAME ; enum TFMRadioPSApplicationRunningState CFMRadioActiveIdleEngine::ApplicationRunningState(void) const
+	?AdjustRadioVolume@CFMRadioActiveIdleEngine@@QBEXW4TFMRadioPSAdjustVolume@@@Z @ 7 NONAME ; void CFMRadioActiveIdleEngine::AdjustRadioVolume(enum TFMRadioPSAdjustVolume) const
+	?MuteState@CFMRadioActiveIdleEngine@@QBE?AW4TFMRadioPSRadioMuteState@@XZ @ 8 NONAME ; enum TFMRadioPSRadioMuteState CFMRadioActiveIdleEngine::MuteState(void) const
+	?ChannelName@CFMRadioActiveIdleEngine@@QBEABVTDesC16@@XZ @ 9 NONAME ; class TDesC16 const & CFMRadioActiveIdleEngine::ChannelName(void) const
+	?TuningState@CFMRadioActiveIdleEngine@@QBE?AW4TFMRadioPSTuningState@@XZ @ 10 NONAME ; enum TFMRadioPSTuningState CFMRadioActiveIdleEngine::TuningState(void) const
+	?NewL@CFMRadioActiveIdleEngine@@SAPAV1@AAVMFMRadioActiveIdleEngineNotifyHandler@@@Z @ 11 NONAME ; class CFMRadioActiveIdleEngine * CFMRadioActiveIdleEngine::NewL(class MFMRadioActiveIdleEngineNotifyHandler &)
+	?PowerState@CFMRadioActiveIdleEngine@@QBE?AW4TFMRadioPSRadioPowerState@@XZ @ 12 NONAME ; enum TFMRadioPSRadioPowerState CFMRadioActiveIdleEngine::PowerState(void) const
+	?AntennaStatus@CFMRadioActiveIdleEngine@@QBE?AW4TFMRadioPSHeadsetStatus@@XZ @ 13 NONAME ; enum TFMRadioPSHeadsetStatus CFMRadioActiveIdleEngine::AntennaStatus(void) const
+	?Frequency@CFMRadioActiveIdleEngine@@QBEHXZ @ 14 NONAME ; int CFMRadioActiveIdleEngine::Frequency(void) const
+	?RDSProgramService@CFMRadioActiveIdleEngine@@QBEABVTDesC16@@XZ @ 15 NONAME ; class TDesC16 const & CFMRadioActiveIdleEngine::RDSProgramService(void) const
+	?RadioVolume@CFMRadioActiveIdleEngine@@QBEHXZ @ 16 NONAME ; int CFMRadioActiveIdleEngine::RadioVolume(void) const
+	?ActivateL@CFMRadioActiveIdleEngine@@QAEXXZ @ 17 NONAME ; void CFMRadioActiveIdleEngine::ActivateL(void)
+
