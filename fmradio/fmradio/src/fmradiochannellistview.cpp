@@ -660,40 +660,59 @@ void CFMRadioChannelListView::DoDeactivate()
 // state of application data.
 // ---------------------------------------------------------------------------
 //
-void CFMRadioChannelListView::DynInitMenuPaneL(
-    TInt aResourceId,
-    CEikMenuPane* aMenuPane )
+void CFMRadioChannelListView::DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* aMenuPane )
     {
     if ( aResourceId == R_FMRADIO_CH_LIST_OPTIONS_MENU ) // Main menu
         {
         if ( iRadioEngine->IsAudioRoutingPossible() )
-        	{        		        	        
-	        if ( iRadioEngine->GetAudioOutput() == CRadioEngine::EFMRadioOutputIHF )
-	            {
-	            // Delete existing menu option and add a new one
-	            aMenuPane->DeleteMenuItem( EFMRadioCmdActivateIhf );
-	            if ( iRadioEngine->IsHeadsetConnected() )
-	                {
-	                aMenuPane->SetItemTextL( EFMRadioCmdDeactivateIhf,R_QTN_FMRADIO_OPTIONS_DEACTIVATE );
-	                }
-	            }
-	        else
-	            {
-	            // Delete existing menu option and add a new one
-	            aMenuPane->DeleteMenuItem( EFMRadioCmdDeactivateIhf );
-	            aMenuPane->SetItemTextL( EFMRadioCmdActivateIhf,R_QTN_FMRADIO_OPTIONS_ACTIVATE );
-	            }
-        	}
-		else
-			{
-			aMenuPane->SetItemDimmed( EFMRadioCmdDeactivateIhf, ETrue );	
-			aMenuPane->SetItemDimmed( EFMRadioCmdActivateIhf, ETrue );
-			}         	
+            {
+            if ( iRadioEngine->GetAudioOutput() == CRadioEngine::EFMRadioOutputIHF )
+                {
+                // Delete existing menu option and add a new one
+                aMenuPane->DeleteMenuItem( EFMRadioCmdActivateIhf );
+                if ( iRadioEngine->IsHeadsetConnected() )
+                    {
+                    aMenuPane->SetItemTextL( EFMRadioCmdDeactivateIhf, R_QTN_FMRADIO_OPTIONS_DEACTIVATE );
+                    }
+                }
+            else
+                {
+                // Delete existing menu option and add a new one
+                aMenuPane->DeleteMenuItem( EFMRadioCmdDeactivateIhf );
+                aMenuPane->SetItemTextL( EFMRadioCmdActivateIhf, R_QTN_FMRADIO_OPTIONS_ACTIVATE );
+                }
+            }
+        else
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdDeactivateIhf, ETrue );
+            aMenuPane->SetItemDimmed( EFMRadioCmdActivateIhf, ETrue );
+            }
         
         // if help is not enabled, disable help option
         if ( !FeatureManager::FeatureSupported( KFeatureIdHelp ) )
             {
             aMenuPane->SetItemDimmed( EAknCmdHelp, ETrue );
+            }
+        
+        // don't show stylus pop-up menu during move operation
+        if ( iObserver.Channels()->Count() > 1 && !iMoveMode )
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdMove, EFalse );
+            }
+        else
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdMove, ETrue );
+            }
+        
+        if ( iMoveMode )
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdRename, ETrue );
+            aMenuPane->SetItemDimmed( EFMRadioCmdErase, ETrue );
+            }
+        else
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdRename, EFalse );
+            aMenuPane->SetItemDimmed( EFMRadioCmdErase, EFalse );
             }
         }
     }

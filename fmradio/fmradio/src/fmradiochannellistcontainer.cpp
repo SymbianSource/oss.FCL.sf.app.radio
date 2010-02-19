@@ -527,6 +527,7 @@ TKeyResponse CFMRadioChannelListContainer::OfferKeyEventL( const TKeyEvent& aKey
         case EKeyUpArrow:
         	if ( iMoveAction )	
         		{
+                iKeyMoveActivated = ETrue;
         		MoveUpL();
 	            }
         	else
@@ -541,6 +542,7 @@ TKeyResponse CFMRadioChannelListContainer::OfferKeyEventL( const TKeyEvent& aKey
         case EKeyDownArrow:
         	if ( iMoveAction )	
         		{
+                iKeyMoveActivated = ETrue;
         		MoveDownL();
 	            }
         	else
@@ -638,11 +640,11 @@ void CFMRadioChannelListContainer::HandlePointerEventL( const TPointerEvent& aPo
 //
 void CFMRadioChannelListContainer::ActivateMoveL()
     {
-    
     iMoveAction = ETrue;
     iMoveIndex = iChannelList->CurrentItemIndex();
     iTouchMoveIndex = iMoveIndex;
     UpdateItemIconL( iMoveIndex, KMoveIconIndexChList );
+    iKeyMoveActivated = EFalse;;
 	}
 
 // ---------------------------------------------------------
@@ -926,32 +928,33 @@ void CFMRadioChannelListContainer::MoveDoneL()
 // ---------------------------------------------------------
 //
 TBool CFMRadioChannelListContainer::MoveCanceledL()
-	{
-	TBool wasmove = EFalse;
-	
-	if ( iMoveAction )
-		{
-		iMoveAction = EFalse;
-		
-		TInt index = iChannelList->CurrentItemIndex();
-		
-		HBufC* channelItem = HBufC::NewLC( KLengthOfChannelItemString );
-		channelItem->Des().Copy( iChannelItemArray->MdcaPoint( index ) );
-		TPtr ptr( channelItem->Des() );	
-		
-		TBuf<KLengthOfChannelItemIconIndexString> textChIconIndex;
-		TPtrC iconIndexPtr( textChIconIndex );
-	  	TInt err = TextUtils::ColumnText( iconIndexPtr, 3, &ptr );
-		iChannelItemArray->Delete( index );
-	    iChannelList->HandleItemRemovalL();
-	    
-	    iChannelItemArray->InsertL( iMoveIndex, *channelItem );
-	    iChannelList->HandleItemAdditionL();
-	    iChannelList->SetCurrentItemIndex( iMoveIndex );	    
-        CleanupStack::PopAndDestroy( channelItem );
-        
-        iChannelList->ScrollToMakeItemVisible( index );
+    {
+    TBool wasmove = EFalse;
+    
+    if ( iMoveAction )
+        {
         HideIconsL();
+        iMoveAction = EFalse;
+        
+        if ( iKeyMoveActivated )
+            {
+			TInt index = iChannelList->CurrentItemIndex();
+            HBufC* channelItem = HBufC::NewLC( KLengthOfChannelItemString );
+            channelItem->Des().Copy( iChannelItemArray->MdcaPoint( index ) );
+            TPtr ptr( channelItem->Des() );	
+            
+            TBuf<KLengthOfChannelItemIconIndexString> textChIconIndex;
+            TPtrC iconIndexPtr( textChIconIndex );
+            TInt err = TextUtils::ColumnText( iconIndexPtr, 3, &ptr );
+            iChannelItemArray->Delete( index );
+            iChannelList->HandleItemRemovalL();
+            
+            iChannelItemArray->InsertL( iMoveIndex, *channelItem );
+            iChannelList->HandleItemAdditionL();
+            iChannelList->SetCurrentItemIndex( iMoveIndex );
+            CleanupStack::PopAndDestroy( channelItem );
+            iChannelList->ScrollToMakeItemVisible( index );
+            }
         iChannelList->UpdateScrollBarsL();
         iChannelList->DrawDeferred();
         wasmove = ETrue;

@@ -69,8 +69,6 @@ const TUid KFMRadioUidIdleApp = KPSUidActiveIdle2; // use this one instead becau
 #endif
 // CONSTANTS 
 
-const TInt KMaxAlfredFrameRate = 25; 
-
 // ---------------------------------------------------------------------------------
 // CFMInformationNote::CFMInformationNote
 // ---------------------------------------------------------------------------------
@@ -185,8 +183,7 @@ void CFMRadioAppUi::SecondaryConstructL()
 	UpdateLandscapeInformation();	
 	
 	// Create alfred environment
-	iAlfEnv = CAlfEnv::NewL();
-	iAlfEnv->SetMaxFrameRate( KMaxAlfredFrameRate );
+    iAlfEnv = CAlfEnv::NewL();
 	
 	// Create alfred display
 	TRect rect;
