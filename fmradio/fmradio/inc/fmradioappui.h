@@ -798,6 +798,8 @@ class CFMRadioAppUi : public CAknViewAppUi,
         CAsyncCallBack* iStartupForegroundCallback;
         // The view id of the view that is to be activated when possible
         TUid iPendingViewId;
+        // Boolean for region change, force rescanning
+        TBool iRegionChanged;
     };
 
 #endif

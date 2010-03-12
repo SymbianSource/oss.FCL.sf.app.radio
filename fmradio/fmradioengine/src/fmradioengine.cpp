@@ -402,7 +402,7 @@ EXPORT_C void CRadioEngine::Tune( TInt aFrequency, TRadioMode aRadioMode )
     iTempFrequency = aFrequency;
 
     iRadioSettings->SetRadioMode( aRadioMode );
-    if ( iTunerControl )
+    if ( iTunerControl && iRadioSettings->IsHeadsetConnected() )
         {
         iFmTunerUtility->SetFrequency( aFrequency );
         }
@@ -1203,7 +1203,10 @@ void CRadioEngine::MrftoStationSeekComplete(
     else
         {
         iInitializeRadioRequestExists = EFalse;
-
+        if ( aError == KFmRadioErrAntennaNotConnected )
+            {            
+            iRadioSettings->SetHeadsetDisconnected();
+            }
         FTRACE(FPrint(_L("CRadioEngine::MrftoStationSeekComplete() - Sending event to UI")));
         iTuningState = EFMRadioPSTuningUninitialized;
         HandleCallback( MRadioEngineStateChangeCallback::EFMRadioEventTune, aError );

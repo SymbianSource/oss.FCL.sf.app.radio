@@ -107,8 +107,7 @@ void CFMRadioMainView::ConstructL()
     
     if ( operatorStoreButton )
         {
-        // set text for button name and tooltip
-        operatorStoreButton->State()->SetTextL( storeName );
+        // set text for button tooltip
         operatorStoreButton->State()->SetHelpTextL( storeName );
         }
     }

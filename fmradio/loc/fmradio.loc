@@ -651,6 +651,11 @@
 // d: main view toolbar extension command text
 // l: cell_tb_ext_pane_t1/opt1
 //
+#define qtn_tbextension_operator_music "Music Store"
+
+// d: main view toolbar extension command text
+// l: cell_tb_ext_pane_t1/opt1
+//
 #define qtn_tbextension_activate_loudspeaker "Activate loudspeaker"
 
 // d: main view toolbar extension command text

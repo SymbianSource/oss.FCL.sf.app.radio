@@ -655,9 +655,9 @@ void CFMRadioMainContainer::UpdateTextColorFromSkin()
     TRgb color( KRgbBlue );
     AknsUtils::GetCachedColor( skin, color, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG6 );  
        
-    iVisualControl->SetStationInformationTextColor( color );  
-                   
-    iMediaIdle->SetPrimaryColor( color );     
+    iVisualControl->SetStationInformationTextColor( color );
+    iMediaIdle->SetPrimaryColor( color );
+    iRdsViewer->SetTextColor( color );
     
     AknsUtils::GetCachedColor( skin, color, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG10 );
     

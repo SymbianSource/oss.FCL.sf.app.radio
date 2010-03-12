@@ -241,6 +241,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                     {
                                      AVKON_BUTTON_STATE
                                         {
+                                        txt = qtn_tbextension_operator_music;
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpmask = EMbmFmradioQgn_indi_radio_tb_mshop;
                                         bmpid = EMbmFmradioQgn_indi_radio_tb_mshop_mask;

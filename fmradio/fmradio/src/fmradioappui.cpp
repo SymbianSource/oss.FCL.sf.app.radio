@@ -108,8 +108,9 @@ void CFMRadioAppUi::ConstructL()
     iStartupWizardRunning = EFalse;
     iTuneFromWizardActivated = EFalse;
     iInfoNoteOn = EFalse;
-  	iAutoTune = EFalse;
-   	iAutoTuneUnmute = EFalse;
+    iAutoTune = EFalse;
+    iAutoTuneUnmute = EFalse;
+    iRegionChanged = EFalse;
 
    	BaseConstructL( EAknEnableSkin | EAknEnableMSK | EAknSingleClickCompatible );
     FeatureManager::InitializeLibL();
@@ -2186,10 +2187,11 @@ TFMRadioRegionSetting CFMRadioAppUi::HandleRegionsAtStartUpL()
                 // Show note only if the region has changed from a concrete 
                 // one to another concrete one. EFMRadioRegionNone is not 
                 // a concrete one (first startup case) -- don't show note.
+                iRegionChanged = ETrue;
                 HBufC* bandSetText = StringLoader::LoadLC( R_QTN_FMRADIO_CONF_FREQ_BAND_SET_AUTOM, iCoeEnv );
-			    CAknInformationNote* note = new ( ELeave ) CAknInformationNote( ETrue );			    
-			    note->ExecuteLD( *bandSetText );
-			    CleanupStack::PopAndDestroy( bandSetText );
+                CAknInformationNote* note = new ( ELeave ) CAknInformationNote( ETrue );			    
+                note->ExecuteLD( *bandSetText );
+                CleanupStack::PopAndDestroy( bandSetText );
                 }
             }
         }
@@ -2253,7 +2255,7 @@ TInt CFMRadioAppUi::NumberOfChannelsStored() const
 void CFMRadioAppUi::HandleStartupWizardL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleStartupWizardL()")) );
-    if ( !IsStartupWizardHandled() )
+    if ( !IsStartupWizardHandled() || iRegionChanged )
         {
         // Call to iRadioEngine->UpdatedStartupCount()
         // increases startup count by one and returns amount of app startups.
@@ -2261,6 +2263,13 @@ void CFMRadioAppUi::HandleStartupWizardL()
         if ( startupCount <= KMaxStartupTimesToAskSaveWizard &&
                 NumberOfChannelsStored() == 0 )
             {
+            SetStartupWizardRunning( ETrue );
+            ActivateLocalViewL( iScanLocalStationsView->Id() );
+            }
+        else if ( iRegionChanged ) //force rescan
+            {
+            iRegionChanged = EFalse;
+            UpdateChannelsL( ERemoveAllFromRepository, 0, 0 );
             SetStartupWizardRunning( ETrue );
             ActivateLocalViewL( iScanLocalStationsView->Id() );
             }
