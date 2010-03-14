@@ -228,6 +228,8 @@ class CFMRadioChannelListContainer : public CCoeControl,
         MChannelListHandler& iObserver;
         // not owned
         CFMRadioChannelListView* iChannelView;
+        // flag for rocker key move activation
+        TBool iKeyMoveActivated;
     };
 
 #endif
