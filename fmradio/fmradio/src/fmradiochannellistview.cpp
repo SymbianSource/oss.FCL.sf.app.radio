@@ -237,7 +237,7 @@ void CFMRadioChannelListView::HandleCommandL( TInt aCommand )
 
 			if ( res )
 				{				
-				if ( iObserver.Channels()->Count() < KMaxNumberOfChannelListItems )
+                if ( iObserver.Channels().Count() < KMaxNumberOfChannelListItems )
 					{
 					TInt usefreq = static_cast<TInt>( retFreq * KFMRadioFreqMultiplier );
 					iRadioEngine->Tune( usefreq );
@@ -250,7 +250,7 @@ void CFMRadioChannelListView::HandleCommandL( TInt aCommand )
 					
 					iContainer->AddChannelL( stationName, usefreq, ETrue );	
 					
-					iRadioEngine->TunePresetL( iObserver.Channels()->Count()-1 );					
+                    iRadioEngine->TunePresetL( iObserver.Channels().Count() - 1 );
 					
 					TInt index = iRadioEngine->GetPresetIndex();
 					
@@ -380,15 +380,15 @@ void CFMRadioChannelListView::InitializeChannelsL()
         {
         TBool nowPlaying = EFalse;
         
-        CArrayFixFlat<TChannelInformation>* channels = iObserver.Channels();
-        TInt channelCount = channels->Count();
+        RPointerArray<CFMRadioPreset>& channels = iObserver.Channels();        
+        TInt channelCount = channels.Count();
         
         for ( TInt channelIndex = 0; channelCount > channelIndex; channelIndex++ )
             {
             FTRACE( FPrint( _L("CFMRadioChannelListView::InitializeChannelsL  inside Channel in use") ) );
 
-            iContainer->AddChannelL( channels->At( channelIndex ).iChannelInformation,
-                   channels->At( channelIndex ).iChannelFrequency, 
+            iContainer->AddChannelL( channels[ channelIndex ]->PresetName(),
+                   channels[ channelIndex ]->PresetFrequency(),
                    nowPlaying );
             
             UpdateMiddleSoftKeyL();
@@ -551,7 +551,7 @@ TInt CFMRadioChannelListView::NextChannel()
 
     iChIndex = iChIndex + 1;
     
-    if ( iChIndex >= iObserver.Channels()->Count() )
+    if ( iChIndex >= iObserver.Channels().Count() )
     	{
     	iChIndex = 0;
     	}
@@ -578,7 +578,7 @@ TInt CFMRadioChannelListView::PreviousChannel()
         
     if ( iChIndex <= 0 )
     	{
-    	iChIndex = iObserver.Channels()->Count()-1;
+    	iChIndex = iObserver.Channels().Count() - 1;
     	}
     else
     	{
@@ -695,7 +695,7 @@ void CFMRadioChannelListView::DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* 
             }
         
         // don't show stylus pop-up menu during move operation
-        if ( iObserver.Channels()->Count() > 1 && !iMoveMode )
+        if ( iObserver.Channels().Count() > 1 && !iMoveMode )
             {
             aMenuPane->SetItemDimmed( EFMRadioCmdMove, EFalse );
             }
@@ -761,7 +761,7 @@ void CFMRadioChannelListView::UpdateMiddleSoftKeyL()
     
     if ( ( iContainer && 
     		( iContainer->CurrentlySelectedChannel() == iRadioEngine->GetPresetIndex() 
-    		|| iObserver.Channels()->Count() == 0 ) ) || 
+    		|| iObserver.Channels().Count() == 0 ) ) || 
     		iMoveMode )
     	{
     	SetMiddleSoftKeyLabelL(R_QTN_FMRADIO_NONE, EFMRadioCmdListenCh);
@@ -816,31 +816,25 @@ void CFMRadioChannelListView::RdsDataPsNameIsStatic( TBool aStatic )
         if ( iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode &&
                 currentPresetIx != KErrNotFound )
             {
-            TBuf<KPresetNameLength> stationName;
-            stationName.SetLength( 0 );
-            
-            
-            TInt presetFreq( 0 );
-            
-            CArrayFixFlat<TChannelInformation>* channels = iObserver.Channels();
+            RPointerArray<CFMRadioPreset>& channels = iObserver.Channels();
             
             // this checks that index is not out of bound and cause -21 error during update
-            if ( currentPresetIx < channels->Count() )
+            if ( currentPresetIx < channels.Count() )
                 {
-                stationName = channels->At( currentPresetIx ).iChannelInformation;
-                presetFreq = channels->At( currentPresetIx ).iChannelFrequency;
+                const TDesC& stationName = channels[ currentPresetIx ]->PresetName();
+                TInt presetFreq = channels[ currentPresetIx ]->PresetFrequency();
                                 
                 if ( stationName.Length() == 0 ) //Set and save PSname only if no name set before
                     {
                     TRAP_IGNORE(
                         {
                         iContainer->UpdateChannelListContentL( currentPresetIx,
-                                                               programmeService,
-                                                               presetFreq );
+                                programmeService,
+                                presetFreq );
 
-                        iRadioEngine->SetPresetNameFrequencyL( currentPresetIx, programmeService, presetFreq );  
-                        iObserver.Channels()->At( currentPresetIx ).iChannelInformation = programmeService;
-                        } );
+                        iRadioEngine->SetPresetNameFrequencyL( currentPresetIx, programmeService, presetFreq );
+                        channels[ currentPresetIx ]->SetPresetNameL( programmeService );
+                        } )
                     }
                 }
             }
@@ -941,6 +935,25 @@ void CFMRadioChannelListView::ShowToolbar( TBool aVisible )
 // -----------------------------------------------------------------------------------------------
 //
 void CFMRadioChannelListView::RdsDataRadioText( const TDesC& /*aRadioText*/ ){}
+
+void CFMRadioChannelListView::RdsDataRadioTextPlus( const TInt aRTPlusClass, const TDesC& aRadioText )
+    {
+    if ( aRTPlusClass == ERTplusProgramHomepage &&
+            iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode )
+        {
+        TInt currentPresetIx = iRadioEngine->GetPresetIndex();
+        if ( currentPresetIx < iObserver.Channels().Count() )
+            {
+            TRAP_IGNORE
+                (
+                // save permanently
+                iRadioEngine->SaveUrlToPresetL( currentPresetIx, aRadioText );
+                // save to ui list
+                iObserver.Channels()[ currentPresetIx ]->SetPresetUrlL( aRadioText );
+                )
+            }
+        }
+    }
 
 // -----------------------------------------------------------------------------------------------
 // CFMRadioChannelListView::RdsAfSearchBegin

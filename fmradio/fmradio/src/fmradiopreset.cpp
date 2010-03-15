@@ -60,6 +60,7 @@ CFMRadioPreset* CFMRadioPreset::NewL()
 CFMRadioPreset::~CFMRadioPreset()
     {
     iStationName.Close();
+    iStationUrl.Close();
     }
 
 // ---------------------------------------------------------------------------
@@ -76,7 +77,7 @@ void CFMRadioPreset::SetPresetNameL( const TDesC& aName )
 // CFMRadioPreset::PresetName
 // ---------------------------------------------------------------------------
 //
-TDesC& CFMRadioPreset::PresetName()
+const TDesC& CFMRadioPreset::PresetName()
     {
     return iStationName;
     }
@@ -115,4 +116,23 @@ void CFMRadioPreset::SetPresetFrequency( TInt aFrequency  )
 TInt CFMRadioPreset::PresetFrequency()
     {
     return iStationFrequency;
+    }
+
+// ---------------------------------------------------------------------------
+// CFMRadioPreset::SetPresetUrlL
+// ---------------------------------------------------------------------------
+//
+void CFMRadioPreset::SetPresetUrlL( const TDesC& aUrl )
+    {
+    iStationUrl.Close();
+    iStationUrl.CreateL( aUrl );
+    }
+
+// ---------------------------------------------------------------------------
+// CFMRadioPreset::PresetUrl
+// ---------------------------------------------------------------------------
+//
+const TDesC& CFMRadioPreset::PresetUrl()
+    {
+    return iStationUrl;
     }

@@ -259,14 +259,14 @@ void CFMRadioMainContainer::ConstructL(
         iRadioLogo = CFMRadioLogo::NewL( iAlfEnv );
         iRadioLogo->SetId( KFMRadioLogoId );
         
-	    // Append the controls into the control group.	    
-	    group->AppendL( iMediaIdle );
-	    group->AppendL( iVisualControl );
+        // Append the controls into the control group.
+        group->AppendL( iMediaIdle );
         group->AppendL( iRdsIndicator );
         group->AppendL( iRdsAfIndicator );
         group->AppendL( iRdsViewer );
         group->AppendL( iRdsInteractionIndicator );
         group->AppendL( iRadioLogo );
+        group->AppendL( iVisualControl );
         }
 
     iIdleController = CFMRadioIdleController::NewL();
@@ -280,9 +280,8 @@ void CFMRadioMainContainer::ConstructL(
     
     UpdateTextColorFromSkin();
     SizeChanged();
-    //Make the control group active on the display        
+    // Make the control group active on the display
 	display->Roster().ShowL( *group );
-	display->SetClearBackgroundL( CAlfDisplay::EClearWithSkinBackground );		
     }
 
 // --------------------------------------------------------------------------------
@@ -658,6 +657,9 @@ void CFMRadioMainContainer::UpdateTextColorFromSkin()
     iVisualControl->SetStationInformationTextColor( color );
     iMediaIdle->SetPrimaryColor( color );
     iRdsViewer->SetTextColor( color );
+    iRdsIndicator->SetTextColor( color );
+    iRdsAfIndicator->SetTextColor( color );
+    iRdsInteractionIndicator->SetTextColor( color );
     
     AknsUtils::GetCachedColor( skin, color, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG10 );
     

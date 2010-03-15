@@ -485,6 +485,7 @@ void CFMRadioChannelListContainer::SizeChanged()
     {
     // The channel list fills the whole view
     iChannelList->SetRect( Rect() );
+    DrawDeferred();
     }
 
 // ---------------------------------------------------------

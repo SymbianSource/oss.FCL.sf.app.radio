@@ -87,4 +87,7 @@ EXPORTS
 	_ZTV25CCentralRepositoryHandler @ 86 NONAME
 	_ZTV25CFMRadioAccessoryObserver @ 87 NONAME
 	_ZTV27CFMRadioSystemEventDetector @ 88 NONAME
+	_ZN12CRadioEngine10PresetUrlLEiR6TDes16 @ 89 NONAME
+	_ZN12CRadioEngine13DeletePresetLEi @ 90 NONAME
+	_ZN12CRadioEngine16SaveUrlToPresetLEiRK7TDesC16 @ 91 NONAME
 

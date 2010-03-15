@@ -20,6 +20,8 @@
 
 #define MCHANNELLISTHANDLER_H
 
+#include "fmradiopreset.h"
+
 /**
 *	Operations to main list
 *    @since 2.6
@@ -34,15 +36,6 @@ enum TMoveoperations
 	ERemoveAllFromRepository
 	};
 
-/**
-*	Holder for the channel information and channel frequency
-*    @since 2.6
-*/
-struct TChannelInformation
-	{
-	TBuf<32> iChannelInformation;
-	TInt iChannelFrequency;
-	};
 
 /**
 * Interface to update channel list
@@ -60,7 +53,7 @@ class MChannelListHandler
 		
 		virtual void AddChannelToListL( const TDesC& aChannelName, TInt aChannelFreq ) = 0;
 		
-		virtual CArrayFixFlat<TChannelInformation>* Channels() = 0;
+		virtual RPointerArray<CFMRadioPreset>& Channels() = 0;
 		
 	};
 

@@ -200,7 +200,7 @@ void CFMRadioMainView::StopSeekL()
     CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
     
     TInt presetIndex = iRadioEngine->GetPresetIndex();
-    TInt channelCount = iObserver.Channels()->Count();
+    TInt channelCount = iObserver.Channels().Count();
     
     if ( iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode && 
             channelCount > 0 &&
@@ -393,7 +393,7 @@ void CFMRadioMainView::RdsDataProgrammeServiceL( const TDesC& aProgramService )
                 TInt presetIndex = iRadioEngine->GetPresetIndex();
                 // When we haven't preset name, ps name will save as preset name
                 if ( iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode &&
-                        presetIndex < iObserver.Channels()->Count() )
+                        presetIndex < iObserver.Channels().Count() )
                     {
                     presetIndexToDisplay = presetIndex;
                     }
@@ -417,7 +417,7 @@ void CFMRadioMainView::HandleStaticProgrammeServiceL( TBool aStatic )
         if ( aStatic )
             {
             // When we haven't got a name for preset, a static ps name will be saved
-            TInt channelCount = iObserver.Channels()->Count();
+            TInt channelCount = iObserver.Channels().Count();
             TInt currentPresetIx = iRadioEngine->GetPresetIndex();
             
             if ( aStatic && iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode &&
@@ -425,14 +425,14 @@ void CFMRadioMainView::HandleStaticProgrammeServiceL( TBool aStatic )
                     channelCount > 0 &&
                     currentPresetIx < channelCount )
                 {
-                TDesC& stationName = iObserver.Channels()->At( currentPresetIx ).iChannelInformation;
-                TInt presetFreq = iObserver.Channels()->At( currentPresetIx ).iChannelFrequency;
+                const TDesC& stationName = iObserver.Channels()[ currentPresetIx ]->PresetName();
+                TInt presetFreq = iObserver.Channels()[ currentPresetIx ]->PresetFrequency();
         
                 if ( stationName.Length() == 0 && 
                         presetFreq != KErrNotFound && 
                         iRadioEngine->RdsReceiver().ProgrammeService().Length() )
                     {  
-                    iObserver.Channels()->At( currentPresetIx ).iChannelInformation = iRadioEngine->RdsReceiver().ProgrammeService();
+                    iObserver.Channels()[ currentPresetIx ]->SetPresetNameL( iRadioEngine->RdsReceiver().ProgrammeService() );
                     iObserver.UpdateChannelsL( EStoreIndexToRepository, currentPresetIx, 0 );
                     // Update station information display
                     DisplayChannelL( currentPresetIx );
@@ -460,8 +460,26 @@ void CFMRadioMainView::RdsDataRadioText( const TDesC& aRadioText )
 // CFMRadioMainView::RdsDataRadioTextPlus
 // ---------------------------------------------------------
 //
-void CFMRadioMainView::RdsDataRadioTextPlus( const TInt /*aRadioTextPlusClass*/, const TDesC& /*aRadioText*/ )
+void CFMRadioMainView::RdsDataRadioTextPlus( const TInt aRadioTextPlusClass, const TDesC& aRadioText )
     {
+    if ( aRadioTextPlusClass == ERTplusProgramHomepage &&
+            iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode )
+        {
+        TInt currentPresetIx = iRadioEngine->GetPresetIndex();
+        
+        if ( currentPresetIx < iObserver.Channels().Count() )
+            {
+            TRAP_IGNORE
+                (
+                // save permanently
+                iRadioEngine->SaveUrlToPresetL( currentPresetIx, aRadioText );
+                // save to ui list
+                iObserver.Channels()[ currentPresetIx ]->SetPresetUrlL( aRadioText );
+                )
+            }
+        }
+    
+    
     if ( IsRTPlusInterActionIndicatorNeeded() )
         {
         iContainer->ShowRTPlusInteractionIndicator( ETrue, ETrue );
@@ -629,6 +647,12 @@ void CFMRadioMainView::DisplayChannelL( TInt aChannelIndex )
                                              stationName, 
                                              seekDirection, 
                                              channelFrequency );
+            
+            // show '+' indicator if channel exists and url is stored
+            if ( channelNumber && iObserver.Channels()[ aChannelIndex ]->PresetUrl().Length() )
+                {
+                iContainer->ShowRTPlusInteractionIndicator( ETrue, ETrue );
+                }
             }
         else
             {
@@ -727,6 +751,17 @@ void CFMRadioMainView::HandleCommandL( TInt aCommand )
              if ( appUi->EraseChannelL( iRadioEngine->GetPresetIndex() ) )
                  {
                  // delete has been confirmed, update station info
+                 if ( iContainer )
+                     {
+                     if ( IsRTPlusInterActionIndicatorNeeded() )
+                         {
+                         iContainer->ShowRTPlusInteractionIndicator( ETrue, ETrue );
+                         }
+                     else
+                         {
+                         iContainer->ShowRTPlusInteractionIndicator( EFalse, ETrue );
+                         }
+                     }
                  SetStationChangeType( EFMRadioStationChangeNone );
                  iRadioEngine->SetTunerModeOn();
                  DisplayChannelL( KErrNotFound );
@@ -765,12 +800,28 @@ void CFMRadioMainView::HandleCommandL( TInt aCommand )
 // ----------------------------------------
 void CFMRadioMainView::LaunchBrowserL( TInt aCommandId )
     {
+    FTRACE( FPrint(_L("CFMRadioMainView::LaunchBrowserL") ) );
+    
     CFMRadioRdsReceiverBase& receiver = iRadioEngine->RdsReceiver();
     switch ( aCommandId )
         {
         case EMPXPbvCmdInternetGoToWeb:
-            iMusicStoreHandler->LaunchWebPageL( receiver.RtPlusProgramUrl() );
+            {
+            RBuf webLinkToLaunch;
+            webLinkToLaunch.CleanupClosePushL();
+            if ( receiver.RtPlusProgramUrl().Length() )
+                {
+                webLinkToLaunch.CreateL( receiver.RtPlusProgramUrl() );
+                }           
+            else if ( iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode )
+                {
+                webLinkToLaunch.CreateL(
+                        iObserver.Channels()[ iRadioEngine->GetPresetIndex() ]->PresetUrl() );
+                }
+            iMusicStoreHandler->LaunchWebPageL( webLinkToLaunch );
+            CleanupStack::PopAndDestroy( &webLinkToLaunch );
             break;
+            }
         default:
             iMusicStoreHandler->LaunchMusicStoreL( aCommandId, 
                                                    receiver.RtPlusSong(),
@@ -1342,12 +1393,27 @@ void CFMRadioMainView::DetermineActiveMediaIdleComponent()
 TBool CFMRadioMainView::IsWebLinkAvailable()
     {
     TBool response = EFalse;
+    TBool webLinkStored = EFalse;
+    TInt presetIndex = iRadioEngine->GetPresetIndex();
+    
+    if ( iRadioEngine->GetRadioMode() == CRadioEngine::ERadioPresetMode &&
+            presetIndex < iObserver.Channels().Count() )
+        {
+        if ( iObserver.Channels()[ presetIndex ]->PresetUrl().Length() )
+            {
+            webLinkStored = ETrue;
+            }
+        }
+
     CFMRadioRdsReceiverBase& receiver = iRadioEngine->RdsReceiver();
-    if ( receiver.RtPlusProgramUrl().Length() && 
-         iRadioEngine->GetRTPlusSupportLevel() == EFMRadioAllInteractions )
+    
+    if ( ( receiver.RtPlusProgramUrl().Length() || 
+            webLinkStored ) && 
+            iRadioEngine->GetRTPlusSupportLevel() == EFMRadioAllInteractions )
         {
         response = ETrue;
         }
+    
     return response;
     }
 

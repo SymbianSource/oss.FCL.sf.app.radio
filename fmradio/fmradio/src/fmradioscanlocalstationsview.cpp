@@ -174,13 +174,8 @@ void CFMRadioScanLocalStationsView::HandleCommandL( TInt aCommand )
         {
         case EAknSoftkeyBack: // go back to the main view
             {
-            const TVwsViewId viewId( TUid::Uid( KUidFMRadioApplication ), Id() );
-            if ( appUi->BackSteppingWrapper().HandleBackCommandL( viewId ) )
-                {
-                // Command was   consumed
-                break;
-                }
-            // Fall through to activate previous view
+            appUi->ActivateLocalViewL( KFMRadioChannelListViewId );
+            break;
             }
         case EEikBidCancel:
             {
@@ -1172,14 +1167,14 @@ void CFMRadioScanLocalStationsView::SaveFoundChannelsToPresetsL( TSavingMode aSa
 	
 	TInt savedChannelCount = 0;	
 	
-	if( aSavingMode == EAppend ) 
-		{
-		/** Append found channels to preset list */		
-		for( TInt freqIx = 0; KMaxNumberOfChannelListItems > iObserver.Channels()->Count() && 
+    if ( aSavingMode == EAppend ) 
+        {
+        /** Append found channels to preset list */		
+        for ( TInt freqIx = 0; KMaxNumberOfChannelListItems > iObserver.Channels().Count() && 
             chCount > freqIx; freqIx++ )
-			{
-			const TDesC& name = iScannedChannels[ freqIx ]->PresetNameValid() ? 
-			        iScannedChannels[ freqIx ]->PresetName() : KNullDesC;
+            {
+            const TDesC& name = iScannedChannels[ freqIx ]->PresetNameValid() ? 
+                    iScannedChannels[ freqIx ]->PresetName() : KNullDesC;
 
 		    iObserver.AddChannelToListL( name,
                                          iScannedChannels[ freqIx ]->PresetFrequency() );
@@ -1507,9 +1502,9 @@ TInt CFMRadioScanLocalStationsView::FrequencyIndex( TInt aFrequency )
 //
 void CFMRadioScanLocalStationsView::HandleOneChannelSaveL()
     {    
-    TInt currentPresetCount = iObserver.Channels()->Count();
+    TInt currentPresetCount = iObserver.Channels().Count();
     TInt chIndex = iContainer->CurrentlySelectedChannel();
-    TBool continueWithSave = ETrue;    
+    TBool continueWithSave = ETrue;
     
     if ( !ChannelInUse( chIndex ) )
         {

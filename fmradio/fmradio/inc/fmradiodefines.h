@@ -180,6 +180,8 @@ const TInt KFMRadioVolumeStepSize = 1;
 // Channel list icon index in the icon array
 const TInt KNowPlayingIconIndexChList = 0;
 const TInt KMoveIconIndexChList = 1;
+// RDS text max length
+const TInt KFMRadioWebLinkMaxLength = 64;
 
 #endif
 

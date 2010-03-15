@@ -21,7 +21,6 @@
 #define FMRADIOENGINE_H
 
 #include <e32base.h>
-#include <AccMonitorCapabilities.h>
 #include <fmradiointernalpskeys.h>
 #include <RadioUtility.h>
 #include <RadioFmTunerUtility.h>
@@ -724,6 +723,27 @@ public: // New functions
      */    
     IMPORT_C void SetCurrentPresetIndex( const TInt aIndex );
     
+    /* Gets saved preset url.
+     * @param aIndex channel index
+     * @param aUrl string to be modified with saved url
+     * @return error code. KErrNotFound if no url is saved or KErrOverflow
+     * if the aUrl is not big enough. See TFmPresetName
+     */
+    IMPORT_C TInt PresetUrlL( TInt aIndex, TDes& aUrl );
+    
+    /*
+     * Delete preset. With index -1 all preset are reseted
+     * @param aIndex index to delete
+     */
+    IMPORT_C void DeletePresetL( TInt aIndex ); 
+    
+    /*
+     * Saves given url to preset
+     * @param aIndex channel index
+     * @param aUrl url to save 
+     */
+    IMPORT_C void SaveUrlToPresetL( TInt aIndex, const TDesC& aUrl );
+    
 private:
 
     /**
@@ -748,17 +768,6 @@ private:
      */
     void StoreAndPublishFrequency( TInt aFrequency );
     
-    /**
-     * Scans all current presets and sets stored frequencies to KErrNotFound
-     * if the preset name is empty.
-     */
-    void ResetPresetsL();
-    
-    /**
-     * Resolves if BT audio accessory is connected
-     * @return ETrue if BT Audio connected
-     */
-    TBool IsBTAccessoryConnectedL();
 private:
 
    //the internal radio engine states

@@ -73,26 +73,37 @@ const TUid KFMRadioUidIdleApp = KPSUidActiveIdle2; // use this one instead becau
 // CFMInformationNote::CFMInformationNote
 // ---------------------------------------------------------------------------------
 CFMInformationNote::CFMInformationNote( MInformationNoteInterface& aObserver ) :
-	CAknInformationNote ( EFalse ),
-	iDialogObserver( aObserver )
-	{
-	
-	}
-
-
+    CAknInformationNote ( EFalse ),
+    iDialogObserver( aObserver )
+    {
+    
+    }
 // ---------------------------------------------------------------------------------
 // CFMInformationNote::~CFMInformationNote
 // ---------------------------------------------------------------------------------
 //
 CFMInformationNote::~CFMInformationNote()
-	{
-	iDialogObserver.DialogTerminated();
-	}
-
-
-
+    {
+    iDialogObserver.DialogTerminated();
+    }
 // ================= MEMBER FUNCTIONS =======================
+
+// ---------------------------------------------------------------------------------
+// C++ default constructor can NOT contain any code, that
+// might leave.
+// ---------------------------------------------------------------------------------
 //
+CFMRadioAppUi::CFMRadioAppUi() :
+    iStartUp( ETrue ),
+    iStartupWizardHandled( EFalse ),
+    iStartupWizardRunning( EFalse ),
+    iTuneFromWizardActivated( EFalse ),
+    iInfoNoteOn( EFalse ),
+    iPendingViewId( KNullUid ),
+    iRegionChanged( EFalse )
+    {
+    }
+
 // ---------------------------------------------------------------------------------
 // CFMRadioAppUi::ConstructL
 // 2nd phase constructor. Instanciates all member objects
@@ -102,22 +113,11 @@ void CFMRadioAppUi::ConstructL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::ConstructL()") ) );
     
-    iPendingViewId = TUid::Null();
-    iStartUp = ETrue;
-    iStartupWizardHandled = EFalse;
-    iStartupWizardRunning = EFalse;
-    iTuneFromWizardActivated = EFalse;
-    iInfoNoteOn = EFalse;
-    iAutoTune = EFalse;
-    iAutoTuneUnmute = EFalse;
-    iRegionChanged = EFalse;
-
-   	BaseConstructL( EAknEnableSkin | EAknEnableMSK | EAknSingleClickCompatible );
+    BaseConstructL( EAknEnableSkin | EAknEnableMSK | EAknSingleClickCompatible );
+    
     FeatureManager::InitializeLibL();
     iFeatureManagerInitialized = ETrue;
 
-    iChannels = new( ELeave ) CArrayFixFlat<TChannelInformation>( 1 );
-    
     // initialise local variation key with all features disabled.
     iFMRadioVariationFlags = 0;
     iAudioResourceAvailable = ETrue;
@@ -154,9 +154,9 @@ void CFMRadioAppUi::SecondaryConstructL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::SecondaryConstructL()") ) );
     
-	iLayoutChangeObserver = iMainView;
+    iLayoutChangeObserver = iMainView;
 
-    iRadioEngine->PubSubL().PublishPresetCountL( iChannels->Count() );
+    iRadioEngine->PubSubL().PublishPresetCountL( iChannels.Count() );
     
     // Create vertical volume popup for speaker and headset
     iIhfVolumePopupControl = CAknVolumePopup::NewL( NULL, ETrue );
@@ -179,22 +179,22 @@ void CFMRadioAppUi::SecondaryConstructL()
     // For monitoring side volume key events
     iSvkEvents = CFMRadioSvkEvents::NewL(*this);
 
-	iRadioEngine->PubSubL().PublishApplicationRunningStateL( EFMRadioPSApplicationRunning );
-	
-	UpdateLandscapeInformation();	
-	
-	// Create alfred environment
+    iRadioEngine->PubSubL().PublishApplicationRunningStateL( EFMRadioPSApplicationRunning );
+
+    UpdateLandscapeInformation();	
+
+    // Create alfred environment
     iAlfEnv = CAlfEnv::NewL();
-	
-	// Create alfred display
-	TRect rect;
-	AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EMainPane, rect);	
-	if( !IsLandscapeOrientation() )
-		{
-		TRect toolBarRect = iMainView->Toolbar()->Rect();
-		rect.SetHeight( rect.Height() - toolBarRect.Height() );	
-		}
-	iAlfEnv->NewDisplayL( rect, CAlfEnv::ENewDisplayAsCoeControl );
+
+    // Create alfred display
+    TRect rect;
+    AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EMainPane, rect);	
+    if( !IsLandscapeOrientation() )
+        {
+        TRect toolBarRect = iMainView->Toolbar()->Rect();
+        rect.SetHeight( rect.Height() - toolBarRect.Height() );	
+        }
+    iAlfEnv->NewDisplayL( rect, CAlfEnv::ENewDisplayAsCoeControl );
     }
 
 // ---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ void CFMRadioAppUi::SecondaryConstructL()
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAppUi::HandleTunerReadyCallback()
-    {        
+    {
     iRadioEngine->InitializeRadio();
     }
 
@@ -258,53 +258,46 @@ void CFMRadioAppUi::Cleanup()
         {
         delete iSvkEvents;
         }
-    
     if (iGlobalOfflineQuery)
         {
         delete iGlobalOfflineQuery;
         }
-    
     if (iLocalActivateOfflineQuery)
         {
         delete iLocalActivateOfflineQuery;
         }
-    
     if (iLocalContinueOfflineQuery)
         {
         delete iLocalContinueOfflineQuery;
         }
-    
     delete iControlEventObserver;
     delete iAlfEnv;
     
     iAlreadyClean = ETrue;
     
-    if ( iConnectHeadsetGlobalNote )    
-    	{
-    	delete iConnectHeadsetGlobalNote;
-    	iConnectHeadsetGlobalNote = NULL;
-    	}
-    	
-	if ( iConnectHeadsetQuery )
-    	{
-    	delete iConnectHeadsetQuery;
-    	iConnectHeadsetQuery = NULL;	
-    	}   
-	if ( iChannels )
-		{
-		iChannels->Reset();
-		delete iChannels;
-		iChannels = NULL;
-		}
-	if ( iUpdate )
-		{
-		delete iUpdate;
-		iUpdate = NULL;		
-		}
-	if ( iParameters )
-		{
-		delete iParameters;		
-		iParameters = NULL;
+    if ( iConnectHeadsetGlobalNote )
+        {
+        delete iConnectHeadsetGlobalNote;
+        iConnectHeadsetGlobalNote = NULL;
+        }
+    if ( iConnectHeadsetQuery )
+        {
+        delete iConnectHeadsetQuery;
+        iConnectHeadsetQuery = NULL;
+        }
+
+     iChannels.ResetAndDestroy();
+     iChannels.Close();
+        
+    if ( iUpdate )
+        {
+        delete iUpdate;
+        iUpdate = NULL;
+        }
+    if ( iParameters )
+        {
+        delete iParameters;
+        iParameters = NULL;
         }
     if ( iSettingsRepository )
         {
@@ -346,21 +339,20 @@ void CFMRadioAppUi::HandleCommandL( TInt aCommand )
                 ScanDownL();
                 break;
             case EFMRadioCmdSaveChannel:
-            	SaveChannelToLastIntoListL();
+                SaveChannelToLastIntoListL();
                 break;
             case EFMRadioCmdScanLocalStations:
-            	ActivateLocalViewL(iScanLocalStationsView->Id());
-            	break;
+                ActivateLocalViewL( iScanLocalStationsView->Id() );
+                break;
             case EFMRadioCmdScanLocalStationsScan:
-            	// continue scanning
-            	StartLocalStationsSeekL();
-        		break;
+                // continue scanning
+                StartLocalStationsSeekL();
+                break;
             case EFMRadioCmdListenCh:
-            	
-            	if ( iChannels->Count() > 0 )
-            		{
-                	PlayChannel( iChannelListView->CurrentlySelectedChannel() );
-            		}
+                if ( iChannels.Count() > 0 )
+                    {
+                    PlayChannel( iChannelListView->CurrentlySelectedChannel() );
+                    }
                 break;
             case EFMRadioCmdRename:
                 RenameCurrentChannelL();
@@ -372,22 +364,22 @@ void CFMRadioAppUi::HandleCommandL( TInt aCommand )
                 SetAudioOutput( CRadioEngine::EFMRadioOutputHeadset );
                 break;
             case EFMRadioCmdEnableRdsAfSearch:
-        		iRadioEngine->SetRdsAfSearchEnable( ETrue );
-            	break;
+                iRadioEngine->SetRdsAfSearchEnable( ETrue );
+                break;
             case EFMRadioCmdDisableRdsAfSearch:
-        		iRadioEngine->SetRdsAfSearchEnable( EFalse );
+                iRadioEngine->SetRdsAfSearchEnable( EFalse );
                 break;
             case EFMRadioCmdUpdateVolume:
                 UpdateVolume( EDirectionNone );
                 break;
             case EFMRadioCmdNextChannel:
                 {
-                TInt channelCount = iChannels->Count();
+                TInt channelCount = iChannels.Count();
                 if ( channelCount >= 1 )
-					{
-            		iMainView->SetStationChangeType( EFMRadioStationChangeNext );
-	            	PlayChannel( iChannelListView->NextChannel() );
-					}
+                    {
+                    iMainView->SetStationChangeType( EFMRadioStationChangeNext );
+                    PlayChannel( iChannelListView->NextChannel() );
+                    }
                 else
                     {
                     if ( AknLayoutUtils::PenEnabled() )
@@ -399,12 +391,12 @@ void CFMRadioAppUi::HandleCommandL( TInt aCommand )
                 }
             case EFMRadioCmdPrevChannel:
                 {
-                TInt channelCount = iChannels->Count();
+                TInt channelCount = iChannels.Count();
                 if ( channelCount >= 1 )
-					{
-            		iMainView->SetStationChangeType( EFMRadioStationChangePrevious );
-	                PlayChannel( iChannelListView->PreviousChannel() );
-					}
+                    {
+                    iMainView->SetStationChangeType( EFMRadioStationChangePrevious );
+                    PlayChannel( iChannelListView->PreviousChannel() );
+                    }
                 else
                     {
                     if ( AknLayoutUtils::PenEnabled() )
@@ -428,42 +420,31 @@ void CFMRadioAppUi::HandleCommandL( TInt aCommand )
                 {
 #if defined __SERIES60_HELP || defined FF_S60_HELPS_IN_USE
                 if ( ActiveView() == KFMRadioMainViewId )
-                	{	
-                	HlpLauncher::LaunchHelpApplicationL( iCoeEnv->WsSession(), GetCurrentHelpContextL() );
-                	}
+                    {
+                    HlpLauncher::LaunchHelpApplicationL( iCoeEnv->WsSession(), GetCurrentHelpContextL() );
+                    }
                 else
-                	{
+                    {
                     CArrayFix<TCoeHelpContext>* buf = CCoeAppUi::AppHelpContextL();
                     HlpLauncher::LaunchHelpApplicationL( iCoeEnv->WsSession(), buf );
-                	}
+                    }
 #endif
                 }
                 break;
             case EFMRadioCmdScanLocalStationsViewActive:
-            	iLayoutChangeObserver = iScanLocalStationsView;
-            	break;
+                iLayoutChangeObserver = iScanLocalStationsView;
+                break;
             case EFMRadioCmdChannelListViewActive:
                 iLayoutChangeObserver = iChannelListView;
                 break;
             case EFMRadioCmdMainViewActive:
                 iLayoutChangeObserver = iMainView;
-            if ( iAutoTune &&
-               ( iScanLocalStationsView->CancelType() == EFMRadioCancelScanBySoftkey ||
-                 iScanLocalStationsView->CancelType() == EFMRadioCancelScanDefault))
-           		{
-            	ScanUpL();
-            	iAutoTune = EFalse;
-            	iAutoTuneUnmute = ETrue;
-            	}
                 break;
-
             default:
                 break;
             }
         }
-    else if( iCurrentRadioState == EFMRadioStateBusyScanUp ||
-             iCurrentRadioState == EFMRadioStateBusyScanDown ||
-             iCurrentRadioState == EFMRadioStateBusySeek ||
+    else if ( iCurrentRadioState == EFMRadioStateBusySeek ||
              iCurrentRadioState == EFMRadioStateBusyScanLocalStations )
         {
         switch ( aCommand )
@@ -502,9 +483,9 @@ TUid CFMRadioAppUi::ActiveView() const
 // ---------------------------------------------------------------------------
 //
 CRadioEngine* CFMRadioAppUi::RadioEngine()
-	{
-	return iRadioEngine;
-	}
+    {
+    return iRadioEngine;
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::Document
@@ -548,11 +529,11 @@ void CFMRadioAppUi::TurnRadioOn()
                 iMuteStatusBeforeRadioInit = EFMUnmuted;
                 }
             }
-	    iCurrentRadioState = EFMRadioStateBusyRadioOn;
-	    // use mute here so we have no audio until tune event
-	    iRadioEngine->SetMuteOn( ETrue );
-	    iRadioEngine->RadioOn();
-    	}
+        iCurrentRadioState = EFMRadioStateBusyRadioOn;
+        // use mute here so we have no audio until tune event
+        iRadioEngine->SetMuteOn( ETrue );
+        iRadioEngine->RadioOn();
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -614,7 +595,7 @@ void CFMRadioAppUi::RenameCurrentChannelL()
         channelIndex = iRadioEngine->GetPresetIndex();
         }
     // Display the text query
-    CRadioEngine::TStationName channelName = iChannels->At(channelIndex).iChannelInformation;
+    CRadioEngine::TStationName channelName = iChannels[ channelIndex ]->PresetName();
    
     CAknTextQueryDialog* dlg = new (ELeave) CAknTextQueryDialog( channelName, CAknQueryDialog::ENoTone );
     
@@ -622,12 +603,11 @@ void CFMRadioAppUi::RenameCurrentChannelL()
         {
         FTRACE(FPrint(_L("CFMRadioAppUi::RenameCurrentChannelL()")));
         
-        iChannels->At(channelIndex).iChannelInformation = channelName;
+        iChannels[channelIndex]->SetPresetNameL( channelName );
         
-                
         iChannelListView->UpdateChannelListContentL( channelIndex,
-        				iChannels->At(channelIndex).iChannelInformation,
-        				iChannels->At(channelIndex).iChannelFrequency );
+                        iChannels[ channelIndex ]->PresetName(),
+                        iChannels[ channelIndex ]->PresetFrequency() );
         
         UpdateChannelsL( EStoreIndexToRepository, channelIndex, 0 );
         
@@ -650,7 +630,7 @@ void CFMRadioAppUi::RenameCurrentChannelL()
 void CFMRadioAppUi::SaveChannelToLastIntoListL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::SaveChannelToLastIntoListL()") ) );
-    SaveChannelL( iChannels->Count() + 1 );   
+    SaveChannelL( iChannels.Count() + 1 );
     }
 
 // ---------------------------------------------------------------------------
@@ -688,7 +668,7 @@ void CFMRadioAppUi::SaveChannelL( TInt aIndex )
         UpdateChannelsL( EStoreAllToRepository, 0, 0 );
         
         iMainView->SetStationChangeType( EFMRadioStationChangeNone );
-        PlayChannel( iChannels->Count() - 1 );
+        PlayChannel( iChannels.Count() - 1 );
         }
     }
 
@@ -707,16 +687,16 @@ TBool CFMRadioAppUi::ConfirmChannelListDeleteL( TInt aIndex )
     RBuf channelData;
     channelData.CleanupClosePushL();
     
-    if ( iChannels->At( aIndex ).iChannelInformation.Length() )
+    if ( iChannels[ aIndex ]->PresetName().Length() )
         {
         stringResourceId = R_QTN_FMRADIO_QUERY_DELETE;
-        channelData.CreateL( iChannels->At( aIndex ).iChannelInformation );
+        channelData.CreateL( iChannels[ aIndex ]->PresetName() );
         }
     else
         {
         stringResourceId = R_QTN_FMRADIO_QUERY_DELETE_MHZ;
         TInt maxDecimalPlaces = iRadioEngine->DecimalCount();
-        TInt channelfreq = iChannels->At( aIndex ).iChannelFrequency;
+        TInt channelfreq = iChannels[ aIndex ]->PresetFrequency();
         TReal realFrequency = static_cast<TReal>( channelfreq / static_cast<TReal>( KHzConversionFactor ));
         
         channelData.CreateL( KFrequencyMaxLength );
@@ -725,7 +705,6 @@ TBool CFMRadioAppUi::ConfirmChannelListDeleteL( TInt aIndex )
         channelData.Num( realFrequency, format );
         AknTextUtils::LanguageSpecificNumberConversion( channelData );
         }
-    
     // Excecute a confirmation query with string and query resource id
     HBufC* prompt = StringLoader::LoadLC( stringResourceId, channelData, iCoeEnv );
     CAknQueryDialog* queryDlg = CAknQueryDialog::NewL();
@@ -745,8 +724,8 @@ void CFMRadioAppUi::ScanUpL()
     FTRACE( FPrint( _L("CFMRadioAppUi::ScanUpL()") ) );
     // Frequency is always 0 when asking engine for automatical tuning. Frequency
     // parameter is then ignored by engine when automatical tuning (seek) is requested.
-    iCurrentRadioState = EFMRadioStateBusyScanUp;
-    
+    iCurrentRadioState = EFMRadioStateBusySeek;
+
     if ( iMainView->IsForeground() )
         {
         iMainView->SetStationChangeType( EFMRadioStationChangeScanUp );
@@ -765,7 +744,7 @@ void CFMRadioAppUi::ScanDownL()
     FTRACE( FPrint( _L("CFMRadioAppUi::ScanDownL()") ) );
     // Frequency is always 0 when asking engine for automatical tuning. Frequency
     // parameter is then ignored by engine when automatical tuning (seek) is requested.
-    iCurrentRadioState = EFMRadioStateBusyScanDown;
+    iCurrentRadioState = EFMRadioStateBusySeek;
     
     if ( iMainView->IsForeground() )
         {
@@ -786,12 +765,10 @@ void CFMRadioAppUi::TuneL( TInt aFrequency )
     // Frequency is always 0 when asking engine for automatical tuning. Frequency
     // parameter is then ignored by engine when automatical tuning (seek) is requested.
     iCurrentRadioState = EFMRadioStateBusySeek;
-
     if (iMainView->IsForeground())
-    	{
-    	iMainView->SeekL(); // Show seek wait note
-    	}
-        
+        {
+        iMainView->SeekL(); // Show seek wait note
+        }
     iRadioEngine->Tune(aFrequency);
     }
 
@@ -803,11 +780,11 @@ void CFMRadioAppUi::TuneL( TInt aFrequency )
 void CFMRadioAppUi::UpdateVolume( CFMRadioAppUi::TFMRadioDirections aDirection )
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::UpdateVolume(%d)"), UpdateVolume ) );
-    
+
     if ( !iRadioEngine->IsInCall() )
         {
         TInt volumeControlLevel = iRadioEngine->GetVolume();
-    
+
         TInt newVol = 0;
         if ( aDirection == EDirectionDown )
             {
@@ -870,8 +847,7 @@ void CFMRadioAppUi::SetAudioOutput(
 void CFMRadioAppUi::CancelSeek()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::CancelSeek()") ) );
-    if( iCurrentRadioState == EFMRadioStateBusyScanUp ||
-            iCurrentRadioState == EFMRadioStateBusyScanDown )
+    if ( iCurrentRadioState == EFMRadioStateBusySeek )
         {
         iRadioEngine->CancelScan(); // Seek request to engine
         }
@@ -944,12 +920,12 @@ void CFMRadioAppUi::ExitApplication()
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAppUi::HandleForegroundEventL( TBool aForeground )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::HandleForegroundEventL(%d)"), aForeground ) );
-	CAknViewAppUi::HandleForegroundEventL( aForeground );
-	
-	if ( aForeground )
-		{
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::HandleForegroundEventL(%d)"), aForeground ) );
+    CAknViewAppUi::HandleForegroundEventL( aForeground );
+    
+    if ( aForeground )
+        {
         if ( iStartUp )
             {
             iStartUp = EFalse;
@@ -960,58 +936,58 @@ void CFMRadioAppUi::HandleForegroundEventL( TBool aForeground )
             iStartupForegroundCallback->CallBack();
             }
         else
-        	{
-        	// Restores all resources that were released with a call to Release().
-    		// After this the Hitchcock user interface should be in the same state
-     		// in terms of resources as it was prior to the Release() call.
-        	//iAlfEnv->RestoreL();
-        	
-        	// Check if offline profile is activated after/when playing e.g. music player.
-			// In that case we didn't show the offline query as global, so we need
-			// to show it now.
-			if ( IsOfflineProfileActivatedWhenRadioAudioDisabled() )
-				{
-				// Do not re-show the offline query if user hasn't yet answered to it.
-				if ( !iShowingLocalOfflineContinueQuery )
-					{
-					iRadioEngine->RadioOff();
-					TInt res(0);
-					iShowingLocalOfflineContinueQuery = ETrue;
-																					
-					iOfflineQueryDialogActivated = ETrue;
-					
-					if ( !iLocalContinueOfflineQuery )
-						{
-						iLocalContinueOfflineQuery = CAknQueryDialog::NewL();
-						}
-								        
-					res = iLocalContinueOfflineQuery->ExecuteLD( R_FMRADIO_CONTINUE_IN_OFFLINE_QUERY );
-					
-					iLocalContinueOfflineQuery = NULL;
-					iOfflineQueryDialogActivated = EFalse;
-				  	iShowingLocalOfflineContinueQuery = EFalse;
-															
-					if ( res )
-						{
-						iOfflineProfileActivatedWhenRadioAudioDisabled = EFalse;
-						iRadioEngine->RadioOn();
-						HandlePendingViewActivationL();
-						}
-					else
-						{
-						Exit();
-						}
-					}
-				}
-			TryToResumeAudioL();
-	        }  
-		}
-	else 
-		{
-		// Releases as many resources of the Hitchcock as possible. 
-		//iAlfEnv->Release( ETrue );
-		}
-	}
+            {
+            // Restores all resources that were released with a call to Release().
+            // After this the Hitchcock user interface should be in the same state
+            // in terms of resources as it was prior to the Release() call.
+            //iAlfEnv->RestoreL();
+            
+            // Check if offline profile is activated after/when playing e.g. music player.
+            // In that case we didn't show the offline query as global, so we need
+            // to show it now.
+            if ( IsOfflineProfileActivatedWhenRadioAudioDisabled() )
+                {
+                // Do not re-show the offline query if user hasn't yet answered to it.
+                if ( !iShowingLocalOfflineContinueQuery )
+                    {
+                    iRadioEngine->RadioOff();
+                    TInt res(0);
+                    iShowingLocalOfflineContinueQuery = ETrue;
+                                                                                    
+                    iOfflineQueryDialogActivated = ETrue;
+                    
+                    if ( !iLocalContinueOfflineQuery )
+                        {
+                        iLocalContinueOfflineQuery = CAknQueryDialog::NewL();
+                        }
+                                        
+                    res = iLocalContinueOfflineQuery->ExecuteLD( R_FMRADIO_CONTINUE_IN_OFFLINE_QUERY );
+                    
+                    iLocalContinueOfflineQuery = NULL;
+                    iOfflineQueryDialogActivated = EFalse;
+                    iShowingLocalOfflineContinueQuery = EFalse;
+                                                            
+                    if ( res )
+                        {
+                        iOfflineProfileActivatedWhenRadioAudioDisabled = EFalse;
+                        iRadioEngine->RadioOn();
+                        HandlePendingViewActivationL();
+                        }
+                    else
+                        {
+                        Exit();
+                        }
+                    }
+                }
+            TryToResumeAudioL();
+            }  
+        }
+    else 
+        {
+        // Releases as many resources of the Hitchcock as possible. 
+        //iAlfEnv->Release( ETrue );
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::HandleRadioEngineCallBack
@@ -1030,63 +1006,64 @@ void CFMRadioAppUi::HandleRadioEngineCallBack(
         switch ( aEventCode )
             {
             case EFMRadioEventTunerReady:
-            	HandleTunerReadyCallback();
+                HandleTunerReadyCallback();
                 break;
             case EFMRadioEventRadioOn:
-            	iCurrentRadioState = EFMRadioStateOn;
-            	TRAPD( err, HandleStartupWizardL() );   
-            	iStartupWizardHandled = ETrue;//FirstRadioInitCall = EFalse;
-            	if ( iAutoTune && 
-                     iScanLocalStationsView->CancelType() == EFMRadioCancelScanByHeadsetDisconnect)
-        			{
-                    TRAP_IGNORE( ScanUpL() );
-                    iAutoTune = EFalse;
-                    iAutoTuneUnmute = ETrue;
-        			}
-        		else if( !IsStartupWizardRunning() || err != KErrNone )
-            		{
-            	 	//we use method because the behaviour we require is the same.
-            	 	if ( !iTuneFromWizardActivated && iMuteStatusBeforeRadioInit != EFMUninitialized )
-            	 		{
+                {
+                iCurrentRadioState = EFMRadioStateOn;
+                TRAPD( err, HandleStartupWizardL() );
+                iStartupWizardHandled = ETrue;
+                const TUid activeViewTuid = ActiveView();
+                
+                if ( activeViewTuid == KFMRadioChannelListViewId )
+                    {
+                    CAknToolbar* toolbar = iChannelListView->Toolbar();
+                    if ( toolbar )
+                        {
+                        iChannelListView->UpdateToolbar();
+                        toolbar->DrawDeferred();
+                        }
+                    }
+                if( !IsStartupWizardRunning() || err != KErrNone )
+                    {
+                    //we use method because the behaviour we require is the same.
+                    if ( !iTuneFromWizardActivated && iMuteStatusBeforeRadioInit != EFMUninitialized )
+                        {
                         TBool mute = EFalse; 
                         if ( iMuteStatusBeforeRadioInit == EFMMuted )
                             {
                             mute = ETrue;
                             }
                         iRadioEngine->SetMuteOn( mute );
-                        iMuteStatusBeforeRadioInit = EFMUninitialized;            	 		
-            	 		}
-            		HandleStopSeekCallback(); 
-            		}
+                        iMuteStatusBeforeRadioInit = EFMUninitialized;
+                        }
+                    HandleStopSeekCallback(); 
+                    }
+                }
                 break;
             case EFMRadioEventRadioOff:
-            	iCurrentRadioState = EFMRadioStateOff;
+                iCurrentRadioState = EFMRadioStateOff;
                 
-            	if ( !iOfflineQueryDialogActivated )
-                	{
-                	ExitApplication();
-                	}
+                if ( !iOfflineQueryDialogActivated )
+                    {
+                    ExitApplication();
+                    }
                 
-            	break;
+                break;
             case EFMRadioEventFMRadioInitialized:
-            	TRAP( err, HandleInitializedCallbackL() );
+                TRAP( err, HandleInitializedCallbackL() );
                 break;
             case EFMRadioEventTune:
-            	if ( iTuneFromWizardActivated )
-        	 		{
-        	 		iTuneFromWizardActivated = EFalse;
-        	 		iRadioEngine->SetMuteOn( EFalse );
-        	 		iMuteStatusBeforeRadioInit = EFMUninitialized;
-        	 		}
-            	if( iAutoTuneUnmute )
-            		{
-        	 		iRadioEngine->SetMuteOn( EFalse );
-        	 		iAutoTuneUnmute = EFalse;
-            		}
-            	if ( IsStartupWizardHandled() )
-            		{
-            		HandleStopSeekCallback();            		                	
-            		}
+                if ( iTuneFromWizardActivated )
+                    {
+                    iTuneFromWizardActivated = EFalse;
+                    iRadioEngine->SetMuteOn( EFalse );
+                    iMuteStatusBeforeRadioInit = EFMUninitialized;
+                    }
+                if ( IsStartupWizardHandled() )
+                    {
+                    HandleStopSeekCallback();
+                    }
                 break;
             case EFMRadioEventSetMuteState:
                 HandleSetMuteStateCallback();
@@ -1118,33 +1095,35 @@ void CFMRadioAppUi::HandleRadioEngineCallBack(
                 TRAP( err, HandleAudioResourceAvailableL() );
                 break;
             case EFMRadioEventCallStarted:
-            	if ( iCurrentRadioState != EFMRadioStateOff && 
-            		 iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
-            		{
-            		iCurrentRadioState = EFMRadioStateOffForPhoneCall;
-            		}
-            	else
-            		{
-            		iCurrentRadioState = EFMRadioStateOffBeforePhoneCall;
-            		}
+                if ( iCurrentRadioState != EFMRadioStateOff && 
+                     iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
+                    {
+                    iCurrentRadioState = EFMRadioStateOffForPhoneCall;
+                    }
+                else
+                    {
+                    iCurrentRadioState = EFMRadioStateOffBeforePhoneCall;
+                    }
                 FadeViewsAndShowExit( ETrue );
                 break;
             case EFMRadioEventCallEnded:
-                FadeViewsAndShowExit( EFalse );
-            	if ( iAudioLost )
-            		{
-            		TRAP_IGNORE( TryToResumeAudioL() );
+                {
+                if ( iAudioLost )
+                    {
+                    TRAP_IGNORE( TryToResumeAudioL() );
                     iCurrentRadioState = EFMRadioStateOff;
-            		}
-            	else if ( iCurrentRadioState == EFMRadioStateOffForPhoneCall )
-            		{
-            		TurnRadioOn();
-            		}
-            	else
-            		{
-            		// Do nothing.
-            		}
+                    }
+                else if ( iCurrentRadioState == EFMRadioStateOffForPhoneCall )
+                    {
+                    TurnRadioOn();
+                    }
+                else
+                    {
+                    // Do nothing.
+                    }
+                FadeViewsAndShowExit( EFalse );
                 break;
+                }
             case EFMRadioEventStandbyMode:
                 ExitApplication();
                 break;
@@ -1161,11 +1140,11 @@ void CFMRadioAppUi::HandleRadioEngineCallBack(
                 HandleFreqRangeChangedCallback();
                 break;
             case EFMRadioEventScanLocalStationsCanceled:
-            	{
-            	HandleStopSeekCallback();
-            	SetStartupWizardRunning( EFalse );
-            	break;	
-            	}
+                {
+                HandleStopSeekCallback();
+                SetStartupWizardRunning( EFalse );
+                break;	
+                }
             default:
                 break;
             }
@@ -1180,43 +1159,42 @@ void CFMRadioAppUi::HandleRadioEngineCallBack(
                 break;
             case EFMRadioEventAudioResourcePaused:
                 TRAP( err, HandleAudioResourceNotAvailableL( aErrorCode ) );
-                break;                
+                break;
             case EFMRadioEventTune:
-            	if ( iTuneFromWizardActivated )
-        	 		{
-        	 		iTuneFromWizardActivated = EFalse;
-        	 		iRadioEngine->SetMuteOn( EFalse );
-					iMuteStatusBeforeRadioInit = EFMUninitialized;
-        	 		}
+                if ( iTuneFromWizardActivated )
+                    {
+                    iTuneFromWizardActivated = EFalse;
+                    iRadioEngine->SetMuteOn( EFalse );
+                    iMuteStatusBeforeRadioInit = EFMUninitialized;
+                    }
 
-        	 	if ( aErrorCode == KFmRadioErrAntennaNotConnected )
-        	 	    {
-        	 		iScanLocalStationsView->SetScanCanceled(EFMRadioCancelScanByHeadsetDisconnect);
-        	 	    }
+                if ( aErrorCode == KFmRadioErrAntennaNotConnected )
+                    {
+                    iScanLocalStationsView->SetScanCanceled(EFMRadioCancelScanByHeadsetDisconnect);
+                    }
 
                 HandleStopSeekCallback();
                 break;
             case EFMRadioEventCallStarted:
-            	{
-            	FTRACE( FPrint( _L("CFMRadioAppUi::HandleRadioEngineCallBack() error -> EFMRadioEventCallStarted  ") ) );            		            	
-	        	if ( iCurrentRadioState != EFMRadioStateOff && 
-	        		 iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
-	        		{
-	        		iCurrentRadioState = EFMRadioStateOffForPhoneCall;
-	        		}
-	        	else
-	        		{
-	        		iCurrentRadioState = EFMRadioStateOffBeforePhoneCall;
-	        		}
-	            FadeViewsAndShowExit( ETrue );
-	            break;
-            	}                
+                {
+                FTRACE( FPrint( _L("CFMRadioAppUi::HandleRadioEngineCallBack() error -> EFMRadioEventCallStarted  ") ) );            		            	
+                if ( iCurrentRadioState != EFMRadioStateOff && 
+                     iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
+                    {
+                    iCurrentRadioState = EFMRadioStateOffForPhoneCall;
+                    }
+                else
+                    {
+                    iCurrentRadioState = EFMRadioStateOffBeforePhoneCall;
+                    }
+                FadeViewsAndShowExit( ETrue );
+                break;
+                }
             default:
                 FTRACE( FPrint( _L("CFMRadioAppUi::HandleRadioEngineCallBack() failed to process event.") ) );
                 break;
             }
         }
-
     FTRACE( FPrint( _L("END CFMRadioAppUi::HandleRadioEngineCallBack()") ) );
     }
 
@@ -1235,7 +1213,7 @@ void CFMRadioAppUi::HandleVolumeChangedCallback()
         iActiveVolumePopupControl->SetValue( newVolume );
         }
     else
-        {        
+        {
         iActiveVolumePopupControl->SetValue( KFMRadioMinVolumeLevel );	
         }
     }
@@ -1271,12 +1249,12 @@ void CFMRadioAppUi::HandleInitializedCallbackL()
 //
 
 void CFMRadioAppUi::FadeViewsAndShowExit( TBool aState )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::FadeViewsAndShowExit( Tbool %d )"), aState ) );
-    iMainView->FadeAndShowExit( aState );        
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::FadeViewsAndShowExit( Tbool %d )"), aState ) );
+    iMainView->FadeAndShowExit( aState );
     iChannelListView->FadeAndShowExit( aState );
     iScanLocalStationsView->FadeAndShowExit( aState );
-	}
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::HandleAudioResourceAvailableL
@@ -1286,7 +1264,7 @@ void CFMRadioAppUi::FadeViewsAndShowExit( TBool aState )
 void CFMRadioAppUi::HandleAudioResourceAvailableL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleAudioResourceAvailableL") ) );
-    
+
     iAudioResourceAvailable = ETrue;
 
     if ( !IsOfflineProfileActivatedWhenRadioAudioDisabled() &&
@@ -1317,11 +1295,11 @@ void CFMRadioAppUi::HandleAudioResourceNotAvailableL( TInt FDEBUGVAR(aError) )
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleAudioResourceNotAvailableL()  error code: %d"),
     aError ) );
 
-	SetStartupWizardRunning( EFalse );
+    SetStartupWizardRunning( EFalse );
     iAudioResourceAvailable = EFalse;
     
     if ( iCurrentRadioState != EFMRadioStateOffForPhoneCall &&
-    	 iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
+            iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
         {
         iCurrentRadioState = EFMRadioStateOff;
         }
@@ -1346,7 +1324,6 @@ void CFMRadioAppUi::HandleHeadsetDisconnectedCallback()
         iCurrentRadioState = EFMRadioStateOff;
         TRAP_IGNORE( ShowConnectHeadsetDialogL() );
         }
-
     }
 
 // ---------------------------------------------------------------------------
@@ -1358,28 +1335,28 @@ void CFMRadioAppUi::HandleHeadsetReconnectedCallback()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleHeadsetReconnectedCallback()") ) );
     if ( iConnectHeadsetQuery )
-    	{
-    	delete iConnectHeadsetQuery;
-    	iConnectHeadsetQuery = NULL;	
-    	}
+        {
+        delete iConnectHeadsetQuery;
+        iConnectHeadsetQuery = NULL;	
+        }
     
-   	//compare bitmask to see if feature supported
-   	if ( !(iFMRadioVariationFlags & KFMRadioInternalAntennaSupported) &&
-   			iCurrentRadioState != EFMRadioStateOffForPhoneCall && 
-   			iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
-   		{
-   		// active offline query controls radio on/off
-   		if ( iAudioLost )
+    //compare bitmask to see if feature supported
+    if ( !(iFMRadioVariationFlags & KFMRadioInternalAntennaSupported) &&
+            iCurrentRadioState != EFMRadioStateOffForPhoneCall && 
+            iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
+        {
+        // active offline query controls radio on/off
+        if ( iAudioLost )
             {
             TRAP_IGNORE( TryToResumeAudioL() );	
             }
-   		else if ( ( iGlobalOfflineQuery && !iGlobalOfflineQuery->IsActive() ) ||
-   			  !iGlobalOfflineQuery )
-   			{
-   			iRadioEngine->InitializeRadio();		
-   			}
-   		HandleVolumeChangedCallback();
-   		}
+        else if ( ( iGlobalOfflineQuery && !iGlobalOfflineQuery->IsActive() ) ||
+              !iGlobalOfflineQuery )
+            {
+            iRadioEngine->InitializeRadio();
+            }
+        HandleVolumeChangedCallback();
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -1423,8 +1400,6 @@ void CFMRadioAppUi::HandleStopSeekCallback()
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleStopSeekCallback() state %d "), iCurrentRadioState) );
     
     if ( iCurrentRadioState == EFMRadioStateBusyManualTune ||
-         iCurrentRadioState == EFMRadioStateBusyScanUp ||
-         iCurrentRadioState == EFMRadioStateBusyScanDown ||
          iCurrentRadioState == EFMRadioStateBusySeek ||
          iCurrentRadioState == EFMRadioStateBusyScanLocalStations )
         {
@@ -1449,7 +1424,6 @@ void CFMRadioAppUi::HandleStopSeekCallback()
         {
         // nop
         }
-
     FTRACE( FPrint( _L("end CFMRadioAppUi::HandleStopSeekCallback") ) );
     }
 
@@ -1469,7 +1443,6 @@ void CFMRadioAppUi::HandleAudioOutputSetCallback()
         {
         iActiveVolumePopupControl = iHeadsetVolumePopupControl;
         }
-	
     // restore volume for current output
     TInt volumeLevel = iRadioEngine->GetVolume();
     iRadioEngine->SetVolume( volumeLevel );
@@ -1519,15 +1492,12 @@ void CFMRadioAppUi::HandleWsEventL( const TWsEvent& aEvent, CCoeControl* aDestin
     switch ( aEvent.Type() )
         {
         case EEventFocusLost:
+            {
             // being sent to background, so if tuning cancel first then handle event
-            if( iCurrentRadioState == EFMRadioStateBusyScanUp ||
-                    iCurrentRadioState == EFMRadioStateBusyScanDown )
-                {
-                iRadioEngine->CancelScan();
-                HandleStopSeekCallback();
-                }
-            CAknViewAppUi::HandleWsEventL(aEvent, aDestination);
+            CancelSeek();
+            CAknViewAppUi::HandleWsEventL( aEvent, aDestination );
             break;
+            }
         case EEventFocusGained:
             // override default behavior of unfading the ui
             // can be taken out when auto resume is implemented
@@ -1541,9 +1511,9 @@ void CFMRadioAppUi::HandleWsEventL( const TWsEvent& aEvent, CCoeControl* aDestin
                 iChannelListView->UpdateDisplayForFocusGained();
                 }
             if (iScanLocalStationsView)
-            	{
-            	iScanLocalStationsView->UpdateDisplayForFocusGained();
-            	}
+                {
+                iScanLocalStationsView->UpdateDisplayForFocusGained();
+                }
             break;
         default:
             CAknViewAppUi::HandleWsEventL(aEvent, aDestination);
@@ -1558,24 +1528,24 @@ void CFMRadioAppUi::HandleWsEventL( const TWsEvent& aEvent, CCoeControl* aDestin
 // ----------------------------------------------------------------------------------------------------
 //
 void CFMRadioAppUi::FMRadioSvkChangeVolumeL( TInt aVolumeChange )
-	{  
-   	FTRACE( FPrint( _L("CFMRadioAppUi::FMRadioSvkRemoveVolumeL() aVolumeChange : %d"), aVolumeChange ) );
-	
-	TBool headsetConnected = iRadioEngine->IsHeadsetConnected();
-	
-	if ( iCurrentRadioState != EFMRadioStateBusyScanLocalStations && IsStartupWizardHandled() &&
-		headsetConnected )
-		{					
-	   	if ( aVolumeChange > 0 ) // up direction
-	   		{        	
-	      	UpdateVolume( EDirectionUp );
-	      	}
-	   	else // down direction
-	   		{
-	      	UpdateVolume( EDirectionDown );
-	   		}
-		}
-   	}
+    {  
+    FTRACE( FPrint( _L("CFMRadioAppUi::FMRadioSvkRemoveVolumeL() aVolumeChange : %d"), aVolumeChange ) );
+    
+    TBool headsetConnected = iRadioEngine->IsHeadsetConnected();
+    
+    if ( iCurrentRadioState != EFMRadioStateBusyScanLocalStations && IsStartupWizardHandled() &&
+        headsetConnected )
+        {
+        if ( aVolumeChange > 0 ) // up direction
+            {
+            UpdateVolume( EDirectionUp );
+            }
+        else // down direction
+            {
+            UpdateVolume( EDirectionDown );
+            }
+        }
+    }
 
 // ----------------------------------------------------------------------------------------------------
 // CFMRadioAppUi::FMRadioSvkRemoveVolumeL
@@ -1587,7 +1557,6 @@ void CFMRadioAppUi::FMRadioSvkRemoveVolumeL()
    {
    FTRACE( FPrint( _L("CFMRadioAppUi::FMRadioSvkRemoveVolumeL( )") ) );
    }
-
 
 // ----------------------------------------------------------------------------------------------------
 // CFMRadioAppUi::FMRadioHeadsetEvent
@@ -1656,15 +1625,15 @@ void CFMRadioAppUi::HandleResourceChangeL( TInt aType )
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleResourceChangeL type: %d "), aType ) );
     CAknViewAppUi::HandleResourceChangeL( aType );
     
-   	if ( aType == KEikDynamicLayoutVariantSwitch )
+    if ( aType == KEikDynamicLayoutVariantSwitch )
         {
         UpdateLandscapeInformation();
         iLayoutChangeObserver->LayoutChangedL( aType );
         }
-	else if ( aType == KAknsMessageSkinChange )
-		{
-		iLayoutChangeObserver->LayoutChangedL( aType );
-		}
+    else if ( aType == KAknsMessageSkinChange )
+        {
+        iLayoutChangeObserver->LayoutChangedL( aType );
+        }
     }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1713,10 +1682,10 @@ void CFMRadioAppUi::HandleControlEventL( CCoeControl* aControl, TCoeEvent aEvent
 // DialogTerminated
 // ----------------------------------------------------------------------------------------------------
 void CFMRadioAppUi::DialogTerminated()
-	{
-	iInfoNoteOn = EFalse;
-	}
-    
+    {
+    iInfoNoteOn = EFalse;
+    }
+
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::UpdateLandscapeInformation
 // ---------------------------------------------------------------------------
@@ -1742,68 +1711,68 @@ void CFMRadioAppUi::UpdateLandscapeInformation()
 // CFMRadioAppUi::UpdateChannelsL
 // ---------------------------------------------------------------------------
 //    
-void CFMRadioAppUi::UpdateChannelsL( TMoveoperations aOperation, 
-		TInt aIndex, TInt aMovedToNewIndex )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::UpdateChannelsL(%d, %d, %d)"), aOperation, aIndex, aMovedToNewIndex ) );
-	TChannelInformation channelinfo;
-	
-	// Move channel operation moves channel from aIndex to aMovedToNewIndex value
-	if ( EMoveChannels == aOperation )
-		{		
-		channelinfo = iChannels->At( aIndex );
-		iChannels->Delete( aIndex );
-		iChannels->InsertL( aMovedToNewIndex, channelinfo );
-		}
-	// Delete channel deletes channel from list 
-	else if( EDeleteChannel == aOperation )
-		{			
-		iChannels->Delete( aIndex );
-		
-		for ( TInt index = 0; index < iChannels->Count(); index++ )
-			{								
-			iRadioEngine->SetPresetNameFrequencyL( 
-					index, 
-				 iChannels->At( index ).iChannelInformation, 
-				 iChannels->At( index ).iChannelFrequency );
-			}
-		
-        CRadioEngine::TStationName emptyStationName;    
-        // Remove last		
-        iRadioEngine->SetPresetNameFrequencyL( iChannels->Count(), emptyStationName, KErrNotFound );
-		}
-	// Store all channels to repository
-	else if ( EStoreAllToRepository == aOperation )
-		{
-		for ( TInt index = 0; index < iChannels->Count(); index++ )
-			{								
-			iRadioEngine->SetPresetNameFrequencyL( 
-					index, 
-				 iChannels->At( index ).iChannelInformation, 
-				 iChannels->At( index ).iChannelFrequency );
-			}
-		}
-	// Store specified index to repository and same index 
-	else if (EStoreIndexToRepository== aOperation )
-		{
-		iRadioEngine->SetPresetNameFrequencyL( 
-			 aIndex, 
-			 iChannels->At( aIndex ).iChannelInformation, 
-			 iChannels->At( aIndex ).iChannelFrequency );
-		
-		}
+void CFMRadioAppUi::UpdateChannelsL( TMoveoperations aOperation,
+        TInt aIndex, TInt aMovedToNewIndex )
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::UpdateChannelsL(%d, %d, %d)"), aOperation, aIndex, aMovedToNewIndex ) );
+    
+    // Move channel operation moves channel from aIndex to aMovedToNewIndex value
+    if ( EMoveChannels == aOperation )
+        {		
+        const CFMRadioPreset* channelinfo  = iChannels[ aIndex ];
+        iChannels.Remove( aIndex );
+        iChannels.Insert( channelinfo, aMovedToNewIndex );
+        }
+    // Delete channel deletes channel from list 
+    else if ( EDeleteChannel == aOperation )
+        {
+        const CFMRadioPreset* channelinfo  = iChannels[ aIndex ];
+        iChannels.Remove( aIndex );
+        delete channelinfo;
+        
+        for ( TInt index = 0; index < iChannels.Count(); index++ )
+            {
+            iRadioEngine->SetPresetNameFrequencyL( 
+                    index,
+                    iChannels[ index ]->PresetName(),
+                    iChannels[ index ]->PresetFrequency() );
+            
+            iRadioEngine->SaveUrlToPresetL( index, iChannels[ index ]->PresetUrl() );
+            }
+        iRadioEngine->DeletePresetL( iChannels.Count() );
+        }
+
+    // Store all channels to repository
+    else if ( EStoreAllToRepository == aOperation )
+        {
+        for ( TInt index = 0; index < iChannels.Count(); index++ )
+            {
+            iRadioEngine->SetPresetNameFrequencyL( 
+                    index, 
+                    iChannels[ index ]->PresetName(), 
+                    iChannels[ index ]->PresetFrequency() );
+            
+            iRadioEngine->SaveUrlToPresetL( index, iChannels[ index ]->PresetUrl() );
+            }
+        }
+
+    // Store specified index to repository and same index 
+    else if ( EStoreIndexToRepository == aOperation )
+        {
+        iRadioEngine->SetPresetNameFrequencyL( 
+             aIndex, 
+             iChannels[ aIndex ]->PresetName(), 
+             iChannels[ aIndex ]->PresetFrequency() );
+        
+        iRadioEngine->SaveUrlToPresetL( aIndex, iChannels[ aIndex ]->PresetUrl() );
+        }
     else if ( ERemoveAllFromRepository == aOperation )
         {
-        CRadioEngine::TStationName emptyStationName;
-    
-        for ( TInt i = 0; i < iChannels->Count(); i++ )
-            {
-            iRadioEngine->SetPresetNameFrequencyL( i, emptyStationName, KErrNotFound );
-            }
-        iChannels->Reset();	
+        iRadioEngine->DeletePresetL( -1 ); // reset all presets
+        iChannels.ResetAndDestroy();
         }
     
-    iRadioEngine->PubSubL().PublishPresetCountL( iChannels->Count() );
+    iRadioEngine->PubSubL().PublishPresetCountL( iChannels.Count() );
     }
 
 // ---------------------------------------------------------------------------
@@ -1811,13 +1780,15 @@ void CFMRadioAppUi::UpdateChannelsL( TMoveoperations aOperation,
 // ---------------------------------------------------------------------------
 // 
 void CFMRadioAppUi::AddChannelToListL( const TDesC& aChannelName, TInt aChannelFreq )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::AddChannelToListL(%S, %d)"), &aChannelName, aChannelFreq ) );
-	TChannelInformation channelinfo;
-	channelinfo.iChannelInformation = aChannelName;
-	channelinfo.iChannelFrequency = aChannelFreq;
-	iChannels->AppendL( channelinfo );
-	}
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::AddChannelToListL(%S, %d)"), &aChannelName, aChannelFreq ) );
+    CFMRadioPreset* preset = CFMRadioPreset::NewL();
+    CleanupStack::PushL( preset );
+    preset->SetPresetNameL( aChannelName );
+    preset->SetPresetFrequency( aChannelFreq );
+    iChannels.AppendL( preset );
+    CleanupStack::Pop( preset );
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::IsLandscapeOrientation
@@ -1885,19 +1856,19 @@ void CFMRadioAppUi::HandleFlightModeEnabledCallbackL()
     // (that would disable auto resume) is playing (or has played)
     // audio, a global confirmation query is displayed.
     if ( iAudioResourceAvailable )
-      	{
-       	iRadioEngine->RadioOff();              
-                
+        {
+        iRadioEngine->RadioOff();
+        
         if ( !iGlobalOfflineQuery )
-           	{
+            {
             iGlobalOfflineQuery = CFMRadioGlobalConfirmationQuery::NewL( this );                                
             }
-                        
+        
         HBufC* text = StringLoader::LoadLC( R_QTN_FMRADIO_QUERY_OFFLINE_USE, iCoeEnv );
-            
+        
         iOfflineQueryDialogActivated = ETrue;
         iGlobalOfflineQuery->ShowQueryL( *text, R_AVKON_SOFTKEYS_YES_NO, R_QGN_NOTE_QUERY_ANIM ); 
-                                              
+        
         CleanupStack::PopAndDestroy( text );
         }
             
@@ -1919,12 +1890,12 @@ void CFMRadioAppUi::HandleFlightModeDisabledCallback()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleFlightModeDisabledCallback" ) ) );
     iOfflineProfileActivatedWhenRadioAudioDisabled = EFalse;
-        
+    
     // Close continue offline query
-	if ( iLocalContinueOfflineQuery && iLocalContinueOfflineQuery->IsVisible() )
-    	{
-    	TRAP_IGNORE( iLocalContinueOfflineQuery->DismissQueryL() );
-    	}
+    if ( iLocalContinueOfflineQuery && iLocalContinueOfflineQuery->IsVisible() )
+        {
+        TRAP_IGNORE( iLocalContinueOfflineQuery->DismissQueryL() );
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -1963,11 +1934,11 @@ TInt CFMRadioAppUi::StaticStartupForegroundCallback( TAny* aSelfPtr )
 void CFMRadioAppUi::HandleStartupForegroundEventL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleStartupForegroundEventL" ) ) );
-    HandleOfflineModeAtStartUpL();    
+    HandleOfflineModeAtStartUpL();
     TFMRadioRegionSetting region = HandleRegionsAtStartUpL();
     iRadioEngine->SetRegionIdL( region );
     HandlePendingViewActivationL();
-	RequestTunerControl();      		  
+    RequestTunerControl();
     }
 
 // ---------------------------------------------------------------------------
@@ -1983,9 +1954,9 @@ void CFMRadioAppUi::HandleOfflineModeAtStartUpL()
         iOfflineQueryDialogActivated = ETrue;
         
         if ( AknLayoutUtils::PenEnabled() )
-           {       
-        	// We must hide toolbar, otherwise query dialog softkeys doesn't work 
-        	ShowToolbar( EFalse );
+            {
+            // We must hide toolbar, otherwise query dialog softkeys doesn't work 
+            ShowToolbar( EFalse );
             }
         
         iLocalActivateOfflineQuery = CAknQueryDialog::NewL();
@@ -1995,18 +1966,18 @@ void CFMRadioAppUi::HandleOfflineModeAtStartUpL()
         iOfflineQueryDialogActivated = EFalse;
        
         if ( result )
-            {          
+            {
             if ( AknLayoutUtils::PenEnabled() )
-    			{
-            	ShowToolbar( ETrue );
-            	}
+                {
+                ShowToolbar( ETrue );
+                }
             }
         else
-        	{
-        	Exit();
-        	}
-        }       
-    }	
+            {
+            Exit();
+            }
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::ShowToolbar
@@ -2015,17 +1986,17 @@ void CFMRadioAppUi::HandleOfflineModeAtStartUpL()
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAppUi::ShowToolbar( TBool aVisible )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::ShowToolbar(%d)"), aVisible ) );
-	if ( iLayoutChangeObserver == iMainView )
-		{
-		iMainView->ShowToolbar( aVisible );	
-		}			
-	else if ( iLayoutChangeObserver == iScanLocalStationsView )
-		{
-		iScanLocalStationsView->ShowToolbar( aVisible );	
-		}		
-	}
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::ShowToolbar(%d)"), aVisible ) );
+    if ( iLayoutChangeObserver == iMainView )
+        {
+        iMainView->ShowToolbar( aVisible );	
+        }
+    else if ( iLayoutChangeObserver == iScanLocalStationsView )
+        {
+        iScanLocalStationsView->ShowToolbar( aVisible );
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::IsOfflineProfileActivatedWhenRadioAudioDisabled
@@ -2102,25 +2073,24 @@ void CFMRadioAppUi::HandleFreqRangeChangedCallback()
     iCurrentRadioState = EFMRadioStateOff;
     Exit();
     } 
-    
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::HandleMuteCommand
 // Handles mute keypress from main view
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAppUi::HandleMuteCommand()
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::HandleMuteCommand" ) ) );
-	if ( iRadioEngine->IsMuteOn() )
-		{
-		iRadioEngine->SetMuteOn( EFalse );		
-		}
-	else
-		{
-		iRadioEngine->SetMuteOn( ETrue );		
-		}			
-	}
-	
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::HandleMuteCommand" ) ) );
+    if ( iRadioEngine->IsMuteOn() )
+        {
+        iRadioEngine->SetMuteOn( EFalse );
+        }
+    else
+        {
+        iRadioEngine->SetMuteOn( ETrue );
+        }
+    }
+
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::HandleRegionsAtStartUpL
 // get region automatically from network or manually by user choice if network
@@ -2129,50 +2099,50 @@ void CFMRadioAppUi::HandleMuteCommand()
 //
 TFMRadioRegionSetting CFMRadioAppUi::HandleRegionsAtStartUpL()
     {
-    FTRACE( FPrint( _L("CFMRadioAppUi::HandleRegionsAtStartUpL()")) );    
-    TFMRadioRegionSetting region = iRadioEngine->GetRegionL();	
+    FTRACE( FPrint( _L("CFMRadioAppUi::HandleRegionsAtStartUpL()")) );
+    TFMRadioRegionSetting region = iRadioEngine->GetRegionL();
     
     if ( region == EFMRadioRegionNone )
         {
-        ShowToolbar( EFalse );        
+        ShowToolbar( EFalse );
         TInt index = 0;
         
         CDesCArraySeg* regionList = new( ELeave ) CDesCArraySeg( KDefaultRegionArrayGranularity );
-    	CleanupStack::PushL( regionList );
+        CleanupStack::PushL( regionList );
         
         iRadioEngine->FillListWithRegionDataL( *regionList );
-                
+        
         CAknListQueryDialog* dlg = new ( ELeave ) CAknListQueryDialog( &index );
         
-    	dlg->PrepareLC( R_FMRADIO_SELECT_REGION_QUERY );    
-    	CTextListBoxModel* model = 
+        dlg->PrepareLC( R_FMRADIO_SELECT_REGION_QUERY );
+        CTextListBoxModel* model = 
         static_cast<CAknListQueryControl*>( dlg->ListControl() )->listbox()->Model();
-    	model->SetItemTextArray( regionList );
-    	model->SetOwnershipType( ELbmDoesNotOwnItemArray ); // Array won't be deleted here
+        model->SetItemTextArray( regionList );
+        model->SetOwnershipType( ELbmDoesNotOwnItemArray ); // Array won't be deleted here
             	
         TInt ret = dlg->RunLD();
         CleanupStack::PopAndDestroy( regionList );
         
         if ( ret != EAknSoftkeyExit )
-        	{
-        	// We should have a proper region selected by user        	
-        	region = iRadioEngine->RegionIdAtIndex( index );  
-        	}
-                
+            {
+            // We should have a proper region selected by user
+            region = iRadioEngine->RegionIdAtIndex( index );
+            }
+        
         if ( region == EFMRadioRegionNone )
             {
-            Exit();    // This will eventually exit FMRadio.
+            Exit();// This will eventually exit FMRadio.
             }
         else
-            {            
+            {
             HBufC* bandSetText = StringLoader::LoadLC( R_QTN_FMRADIO_CONF_FREQ_BAND_SET_MANUAL, iCoeEnv );
-    		CAknInformationNote* note = new( ELeave ) CAknInformationNote( ETrue );
-    		note->ExecuteLD( *bandSetText );
-    		CleanupStack::PopAndDestroy( bandSetText );
-    		if ( AknLayoutUtils::PenEnabled() )
-    			{
-    			ShowToolbar( ETrue );                		
-    			}
+            CAknInformationNote* note = new( ELeave ) CAknInformationNote( ETrue );
+            note->ExecuteLD( *bandSetText );
+            CleanupStack::PopAndDestroy( bandSetText );
+            if ( AknLayoutUtils::PenEnabled() )
+                {
+                ShowToolbar( ETrue );
+                }
             }
         }
     else
@@ -2182,7 +2152,7 @@ TFMRadioRegionSetting CFMRadioAppUi::HandleRegionsAtStartUpL()
             {
             TInt previousRegion = iRadioEngine->RegionId();
             
-            if ( previousRegion != EFMRadioRegionNone )
+           if ( previousRegion != EFMRadioRegionNone )
                 {
                 // Show note only if the region has changed from a concrete 
                 // one to another concrete one. EFMRadioRegionNone is not 
@@ -2195,7 +2165,6 @@ TFMRadioRegionSetting CFMRadioAppUi::HandleRegionsAtStartUpL()
                 }
             }
         }
-
     return region;
     }
 
@@ -2231,10 +2200,10 @@ void CFMRadioAppUi::GlobalConfirmationQueryDismissedL(TInt aSoftKey)
 // ---------------------------------------------------------------------------
 //    
 void CFMRadioAppUi::RequestTunerControl() const
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::RequestTunerControl()")) );
-	iRadioEngine->RequestTunerControl();
-	}
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::RequestTunerControl()")) );
+    iRadioEngine->RequestTunerControl();
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::NumberOfChannelsStored
@@ -2242,11 +2211,11 @@ void CFMRadioAppUi::RequestTunerControl() const
 // ---------------------------------------------------------------------------
 //    
 TInt CFMRadioAppUi::NumberOfChannelsStored() const
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::NumberOfChannelsStored()")) );
-	return iChannels->Count();
-	}
-	
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::NumberOfChannelsStored()")) );
+    return iChannels.Count();
+    }
+
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::HandleStartupWizard
 // Determine if "Scan all channels" in scan local stations view should be started.
@@ -2286,9 +2255,9 @@ void CFMRadioAppUi::HandleStartupWizardL()
 // ---------------------------------------------------------------------------
 // 	
 TBool CFMRadioAppUi::IsStartupWizardRunning() const
-	{
-	return iStartupWizardRunning;		
-	}
+    {
+    return iStartupWizardRunning;
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::SetStartupWizardRunning
@@ -2296,10 +2265,10 @@ TBool CFMRadioAppUi::IsStartupWizardRunning() const
 // ---------------------------------------------------------------------------
 // 
 void CFMRadioAppUi::SetStartupWizardRunning( const TBool aRunningState )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::SetStartupWizardRunning() - state = %d"), aRunningState) );
-	iStartupWizardRunning = aRunningState;	
-	}
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::SetStartupWizardRunning() - state = %d"), aRunningState) );
+    iStartupWizardRunning = aRunningState;	
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::StartLocalStationsSeekL
@@ -2307,11 +2276,11 @@ void CFMRadioAppUi::SetStartupWizardRunning( const TBool aRunningState )
 // ---------------------------------------------------------------------------
 // 
 void CFMRadioAppUi::StartLocalStationsSeekL()
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::StartLocalStationsSeekL()")) );
-	iCurrentRadioState = EFMRadioStateBusyScanLocalStations;
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::StartLocalStationsSeekL()")) );
+    iCurrentRadioState = EFMRadioStateBusyScanLocalStations;
     iRadioEngine->ScanUp();
-	}
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::TryToResumeAudioL
@@ -2319,61 +2288,61 @@ void CFMRadioAppUi::StartLocalStationsSeekL()
 // ---------------------------------------------------------------------------
 // 
 void CFMRadioAppUi::TryToResumeAudioL()
-	{
+    {
     FTRACE( FPrint( _L("CFMRadioAppUi::TryToResumeAudioL" ) ) );
-	TFMRadioRegionSetting region = iRadioEngine->GetRegionL();  
-	if ( iAudioLost && 
-	     IsForeground() &&
-	     !iOfflineQueryDialogActivated && 
-	     region != EFMRadioRegionNone )
-	    {
-	    iAudioLost = EFalse;
-	    iRadioEngine->InitializeRadio();
-	    }
-	}
-	
+    TFMRadioRegionSetting region = iRadioEngine->GetRegionL();
+    if ( iAudioLost && 
+         IsForeground() &&
+         !iOfflineQueryDialogActivated && 
+         region != EFMRadioRegionNone )
+        {
+        iAudioLost = EFalse;
+        iRadioEngine->InitializeRadio();
+        }
+    }
+    
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::ShowConnectHeadsetDialogL
 // Show connect headset query with only exit softkey
 // ---------------------------------------------------------------------------
 // 	
 void CFMRadioAppUi::ShowConnectHeadsetDialogL()
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::ShowConnectHeadsetDialogL" ) ) );				
-	if ( !iConnectHeadsetQuery && !iConnectHeadsetGlobalNote )
-		{
-		HBufC* noteTxt = StringLoader::LoadLC( R_QTN_FMRADIO_ERROR_CON_HEADSET, iCoeEnv  );
-							
-		// if radio is in background, show also global note	
-		if ( !IsForeground() )
-			{
-			iConnectHeadsetGlobalNote = CAknGlobalNote::NewL();
-		    iConnectHeadsetGlobalNote->ShowNoteL( EAknGlobalInformationNote, *noteTxt );
-		    delete iConnectHeadsetGlobalNote;
-		    iConnectHeadsetGlobalNote = NULL;
-			}
-								
-		iConnectHeadsetQuery = CAknQueryDialog::NewL( CAknQueryDialog::EErrorTone );									
-		TInt ret = iConnectHeadsetQuery->ExecuteLD( R_FMRADIO_CONNECT_HEADSET_NOTE, *noteTxt );
-			
-		CleanupStack::PopAndDestroy( noteTxt );
-		
-		if ( iConnectHeadsetQuery )
-			{
-			iConnectHeadsetQuery = NULL;				
-			if ( ret == EAknSoftkeyExit )
-				{		        
-			    TApaTask task( iCoeEnv->WsSession() );
-			    task.SetWgId( iCoeEnv->RootWin().Identifier() );
-			    task.EndTask();
-				}
-			else
-			    {
-			    HandlePendingViewActivationL();
-			    }
-			}			                   							
-		}
-	}
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::ShowConnectHeadsetDialogL" ) ) );
+    if ( !iConnectHeadsetQuery && !iConnectHeadsetGlobalNote )
+        {
+        HBufC* noteTxt = StringLoader::LoadLC( R_QTN_FMRADIO_ERROR_CON_HEADSET, iCoeEnv  );
+        
+        // if radio is in background, show also global note	
+        if ( !IsForeground() )
+            {
+            iConnectHeadsetGlobalNote = CAknGlobalNote::NewL();
+            iConnectHeadsetGlobalNote->ShowNoteL( EAknGlobalInformationNote, *noteTxt );
+            delete iConnectHeadsetGlobalNote;
+            iConnectHeadsetGlobalNote = NULL;
+            }
+        
+        iConnectHeadsetQuery = CAknQueryDialog::NewL( CAknQueryDialog::EErrorTone );									
+        TInt ret = iConnectHeadsetQuery->ExecuteLD( R_FMRADIO_CONNECT_HEADSET_NOTE, *noteTxt );
+            
+        CleanupStack::PopAndDestroy( noteTxt );
+        
+        if ( iConnectHeadsetQuery )
+            {
+            iConnectHeadsetQuery = NULL;
+            if ( ret == EAknSoftkeyExit )
+                {
+                TApaTask task( iCoeEnv->WsSession() );
+                task.SetWgId( iCoeEnv->RootWin().Identifier() );
+                task.EndTask();
+                }
+            else
+                {
+                HandlePendingViewActivationL();
+                }
+            }
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::ShowVolumePopupL
@@ -2401,19 +2370,19 @@ void CFMRadioAppUi::ShowVolumePopupL()
 // ---------------------------------------------------------------------------
 //	
 CArrayFix<TCoeHelpContext>* CFMRadioAppUi::GetCurrentHelpContextL() const
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::GetCurrentHelpContextL" ) ) );
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::GetCurrentHelpContextL" ) ) );
 #if defined __SERIES60_HELP || defined FF_S60_HELPS_IN_USE
-	// currently main container and manual tuning container are derived from CBase
-	// so lets create help array manually for them
-		CArrayFixFlat<TCoeHelpContext>* helpArray = new( ELeave )
-		CArrayFixFlat<TCoeHelpContext>( 1 );
-		CleanupStack::PushL( helpArray );
-		helpArray->AppendL( TCoeHelpContext( TUid::Uid( KUidFMRadioApplication ), KFMRADIO_HLP_MAIN ) );
-		CleanupStack::Pop( helpArray );
-		return helpArray;
+    // currently main container and manual tuning container are derived from CBase
+    // so lets create help array manually for them
+        CArrayFixFlat<TCoeHelpContext>* helpArray = new( ELeave )
+        CArrayFixFlat<TCoeHelpContext>( 1 );
+        CleanupStack::PushL( helpArray );
+        helpArray->AppendL( TCoeHelpContext( TUid::Uid( KUidFMRadioApplication ), KFMRADIO_HLP_MAIN ) );
+        CleanupStack::Pop( helpArray );
+        return helpArray;
 #else
-	return AppHelpContextL();
+    return AppHelpContextL();
 #endif
 }
 
@@ -2429,16 +2398,33 @@ void CFMRadioAppUi::GetChannelsArrayL()
     // Note: KMaxNumberOfChannelListItems can be setted to any supported max value
     for ( TInt index = 0; index < KMaxNumberOfChannelListItems; index++ )
         {
-        TChannelInformation channelinfo;
-
+        TBuf<KPresetNameLength> chName;
+        TInt chFrequency;
+        
         iRadioEngine->GetPresetNameAndFrequencyL( index,
-                                                  channelinfo.iChannelInformation, 
-                                                  channelinfo.iChannelFrequency );
+                                                  chName, 
+                                                  chFrequency );
 
-        if ( channelinfo.iChannelFrequency != KErrNotFound )
+        if ( chFrequency != KErrNotFound )
             {
             FTRACE( FPrint( _L("CFMRadioChannelListView::ChannelInUse  inside if") ) );
-            iChannels->AppendL( channelinfo );
+            CFMRadioPreset* preset = CFMRadioPreset::NewL();
+            CleanupStack::PushL( preset );
+            preset->SetPresetNameL( chName );
+            preset->SetPresetFrequency( chFrequency );
+            
+            RBuf url;
+            url.CleanupClosePushL();
+            url.CreateL( KFMRadioWebLinkMaxLength );
+            TInt err = iRadioEngine->PresetUrlL( index, url );
+            if ( !err )
+                {
+                preset->SetPresetUrlL( url );
+                }
+            
+            iChannels.AppendL( preset );
+            CleanupStack::PopAndDestroy( &url );
+            CleanupStack::Pop( preset );
             }
         }
     }
@@ -2515,7 +2501,7 @@ void CFMRadioAppUi::ProcessCommandTailL( const TDesC8& aTail )
             // tune to station index
             TLex8 indexLex( tailLex.NextToken() );
             TInt32 index = 0;
-            TInt ret = indexLex.BoundedVal( index, iChannels->Count() - 1 );
+            TInt ret = indexLex.BoundedVal( index, iChannels.Count() - 1 );
             if ( ret == KErrNone && index >= 0 )
                 {
                 iRadioEngine->CancelScan();
@@ -2571,7 +2557,7 @@ void CFMRadioAppUi::ProcessCommandTailL( const TDesC8& aTail )
 // Returns channels array
 // ---------------------------------------------------------------------------
 //
-CArrayFixFlat<TChannelInformation>* CFMRadioAppUi::Channels()
+RPointerArray<CFMRadioPreset>& CFMRadioAppUi::Channels()
 	{
 	return iChannels;
 	}
@@ -2582,25 +2568,25 @@ CArrayFixFlat<TChannelInformation>* CFMRadioAppUi::Channels()
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAppUi::HandleIADUpdateCheckL()
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::HandleIADUpdateCheckL") ) );
-	if ( FeatureManager::FeatureSupported( KFeatureIdIAUpdate ) )
-	    {
-	    FTRACE( FPrint( _L("CFMRadioAppUi::HandleIADUpdateCheckL - KFeatureIdIAUpdate supported") ) );
-	    TRAPD( err, iUpdate = CIAUpdate::NewL( *this ) )
-	    if ( err && err != KErrNotSupported )
-	        {
-	        User::Leave( err );
-	        }
-	    if ( !err )
-	        {
-	        iParameters = CIAUpdateParameters::NewL();
-	        // Use SIS package UID
-	        iParameters->SetUid( TUid::Uid( KUidFMRadioApplication ) );
-	        iUpdate->CheckUpdates( *iParameters );
-	        }
-	    }
-	}
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::HandleIADUpdateCheckL") ) );
+    if ( FeatureManager::FeatureSupported( KFeatureIdIAUpdate ) )
+        {
+        FTRACE( FPrint( _L("CFMRadioAppUi::HandleIADUpdateCheckL - KFeatureIdIAUpdate supported") ) );
+        TRAPD( err, iUpdate = CIAUpdate::NewL( *this ) )
+        if ( err && err != KErrNotSupported )
+            {
+            User::Leave( err );
+            }
+        if ( !err )
+            {
+            iParameters = CIAUpdateParameters::NewL();
+            // Use SIS package UID
+            iParameters->SetUid( TUid::Uid( KUidFMRadioApplication ) );
+            iUpdate->CheckUpdates( *iParameters );
+            }
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::CheckUpdatesComplete
@@ -2608,9 +2594,9 @@ void CFMRadioAppUi::HandleIADUpdateCheckL()
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAppUi::CheckUpdatesComplete( TInt aErrorCode, TInt aAvailableUpdates )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::CheckUpdatesComplete(%d, %d)"), aErrorCode, aAvailableUpdates ) );
-	if ( aErrorCode == KErrNone )
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::CheckUpdatesComplete(%d, %d)"), aErrorCode, aAvailableUpdates ) );
+    if ( aErrorCode == KErrNone )
         {
         if ( aAvailableUpdates > 0 )
             {
@@ -2626,18 +2612,18 @@ void CFMRadioAppUi::CheckUpdatesComplete( TInt aErrorCode, TInt aAvailableUpdate
             delete iParameters;
             iParameters = NULL;
             }
-        }		
-	}
-	
+        }
+    }
+
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::UpdateComplete
 // from base class MIAUpdateObserver
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAppUi::UpdateComplete( TInt FDEBUGVAR( aErrorCode ), CIAUpdateResult* aResultDetails )
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::UpdateComplete(%d)"), aErrorCode ) );
-	// The update process that the user started from IAUpdate UI is now completed.
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::UpdateComplete(%d)"), aErrorCode ) );
+    // The update process that the user started from IAUpdate UI is now completed.
     // If the client application itself was updated in the update process, this callback
     // is never called, since the client is not running anymore.
 
@@ -2648,17 +2634,17 @@ void CFMRadioAppUi::UpdateComplete( TInt FDEBUGVAR( aErrorCode ), CIAUpdateResul
     iUpdate = NULL;
     delete iParameters;
     iParameters = NULL;	
-	}
-	
+    }
+
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::UpdateQueryComplete
 // from base class MIAUpdateObserver
 // ---------------------------------------------------------------------------
 //	
 void CFMRadioAppUi::UpdateQueryComplete( TInt aErrorCode, TBool aUpdateNow )			
-	{
-	FTRACE( FPrint( _L("CFMRadioAppUi::UpdateQueryComplete(%d, %d)"), aErrorCode, aUpdateNow ) );
-	if ( aErrorCode == KErrNone )
+    {
+    FTRACE( FPrint( _L("CFMRadioAppUi::UpdateQueryComplete(%d, %d)"), aErrorCode, aUpdateNow ) );
+    if ( aErrorCode == KErrNone )
         {
         if ( aUpdateNow )
             {
@@ -2675,18 +2661,17 @@ void CFMRadioAppUi::UpdateQueryComplete( TInt aErrorCode, TBool aUpdateNow )
             iParameters = NULL;
             }
         }
-	}
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::AutoTuneInMainView
 // Set autotune true, if scan is interrupted
 // ---------------------------------------------------------------------------
 //	
-void CFMRadioAppUi::AutoTuneInMainView ( TBool aTune )
-	{
+void CFMRadioAppUi::AutoTuneInMainView ( TBool /*aTune*/ )
+    {
     FTRACE( FPrint( _L("CFMRadioAppUi::AutoTuneInMainView()")));
-	iAutoTune = aTune;
-	}
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAppUi::IsStartupWizardHandled
@@ -2719,7 +2704,6 @@ TBool CFMRadioAppUi::IsIdleAppForeground()
             delete wgName;
             } );
         }
-    
     return isIdleActive;
     }
 
@@ -2766,11 +2750,11 @@ TBool CFMRadioAppUi::IsActiveIdleEnabled()
 TInt CFMRadioAppUi::MatchingChannelL( TInt aFrequency )
     {
     TInt channelIndex = KErrNotFound;
-    TInt numberOfChannels = iChannels->Count();
+    TInt numberOfChannels = iChannels.Count();
     
     for ( TInt i = 0; i < numberOfChannels; i++ )
         {
-        TInt presetFrequency = iChannels->At( i ).iChannelFrequency;
+        TInt presetFrequency = iChannels[ i ]->PresetFrequency();
         
         if ( aFrequency == presetFrequency )
             {
@@ -2805,4 +2789,13 @@ CAknVolumePopup* CFMRadioAppUi::ActiveVolumePopup() const
     return iActiveVolumePopupControl;
     }
 
+// ---------------------------------------------------------
+// CFMRadioAppUi::RadioState
+// ---------------------------------------------------------
+//
+CFMRadioAppUi::TRadioState CFMRadioAppUi::RadioState() const
+    {
+    return iCurrentRadioState;
+    }
+	
 // End of File

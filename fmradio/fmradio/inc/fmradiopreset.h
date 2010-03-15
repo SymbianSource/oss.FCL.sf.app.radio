@@ -51,7 +51,7 @@ class CFMRadioPreset : public CBase
          * Returns preset name 
          * @return name
          */
-        TDesC& PresetName();
+        const TDesC& PresetName();
         /*
          * Set of the preset valid
          * @param aValid ETrue is the name is set valid
@@ -73,6 +73,18 @@ class CFMRadioPreset : public CBase
          */
         TInt PresetFrequency();
         
+        /*
+         * set station web url
+         * @param aUrl url to set
+         */
+        void SetPresetUrlL( const TDesC& aUrl );
+        
+        /*
+         * Gets station web url
+         * @return url
+         */
+        const TDesC& PresetUrl();
+        
     private:
         /**
          * C++ default constructor.
@@ -90,6 +102,9 @@ class CFMRadioPreset : public CBase
          TInt iStationFrequency;
          // Validity of the station name
          TBool iNameIsValid;
+         // station web url
+         RBuf iStationUrl;
+         
     };
 
 

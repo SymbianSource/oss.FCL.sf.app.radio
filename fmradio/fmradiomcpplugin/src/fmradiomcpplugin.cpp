@@ -227,10 +227,10 @@ void CFMRadioMCPPlugin::ActivateL()
                     EMbmFmradioQgn_indi_radio_default_mask);
 
     iObserver->PublishImageL( this, EMusicWidgetImage1,
-                    KAknsIIDQgnIndiRadioDefault, 
-                    iMifFileName, 
-                    EMbmFmradioQgn_indi_radio_default, 
-                    EMbmFmradioQgn_indi_radio_default_mask);
+                    KAknsIIDNone,
+                    iMifFileName,
+                    EMbmFmradioQgn_menu_radio,
+                    EMbmFmradioQgn_menu_radio_mask );
 
     InstallFMRadioCommandActionL( KFMRadioCommandValueStartNowPlaying, EMusicWidgetTrigger1 );
     InstallFMRadioCommandActionL( KFMRadioCommandValueStartNowPlaying, EMusicMenuMusicInfoTrigger );

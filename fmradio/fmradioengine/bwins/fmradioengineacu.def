@@ -71,4 +71,7 @@ EXPORTS
 	?PublishRDSRadioTextL@CFMRadioPubSub@@QBEXABVTDesC16@@@Z @ 70 NONAME ; void CFMRadioPubSub::PublishRDSRadioTextL(class TDesC16 const &) const
 	?RtPlusProgramUrl@CFMRadioRdsReceiverBase@@QBEABVTDesC16@@XZ @ 71 NONAME ; class TDesC16 const & CFMRadioRdsReceiverBase::RtPlusProgramUrl(void) const
 	?SetTunerModeOn@CRadioEngine@@QAEXXZ @ 72 NONAME ; void CRadioEngine::SetTunerModeOn(void)
+	?PresetUrlL@CRadioEngine@@QAEHHAAVTDes16@@@Z @ 73 NONAME ; int CRadioEngine::PresetUrlL(int, class TDes16 &)
+	?DeletePresetL@CRadioEngine@@QAEXH@Z @ 74 NONAME ; void CRadioEngine::DeletePresetL(int)
+	?SaveUrlToPresetL@CRadioEngine@@QAEXHABVTDesC16@@@Z @ 75 NONAME ; void CRadioEngine::SaveUrlToPresetL(int, class TDesC16 const &)
 

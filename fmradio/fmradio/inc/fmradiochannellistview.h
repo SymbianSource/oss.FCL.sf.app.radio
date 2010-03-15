@@ -177,7 +177,7 @@ class CFMRadioChannelListView : public CAknView,
         void RdsDataProgrammeService( const TDesC& aProgramService );
         void RdsDataPsNameIsStatic( TBool aStatic );
         void RdsDataRadioText( const TDesC& aRadioText );
-        void RdsDataRadioTextPlus( const TInt /*aRTPlusClass*/, const TDesC& /*aRadioText*/ ){};
+        void RdsDataRadioTextPlus( const TInt aRTPlusClass, const TDesC& aRadioText );
         void RdsAfSearchBegin();
         void RdsAfSearchEnd( TUint32 aFrequency, TInt aError );
         void RdsAfSearchStateChange( TBool aEnabled );

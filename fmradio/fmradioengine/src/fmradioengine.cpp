@@ -169,12 +169,7 @@ void CRadioEngine::ConstructL()
     
     iPubSub->PublishFrequencyDecimalCountL( 
             TFMRadioPSFrequencyDecimalCount( iRadioSettings->DecimalCount() ) );
-    
-    if ( iRadioSettings->StartupCount() == 0 )
-        {
-        ResetPresetsL();
-        }
-    
+
     FTRACE(FPrint(_L("CRadioEngine::ConstructL() End ")));
     }
     
@@ -809,13 +804,6 @@ EXPORT_C void CRadioEngine::SetAudioOutput( const TFMRadioAudioOutput aAudioOutp
     // use mute here to avoid any audio peaks during output change
     SetMuteOn( ETrue );
 
-    TBool btAudioConnected = EFalse;
-    TRAPD( err, btAudioConnected = IsBTAccessoryConnectedL(); )
-    if ( err != KErrNone )
-        {
-        btAudioConnected = ETrue;
-        }
-    
 #ifndef __ACCESSORY_FW
 
     tempError = iDosServerObserver->SetAudioRouting(aAudioOutput);
@@ -825,12 +813,7 @@ EXPORT_C void CRadioEngine::SetAudioOutput( const TFMRadioAudioOutput aAudioOutp
 
     CAudioOutput::TAudioOutputPreference outputPreference = CAudioOutput::EPrivate;
 
-    if( btAudioConnected && !iHeadsetObserver->IsHeadsetAccessoryConnected() )
-        {
-        FTRACE(FPrint(_L("CRadioEngine::SetAudioOutput() EPublic don't route to BT")));
-        outputPreference = CAudioOutput::EPublic;
-        }
-    else if ( EFMRadioOutputHeadset == aAudioOutput )
+    if ( EFMRadioOutputHeadset == aAudioOutput )
         {
         FTRACE(FPrint(_L("CRadioEngine::SetAudioOutput() Headset is set to Output")));
         outputPreference = CAudioOutput::EPrivate;
@@ -839,10 +822,6 @@ EXPORT_C void CRadioEngine::SetAudioOutput( const TFMRadioAudioOutput aAudioOutp
         {
         FTRACE(FPrint(_L("CRadioEngine::SetAudioOutput() IHF is set to Output")));
         
-        if ( iHeadsetObserver->IsHeadsetAccessoryConnected() )
-            { //user has chosen 'Activate IHF' in options menu
-            iHFOptionActivated = ETrue;
-            }
         outputPreference = CAudioOutput::EPublic;
         }
 
@@ -1025,14 +1004,7 @@ void CRadioEngine::HeadsetAccessoryConnectedCallbackL()
     {
     FTRACE(FPrint(_L("CRadioEngine::HeadsetAccessoryConnectedCallbackL")));
     // forward volume changes to headset
-    if ( iHFOptionActivated )
-    	{
-    	iHFOptionActivated = EFalse;
-    	}
-    else
-    	{
-        SetAudioOutput( EFMRadioOutputHeadset );
-    	}
+    SetAudioOutput( EFMRadioOutputHeadset );
     }
 
 // ----------------------------------------------------
@@ -2011,66 +1983,55 @@ void CRadioEngine::StoreAndPublishFrequency( TInt aFrequency )
     }
 
 // ---------------------------------------------------------------------------
-// CRadioEngine::ResetPresetsL
-// initialize channel frequencies
+// CRadioEngine::PresetUrlL
 // ---------------------------------------------------------------------------
 //
-void CRadioEngine::ResetPresetsL()
+EXPORT_C TInt CRadioEngine::PresetUrlL( TInt aIndex, TDes& aUrl )
     {
-    FTRACE( FPrint( _L("CRadioEngine::ResetPresetsL()" ) ) );
-    TInt maxNumberOfPresets;
-    TStationName channelName;
-    TInt channelFrequency;
+    FTRACE( FPrint( _L("CRadioEngine::PresetUrlL( Index %d, url: %S)"), aIndex, &aUrl ) );
+    TInt err = KErrNone;
+    TFmPresetUrl presetUrl;
     
-    iPresetUtility->GetMaxNumberOfPresets( maxNumberOfPresets );
-
-    for ( TInt i = 0; i < maxNumberOfPresets; i++ )
+    if ( presetUrl.MaxLength() <= aUrl.MaxLength() )
         {
-        iPresetUtility->GetPresetL( i, channelName, channelFrequency );
-        
-        if ( channelName.Length() == 0 && channelFrequency != KErrNotFound )
+        iPresetUtility->GetPresetUrlL( aIndex, presetUrl );
+        aUrl.Copy( presetUrl );
+        if ( !aUrl.Length() )
             {
-            // set empty name and frequency to KErrNotFound
-            iPresetUtility->SetPresetL( i, channelName, KErrNotFound );
-            }
+            err = KErrNotFound;
+            }            
         }
+    else
+        {
+        err = KErrOverflow;
+        }
+    return err;
     }
 
 // ---------------------------------------------------------------------------
-// CRadioEngine::IsBTAccessoryConnectedL
-// Returns ETrue if queried accessory is connected
+// CRadioEngine::DeletePresetL
+// Delete preset. With index -1 all preset are reseted
 // ---------------------------------------------------------------------------
 //
-TBool CRadioEngine::IsBTAccessoryConnectedL ( )
+EXPORT_C void CRadioEngine::DeletePresetL( TInt aIndex )
     {
-    FTRACE(FPrint(_L("CRadioEngine::IsBTAccessoryConnectedL ()" ) ) );
-    TBool result = EFalse;
-    CAccMonitor* accMonitor = CAccMonitor::NewLC();
-
-    RConnectedAccessories connectedAccessories;
-    CleanupClosePushL( connectedAccessories );
-
-    accMonitor->GetConnectedAccessoriesL( connectedAccessories );
-    CAccMonitorInfo* accInfo = CAccMonitorInfo::NewLC();
-    TInt countOfArray = connectedAccessories.Count();
-
-    for( TInt i = 0; i != countOfArray; i++ )
-        {
-        TAccMonCapability connectionType = connectedAccessories[ i ]->AccPhysicalConnection();
-        if( connectionType == KAccMonBluetooth )
-           {
-           accInfo->CopyL( connectedAccessories[ i ] );
-           if ( accInfo->Exists(KAccMonStereoAudio) ||
-                    accInfo->Exists(KAccMonMonoAudio) )
-               {
-               result = ETrue;
-               }
-           }
-        }
-    // Destroy the pointers from the array, because those are owned by the client
-    CleanupStack::PopAndDestroy( accInfo );
-    CleanupStack::PopAndDestroy( &connectedAccessories );
-    CleanupStack::PopAndDestroy( accMonitor );
-    return result;
+    FTRACE( FPrint( _L("CRadioEngine::DeletePresetL( i: %d )"), aIndex ) );
+    iPresetUtility->DeletePresetL( aIndex );
     }
+
+// ---------------------------------------------------------------------------
+// CRadioEngine::SaveUrlToCurrentPresetL
+// ---------------------------------------------------------------------------
+//
+EXPORT_C void CRadioEngine::SaveUrlToPresetL( TInt aIndex, const TDesC& aUrl )
+    {
+    FTRACE( FPrint( _L("CRadioEngine::SaveUrlToCurrentPresetL( i: %d Url: %S)"), aIndex, &aUrl ) );
+    TFmPresetUrl presetUrl;
+    if ( aUrl.Length() <= presetUrl.MaxLength() )
+        {
+        presetUrl.Copy( aUrl );
+        iPresetUtility->SetPresetUrlL( aIndex, presetUrl );
+        }
+    }
+
 // End of file

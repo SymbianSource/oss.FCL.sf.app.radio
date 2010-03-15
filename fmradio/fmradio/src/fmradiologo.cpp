@@ -217,8 +217,8 @@ void CFMRadioLogo::CreateImageVisualsL()
                                        bitmapLayout.Rect().Size(),
                                        EAspectRatioPreserved,
                                        iBackgroundBitmapFileName,
-                                       EMbmFmradioQgn_indi_radio_default,
-                                       EMbmFmradioQgn_indi_radio_default_mask );
+                                       EMbmFmradioQgn_menu_radio,
+                                       EMbmFmradioQgn_menu_radio_mask );
 
     // image for landscape
     bitmapLayout.LayoutRect(
@@ -229,8 +229,8 @@ void CFMRadioLogo::CreateImageVisualsL()
                                  bitmapLayout.Rect().Size(),
                                  EAspectRatioPreserved,
                                  iBackgroundBitmapFileName,
-                                 EMbmFmradioQgn_indi_radio_default,
-                                 EMbmFmradioQgn_indi_radio_default_mask );
+                                 EMbmFmradioQgn_menu_radio,
+                                 EMbmFmradioQgn_menu_radio_mask );
     
     iImageVisual->SetImage( iPortraitImage );
     iImageVisual->SetSecondaryImage( iLandscapeImage );

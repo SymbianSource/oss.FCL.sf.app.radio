@@ -45,7 +45,7 @@ NAME FMRD // 4 letter ID
 #include <fmradio.loc>
 
 #define KFMRadioBitmapFile APP_BITMAP_DIR "\\fmradio.mif"
-
+#define KAvkonBitmapFile APP_BITMAP_DIR "\\avkon2.mif"
 // RESOURCE DEFINITIONS 
 //
 RESOURCE RSS_SIGNATURE { }
@@ -118,18 +118,18 @@ RESOURCE DIALOG r_fmradio_manual_tuning_query
 RESOURCE AKN_ICON_ARRAY r_fmradio_channel_list_icon_array
     {
     type = EAknIconArraySimple;
-    bmpfile = KFMRadioBitmapFile;
+    bmpfile = KAvkonBitmapFile;
     icons =
         {
         AKN_ICON
             {
-            iconId = EMbmFmradioQgn_indi_radio_playing;
-            maskId = EMbmFmradioQgn_indi_radio_playing_mask;
+            iconId = EMbmAvkonQgn_indi_speaker;
+            maskId = EMbmAvkonQgn_indi_speaker_mask;
             },
         AKN_ICON
             {
-            iconId = EMbmFmradioQgn_indi_marked_add;
-            maskId = EMbmFmradioQgn_indi_marked_add_mask;
+            iconId = EMbmAvkonQgn_indi_marked_add;
+            maskId = EMbmAvkonQgn_indi_marked_add_mask;
             }
         };
     }

@@ -101,6 +101,7 @@ TBool CFMRadioAccessoryObserver::IsHeadsetAccessoryConnected() const
         case EAccModeWiredHeadset:    // Falls through.
         case EAccModeLoopset:         // Falls through.
         case EAccModeHeadphones:
+        case EAccModeMusicStand:
             {
             accessoryConnected = ETrue;
 	        break;

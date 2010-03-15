@@ -68,7 +68,6 @@ SYSTEMINCLUDE /epoc32/include/mmf/common
 SYSTEMINCLUDE   /epoc32/include/internal
 #endif // __FMRADIO_ADVANCED_AUTO_RESUME
 
-LIBRARY accmonitor.lib
 LIBRARY radio_utility.lib
 LIBRARY fmpresetutility.lib
 LIBRARY cenrepnotifhandler.lib

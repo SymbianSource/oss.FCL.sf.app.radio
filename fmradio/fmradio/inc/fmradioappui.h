@@ -17,7 +17,6 @@
 *
 */
 
-
 #ifndef FMRADIOAPPUI_H
 #define FMRADIOAPPUI_H
 
@@ -66,17 +65,14 @@ class CRepository;
 *    @since 2.6
 */
 class MInformationNoteInterface
-	{
-	public:
-		
-		/**
+    {
+    public:
+        /**
         * tells when dialog was terminated
         */
-		virtual void DialogTerminated() = 0;
-	
-	};
-	
-	
+        virtual void DialogTerminated() = 0;
+    };
+
 /**
 * Information note for headset key events. Enabling functionality to disable new dialog creation 
 * when dialog is active
@@ -84,27 +80,25 @@ class MInformationNoteInterface
 *    @since 2.6
 */
 class CFMInformationNote: public CAknInformationNote
-	{
-	public:
-	
-		/**
+    {
+    public:
+    
+        /**
         * default constructor.
         */
-		CFMInformationNote( MInformationNoteInterface& aObserver);
-		
-		/**
+        CFMInformationNote( MInformationNoteInterface& aObserver);
+        
+        /**
         * Destructor.
         */
-		virtual ~CFMInformationNote();
-		
-	private:
-		
-		// Dialog event observer
-		MInformationNoteInterface& iDialogObserver;
-	
-	};
-
- 
+        virtual ~CFMInformationNote();
+        
+    private:
+        
+        // Dialog event observer
+        MInformationNoteInterface& iDialogObserver;
+    
+    };
 
 /**
 * Instantiates the application views. It also acts as the default command handler for the
@@ -131,12 +125,35 @@ class CFMRadioAppUi : public CAknViewAppUi,
             EDirectionNone,
             EDirectionDown
             };
+        
+        enum TRadioState
+            {
+            EFMRadioStateOff = 0,            // Radio off
+            EFMRadioStateOffForPhoneCall,    // Radio off because a phone call
+            EFMRadioStateOffBeforePhoneCall, // Radio was off + phone call going on -> no resume
+            EFMRadioStateOn,
+            EFMRadioStateRecording,
+            EFMRadioStateBusyRadioOn,
+            EFMRadioStateBusyRadioOff,
+            EFMRadioStateBusySeek,
+            EFMRadioStateBusyMute,
+            EFMRadioStateBusyVolume,
+            EFMRadioStateBusyManualTune,
+            EFMRadioStateBusyScanLocalStations,
+            EFMRadioStateExiting
+            };
 
     public: // Constructors and destructor
         /**
         * EPOC default constructor.
         */
         void ConstructL();
+        
+        /**
+         * C++ default constructor.
+         */
+        CFMRadioAppUi();
+        
         /**
         * Destructor.
         */
@@ -164,7 +181,7 @@ class CFMRadioAppUi : public CAknViewAppUi,
         * @param aCommand command to be handled
         */
         void HandleCommandL( TInt aCommand );
-        
+
         /**
         * Notification interface from RadioEngine. Used to inform
         * us when requests have completed.
@@ -174,38 +191,38 @@ class CFMRadioAppUi : public CAknViewAppUi,
         */
         void HandleRadioEngineCallBack( MRadioEngineStateChangeCallback::TFMRadioNotifyEvent aEventCode, TInt aErrorCode );
     public: // new functions 
-    	/**
-		* Returns a pointer to the radio engine
-	    *
-	    * @return Radio engine
-		*/
-    	CRadioEngine* RadioEngine();
-    	
+        /**
+        * Returns a pointer to the radio engine
+        *
+        * @return Radio engine
+        */
+        CRadioEngine* RadioEngine();
+
         /**
          * Returns a reference to Back Stepping wrapper
          * 
          * @return Reference to Back Stepping wrapper
          */
         CFMRadioBackSteppingServiceWrapper& BackSteppingWrapper() const;
-    	
-    	/**
-	     * Returns a pointer to FMRadio's document, cannot be null.
-	     *
-	     * @return A pointer to a CFMRadioDocument object.
-	     */
-    	CFMRadioDocument* Document() const;
+
         /**
-		* Checks if current screen orientation is landscape
-	    *
-	    * @return ETrue if orientation is landscape, otherwise EFalse
-		*/
-		TBool IsLandscapeOrientation() const;
-		
-    	/**
-     	* Handles offline mode at startup.
-     	*/
-     	void HandleOfflineModeAtStartUpL();
-     	
+         * Returns a pointer to FMRadio's document, cannot be null.
+         *
+         * @return A pointer to a CFMRadioDocument object.
+         */
+        CFMRadioDocument* Document() const;
+        /**
+        * Checks if current screen orientation is landscape
+        *
+        * @return ETrue if orientation is landscape, otherwise EFalse
+        */
+        TBool IsLandscapeOrientation() const;
+
+        /**
+        * Handles offline mode at startup.
+        */
+        void HandleOfflineModeAtStartUpL();
+
         /**
         * Handles start up foreground event.
         */		
@@ -214,25 +231,25 @@ class CFMRadioAppUi : public CAknViewAppUi,
         * Nunber of channels stored in presets.
         * @return number of channels in presets
         */ 
-        TInt NumberOfChannelsStored() const;           
+        TInt NumberOfChannelsStored() const;
         /**
-    	 * Returns the UID of the currently active local view. KNullUid if none 
-    	 * active (construction/destruction).
-    	 * @return UID of the currently active local view, KNullUid if none 
-    	 * active.
-    	 */
-    	TUid ActiveView() const;
-    	/**
-    	* Return startup scanning wizard status.
-    	* @return running status
-    	*/
-    	TBool IsStartupWizardRunning() const;
-    	/**
-    	* Set startup scanning wizard status.
-    	* @param aRunningState running state
-    	*/
-    	void SetStartupWizardRunning( const TBool aRunningState );
-    	/**
+        * Returns the UID of the currently active local view. KNullUid if none 
+        * active (construction/destruction).
+        * @return UID of the currently active local view, KNullUid if none 
+        * active.
+        */
+        TUid ActiveView() const;
+        /**
+        * Return startup scanning wizard status.
+        * @return running status
+        */
+        TBool IsStartupWizardRunning() const;
+        /**
+        * Set startup scanning wizard status.
+        * @param aRunningState running state
+        */
+        void SetStartupWizardRunning( const TBool aRunningState );
+        /**
         * Tune to the specified frequency
         * @since 2.6
         * @param aFrequency the frequency to be tuned
@@ -242,37 +259,37 @@ class CFMRadioAppUi : public CAknViewAppUi,
         * @return mirrored layout state
         */
         TBool IsLayoutMirrored() const;
-		/**
-		* Show currently active volume popup control
-		*/
-		void ShowVolumePopupL();
+        /**
+        * Show currently active volume popup control
+        */
+        void ShowVolumePopupL();
 
-		/**
-		 * From MChannelListHandler 
-		 * Updates channels array in appui 
-		 * @param aOperation tells which operation is made to array
-		 * @param aIndex tells affecting index
-		 * @param aMovedToNewIndex optional during move operation
-		 */	
-		void UpdateChannelsL( TMoveoperations aOperation, 
-				TInt aIndex, 
-				TInt aMovedToNewIndex  );
-		
-		/**
-		 * From MChannelListHandler
-		 * Add a new channel to list of channels
-		 * @param aChannelName Name of the channel to be saved
-		 * @param aChannelFreq Channel frequency
-		 */	
-		void AddChannelToListL( const TDesC& aChannelName, TInt aChannelFreq );
-		
-		/**
-		 * From MChannelListHandler
-		 * Accessory method to channels array
-		 */
-		CArrayFixFlat<TChannelInformation>* Channels();
-		
-		void AutoTuneInMainView ( TBool aTune );
+        /**
+         * From MChannelListHandler 
+         * Updates channels array in appui 
+         * @param aOperation tells which operation is made to array
+         * @param aIndex tells affecting index
+         * @param aMovedToNewIndex optional during move operation
+         */
+        void UpdateChannelsL( TMoveoperations aOperation, 
+                TInt aIndex, 
+                TInt aMovedToNewIndex  );
+
+        /**
+         * From MChannelListHandler
+         * Add a new channel to list of channels
+         * @param aChannelName Name of the channel to be saved
+         * @param aChannelFreq Channel frequency
+         */
+        void AddChannelToListL( const TDesC& aChannelName, TInt aChannelFreq );
+
+        /**
+         * From MChannelListHandler
+         * Accessory method to channels array
+         */
+         RPointerArray<CFMRadioPreset>& Channels();
+
+        void AutoTuneInMainView ( TBool aTune );
         /**
          * status of the startup wizard state
          * @return wizard status
@@ -300,31 +317,36 @@ class CFMRadioAppUi : public CAknViewAppUi,
          * @return active volume popup
          */
         CAknVolumePopup* ActiveVolumePopup() const;
+        
+        /*
+         * Get current radio state.
+		 * @return TRadioState state of the radio
+         */
+        CFMRadioAppUi::TRadioState CFMRadioAppUi::RadioState() const;
 
     protected:
         /**
         * From CEikAppUi HandleWsEventL
         */
         void HandleWsEventL(const TWsEvent& aEvent,CCoeControl* aDestination);
-        
+
         /**
         * From base class CCoeAppUi    
-    	*/
-    	void HandleForegroundEventL( TBool aForeground );
-    	
-    private: // Functions from base classes
+        */
+        void HandleForegroundEventL( TBool aForeground );
 
+    private: // Functions from base classes
         /**
         * Handles a change to the application's resources
         * @param aType The type of changed resource
         */
         void HandleResourceChangeL( TInt aType );
         /**
-		* Updates the landscape data. This is done separately 
-		* and not in IsLandscapeOrientation method as
-		* IsLandscapeOrientation MUST NOT do a window server flush
-		*/
-		void UpdateLandscapeInformation();
+        * Updates the landscape data. This is done separately 
+        * and not in IsLandscapeOrientation method as
+        * IsLandscapeOrientation MUST NOT do a window server flush
+        */
+        void UpdateLandscapeInformation();
      private: // new functions
 
         /**
@@ -409,14 +431,14 @@ class CFMRadioAppUi : public CAknViewAppUi,
         * @param aErrorNote id of the text to display in the error note
         */
         void DisplayErrorNoteL( TInt aErrorNote );
-        
+
         /**
         * Displays an information note with the text contained in the passed in reference
         * @since 2.6
         * @param aInfoNote id of the text to display in the error note
         */
         void DisplayInformationNoteL( TInt aInfoNote );
-        
+
         /**
         * Return the numeric key value corresponding to the key code
         * @since 2.6
@@ -468,7 +490,7 @@ class CFMRadioAppUi : public CAknViewAppUi,
         * Processes "volume update failed" callback
         * @since 2.6
         */
-        void HandleVolumeUpdateFailedCallback();                
+        void HandleVolumeUpdateFailedCallback();
         /**
         * Handles mute keypress from main view
         * 
@@ -529,15 +551,15 @@ class CFMRadioAppUi : public CAknViewAppUi,
         
         /**
         * Request tuner control from engine
-        */        
+        */
         void RequestTunerControl() const;
-        
+
         /**
         * Is offline profile activated when radio audio was disabled.
         * @return ETrue, if offline profile activated when radio 
-        *         audio was disabled. EFalse otherwise.
+        * audio was disabled. EFalse otherwise.
         */
-        TBool IsOfflineProfileActivatedWhenRadioAudioDisabled() const;        
+        TBool IsOfflineProfileActivatedWhenRadioAudioDisabled() const;
 
         /**
         * Sets the toolbar visibility.
@@ -581,11 +603,9 @@ class CFMRadioAppUi : public CAknViewAppUi,
         *
         * @param aSelfPtr  Pointer to self.
         * @return Always 0.
-        */        
-        static TInt StaticStartupForegroundCallback( TAny* aSelfPtr );     
-        
+        */
+        static TInt StaticStartupForegroundCallback( TAny* aSelfPtr );
     private:
-
         /**
         * Called when volume level should be changed.
         * Set volume control visible.
@@ -593,7 +613,6 @@ class CFMRadioAppUi : public CAknViewAppUi,
         *                       -1 change volume down
         */
         void FMRadioSvkChangeVolumeL( TInt aVolumeChange );
-
         /**
         * Called when volume was changed last time 2 seconds ago or
         * timer was started 2 seconds ago. The remove control timer
@@ -601,45 +620,40 @@ class CFMRadioAppUi : public CAknViewAppUi,
         * or when started through CMmsSvkEvents::StartRemoveTimerL()
         */
         void FMRadioSvkRemoveVolumeL( );
-
         void FMRadioHeadsetEvent(TAccessoryEvent aEvent);
-        
         /**
          * From MFMRadioGlobalConfirmationQueryObserver
          * 
          * @see MFMRadioGlobalConfirmationQueryObserver::GlobalConfirmationQueryDismissedL(TInt aSoftKey)
          */
         void GlobalConfirmationQueryDismissedL( TInt aSoftKey );
-        
         /**
         *From MCoeControlObserver. To handle the volume events.
         */
         void HandleControlEventL( CCoeControl* aControl, TCoeEvent aEventType );
-        
         /**
         * From MInformationNoteInterface. To handle dialog terminated events.
         */
         void DialogTerminated();
-        
         /**
         * Gets the Channels array
         */
         void GetChannelsArrayL();
-		/**
-		* Check available IAD updates
-		*/
-		void HandleIADUpdateCheckL();
-		// from base class MIAUpdateObserver
-    	void CheckUpdatesComplete( TInt aErrorCode, TInt aAvailableUpdates );
-    	void UpdateComplete( TInt aErrorCode, CIAUpdateResult* aResultDetails );
-    	void UpdateQueryComplete( TInt aErrorCode, TBool aUpdateNow );
-        
-    	/**
-    	 * Processes the tail of the command
-    	 * @param aTail The tail to be processed
-    	 */
-    	void ProcessCommandTailL( const TDesC8& aTail );
-    	
+        /**
+        * Check available IAD updates
+        */
+        void HandleIADUpdateCheckL();
+        // from base class MIAUpdateObserver
+        void CheckUpdatesComplete( TInt aErrorCode, TInt aAvailableUpdates );
+        void UpdateComplete( TInt aErrorCode, CIAUpdateResult* aResultDetails );
+        void UpdateQueryComplete( TInt aErrorCode, TBool aUpdateNow );
+
+        /**
+         * Processes the tail of the command
+         * @param aTail The tail to be processed
+         */
+        void ProcessCommandTailL( const TDesC8& aTail );
+
         // from base class CEikAppUi	
         MCoeMessageObserver::TMessageResponse HandleMessageL(
             TUint32 aClientHandleOfTargetWindowGroup, 
@@ -649,14 +663,14 @@ class CFMRadioAppUi : public CAknViewAppUi,
         TBool ProcessCommandParametersL( TApaCommand aCommand, 
                                          TFileName& aDocumentName, 
                                          const TDesC8& aTail );
-	    
+
         /**
         * Check if Active Idle app is on foreground.
         *
         * @return ETrue if idle app is in the foreground, EFalse otherwise.
-        */	
+        */
         TBool IsIdleAppForeground();
-	
+
         /**
         * Check if Active Idle is enabled.
         *
@@ -668,27 +682,8 @@ class CFMRadioAppUi : public CAknViewAppUi,
          * Handles the possibly pending view activation 
          */
         void HandlePendingViewActivationL();
-        
-    private:
 
-        enum TInterfaceState
-            {
-            EFMRadioStateOff = 0, 			// Radio off
-            EFMRadioStateOffForPhoneCall,	// Radio off because a phone call
-            EFMRadioStateOffBeforePhoneCall,// Radio was off + phone call going on -> no resume
-            EFMRadioStateOn,
-            EFMRadioStateRecording,
-            EFMRadioStateBusyRadioOn,
-            EFMRadioStateBusyRadioOff,
-            EFMRadioStateBusyScanUp,
-            EFMRadioStateBusyScanDown,
-            EFMRadioStateBusySeek,
-            EFMRadioStateBusyMute,
-            EFMRadioStateBusyVolume,
-            EFMRadioStateBusyManualTune,
-            EFMRadioStateBusyScanLocalStations,
-            EFMRadioStateExiting
-            };
+    private:
             
         /**
          * State to indicate the mute status
@@ -699,14 +694,14 @@ class CFMRadioAppUi : public CAknViewAppUi,
             EFMUnmuted,                 // Unmute state
             EFMMuted                    // Mute state
             };
-        
+
         // System's volume indicator
         CAknVolumePopup* iIhfVolumePopupControl;
         CAknVolumePopup* iHeadsetVolumePopupControl;
         CAknVolumePopup* iActiveVolumePopupControl;
                         
         CRadioEngine*   iRadioEngine;
-        TInt iCurrentRadioState;
+        TRadioState iCurrentRadioState;
         CFMRadioScanLocalStationsView* iScanLocalStationsView;
         CFMRadioChannelListView* iChannelListView;
         CFMRadioMainView* iMainView;
@@ -753,18 +748,18 @@ class CFMRadioAppUi : public CAknViewAppUi,
         
         /**
         * Is the local or global offline query activated.
-    	*/
+        */
         TBool iOfflineQueryDialogActivated;
         
-    	/** 
-    	* Is the start up of application ongoing. 
-    	*/
-    	TBool iStartUp;
-        
         /** 
-		* Is the screen orientation landscape 
-		*/
-		TBool iLandscape;
+         * Is the start up of application ongoing.
+         */
+        TBool iStartUp;
+        
+        /**
+        * Is the screen orientation landscape
+        */
+        TBool iLandscape;
         CAlfEnv* iAlfEnv; // Owned
         // flag to indicate wizard handling
         TBool iStartupWizardHandled;
@@ -773,23 +768,21 @@ class CFMRadioAppUi : public CAknViewAppUi,
         // connect headset query
         CAknQueryDialog* iConnectHeadsetQuery;
         // flag to indicate if automatic tune is activated from startup wizard
-        TBool iTuneFromWizardActivated;    
-       	// akn information note ptr to check that dialog has dismissed from display
-       	TBool iInfoNoteOn;
-       	// global note for headset status when radio is background
-       	CAknGlobalNote* iConnectHeadsetGlobalNote;
-       	// flag for previous mute status 
+        TBool iTuneFromWizardActivated;
+        // akn information note ptr to check that dialog has dismissed from display
+        TBool iInfoNoteOn;
+        // global note for headset status when radio is background
+        CAknGlobalNote* iConnectHeadsetGlobalNote;
+        // flag for previous mute status 
         TFMMuteStatus iMuteStatusBeforeRadioInit;
-       	// Channels list
-       	CArrayFixFlat<TChannelInformation>* iChannels; 	  
-       	// IAD client object. Owned.
-       	CIAUpdate* iUpdate; 	  
-       	// Parameters for IAD update. Owned.
-       	CIAUpdateParameters* iParameters;       	
-       	TBool iAutoTune;
-       	TBool iAutoTuneUnmute;
+        // Channels list
+        RPointerArray<CFMRadioPreset> iChannels;
+        // IAD client object. Owned.
+        CIAUpdate* iUpdate;
+        // Parameters for IAD update. Owned.
+        CIAUpdateParameters* iParameters;
         // The backstepping wrapper. Owned.
-        CFMRadioBackSteppingServiceWrapper* iBsWrapper;       	
+        CFMRadioBackSteppingServiceWrapper* iBsWrapper;
         // Is feature manager initialized, used for uninitializing feature manager
         TBool iFeatureManagerInitialized;
         // own, for active idle setting

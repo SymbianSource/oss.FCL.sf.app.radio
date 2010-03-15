@@ -537,8 +537,9 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
     FTRACE( FPrint( _L("CFMRadioAlfVisualizer::HandleGestureL(eventCode=%d)"), eventCode ) );
     
     CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( CCoeEnv::Static()->AppUi() );
-    // handle gestures only if there is no call ongoing
-    if ( !appUi->RadioEngine()->IsInCall() )
+    // handle gestures only if there is no call or tuning ongoing
+    if ( !appUi->RadioEngine()->IsInCall() &&
+            appUi->RadioState() != CFMRadioAppUi::EFMRadioStateBusySeek )
         {
         switch ( eventCode )
             {
@@ -682,7 +683,7 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
         }
     else
         {
-        FTRACE(FPrint(_L("CFMRadioAlfVisualizer::HandleGestureL() call ongoing -> gestures ignored")));
+        FTRACE(FPrint(_L("CFMRadioAlfVisualizer::HandleGestureL() call or tuning ongoing -> gestures ignored")));
         }
     }
 // ----------------------------------------------------------------------------
@@ -724,7 +725,7 @@ TBool CFMRadioAlfVisualizer::OfferEventL( const TAlfEvent& aEvent )
         }
     if ( aEvent.IsPointerEvent() )
         {
-        CGestureControl::OfferEventL( aEvent );
+        return CGestureControl::OfferEventL( aEvent );
         }
     return EFalse;
     }
