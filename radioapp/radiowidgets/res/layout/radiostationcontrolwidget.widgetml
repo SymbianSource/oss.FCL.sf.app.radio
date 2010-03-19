@@ -1,0 +1,16 @@
+<hbwidget type="RadioStationControlWidget" version="0.1">
+    <layout name="stationcontrol_vertical" type="mesh">
+        <meshitem dst="" dstEdge="TOP" src="tag_song_button" srcEdge="TOP"/>
+        <meshitem dst="" srcEdge="LEFT" src="tag_song_button" dstEdge="LEFT" />
+        <meshitem dst="" srcEdge="RIGHT" src="tag_song_button" dstEdge="RIGHT" />
+
+        <meshitem dst="tag_song_button" dstEdge="BOTTOM" src="recognize_button" srcEdge="TOP"/>
+        <meshitem dst="" srcEdge="LEFT" src="recognize_button" dstEdge="LEFT" />
+        <meshitem dst="" srcEdge="RIGHT" src="recognize_button" dstEdge="RIGHT" />
+
+        <meshitem dst="recognize_button" dstEdge="BOTTOM" src="stations_button" srcEdge="TOP"/>
+        <meshitem dst="" srcEdge="LEFT" src="stations_button" dstEdge="LEFT" />
+        <meshitem dst="" srcEdge="RIGHT" src="stations_button" dstEdge="RIGHT" />
+        <meshitem dst="" dstEdge="BOTTOM" src="stations_button" srcEdge="BOTTOM"/>
+    </layout>
+</hbwidget>

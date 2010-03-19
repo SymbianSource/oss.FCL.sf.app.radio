@@ -1,0 +1,133 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:
+*
+*/
+
+#ifndef RADIOSTRIPBASE_H_
+#define RADIOSTRIPBASE_H_
+
+// System includes
+#include <hbscrollarea.h>
+
+// Forward declarations
+class HbWidget;
+class QAbstractItemModel;
+
+// Class declaration
+class RadioStripBase : public HbScrollArea
+{
+    Q_OBJECT
+    Q_PROPERTY( HbIcon background READ background WRITE setBackground )
+    Q_PROPERTY( int autoScrollTime READ autoScrollTime WRITE setAutoScrollTime )
+
+public:
+
+    virtual ~RadioStripBase();
+
+    void setBackground( const HbIcon& background );
+    HbIcon background() const;
+    void setAutoScrollTime( const int time );
+    int autoScrollTime() const;
+
+    void setModel( QAbstractItemModel* model );
+    QAbstractItemModel* model() const;
+
+    void setCyclic( bool isCyclic );
+    void setSpacing( qreal spacing );
+    void setAutoCenter( bool autoCenter );
+    void setItemSize( const QSizeF& size );
+    void setIndex( int index, bool animateToCenter );
+
+protected:
+
+    RadioStripBase( QGraphicsItem* parent );
+
+// from base class QGraphicsWidget
+
+    void resizeEvent( QGraphicsSceneResizeEvent* event );
+
+// from base class QGraphicsItem
+
+    void mousePressEvent( QGraphicsSceneMouseEvent* event );
+    void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
+
+private slots:
+
+    void scrollPositionChanged( QPointF newPosition );
+
+private:
+
+    Q_DISABLE_COPY( RadioStripBase )
+
+    virtual void updateItemPrimitive( QGraphicsItem* itemToUpdate, int itemIndex ) = 0;
+    virtual QGraphicsItem* createItemPrimitive( QGraphicsItem *parent ) = 0;
+
+    virtual void scrollPosChanged( QPointF newPosition );
+
+    void moveAllItemsToPool();
+
+    void populateAndLayout();
+
+    QGraphicsItem* constructItem( int index, bool append );
+
+    QGraphicsItem* getFromPool();
+
+    void returnToPool( QGraphicsItem* item );
+
+    qreal indexToOffset( int index );
+
+    int offsetToIndex( qreal offset );
+
+    void updateItemWithIndex( int index );
+
+    void adjustItems();
+
+protected: // data
+
+    int                     mAutoScrollTime;
+
+private: //data
+
+    HbWidget*               mStripContainer;
+
+    QAbstractItemModel*     mModel;
+
+    bool                    mIsCyclic;
+    bool                    mAutoCenter;
+
+    qreal                   mSpacing;
+
+    QSizeF                  mItemSize;
+
+    QList<QGraphicsItem*>   mItemPool;
+    QGraphicsWidget*        mItemPoolParent;
+
+    int                     mCurrentIndex;
+    int                     mPressedIndex;
+
+    qreal                   mStripLength;
+    qreal                   mContentsLength;
+
+    QList<QGraphicsItem*>   mItemAtSlot;
+    QList<int>              mIndexAtSlot; // Can be bigger than rowcount if cyclic is used
+
+    HbIcon                  mBackground;
+
+    QGraphicsPixmapItem*    mBackgroundImage;
+
+};
+
+
+#endif // RADIOSTRIPBASE_H_

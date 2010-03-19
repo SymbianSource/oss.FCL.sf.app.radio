@@ -1,0 +1,37 @@
+RadioStationControlWidget {
+    layout: stationcontrol_vertical;
+}
+
+RadioStationControlWidget::background {
+}
+
+HbPushButton::background {
+    border-width: 0px;
+}
+
+HbPushButton::text {
+    text-align: left center;
+    color: white;
+    font-variant: primary;
+}
+
+RadioStationControlWidget::tag_song_button {
+    left: -var(hb-param-margin-gene-left);
+    right: var(hb-param-margin-gene-right);
+    top: 0un;
+    bottom: 0un;
+}
+
+RadioStationControlWidget::recognize_button {
+    left: -var(hb-param-margin-gene-left);
+    right: var(hb-param-margin-gene-right);
+    top: 0un;
+    bottom: 0un;
+}
+
+RadioStationControlWidget::stations_button {
+    left: -var(hb-param-margin-gene-left);
+    right: var(hb-param-margin-gene-right);
+    top: 0un;
+    bottom: 0un;
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RCC>
+    <qresource>
+        <file>layout/tuningview.docml</file>
+        <file>layout/stationsview.docml</file>
+        <file>layout/wizardview.docml</file>
+        <file>layout/playlogview.docml</file>
+        <file>layout/radiostationcontrolwidget.css</file>
+        <file>layout/radiostationcontrolwidget.widgetml</file>
+    </qresource>
+
+    <qresource>
+        <file>effects/blink_in_out_in.fxml</file>
+        <file>effects/fade_out.fxml</file>
+        <file>effects/fade_in.fxml</file>
+        <file>effects/slide_to_left.fxml</file>
+        <file>effects/slide_from_left.fxml</file>
+        <file>effects/slide_to_right.fxml</file>
+        <file>effects/slide_from_right.fxml</file>
+    </qresource>
+
+    <qresource>
+        <file>images/stripbackground.png</file>
+        <file>images/buttonleft.png</file>
+        <file>images/buttonright.png</file>
+        <file>images/infowidgetbackground.png</file>
+        <file>images/controlwidgetbackground.png</file>
+        <file>images/removefavoriteicon.png</file>
+        <file>images/setfavoriteicon.png</file>
+        <file>images/nowplayingicon.png</file>
+        <file>images/identifysongbuttonicon.png</file>
+        <file>images/stationsbuttonicon.png</file>
+        <file>images/tagsongbuttonicon.png</file>
+        <file>images/favoriteiconactive.png</file>
+        <file>images/favoriteiconinactive.png</file>
+    </qresource>
+</RCC>

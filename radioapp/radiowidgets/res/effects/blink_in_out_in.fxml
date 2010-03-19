@@ -1,0 +1,12 @@
+<!-- flip and change opacity -->
+
+<layers> 
+ 	<visual>
+ 		<param name="opacity" type="anim">
+    		<duration>1.0</duration>
+    		<style>easeinout</style>
+            <keyframe at="0.0">0.3</keyframe>
+	        <keyframe at="1.0">1.0</keyframe>            
+        </param>                
+  	</visual>
+</layers>

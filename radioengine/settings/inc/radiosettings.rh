@@ -1,0 +1,32 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:
+*
+*/
+
+#ifndef RADIOSETTINGS_RH
+#define RADIOSETTINGS_RH
+
+#include <uikon.rh>
+
+STRUCT RADIOPRESET
+{
+    LTEXT name;                     // Name of a Radio Station preset
+    LONG  freq_kHz;                 // Frequency of the radio, in kHz. 108.0 MHz == 108000 kHz
+    LTEXT serviceid;                // Visual Radio Service Id for Content server
+    BYTE  radio_preset_type;        // Indicates whether this is a visual radio -enabled preset. 0 indicates false, otherwise true.
+    LTEXT radio_preset_location;    // Location of the preset
+}
+
+#endif // RADIOSETTINGS_RH
