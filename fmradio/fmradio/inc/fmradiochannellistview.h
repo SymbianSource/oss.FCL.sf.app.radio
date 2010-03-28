@@ -59,7 +59,7 @@ class CFMRadioChannelListView : public CAknView,
         * CFMRadioChannelListView.
         * @since 2.6
         */
-        CFMRadioChannelListView::CFMRadioChannelListView( MChannelListHandler& aObserver ) ;
+        CFMRadioChannelListView( MChannelListHandler& aObserver ) ;
         
         /**
         * Destructor.
