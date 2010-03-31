@@ -890,7 +890,7 @@ void CFMRadioScanLocalStationsView::StopSeekL()
             restoreFrequency = ETrue;
             }
         UpdateToolbar();
-        RestoreRadio( restoreFrequency );
+        RestoreRadio( restoreFrequency, EFalse );
         
         // update now playing index if the tuning is triggered from accessory 
         TInt frequencyIndex = FrequencyIndex( tunedFrequency );
@@ -912,7 +912,7 @@ void CFMRadioScanLocalStationsView::StopSeekL()
 // Restores the radio after scanning
 // -----------------------------------------------------------------------------------------------
 //
-void CFMRadioScanLocalStationsView::RestoreRadio( TBool aTuneInitialFrequency )
+void CFMRadioScanLocalStationsView::RestoreRadio( TBool aTuneInitialFrequency, TBool aUnmute )
     {
     FTRACE( FPrint( _L("CFMRadioScanLocalStationsView::RestoreRadio") ) );
     CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
@@ -924,8 +924,10 @@ void CFMRadioScanLocalStationsView::RestoreRadio( TBool aTuneInitialFrequency )
             iTuneRequested = ETrue;
             iRadioEngine.Tune( iInitialTunedFrequency );
             }
-        //unmute radio
-        iRadioEngine.SetMuteOn( EFalse );
+        if ( aUnmute ) // set mute off by default
+            {
+            iRadioEngine.SetMuteOn( EFalse );
+            }
         iInitialTunedFrequency = 0;
         }
     appUi->SetStartupWizardRunning( EFalse );

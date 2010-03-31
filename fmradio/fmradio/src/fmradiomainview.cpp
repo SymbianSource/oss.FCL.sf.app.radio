@@ -982,18 +982,19 @@ void CFMRadioMainView::DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* aMenuPa
             aMenuPane->SetItemDimmed( EAknCmdHelp, ETrue );
             }
         CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
-        if ( appUi->MatchingChannelL( iRadioEngine->GetTunedFrequency() ) == KErrNotFound ) // current frequency not saved
-           	{
-           	aMenuPane->SetItemDimmed( EFMRadioCmdRename, ETrue );
-           	aMenuPane->SetItemDimmed( EFMRadioCmdSaveChannel, EFalse );
+        if ( appUi->MatchingChannelL( iRadioEngine->GetTunedFrequency() ) == KErrNotFound || 
+              iRadioEngine->GetRadioMode() == CRadioEngine::ERadioTunerMode ) // current frequency not saved
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdRename, ETrue );
+            aMenuPane->SetItemDimmed( EFMRadioCmdSaveChannel, EFalse );
             aMenuPane->SetItemDimmed( EFMRadioCmdErase, ETrue );
-           	}
+            }
         else
-        	{
-        	aMenuPane->SetItemDimmed( EFMRadioCmdRename, EFalse );
-        	aMenuPane->SetItemDimmed( EFMRadioCmdSaveChannel, ETrue );
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdRename, EFalse );
+            aMenuPane->SetItemDimmed( EFMRadioCmdSaveChannel, ETrue );
             aMenuPane->SetItemDimmed( EFMRadioCmdErase, EFalse );
-        	}
+            }
         }
         
     if ( aResourceId == R_FMRADIO_OPTIONS_AF_SUB_MENU ) // Rds af search sub menu
@@ -1223,7 +1224,8 @@ void CFMRadioMainView::DynInitToolbarL( TInt /*aResourceId*/, CAknToolbar* aTool
         CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
         CAknToolbarExtension* toolbarExtension = iToolbar->ToolbarExtension();
         
-        if ( appUi->MatchingChannelL( iRadioEngine->GetTunedFrequency() ) == KErrNotFound )
+        if ( appUi->MatchingChannelL( iRadioEngine->GetTunedFrequency() ) == KErrNotFound  || 
+              iRadioEngine->GetRadioMode() == CRadioEngine::ERadioTunerMode )
             {
             // current frequency not saved
             // show save

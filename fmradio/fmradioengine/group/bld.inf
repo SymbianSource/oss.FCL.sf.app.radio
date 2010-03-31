@@ -34,9 +34,6 @@ backup_registration.xml  z:/private/2001b25e/backup_registration.xml
 // iby file
 ../rom/fmradioengine.iby	CORE_APP_LAYER_IBY_EXPORT_PATH(fmradioengine.iby)
 
-../cenrep/2001b25e.txt  z:/private/10202be9/2001b25e.txt
-
-
 // *.mmp files required for building the needed component
 //
 PRJ_MMPFILES

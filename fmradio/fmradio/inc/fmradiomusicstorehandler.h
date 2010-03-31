@@ -193,7 +193,7 @@ private:
      * @param aSongName     Name of the single
      * @returns search string and pushes it to cleanup stack.
      */
-    HBufC* NokiaMusicShopSearchLC( const TDesC& aSongName,
+    HBufC* NokiaMusicShopSearchL( const TDesC& aSongName,
             const TDesC& aArtistName,
             const TDesC& aAlbumName );
 

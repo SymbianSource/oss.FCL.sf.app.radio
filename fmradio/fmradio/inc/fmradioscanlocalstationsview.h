@@ -165,7 +165,7 @@ class CFMRadioScanLocalStationsView : public CAknView,
 		/**
          * Restores the radio after scanning
          */
-        void RestoreRadio( TBool aTuneInitialFrequency = ETrue );
+        void RestoreRadio( TBool aTuneInitialFrequency = ETrue, TBool aUnmute = ETrue );
 		/**
 		 * Called when a new scan is activated.
 		 */

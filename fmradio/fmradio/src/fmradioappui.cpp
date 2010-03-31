@@ -875,7 +875,7 @@ void CFMRadioAppUi::DisplayErrorNoteL( TInt aErrorNote )
 //
 void CFMRadioAppUi::DisplayInformationNoteL( TInt aInfoNote )
     {
-    if ( !iInfoNoteOn )
+    if ( !iInfoNoteOn && IsForeground() )
         {
         CFMInformationNote* infonote = new ( ELeave ) CFMInformationNote( *this );
         HBufC* noteText = StringLoader::LoadLC( aInfoNote, iCoeEnv );
@@ -2017,27 +2017,24 @@ void CFMRadioAppUi::HandleFMTransmitterOnCallbackL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleFMTransmitterOnCallbackL()") ) );
     iCurrentRadioState = EFMRadioStateOff;
+    
+    CAknGlobalNote* fmTransmitterGlobalNote = CAknGlobalNote::NewLC();
+    
     if ( IsStartupWizardHandled() )
         {
         // Wizard is allready handled so this callback is not coming
         // in startup phase
         HBufC* closeAppText = StringLoader::LoadLC( R_QTN_FMRADIO_NOTE_FMTX_CLOSE_APPLICATION, iCoeEnv  );
-        
-        CAknGlobalNote* fmTransmitterGlobalNote = CAknGlobalNote::NewLC();        
         fmTransmitterGlobalNote->ShowNoteL( EAknGlobalInformationNote, *closeAppText );
-        CleanupStack::PopAndDestroy( fmTransmitterGlobalNote );
-        
         CleanupStack::PopAndDestroy( closeAppText );
         }
     else
         {
         HBufC* unableToStartText = StringLoader::LoadLC( R_QTN_FMRADIO_NOTE_FMTX_UNABLE_TO_START, iCoeEnv );
-        
-        CAknInformationNote* note = new ( ELeave ) CAknInformationNote( ETrue );
-        note->ExecuteLD( *unableToStartText );
-        
+        fmTransmitterGlobalNote->ShowNoteL( EAknGlobalInformationNote, *unableToStartText );
         CleanupStack::PopAndDestroy( unableToStartText );
         }
+    CleanupStack::PopAndDestroy( fmTransmitterGlobalNote );
     // check if we have any dialogs open and close them manually
     if ( IsDisplayingDialog() )
         {

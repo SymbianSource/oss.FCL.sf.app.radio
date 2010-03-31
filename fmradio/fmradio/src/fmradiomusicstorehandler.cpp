@@ -470,7 +470,8 @@ void CFMRadioMusicStoreHandler::LaunchMusicStoreL(
         aCommandId = EFMRadioMusicStoreNokiaMusicShop;
         }
 
-    HBufC* searchString = NULL;
+    RBuf searchString;
+    searchString.CleanupClosePushL();
 
     TBool isHandled = ETrue;
     switch( aCommandId )
@@ -482,19 +483,18 @@ void CFMRadioMusicStoreHandler::LaunchMusicStoreL(
             isHandled = EFalse;
             break;
         case EFMRadioMusicStoreNokiaMusicShop:
-            searchString = NokiaMusicShopSearchLC( aTitle, aArtist, aAlbum );
+            searchString.Assign( NokiaMusicShopSearchL( aTitle, aArtist, aAlbum ) );
             break;
         case EFMRadioMusicStoreOperator:
             if ( iOperatorStoreWebsite.Length() != 0 )
                 {
-                searchString = iOperatorStoreWebsite.AllocLC();
-                
+                searchString.CreateL( iOperatorStoreWebsite );
                 }
             else if ( iOperatorStoreNativeUID )
                 {
                 // It is assumed that both Nokia Music Shop and operator specific music store use
                 // same kind of interface to communicate
-                searchString = NokiaMusicShopSearchLC( aTitle, aArtist, aAlbum );
+                searchString.Assign( NokiaMusicShopSearchL( aTitle, aArtist, aAlbum ) );
                 }
             else
                 {
@@ -514,17 +514,17 @@ void CFMRadioMusicStoreHandler::LaunchMusicStoreL(
             case EFMRadioMusicStoreNokiaMusicShop:
                 {
                 TUid musicshopUid( TUid::Uid( iMusicStoreUID ) );
-                LaunchMusicShopL( musicshopUid, *searchString );
+                LaunchMusicShopL( musicshopUid, searchString );
                 break;
                 }
             case EFMRadioMusicStoreOperator:
-                LaunchOperatorMusicStoreL( *searchString );
+                LaunchOperatorMusicStoreL( searchString );
                 break;
             default:
-                LaunchWebPageL( *searchString );
+                LaunchWebPageL( searchString );
                 break;
             }
-        CleanupStack::PopAndDestroy( searchString );
+        CleanupStack::PopAndDestroy( &searchString );
         }
     }
 
@@ -555,22 +555,27 @@ void CFMRadioMusicStoreHandler::LaunchOperatorMusicStoreL( const TDesC& aSearchS
 // CFMRadioMusicStoreHandler::NokiaMusicShopSearchL
 // -----------------------------------------------------------------------------
 //
-HBufC* CFMRadioMusicStoreHandler::NokiaMusicShopSearchLC(
+HBufC* CFMRadioMusicStoreHandler::NokiaMusicShopSearchL(
         const TDesC& aSongName,
         const TDesC& aArtistName,
         const TDesC& aAlbumName )
     {
-    CMPXFindInMShop* finder = CMPXFindInMShop::NewL();  //ECom Plugin
-    CleanupStack::PushL( finder );
-    HBufC* url = finder->CreateSearchURLL(  aSongName,
-                                     aArtistName,
-                                     aAlbumName,
-                                     KNullDesC,     // Composer - Not used
-                                     KNullDesC );   // Genre - Not used
-
-    CleanupStack::PopAndDestroy( finder ); // finder
-    REComSession::FinalClose();
-    CleanupStack::PushL( url );
+    HBufC* url = NULL;
+    
+    if ( aSongName.Length() || aArtistName.Length() || aAlbumName.Length() )
+        {
+        CMPXFindInMShop* finder = CMPXFindInMShop::NewL();  //ECom Plugin
+        CleanupStack::PushL( finder );
+        url = finder->CreateSearchURLL(  aSongName,
+                                         aArtistName,
+                                         aAlbumName,
+                                         KNullDesC,     // Composer - Not used
+                                         KNullDesC );   // Genre - Not used
+    
+        CleanupStack::PopAndDestroy( finder ); // finder
+        REComSession::FinalClose();
+        }
+    
     return url;
     }
 
@@ -581,13 +586,16 @@ HBufC* CFMRadioMusicStoreHandler::NokiaMusicShopSearchLC(
 //
 void CFMRadioMusicStoreHandler::LaunchMusicShopL( TUid aMusicshopUid, const TDesC& aSearchString )
     {
-    RProperty::Set( aMusicshopUid,
-            KMShopCategoryName,
-            aSearchString );
-
-    RProperty::Set( aMusicshopUid,
-            KMShopCategoryId,
-            KFindInMShopKeyValid );  // Set Key to Valid
+    if ( aSearchString.Length() )
+        {
+        RProperty::Set( aMusicshopUid,
+                KMShopCategoryName,
+                aSearchString );
+    
+        RProperty::Set( aMusicshopUid,
+                KMShopCategoryId,
+                KFindInMShopKeyValid );  // Set Key to Valid
+        }
 
     TApaTaskList taskList( iCoeEnv->WsSession() );
     TApaTask task = taskList.FindApp( aMusicshopUid );
