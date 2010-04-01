@@ -801,7 +801,7 @@ void CFMRadioAppUi::TuneL( TInt aFrequency )
 //
 void CFMRadioAppUi::UpdateVolume( CFMRadioAppUi::TFMRadioDirections aDirection )
     {
-    FTRACE( FPrint( _L("CFMRadioAppUi::UpdateVolume(%d)"), UpdateVolume ) );
+    FTRACE( FPrint( _L("CFMRadioAppUi::UpdateVolume(%d)"), aDirection ) );
     
     if ( !iRadioEngine->IsInCall() )
         {
