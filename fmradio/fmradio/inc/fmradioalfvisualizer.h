@@ -64,6 +64,7 @@ class CAlfViewportLayout;
 class CAlfGradientBrush;
 class CFMRadioAlfBitmapAnimation;
 class CFMRadioAppUi;
+class MTouchFeedback;
 
 using namespace GestureHelper;
 // CLASS DEFINITION
@@ -424,6 +425,8 @@ private:    // Data
         TBool iRevertGestureDrag;
         // The axis for the currently ongoing stroke
         TFMRadioDragAxis iDragAxis;
+        // Tactile feedback for closing the popup
+        MTouchFeedback* iTouchFeedback; // For Tactile feedback
     };
 
 #endif //FMRADIOALFVISUALIZER_H

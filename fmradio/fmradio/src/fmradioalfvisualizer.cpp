@@ -43,6 +43,7 @@
 #include <aknview.h>
 #include <aknViewAppUi.h>
 #include <AknVolumePopup.h>
+#include <touchfeedback.h>
 
 #include "fmradioalfvisualizer.h"
 #include "fmradioappui.h"
@@ -116,6 +117,8 @@ void CFMRadioAlfVisualizer::ConstructL( CAlfEnv& aEnv )
     iBmpAnimation = CFMRadioAlfBitmapAnimation::NewL( aEnv );
     CAlfControlGroup& group = aEnv.ControlGroup( KFMRadioVisualControlsGroupId );
     group.AppendL( iBmpAnimation );
+    
+    iTouchFeedback = MTouchFeedback::Instance();
     
     UpdateLayout();
     
@@ -551,6 +554,7 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
                     if ( volPopup->IsVisible() )
                         {
                         volPopup->CloseVolumePopup();
+                        iTouchFeedback->InstantFeedback( ETouchFeedbackBasic );
                         }
                     else
                         {

@@ -33,6 +33,8 @@
 #include <AknIconArray.h>
 #include <gulicon.h> 
 #include <fmradiouids.h>
+#include <aknconsts.h>
+#include <avkon.mbg>
 
 #if defined __SERIES60_HELP || defined FF_S60_HELPS_IN_USE
 #include "radio.hlp.hrh"
@@ -70,7 +72,6 @@ CFMRadioScanLocalStationsContainer* CFMRadioScanLocalStationsContainer::NewL( co
     return self;
     }
 
-//
 // ----------------------------------------------------
 // CFMRadioScanLocalStationsContainer::ConstructL
 // EPOC two phased constructor
@@ -82,9 +83,7 @@ void CFMRadioScanLocalStationsContainer::ConstructL( const TRect& aRect )
     CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
     TBool isLandscape = appUi->IsLandscapeOrientation();
     CreateWindowL();
-	
-	// Create the new context with image: KAknsIIDQsnBgAreaMain, and parent absolute layout is not used.
-    iBackground = CAknsBasicBackgroundControlContext::NewL(KAknsIIDQsnBgAreaMain, Rect(), EFalse );
+
     iSkin = AknsUtils::SkinInstance();
 
 	// Instantiate a listbox for the channel list
@@ -95,18 +94,13 @@ void CFMRadioScanLocalStationsContainer::ConstructL( const TRect& aRect )
 	iChannelList->ConstructL( this, CEikListBox::ELoopScrolling | EAknListBoxSelectionList ); // Looped list
 	// Create scrollbars
 	iChannelList->CreateScrollBarFrameL( ETrue );
-	
-    CAknIconArray* radioTypeIcons = NULL;
-    radioTypeIcons = new ( ELeave ) CAknIconArray( 2 );
-    CleanupStack::PushL( radioTypeIcons );    
-    radioTypeIcons->AppendFromResourceL( R_FMRADIO_CHANNEL_LIST_ICON_ARRAY );	
-    // The following line really takes the ownership -- must be the last item 
-    // there, as if leaves and the object is in cleanupstack, problems arise. 
-    // (Cleanup stack corruption!)  
-    //  Set the icon array for this list. List takes ownership of the array. 
-    iChannelList->ItemDrawer()->ColumnData()->SetIconArray( radioTypeIcons );	
-    CleanupStack::Pop( radioTypeIcons );
     
+    CAknIconArray* listIconArray = new ( ELeave ) CAknIconArray( 1 );
+    CleanupStack::PushL( listIconArray );
+    CreateListIconsL( *listIconArray );
+    iChannelList->ItemDrawer()->ColumnData()->SetIconArray( listIconArray );
+    CleanupStack::Pop( listIconArray );
+
     // Array for channels
     iChannelItemArray = new( ELeave ) CDesCArrayFlat( KMaxNumberOfChannelListItems );
     InitializeChannelListL();
@@ -118,6 +112,47 @@ void CFMRadioScanLocalStationsContainer::ConstructL( const TRect& aRect )
     }
 
 // ----------------------------------------------------
+// CFMRadioScanLocalStationsContainer::CreateListIconsL
+// ----------------------------------------------------
+//
+void CFMRadioScanLocalStationsContainer::CreateListIconsL( CArrayPtr<CGulIcon>& aArray )
+    {
+    if ( iBitMaps.Count() )
+        {
+        // release any previously created bitmaps
+        iBitMaps.ResetAndDestroy();
+        }
+    
+    TRgb defaultColor = iEikonEnv->Color( EColorControlText );
+
+    // speaker icon
+    CFbsBitmap* playingIconBitmap = NULL;
+    CFbsBitmap* playingIconBitmapMask = NULL;
+        
+    AknsUtils::CreateColorIconLC( iSkin,
+                KAknsIIDQgnIndiSpeaker,
+                KAknsIIDQsnIconColors,
+                EAknsCIQsnIconColorsCG13,
+                playingIconBitmap,
+                playingIconBitmapMask,
+                KAvkonBitmapFile,
+                EMbmAvkonQgn_indi_speaker,
+                EMbmAvkonQgn_indi_speaker_mask,
+                defaultColor
+                );
+    iBitMaps.AppendL( playingIconBitmap );
+    iBitMaps.AppendL( playingIconBitmapMask );
+    CleanupStack::Pop( 2 ); // playingIconBitmap, playingIconBitmapMask
+         
+    CGulIcon* playingIcon = CGulIcon::NewLC();
+    playingIcon->SetBitmapsOwnedExternally( ETrue );
+    playingIcon->SetBitmap( playingIconBitmap );
+    playingIcon->SetMask( playingIconBitmap );
+    aArray.AppendL( playingIcon );
+    CleanupStack::Pop( playingIcon );
+    }
+
+// ----------------------------------------------------
 // CFMRadioScanLocalStationsContainer::~CFMRadioScanLocalStationsContainer
 // Class destructor
 // ----------------------------------------------------
@@ -125,12 +160,10 @@ void CFMRadioScanLocalStationsContainer::ConstructL( const TRect& aRect )
 CFMRadioScanLocalStationsContainer::~CFMRadioScanLocalStationsContainer()
     {
     iControls.ResetAndDestroy();
+    iControls.Close();
+    iBitMaps.ResetAndDestroy();
+    iBitMaps.Close();
     delete iChannelItemArray;
-    if ( iBackground )
-    	{
-    	delete iBackground;
-    	iBackground = NULL;
-    	}
     }
 
 // ----------------------------------------------------
@@ -225,7 +258,6 @@ void CFMRadioScanLocalStationsContainer::UpdateChannelListContentL( TInt aIndex,
     iChannelList->UpdateScrollBarsL();
 	iChannelList->DrawDeferred();
 	}
-
 
 // --------------------------------------------------------------------------------
 // CFMRadioScanLocalStationsContainer::InsertScannedChannelToListL
@@ -431,10 +463,17 @@ void CFMRadioScanLocalStationsContainer::HandleListBoxEventL( CEikListBox* /*aLi
 void CFMRadioScanLocalStationsContainer::HandleResourceChange( TInt aType )
     {
     CCoeControl::HandleResourceChange( aType );
-   	if ( aType ==  KEikDynamicLayoutVariantSwitch  )
-		{
-		SizeChanged();
-		}
+    if ( aType ==  KEikDynamicLayoutVariantSwitch  )
+        {
+        SizeChanged();
+        }
+    else if ( aType == KAknsMessageSkinChange )
+        {
+        CArrayPtr<CGulIcon>* iconArray = iChannelList->ItemDrawer()->ColumnData()->IconArray();
+        // update icons with new skin
+        iconArray->ResetAndDestroy();
+        TRAP_IGNORE( CreateListIconsL( *iconArray ) )
+        }
     }
 
 // ---------------------------------------------------------
@@ -444,12 +483,7 @@ void CFMRadioScanLocalStationsContainer::HandleResourceChange( TInt aType )
 //
 void CFMRadioScanLocalStationsContainer::SizeChanged()
     {
-	iChannelList->SetRect( Rect() );
-	
-	if ( iBackground )
-    	{
-    	iBackground->SetRect( Rect() );
-    	}				
+    iChannelList->SetRect( Rect() );
     }
 
 // ---------------------------------------------------------
@@ -518,28 +552,6 @@ TKeyResponse CFMRadioScanLocalStationsContainer::OfferKeyEventL( const TKeyEvent
             break;
         }
     return iChannelList->OfferKeyEventL( aKeyEvent, aType );
-    }
-
-// ---------------------------------------------------------
-// CFMRadioScanLocalStationsContainer::Draw
-// Redraw the window owned by this container
-// ---------------------------------------------------------
-//
-void CFMRadioScanLocalStationsContainer::Draw( const TRect& aRect ) const
-    {
-    CWindowGc& gc = SystemGc();
-    gc.Clear();
-    
-	if ( iBackground )
-    	{
-    	if ( !AknsDrawUtils::Background( iSkin, iBackground, this, gc, aRect) )
-             {
-             // The background was not drawn
-             iBackground->UpdateContext();
-             }
-    	}
-    // Fade if needed
-    Window().SetFaded( iFadeStatus, RWindowTreeNode::EFadeIncludeChildren );
     }
 
 // ---------------------------------------------------------------------------

@@ -1493,8 +1493,12 @@ void CFMRadioAppUi::HandleWsEventL( const TWsEvent& aEvent, CCoeControl* aDestin
         {
         case EEventFocusLost:
             {
-            // being sent to background, so if tuning cancel first then handle event
-            CancelSeek();
+            // being sent to background, cancel any seek expect local stations scan
+            if ( iCurrentRadioState == EFMRadioStateBusySeek )
+                {
+                iRadioEngine->CancelScan();
+                HandleStopSeekCallback();
+                }
             CAknViewAppUi::HandleWsEventL( aEvent, aDestination );
             break;
             }
@@ -1646,6 +1650,20 @@ void CFMRadioAppUi::HandleControlEventL( CCoeControl* aControl, TCoeEvent aEvent
          ( aControl == iActiveVolumePopupControl ) )
         {
         TInt volumeControlLevel = iActiveVolumePopupControl->Value();
+        
+        if ( iRadioEngine->IsMuteOn() && volumeControlLevel == 1 )
+            {
+            // Volume has been muted and volume is changed from
+            // popup. Restore volume to the previous level.
+            volumeControlLevel = iRadioEngine->GetVolume();
+            volumeControlLevel++;
+            if ( volumeControlLevel > KFMRadioMaxVolumeLevel )
+                {
+                volumeControlLevel = KFMRadioMaxVolumeLevel;
+                }
+            iActiveVolumePopupControl->SetValue( volumeControlLevel );
+            }
+            
         // Set mute
         if ( volumeControlLevel == KFMRadioMinVolumeLevel )
             {

@@ -28,7 +28,6 @@
 -c8,8 qgn_indi_radio_tb_list.svg
 -c8,8 qgn_indi_tb_rename.svg
 -c8,8 qgn_indi_cam4_tb_delete.svg
--c8,8 qgn_indi_marked_add.svg
 -c8,8 qgn_indi_tb_ihf_on.svg
 -c8,8 qgn_indi_tb_ihf_off.svg
 -c8,8 qgn_indi_radio_tb_manualtune.svg

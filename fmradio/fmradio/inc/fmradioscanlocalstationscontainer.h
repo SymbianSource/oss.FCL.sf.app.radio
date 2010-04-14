@@ -136,12 +136,6 @@ class CFMRadioScanLocalStationsContainer : public CCoeControl,
         */
         CCoeControl* ComponentControl( TInt aIndex ) const;
         /**
-        * Redraw the window owned by this container
-        * @since 2.6
-        * @param aRect the size of the window to redraw
-        */
-        void Draw( const TRect& aRect ) const;
-        /**
         * From MEikListBoxObserver, for listbox event handling.
         * @since 2.6
         * @param aListBox The originating list box.
@@ -177,6 +171,12 @@ class CFMRadioScanLocalStationsContainer : public CCoeControl,
         * @param aRect Frame rectangle for container.
         */
         void ConstructL( const TRect& aRect);
+        
+        /*
+         * Adds icons to the icon array.
+         * @param aArray array to add icons 
+         */
+        void CreateListIconsL( CArrayPtr<CGulIcon>& aArray );
 
     private: //data
     
@@ -184,14 +184,14 @@ class CFMRadioScanLocalStationsContainer : public CCoeControl,
         CAknSingleNumberStyleListBox* iChannelList;
         // Array of channel list items
         CDesCArray* iChannelItemArray;
-        
         // Index of the most recently listened channel to keep the listbox up-to-date.
         TInt iLastChIndex;
         RPointerArray<CCoeControl>    iControls;
         TBool iFadeStatus;
-        CAknsBasicBackgroundControlContext* iBackground;
         MAknsSkinInstance* iSkin;
         CRadioEngine& iRadioEngine; //not own
+        // array for list icon bitmaps
+        RPointerArray<CFbsBitmap> iBitMaps;
 
     };
 

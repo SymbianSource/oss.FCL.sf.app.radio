@@ -33,6 +33,9 @@
 #include <AknIconArray.h>
 #include <gulicon.h>
 #include <fmradiouids.h>
+#include <aknconsts.h>
+#include <avkon.mbg>
+
 
 #include "fmradioappui.h"
 #include "fmradiochannellistcontainer.h"
@@ -82,12 +85,6 @@ CFMRadioChannelListContainer* CFMRadioChannelListContainer::NewL( const TRect& a
 void CFMRadioChannelListContainer::ConstructL( const TRect& aRect )
     {
     CreateWindowL();
-    CAknIconArray* radioTypeIcons = NULL;
-
-    radioTypeIcons = new( ELeave ) CAknIconArray( 2 );
-    CleanupStack::PushL( radioTypeIcons );
-
-    radioTypeIcons->AppendFromResourceL( R_FMRADIO_CHANNEL_LIST_ICON_ARRAY );
 
     // Instantiate a listbox for the channel list
     iChannelList = new ( ELeave ) CAknDoubleNumberStyleListBox();
@@ -103,14 +100,13 @@ void CFMRadioChannelListContainer::ConstructL( const TRect& aRect )
     emptyString = StringLoader::LoadLC( R_QTN_FMRADIO_LIST_NO_STATIONS, iEikonEnv );
     
     iChannelList->View()->SetListEmptyTextL( *emptyString );
-    CleanupStack::PopAndDestroy( emptyString );    
+    CleanupStack::PopAndDestroy( emptyString );
 
-    // The following line really takes the ownership -- must be the last item 
-    // there, as if leaves and the object is in cleanupstack, problems arise. 
-    // (Cleanup stack corruption!)  
-    //  Set the icon array for this list. List takes ownership of the array. 
-    iChannelList->ItemDrawer()->FormattedCellData()->SetIconArrayL( radioTypeIcons );
-    CleanupStack::Pop( radioTypeIcons );
+    CAknIconArray* listIconArray = new ( ELeave ) CAknIconArray( 2 );
+    CleanupStack::PushL( listIconArray );
+    CreateListIconsL( *listIconArray );
+    iChannelList->ItemDrawer()->FormattedCellData()->SetIconArrayL( listIconArray );
+    CleanupStack::Pop( listIconArray );
     
     // Array for channels
     iChannelItemArray = new( ELeave ) CDesCArrayFlat( KMaxNumberOfChannelListItems );
@@ -119,7 +115,6 @@ void CFMRadioChannelListContainer::ConstructL( const TRect& aRect )
 
     CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
     iChannelView = static_cast<CFMRadioChannelListView*> ( appUi->View( KFMRadioChannelListViewId ) );
-    
     ActivateL();
     }
 
@@ -131,7 +126,78 @@ void CFMRadioChannelListContainer::ConstructL( const TRect& aRect )
 CFMRadioChannelListContainer::~CFMRadioChannelListContainer()
     {
     iControls.ResetAndDestroy();
+    iControls.Close();
+    iBitMaps.ResetAndDestroy();
+    iBitMaps.Close();
     delete iChannelItemArray;
+    }
+
+// ----------------------------------------------------
+// CFMRadioChannelListContainer::CreateListIconsL
+// ----------------------------------------------------
+//
+void CFMRadioChannelListContainer::CreateListIconsL( CArrayPtr<CGulIcon>& aArray )
+    {
+    if ( iBitMaps.Count() )
+        {
+        // release any previously created bitmaps
+        iBitMaps.ResetAndDestroy();
+        }
+    
+    TRgb defaultColor = iEikonEnv->Color( EColorControlText );
+    MAknsSkinInstance* skinInstance = AknsUtils::SkinInstance();
+
+    // speaker icon
+    CFbsBitmap* playingIconBitmap = NULL;
+    CFbsBitmap* playingIconBitmapMask = NULL;
+        
+    AknsUtils::CreateColorIconLC( skinInstance,
+                KAknsIIDQgnIndiSpeaker,
+                KAknsIIDQsnIconColors,
+                EAknsCIQsnIconColorsCG13,
+                playingIconBitmap,
+                playingIconBitmapMask,
+                KAvkonBitmapFile,
+                EMbmAvkonQgn_indi_speaker,
+                EMbmAvkonQgn_indi_speaker_mask,
+                defaultColor
+                );
+    iBitMaps.AppendL( playingIconBitmap );
+    iBitMaps.AppendL( playingIconBitmapMask );
+    CleanupStack::Pop( 2 ); // playingIconBitmap, playingIconBitmapMask
+         
+    CGulIcon* playingIcon = CGulIcon::NewLC();
+    playingIcon->SetBitmapsOwnedExternally( ETrue );
+    playingIcon->SetBitmap( playingIconBitmap );
+    playingIcon->SetMask( playingIconBitmap );
+    aArray.AppendL( playingIcon );
+    CleanupStack::Pop( playingIcon );
+   
+    // marked icon
+    CFbsBitmap* markedIconBitmap = NULL;
+    CFbsBitmap* markedIconBitmapMask = NULL;
+    
+    AknsUtils::CreateColorIconLC( skinInstance,
+                KAknsIIDQgnIndiMarkedAdd,
+                KAknsIIDQsnIconColors,
+                EAknsCIQsnIconColorsCG13,
+                markedIconBitmap,
+                markedIconBitmapMask,
+                KAvkonBitmapFile,
+                EMbmAvkonQgn_indi_marked_add,
+                EMbmAvkonQgn_indi_marked_add_mask,
+                defaultColor
+                );    
+    iBitMaps.AppendL( markedIconBitmap );
+    iBitMaps.AppendL( markedIconBitmapMask );
+    CleanupStack::Pop( 2 ); // markedIconBitmap, markedIconBitmapMask
+    
+    CGulIcon* markedIcon = CGulIcon::NewLC();
+    markedIcon->SetBitmapsOwnedExternally( ETrue );
+    markedIcon->SetBitmap( markedIconBitmap );
+    markedIcon->SetMask( markedIconBitmapMask );
+    aArray.AppendL( markedIcon );
+    CleanupStack::Pop( markedIcon );
     }
 
 // ----------------------------------------------------
@@ -471,10 +537,17 @@ void CFMRadioChannelListContainer::HandleListBoxEventL( CEikListBox* /*aListBox*
 void CFMRadioChannelListContainer::HandleResourceChange(TInt aType)
     {
     CCoeControl::HandleResourceChange(aType);
-	if ( aType ==  KEikDynamicLayoutVariantSwitch  )
-		{
-		SizeChanged();
-		}
+    if ( aType ==  KEikDynamicLayoutVariantSwitch  )
+        {
+        SizeChanged();
+        }
+    else if ( aType == KAknsMessageSkinChange )
+        {
+        CArrayPtr<CGulIcon>* iconArray = iChannelList->ItemDrawer()->FormattedCellData()->IconArray();
+        // update icons with new skin
+        iconArray->ResetAndDestroy();
+        TRAP_IGNORE( CreateListIconsL( *iconArray ) )
+        }
     }
 // ---------------------------------------------------------
 // CFMRadioChannelListContainer::SizeChanged
@@ -519,7 +592,17 @@ TKeyResponse CFMRadioChannelListContainer::OfferKeyEventL( const TKeyEvent& aKey
 	TKeyResponse response = EKeyWasNotConsumed;
 
     switch ( aKeyEvent.iCode )
-		{
+        {
+        case EKeyOK:
+            {
+            // msk, used to accept move action
+            if ( iMoveAction )
+                {
+                iChannelView->MoveActionDoneL();
+                return EKeyWasConsumed;
+                }
+            break;
+            }
         case EKeyLeftArrow:
         case EKeyRightArrow:
         	{
@@ -575,23 +658,6 @@ TKeyResponse CFMRadioChannelListContainer::OfferKeyEventL( const TKeyEvent& aKey
             break;
 		}
     return iChannelList->OfferKeyEventL(aKeyEvent, aType);
-	}
-
-// ---------------------------------------------------------
-// CFMRadioChannelListContainer::Draw
-// Redraw the window owned by this container
-// ---------------------------------------------------------
-//
-void CFMRadioChannelListContainer::Draw( const TRect& aRect ) const
-    {
-    CWindowGc& gc = SystemGc();
-    gc.SetPenStyle( CGraphicsContext::ENullPen );
-    gc.SetBrushColor( KRgbGray );
-    gc.SetBrushStyle( CGraphicsContext::ESolidBrush );
-    gc.DrawRect( aRect );
-
-    // Fade if needed
-    Window().SetFaded( iFadeStatus, RWindowTreeNode::EFadeIncludeChildren );
     }
 
 // ---------------------------------------------------------------------------

@@ -113,5 +113,6 @@ LIBRARY liwservicehandler.lib
 LIBRARY centralrepository.lib
 LIBRARY ecom.lib
 LIBRARY gesturehelper.lib
+LIBRARY touchfeedback.lib
 
 DEBUGLIBRARY flogger.lib
