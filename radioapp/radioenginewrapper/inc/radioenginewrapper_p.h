@@ -20,7 +20,7 @@
 
 // System includes
 #include <e32std.h>
-#include <qscopedpointer>
+#include <QScopedPointer>
 
 // User includes
 #include "radioenginewrapper.h"

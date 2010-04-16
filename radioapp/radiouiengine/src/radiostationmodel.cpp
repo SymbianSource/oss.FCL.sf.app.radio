@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qstringlist>
+#include <QStringList>
 
 #include "radiostationmodel.h"
 #include "radiostationmodel_p.h"
@@ -25,6 +25,11 @@
 #include "radiouiengine.h"
 #include "radiostation.h"
 #include "radiostation_p.h"
+#ifndef BUILD_WIN32
+#   include "radiomonitorservice.h"
+#else
+#   include "radiomonitorservice_win32.h"
+#endif
 #include "radiologger.h"
 
 /*!
@@ -331,10 +336,8 @@ void RadioStationModel::removeStation( const RadioStation& station )
 
         d->setCurrentStation( d->mEngine->currentFrequency() );
 
-        if ( tempStation.isFavorite() ) {
-            tempStation.setFavorite( false );
-            emit favoriteChanged( tempStation );
-        }
+        emit stationRemoved( tempStation );
+
     }
 }
 
@@ -561,22 +564,14 @@ void RadioStationModel::removeAll()
     if ( d->mStations.count() == 0 ) {
         return;
     }
-	
-    QList<RadioStation> favorites;
-    foreach( const RadioStation& station, d->mStations ) {
-        if ( station.isFavorite() ) {
-            favorites.append( station );
-        }
-    }
+
+    QList<RadioStation> tempStations = d->mStations.values();
+
 
     beginRemoveRows( QModelIndex(), 0, rowCount() - 1 );
 
     // Preset utility deletes all presets with index -1
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     bool success = d->mPresetStorage->deletePreset( -1 );
-#else
-    bool success = d->mPresetStorage->deletePreset( 0 );
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
     RADIO_ASSERT( success, "FMRadio", "Failed to remove station" );
 
     d->mStations.clear();
@@ -584,9 +579,8 @@ void RadioStationModel::removeAll()
 
     endRemoveRows();
 
-    foreach( RadioStation station, favorites ) {
-        station.setFavorite( false );
-        emit favoriteChanged( station );
+    foreach( RadioStation station, tempStations ) {
+        emit stationRemoved( station );
     }
 }
 
@@ -604,6 +598,7 @@ void RadioStationModel::dynamicPsCheckEnded()
         d->mCurrentStation->setName( d->mCurrentStation->dynamicPsText() );
         d->mCurrentStation->setDynamicPsText( "" );
         saveStation( *d->mCurrentStation );
+        d->mUiEngine.monitor().notifyName( d->mCurrentStation->name() );
     }
 }
 

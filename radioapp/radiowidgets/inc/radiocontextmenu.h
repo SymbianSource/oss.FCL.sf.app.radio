@@ -19,7 +19,7 @@
 #define RADIOCONTEXTMENU_H_
 
 // System includes
-#include <hbmenu.h>
+#include <HbMenu>
 
 // User includes
 #include "radiostation.h"
@@ -44,7 +44,6 @@ public:
      * @param uiLoader Reference to UI loader
      */
     void init( const RadioStation& station, RadioXmlUiLoader& uiLoader );
-    void init( const RadioStation& station, QPointF pos );
 
 private slots:
 

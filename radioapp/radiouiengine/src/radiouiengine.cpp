@@ -16,12 +16,15 @@
 */
 
 // System includes
-#include <qscopedpointer>
-#include <qprocess>
-#include <qfile>
+#include <QScopedPointer>
+#include <QProcess>
+#include <QFile>
 
 #ifdef BUILD_WIN32
-#   include <qsettings>
+#   include <QSettings>
+#else
+#   include <qsysteminfo.h>
+using namespace QtMobility;
 #endif // WIN32_BUILD
 
 // User includes
@@ -34,10 +37,6 @@
 #include "radiosettings.h"
 #include "radiostationfiltermodel.h"
 #include "radiolocalization.h"
-
-#ifdef USE_MOBILE_EXTENSIONS_API
-    #include "xqprofile"
-#endif
 
 // Constants
 const QString KPathFormatter = "%1:%2%3";
@@ -52,12 +51,14 @@ bool RadioUiEngine::isOfflineProfile()
 {
     bool offline = false;
 
-#ifdef USE_MOBILE_EXTENSIONS_API
-    QScopedPointer<XQProfile> profile ( new XQProfile() );  // Deletes automatically when out of scope
-    offline = profile->activeProfile() == XQProfile::ProfileOffLine;
-#elif BUILD_WIN32
+#ifdef BUILD_WIN32
     QScopedPointer<QSettings> settings( new QSettings( "Nokia", "QtFmRadio" ) );
     offline = settings->value( "Offline", false ).toBool();
+#else
+    QSystemDeviceInfo deviceInfo;
+    if ( deviceInfo.currentProfile() == QSystemDeviceInfo::OfflineProfile ) {
+        offline = true;
+    }
 #endif
 
     return offline;
@@ -165,6 +166,15 @@ RadioPlayLogModel& RadioUiEngine::playLogModel()
 RadioStationFilterModel* RadioUiEngine::createNewFilterModel( QObject* parent )
 {
     return new RadioStationFilterModel( *this, parent );
+}
+
+/*!
+ * Returns the stations list
+ */
+RadioMonitorService& RadioUiEngine::monitor()
+{
+    Q_D( const RadioUiEngine );
+    return *d->mMonitorService;
 }
 
 /*!
@@ -338,10 +348,10 @@ bool RadioUiEngine::isSongRecognitionAppAvailable()
 /*!
  *
  */
-void RadioUiEngine::addRecognizedSong( const QString& artist, const QString& title )
+void RadioUiEngine::addRecognizedSong( const QString& artist, const QString& title, const RadioStation& station )
 {
     Q_D( RadioUiEngine );
-    d->mPlayLogModel->addItem( artist, title );
+    d->mPlayLogModel->addItem( artist, title, station );
 }
 
 /*!
@@ -486,7 +496,9 @@ void RadioUiEngine::emitTunedToFrequency( uint frequency, int commandSender )
  */
 void RadioUiEngine::emitSeekingStarted( Seeking::Direction direction )
 {
-    emit seekingStarted( direction );
+    if ( isAntennaAttached() ) {
+        emit seekingStarted( direction );
+    }
 }
 
 /*!

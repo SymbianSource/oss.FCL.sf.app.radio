@@ -19,10 +19,10 @@
 #define RADIOFADINGLABEL_H
 
 // System includes
-#include <hblabel.h>
-#include <hbeffect.h>
+#include <HbLabel>
+#include <HbEffect>
 
-class RadioFadingLabel : public HbLabel
+class RadioFadingLabel : public HbLabel //TODO: Derive from HbLineEdit
 {
     Q_OBJECT
 

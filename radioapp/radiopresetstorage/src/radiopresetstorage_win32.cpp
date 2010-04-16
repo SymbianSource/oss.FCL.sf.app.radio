@@ -16,9 +16,9 @@
 */
 
 // System includes
-#include <qstring>
-#include <qsettings>
-#include <qdatastream>
+#include <QString>
+#include <QSettings>
+#include <QDataStream>
 
 // User includes
 #include "radiopresetstorage.h"
@@ -152,11 +152,19 @@ int RadioPresetStorage::nextPreset( int fromIndex ) const
 bool RadioPresetStorage::deletePreset( int presetIndex )
 {
     Q_D( RadioPresetStorage );
-    int index = d->mBookKeeping.indexOf( presetIndex );
-    if ( index > -1 ) {
-        d->mBookKeeping.remove( index, 1 );
-        d->mSettings->remove( makeKey( presetIndex ) );
-        d->removeIndex( presetIndex );
+    if ( presetIndex > -1 ) {
+        int index = d->mBookKeeping.indexOf( presetIndex );
+        if ( index > -1 ) {
+            d->mBookKeeping.remove( index, 1 );
+            d->mSettings->remove( makeKey( presetIndex ) );
+            d->removeIndex( presetIndex );
+            return true;
+        }
+    } else if ( presetIndex == -1 ) {
+        for ( int i = d->mBookKeeping.count() - 1; i >= 0; --i ) {
+            d->mSettings->remove( makeKey( d->mBookKeeping.at( i ) ) );
+        }
+        d->mBookKeeping.clear();
         return true;
     }
     return false;

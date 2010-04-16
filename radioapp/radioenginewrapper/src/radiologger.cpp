@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qdebug.h>
+#include <QDebug>
 
 // User includes
 #include "radiologger.h"
@@ -26,7 +26,7 @@
  */
 void RadioLogger::initCombinedLogger()
 {
-#if defined LOGGING_ENABLED && defined COMBINE_WITH_ENGINE_LOGGER
+#if defined LOGGING_ENABLED && defined COMBINE_WITH_ENGINE_LOGGER && !defined BUILD_WIN32
     TRAP_IGNORE( RadioEngineUtils::InitializeL() );
     if ( !MRadioEngineLogger::Logger() ) {
         qDebug() << "FMRadioUi: Cannot combine logs with engine. Engine logger not active";
@@ -39,7 +39,7 @@ void RadioLogger::initCombinedLogger()
  */
 void RadioLogger::releaseCombinedLogger()
 {
-#if defined LOGGING_ENABLED && defined COMBINE_WITH_ENGINE_LOGGER
+#if defined LOGGING_ENABLED && defined COMBINE_WITH_ENGINE_LOGGER && !defined BUILD_WIN32
     RadioEngineUtils::Release();
 #endif // LOGGING_ENABLED
 }
@@ -51,7 +51,7 @@ void RadioLogger::logMsg( const char* msg, Mode mode )
 {
     Q_UNUSED( msg );
     Q_UNUSED( mode );
-#if defined LOGGING_ENABLED && defined COMBINE_WITH_ENGINE_LOGGER
+#if defined LOGGING_ENABLED && defined COMBINE_WITH_ENGINE_LOGGER && !defined BUILD_WIN32
     MRadioEngineLogger* logger = MRadioEngineLogger::Logger();
     if ( logger ) {
         if ( mode == RadioLogger::Normal ) {
@@ -72,10 +72,10 @@ void RadioLogger::logMsg( const char* msg, Mode mode )
 
 #ifdef LOGGING_ENABLED
 
-#include <qstring>
-#include <qfile>
-#include <qtextstream>
-#include <qdatetime>
+#include <QString>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
 
 #ifdef TRACE_TO_FILE
     QFile mDebugFile;
@@ -142,6 +142,16 @@ MethodLogger::~MethodLogger()
         }
     }
 }
+#else
+
+MethodLogger::MethodLogger( const char*, const char* )
+{
+}
+        
+MethodLogger::~MethodLogger()
+{
+}
+
 #endif // LOGGING_ENABLED
 
 

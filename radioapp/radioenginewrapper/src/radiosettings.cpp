@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qvariant>
+#include <QVariant>
 
 // User includes
 #include "radiosettings.h"

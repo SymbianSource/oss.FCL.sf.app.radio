@@ -19,7 +19,7 @@
 #define RADIOSTATIONIF_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 class RadioStationIf
 {

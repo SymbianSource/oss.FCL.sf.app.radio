@@ -15,11 +15,13 @@
 *
 */
 
+// System includes
 #include <s32mem.h>
-#include "cradioenginelogger.h"
 
+// User includes
 #include "cradiorepositorymanager.h"
 #include "cradiosettingsbase.h"
+#include "cradioenginelogger.h"
 
 
 // ======== MEMBER FUNCTIONS ========

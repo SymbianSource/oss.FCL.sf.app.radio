@@ -17,7 +17,7 @@
 
 #include "radiobannerlabel.h"
 
-#include <qpainter.h>
+#include <QPainter>
 
 /*!
  *

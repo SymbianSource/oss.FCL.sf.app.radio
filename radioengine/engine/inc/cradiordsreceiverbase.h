@@ -18,15 +18,19 @@
 #ifndef CRADIORDSRECEIVERBASE_H
 #define CRADIORDSRECEIVERBASE_H
 
-#include <radiordsutility.h>
+// System includes
+#include <RadioRdsUtility.h>
 
+// User includes
 #include "mradioenginesettings.h"
 #include "mradiordsdataobserver.h"
 #include "mradiordsreceiver.h"
 
+// Forward declarations
 class CRadioUtility;
 class CRadioPubSub;
 
+// Class declaration
 NONSHARABLE_CLASS( CRadioRdsReceiverBase ) : public CBase
                                            , public MRadioRdsReceiver
                                            , public MRadioRdsObserver

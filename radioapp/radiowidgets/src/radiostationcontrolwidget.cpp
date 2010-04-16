@@ -16,15 +16,14 @@
 */
 
 // System includes
-#include <hbstyleloader.h>
-#include <hbpushbutton.h>
-#include <hbmessagebox.h>
-#include <hbanchorlayout.h>
+#include <HbStyleLoader>
+#include <HbPushButton>
+#include <HbMessageBox>
+#include <HbAnchorLayout>
 
 // User includes
 #include "radiostationcontrolwidget.h"
 #include "radiolocalization.h"
-#include "radioxmluiloader.h"
 #include "radiomainwindow.h"
 #include "radiologger.h"
 #include "radiostation.h"
@@ -40,8 +39,11 @@
 #endif
 const QString KBlinkEffect = "blink_in_out_in";
 
-static const QString FILE_PATH_WIDGETML = ":/layout/radiostationcontrolwidget.widgetml";
-static const QString FILE_PATH_CSS = ":/layout/radiostationcontrolwidget.css";
+static const char* FILE_PATH_WIDGETML = ":/layout/radiostationcontrolwidget.widgetml";
+static const char* FILE_PATH_CSS = ":/layout/radiostationcontrolwidget.css";
+static const char* TAG_BUTTON = "tag_song_button";
+static const char* RECOGNIZE_BUTTON = "recognize_button";
+static const char* STATIONS_BUTTON = "stations_button";
 
 /*!
  *
@@ -59,9 +61,16 @@ RadioStationControlWidget::RadioStationControlWidget( RadioUiEngine& uiEngine, Q
     registered = HbStyleLoader::registerFilePath( FILE_PATH_CSS );
     LOG_FORMAT( "registered: %d", registered );
 
-    HbStyle::setItemName( mTagSongButton, "tag_song_button" );
-    HbStyle::setItemName( mRecognizeButton, "recognize_button" );
-    HbStyle::setItemName( mStationsViewButton, "stations_button" );
+    mTagSongButton->setStretched( true );
+    mStationsViewButton->setStretched( true );
+    mRecognizeButton->setStretched( true );
+    
+    HbStyle::setItemName( mTagSongButton, TAG_BUTTON );
+    mTagSongButton->setObjectName( TAG_BUTTON );
+    HbStyle::setItemName( mRecognizeButton, RECOGNIZE_BUTTON );
+    mRecognizeButton->setObjectName( RECOGNIZE_BUTTON );
+    HbStyle::setItemName( mStationsViewButton, STATIONS_BUTTON );
+    mStationsViewButton->setObjectName( STATIONS_BUTTON );
 }
 
 /*!

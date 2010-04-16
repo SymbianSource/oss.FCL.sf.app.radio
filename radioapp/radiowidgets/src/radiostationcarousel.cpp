@@ -16,15 +16,16 @@
 */
 
 // System includes
-#include <qgraphicslinearlayout>
-#include <hbanchorlayout.h>
-#include <hbpushbutton.h>
-#include <qpixmap>
+#include <QGraphicsLinearLayout>
+#include <HbAnchorLayout>
+#include <QPixmap>
 #include <QGraphicsSceneMouseEvent>
-#include <hbeffect>
+#include <HbEffect>
+#include <QTimer>
 
 // User includes
 #include "radiostationcarousel.h"
+#include "radiostationitem.h"
 #include "radiouiengine.h"
 #include "radiostationmodel.h"
 #include "radiofadinglabel.h"
@@ -41,181 +42,7 @@
     const QString KNonFavoriteIconPath = ":/images/favoriteiconinactive.png";
 #endif
 
-// =============================================
-// Station Item
-// =============================================
-
-/*!
- *
- */
-RadioStationItem::RadioStationItem( QGraphicsItem* parent ) :
-    HbAbstractViewItem( parent ),
-    mLayout( 0 ),
-    mNameLabel( 0 ),
-    mIconButton( 0 ),
-    mGenreLabel( 0 ),
-    mRadiotextLabel( 0 )
-{
-    setFlag( QGraphicsItem::ItemIsFocusable, true );
-}
-
-/*!
- * From HbAbstractViewItem
- *
- */
-HbAbstractViewItem* RadioStationItem::createItem()
-{
-    return new RadioStationItem( *this ); // Calls copy constructor
-}
-
-/*!
- * From HbAbstractViewItem
- */
-void RadioStationItem::updateChildItems()
-{
-    if ( !mLayout )
-    {
-        mNameLabel = new RadioFadingLabel( this );
-        HbFontSpec spec = mNameLabel->fontSpec();
-        spec.setTextPaneHeight( 40 );
-        spec.setRole( HbFontSpec::Primary );
-        mNameLabel->setFontSpec( spec );
-        mNameLabel->setAlignment( Qt::AlignLeft );
-
-        spec.setRole( HbFontSpec::Secondary );
-        spec.setPointSize( 6 );
-
-        mIconButton = new HbPushButton( this );
-        QPixmap background( QSize( 50, 50 ) );
-        background.fill( Qt::transparent );        
-        mIconButton->setBackground( HbIcon( background ) );
-        HbIcon favoriteIcon( KFavoriteIconPath );
-        mIconButton->setOrientation( Qt::Horizontal );
-        mIconButton->setIcon( favoriteIcon );
-        mIconButton->setPreferredSize( 50, 50 );
-        connectAndTest( mIconButton, SIGNAL(clicked()), this, SLOT(toggleFavorite()));
-
-        mGenreLabel = new RadioFadingLabel( this );
-        mGenreLabel->setAlignment( Qt::AlignCenter );
-//        mGenreLabel->setFadingEnabled( true );    TODO
-        mGenreLabel->setFontSpec( spec );
-        mGenreLabel->setTextColor( Qt::white );
-
-        mRadiotextLabel = new RadioFadingLabel( this );
-        mRadiotextLabel->setAlignment( Qt::AlignCenter );
-        mRadiotextLabel->setTextWrapping( Hb::TextWordWrap );
-//        mRadiotextLabel->setFadingEnabled( true );    TODO
-        mRadiotextLabel->setFontSpec( spec );
-        mRadiotextLabel->setTextColor( Qt::white );
-
-        mLayout = new HbAnchorLayout();
-
-        mLayout->setAnchor( mLayout, Hb::TopEdge, mIconButton, Hb::TopEdge, 40.0 );
-        mLayout->setAnchor( mLayout, Hb::LeftEdge, mIconButton, Hb::LeftEdge, 20.0 );
-
-        mLayout->setAnchor( mLayout, Hb::TopEdge, mNameLabel, Hb::TopEdge, 40.0 );
-        mLayout->setAnchor( mIconButton, Hb::RightEdge, mNameLabel, Hb::LeftEdge, 10.0 );
-        mLayout->setAnchor( mLayout, Hb::RightEdge, mNameLabel, Hb::RightEdge, 10.0 );
-
-        mLayout->setAnchor( mNameLabel, Hb::BottomEdge, mGenreLabel, Hb::TopEdge, 0.0 );
-
-        mLayout->setAnchor( mLayout, Hb::LeftEdge, mGenreLabel, Hb::LeftEdge, 10.0 );
-        mLayout->setAnchor( mLayout, Hb::CenterHEdge, mGenreLabel, Hb::CenterHEdge, 0.0 );
-
-        mLayout->setAnchor( mGenreLabel, Hb::BottomEdge, mRadiotextLabel, Hb::TopEdge, 0.0 );
-        mLayout->setAnchor( mLayout, Hb::LeftEdge, mRadiotextLabel, Hb::LeftEdge, 10.0 );
-        mLayout->setAnchor( mLayout, Hb::CenterHEdge, mRadiotextLabel, Hb::CenterHEdge, 0.0 );
-        mLayout->setAnchor( mLayout, Hb::BottomEdge, mRadiotextLabel, Hb::BottomEdge, -20.0 );
-
-        setLayout( mLayout );
-    }
-
-    update();
-}
-
-/*!
- * Private slot
- *
- */
-void RadioStationItem::toggleFavorite()
-{
-    carousel()->uiEngine().model().setData( modelIndex(), mFrequency, RadioStationModel::ToggleFavoriteRole );
-}
-
-/*!
- *
- */
-uint RadioStationItem::frequency() const
-{
-    return mFrequency;
-}
-
-/*!
- *
- */
-void RadioStationItem::update( const RadioStation* station )
-{
-    QModelIndex index = modelIndex();
-    if ( !( station && station->isValid() ) && !index.isValid() )
-        {
-        return;
-        }
-
-    RadioStation tempStation = ( station && station->isValid() ) ? *station
-                    : index.data( RadioStationModel::RadioStationRole ).value<RadioStation>();
-
-    mNameLabel->setTextWithoutFading( RadioUiEngine::nameOrFrequency( tempStation ) );
-    QString dynamicPs = tempStation.dynamicPsText();
-    mGenreLabel->setText( dynamicPs.isEmpty() ? carousel()->uiEngine().genreToString( tempStation.genre() ) : dynamicPs );
-    mRadiotextLabel->setText( carousel()->isAntennaAttached() ? tempStation.radioText() : TRANSLATE(KConnectHeadsetAntenna) );
-    mFrequency = tempStation.frequency();
-
-    updateFavoriteIcon( tempStation.isFavorite() );
-}
-
-/*!
- *
- */
-void RadioStationItem::setFrequency( uint frequency )
-{
-    LOG_FORMAT( "RadioStationItem::setFrequency: %u", frequency );
-    mNameLabel->setTextWithoutFading( RadioUiEngine::parseFrequency( frequency ) );
-    mGenreLabel->setTextWithoutFading( "" );
-    mRadiotextLabel->setTextWithoutFading( carousel()->isAntennaAttached() ? "" : TRANSLATE(KConnectHeadsetAntenna) );
-    mFrequency = frequency;
-    updateFavoriteIcon( false );
-}
-
-/*!
- *
- */
-void RadioStationItem::setSeekingText()
-{
-    mNameLabel->setTextWithoutFading( TRANSLATE( KHeadingSeeking ) );
-    mGenreLabel->setTextWithoutFading( "" );
-    mRadiotextLabel->setTextWithoutFading( "" );
-}
-
-/*!
- *
- */
-void RadioStationItem::updateFavoriteIcon( bool isFavorite )
-{
-//    mIconButton->setOpacity( isFavorite ? 1.0 : 0.5 );
-    mIconButton->setIcon( isFavorite ? KFavoriteIconPath : KNonFavoriteIconPath );
-}
-
-/*!
- *
- */
-RadioStationCarousel* RadioStationItem::carousel()
-{
-    return static_cast<RadioStationCarousel*>( itemView() );
-}
-
-// =============================================
-// Station Carousel
-// =============================================
+const int KRadioTextPlusCheckTimeout = 700; // 700 ms
 
 /*!
  *
@@ -227,7 +54,11 @@ RadioStationCarousel::RadioStationCarousel( RadioUiEngine& uiEngine, QGraphicsIt
     mAutoScrollTime( 1000 ),
     mPreviousButtonPos( 0.0 ),
     mMovingLeft( false ),
-    mCurrentItem( 0 )
+    mCurrentItem( 0 ),
+    mRadioTextTimer( new QTimer( this ) )
+#ifdef USE_DEBUGGING_CONTROLS
+    ,mRdsLabel( new RadioFadingLabel( this ) )
+#endif // USE_DEBUGGING_CONTROLS
 {
     mAntennaAttached = mUiEngine.isAntennaAttached();
 
@@ -240,7 +71,7 @@ RadioStationCarousel::RadioStationCarousel( RadioUiEngine& uiEngine, QGraphicsIt
     setLongPressEnabled( false );
     setItemRecycling( false ); // TODO: Enable recycling
     setUniformItemSizes( true );
-    setItemPrototype( new RadioStationItem( this ) );
+    setItemPrototype( new RadioStationItem( *this ) );
     setSelectionMode( SingleSelection );
 
     RadioStationFilterModel* filterModel = mUiEngine.createNewFilterModel( this );
@@ -266,9 +97,27 @@ RadioStationCarousel::RadioStationCarousel( RadioUiEngine& uiEngine, QGraphicsIt
     connectAndTest( stationModel,   SIGNAL(stationDataChanged(RadioStation)),
                     this,           SLOT(update(RadioStation)));
     connectAndTest( stationModel,   SIGNAL(radioTextReceived(RadioStation)),
-                    this,           SLOT(update(RadioStation)));
+                    this,           SLOT(updateRadioText(RadioStation)));
     connectAndTest( stationModel,   SIGNAL(dynamicPsChanged(RadioStation)),
                     this,           SLOT(update(RadioStation)));
+
+    mRadioTextTimer->setSingleShot( true );
+    mRadioTextTimer->setInterval( KRadioTextPlusCheckTimeout );
+    connectAndTest( mRadioTextTimer,    SIGNAL(timeout()),
+                    this,               SLOT(radioTextPlusCheckEnded()));
+
+#ifdef USE_DEBUGGING_CONTROLS
+    mRdsLabel->setPos( QPoint( 300, 10 ) );
+    mRdsLabel->setText( "RDS" );
+    mRdsLabel->setElideMode( Qt::ElideNone );
+    HbFontSpec spec = mRdsLabel->fontSpec();
+    spec.setTextPaneHeight( 10 );
+    spec.setRole( HbFontSpec::Secondary );
+    mRdsLabel->setFontSpec( spec );
+    mRdsLabel->setTextColor( Qt::gray );
+    connectAndTest( &mUiEngine,     SIGNAL(rdsAvailabilityChanged(bool)),
+                    this,           SLOT(setRdsAvailable(bool)) );
+#endif // USE_DEBUGGING_CONTROLS
 }
 
 /*!
@@ -287,6 +136,42 @@ void RadioStationCarousel::setBackground( const HbIcon& background )
 HbIcon RadioStationCarousel::background() const
 {
     return mBackground;
+}
+
+/*!
+ * Property
+ *
+ */
+void RadioStationCarousel::setFavoriteIcon( const HbIcon& favoriteIcon )
+{
+    mFavoriteIcon = favoriteIcon;
+}
+
+/*!
+ * Property
+ *
+ */
+HbIcon RadioStationCarousel::favoriteIcon() const
+{
+    return mFavoriteIcon;
+}
+
+/*!
+ * Property
+ *
+ */
+void RadioStationCarousel::setNonFavoriteIcon( const HbIcon& nonFavoriteIcon )
+{
+    mNonFavoriteIcon = nonFavoriteIcon;
+}
+
+/*!
+ * Property
+ *
+ */
+HbIcon RadioStationCarousel::nonFavoriteIcon() const
+{
+    return mNonFavoriteIcon;
 }
 
 /*!
@@ -313,6 +198,25 @@ void RadioStationCarousel::update( const RadioStation& station )
     RadioStationItem* item = currentStationItem();
     if ( item && item->frequency() == station.frequency() ) {
         item->update( &station );
+    }
+}
+
+/*!
+ * Private slot
+ */
+void RadioStationCarousel::updateRadioText( const RadioStation& station )
+{
+    if ( isAntennaAttached() ) {
+        if ( station.radioText().isEmpty() ) {
+            RadioStationItem* item = currentStationItem();
+            if ( item ) {
+                item->mRadiotextLabel->setText( "" );
+            }
+        } else {
+            mRadioTextHolder = station.radioText();
+            mRadioTextTimer->stop();
+            mRadioTextTimer->start();
+        }
     }
 }
 
@@ -411,6 +315,37 @@ void RadioStationCarousel::updateLoopedPos()
 }
 
 /*!
+ * Private slot
+ */
+void RadioStationCarousel::radioTextPlusCheckEnded()
+{
+    RadioStationItem* item = currentStationItem();
+    if ( item ) {
+        item->mRadiotextLabel->setText( mRadioTextHolder );
+    }
+    mRadioTextHolder = "";
+    mRadioTextTimer->stop();
+}
+
+#ifdef USE_DEBUGGING_CONTROLS
+/*!
+ * Public slot
+ */
+void RadioStationCarousel::setRdsAvailable( bool available )
+{
+    QColor color = Qt::green;
+    if ( !available ) {
+        LOG_FORMAT( "No RDS signal: Station has sent RDS earlier: %d", mUiEngine.model().currentStation().hasRds() );
+        color = mUiEngine.model().currentStation().hasRds() ? Qt::yellow : Qt::gray;
+        mRdsLabel->setText( "RDS" );
+    } else {
+        mRdsLabel->setText( "-RDS-" );
+    }
+    mRdsLabel->setTextColor( color );
+}
+#endif // USE_DEBUGGING_CONTROLS
+
+/*!
  * Public slot
  *
  */
@@ -461,10 +396,15 @@ void RadioStationCarousel::setFrequency( uint frequency )
  */
 void RadioStationCarousel::setSeekingText()
 {
+    mRadioTextTimer->stop();
     RadioStationItem* item = currentStationItem();
     if ( item ) {
         item->setSeekingText();
     }
+
+#ifdef USE_DEBUGGING_CONTROLS
+    mRdsLabel->setTextColor( Qt::gray );
+#endif //USE_DEBUGGING_CONTROLS
 }
 
 /*!
@@ -472,6 +412,7 @@ void RadioStationCarousel::setSeekingText()
  */
 void RadioStationCarousel::updateHeadsetStatus( bool connected )
 {
+    mRadioTextTimer->stop();
     mAntennaAttached = connected;
     RadioStationItem* item = currentStationItem();
     if ( item  ) {
@@ -555,7 +496,11 @@ void RadioStationCarousel::scrollToIndex( const QModelIndex& index, int time )
         if ( !filterModel()->isEqual( currentIndex(), index ) ) {
             setCurrentIndex( index, QItemSelectionModel::SelectCurrent );
             mCurrentItem = static_cast<RadioStationItem*>( item );
-            emit frequencyChanged( static_cast<RadioStationItem*>( item )->frequency(), CommandSender::StationCarousel );
+            uint frequency = model()->data( index, RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
+            if ( item->frequency() != frequency ) {
+                item->setFrequency( frequency );
+            }
+            emit frequencyChanged( frequency, CommandSender::StationCarousel );
         }
         scrollContentsTo( QPointF( posX, 0 ) , time );
     }

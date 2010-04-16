@@ -112,6 +112,62 @@ void RadioPlayLogItem::setTitle( const QString& title )
 /*!
  *
  */
+QString RadioPlayLogItem::station() const
+{
+    return mData->mStation;
+}
+
+/*!
+ *
+ */
+void RadioPlayLogItem::setStation( const QString& station )
+{
+    if ( station.compare( mData->mStation ) != 0 ) {
+        detach();
+        mData->mStation = station;
+    }
+}
+
+/*!
+ *
+ */
+uint RadioPlayLogItem::frequency() const
+{
+    return mData->mFrequency;
+}
+
+/*!
+ *
+ */
+void RadioPlayLogItem::setFrequency( uint frequency )
+{
+    if ( frequency != mData->mFrequency ) {
+        detach();
+        mData->mFrequency = frequency;
+    }
+}
+
+/*!
+ *
+ */
+QString RadioPlayLogItem::time() const
+{
+    return mData->mTime.toString();
+}
+
+/*!
+ *
+ */
+void RadioPlayLogItem::setCurrentTime()
+{
+    detach();
+    mData->mTime.currentDateTime();
+}
+
+
+/*!
+ *
+ */
 bool RadioPlayLogItem::isFavorite() const
 {
     return mData->mFavorite;

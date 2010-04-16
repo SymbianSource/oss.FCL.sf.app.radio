@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <remconcallhandlingtarget.h>
+#include <RemConCallHandlingTarget.h>
 #include <remconcoreapitarget.h>
 #include <remconinterfaceselector.h>
 

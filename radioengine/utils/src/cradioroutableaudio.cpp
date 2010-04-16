@@ -15,7 +15,10 @@
 *
 */
 
-#include <audiooutput.h>
+// System includes
+#include <AudioOutput.h>
+
+// User includes
 #include "cradioroutableaudio.h"
 #include "cradioaudiorouter.h"
 

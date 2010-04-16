@@ -19,7 +19,7 @@
 #define _RADIOLOGGER_H_
 
 // System includes
-#include <qobject>
+#include <QObject>
 
 // User includes
 #include "radiowrapperexport.h"
@@ -46,8 +46,8 @@ private:
 
 #ifdef TIMESTAMP_LOGGING_ENABLED
 
-#include <qtime>
-#include <qdebug.h>
+#include <QTime>
+#include <QDebug>
 
 /**
  * Timestamp logging macro.
@@ -81,8 +81,8 @@ private:
 
 #ifdef LOGGING_ENABLED
 
-#include <qglobal.h>
-#include <qdebug.h>
+#include <QtGlobal>
+#include <QDebug>
 
 // UI logs can be combined with engine logs by making the UI feed its log prints into
 // the engine logger. This requires that we initialize the radio engine utils right here
@@ -199,8 +199,8 @@ private:
 class WRAPPER_DLL_EXPORT MethodLogger
 {
 public:
-    MethodLogger( const char*, const char* ) {}
-    ~MethodLogger() {}
+    MethodLogger( const char*, const char* );
+    ~MethodLogger();
 };
 
 #endif // LOGGING_ENABLED

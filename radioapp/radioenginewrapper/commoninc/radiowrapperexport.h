@@ -19,7 +19,7 @@
 #define RADIO_WRAPPER_EXPORT_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 #ifdef BUILD_WRAPPER_DLL
     #define WRAPPER_DLL_EXPORT Q_DECL_EXPORT

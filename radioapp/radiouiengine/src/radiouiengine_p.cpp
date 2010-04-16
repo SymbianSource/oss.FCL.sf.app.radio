@@ -16,8 +16,14 @@
 */
 
 // System includes
-#include <qapplication>
-#include <qstringlist>
+#include <QApplication>
+#include <QStringList>
+#include <QTime>
+#ifndef BUILD_WIN32
+#   include <XQSettingsManager>
+#   include <XQPublishAndSubscribeSettingsKey>
+#   include <XQPublishAndSubscribeUtils>
+#endif
 
 // User includes
 #include "radiouiengine.h"
@@ -27,6 +33,13 @@
 #include "radiopresetstorage.h"
 #include "radiosettings.h"
 #include "radiostation.h"
+#ifndef BUILD_WIN32
+#   include "radiocontrolservice.h"
+#   include "radiomonitorservice.h"
+#else
+#   include "radiomonitorservice_win32.h"
+#endif
+#include "radioserviceconst.h"
 #include "radiologger.h"
 
 /*!
@@ -36,7 +49,9 @@ RadioUiEnginePrivate::RadioUiEnginePrivate( RadioUiEngine* engine ) :
     q_ptr( engine ),
     mEngineWrapper( 0 ),
     mStationModel( 0 ),
-    mPlayLogModel( 0 )
+    mPlayLogModel( 0 ),
+    mControlService( 0 ),
+    mMonitorService( 0 )
 {
 }
 
@@ -45,6 +60,12 @@ RadioUiEnginePrivate::RadioUiEnginePrivate( RadioUiEngine* engine ) :
  */
 RadioUiEnginePrivate::~RadioUiEnginePrivate()
 {
+#ifndef BUILD_WIN32
+    XQSettingsManager settingsManager;
+    XQPublishAndSubscribeUtils utils( settingsManager );
+    XQPublishAndSubscribeSettingsKey radioStartupKey( KRadioPSUid, KRadioStartupKey );
+    utils.deleteProperty( radioStartupKey );
+#endif
 }
 
 /*!
@@ -52,10 +73,23 @@ RadioUiEnginePrivate::~RadioUiEnginePrivate()
  */
 bool RadioUiEnginePrivate::startRadio()
 {
+#ifndef BUILD_WIN32
+    mControlService = new RadioControlService( *q_ptr );
+#endif
+    mMonitorService = new RadioMonitorService( *q_ptr );
     mStationModel = new RadioStationModel( *q_ptr );
     mEngineWrapper.reset( new RadioEngineWrapper( mStationModel->stationHandlerIf(), *this ) );
     mPresetStorage.reset( new RadioPresetStorage() );
     mStationModel->initialize( mPresetStorage.data(), mEngineWrapper.data() );
+
+#ifndef BUILD_WIN32
+    // Write the startup timestamp to P&S key for the homescreen widget
+    XQSettingsManager settingsManager;
+    XQPublishAndSubscribeUtils utils( settingsManager );
+    XQPublishAndSubscribeSettingsKey radioStartupKey( KRadioPSUid, KRadioStartupKey );
+    utils.defineProperty( radioStartupKey, XQSettingsManager::TypeVariant );
+    settingsManager.writeItemValue( radioStartupKey, QVariant( QTime::currentTime() ) );   
+#endif
 
     return mEngineWrapper->isEngineConstructed();
 }

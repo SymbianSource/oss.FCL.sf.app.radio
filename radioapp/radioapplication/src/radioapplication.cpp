@@ -15,6 +15,9 @@
 *
 */
 
+// System includes
+#include <QTimer>
+
 // User includes
 #include "radioapplication.h"
 #include "radiomainwindow.h"
@@ -40,7 +43,7 @@
 /*!
  * Constructor
  */
-RadioApplication::RadioApplication( int argc, char* argv[] ) :
+RadioApplication::RadioApplication( int &argc, char *argv[] ) :
     HbApplication( argc, argv ),
     mUiEngine( 0 )
 {
@@ -48,7 +51,7 @@ RadioApplication::RadioApplication( int argc, char* argv[] ) :
     INIT_COMBINED_LOGGER
 
     LOG_TIMESTAMP( "Start radio" );
-    setApplicationName( TRANSLATE( KApplicationName ) );
+    setApplicationName( hbTrId( "txt_rad_title_fm_radio" ) );
 
     // MainWindow needs to be alive to be able to show the offline query dialog.
     // The window is only constructed half-way at this point because we may need to shut down if
@@ -57,25 +60,7 @@ RadioApplication::RadioApplication( int argc, char* argv[] ) :
 
     CREATE_WIN32_TEST_WINDOW
 
-    if ( RadioUiEngine::isOfflineProfile() && !mMainWindow->isOfflineUsageAllowed() ) {
-        quit();
-        return;
-    }
-
-    // Start the engine
-    mUiEngine = new RadioUiEngine( this );
-    if ( !mUiEngine->startRadio() ) {
-        mMainWindow->showErrorMessage( TRANSLATE( KErrorEngineStartFailed ) );
-        quit();
-        return;
-    }
-
-    INIT_WIN32_TEST_WINDOW
-
-    // Construct the real views
-    mMainWindow->init( mUiEngine );
-
-    mMainWindow->show();
+    QTimer::singleShot( 0, this, SLOT(init()) );
 }
 
 /*!
@@ -84,7 +69,33 @@ RadioApplication::RadioApplication( int argc, char* argv[] ) :
 RadioApplication::~RadioApplication()
 {
     // Destructor needs to be defined. See explanation from RadioEngineWrapperPrivate destructor.
-
     // Releases the radio engine utils if it was initialized in the beginning
     RELEASE_COMBINED_LOGGER
+}
+
+/*!
+ *Private slot
+ *
+ */
+void RadioApplication::init()
+{
+    if ( RadioUiEngine::isOfflineProfile() && !mMainWindow->isOfflineUsageAllowed() ) {
+            quit();
+            return;
+        }
+
+        // Start the engine
+        mUiEngine = new RadioUiEngine( this );
+        if ( !mUiEngine->startRadio() ) {
+            mMainWindow->showErrorMessage( TRANSLATE( KErrorEngineStartFailed ) );
+            quit();
+            return;
+        }
+
+        INIT_WIN32_TEST_WINDOW
+
+        // Construct the real views
+        mMainWindow->init( mUiEngine );
+
+        mMainWindow->show();
 }

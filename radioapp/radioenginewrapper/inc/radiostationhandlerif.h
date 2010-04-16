@@ -19,7 +19,7 @@
 #define RADIOSTATIONHANDLERIF_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 // Forward declarations
 class RadioStationIf;

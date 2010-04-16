@@ -16,8 +16,8 @@
 */
 
 // System includes
-#include <qtimer>
-#include <qsettings>
+#include <QTimer>
+#include <QSettings>
 
 // User includes
 #include "radioenginewrapper_win32_p.h"
@@ -34,6 +34,23 @@ static RadioEngineWrapperPrivate* theInstance = 0;
 const QString KKeyFrequency = "CurrentFreq";
 const QString KKeyOffline = "Offline";
 
+const uint KScanFrequencies[] = {
+    87600000,
+    88000000,
+    89400000,
+    96000000,
+    97600000,
+    100600000,
+    101300000,
+    102600000,
+    103500000,
+    104100000,
+    105500000,
+    107500000
+};
+
+const int KScanFrequencyCount = sizeof( KScanFrequencies ) / sizeof( KScanFrequencies[0] );
+
 /*!
  *
  */
@@ -49,6 +66,7 @@ RadioEngineWrapperPrivate::RadioEngineWrapperPrivate( RadioEngineWrapper* wrappe
     mIsSeeking( false ),
     mAntennaAttached( true ),
     mFrequency( 0 ),
+    mNextFrequency( 0 ),
     mVolume( 5 ),
     mMaxVolume( 10000 ),
     mFrequencyStepSize( 50000 ),
@@ -156,6 +174,33 @@ RadioEngineWrapperObserver& RadioEngineWrapperPrivate::observer()
 void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction )
 {
     mObserver.seekingStarted( direction );
+
+    // Find the previous and next favorite from current frequency
+    uint previous = 0;
+    uint next = 0;
+    for( int i = 0; i < KScanFrequencyCount; ++i ) {
+        int testFreq = KScanFrequencies[i];
+        if ( testFreq > mFrequency ) {
+            next = testFreq;
+            break;
+        }
+        previous = testFreq;
+    }
+
+
+    if ( direction == Seeking::Up ) {
+        if ( next == 0 ) {
+            next = KScanFrequencies[0];
+        }
+        mNextFrequency = next;
+    } else {
+        if ( previous == 0 ) {
+            previous = KScanFrequencies[KScanFrequencyCount - 1];
+        }
+        mNextFrequency = previous;
+    }
+
+    mTuneTimer->start( 1000 );
 }
 
 /*!
@@ -190,11 +235,13 @@ void RadioEngineWrapperPrivate::setVolume( int volume )
 void RadioEngineWrapperPrivate::addSong( const QString& artist, const QString& title )
 {
     QString radioText = QString( "Now Playing: %1 - %2" ).arg( artist ).arg( title );
+    mArtist = artist;
+    mTitle = title;
 
     const uint frequency = mStationHandler.currentFrequency();
     mStationHandler.setCurrentRadioText( frequency, radioText );
-    mStationHandler.setCurrentRadioTextPlus( frequency, RtPlus::Artist, artist );
-    mStationHandler.setCurrentRadioTextPlus( frequency, RtPlus::Title, title );
+
+    QTimer::singleShot( 500, this, SLOT(addSongTags()) );
 }
 
 /*!
@@ -226,9 +273,26 @@ void RadioEngineWrapperPrivate::setOffline( bool offline )
  */
 void RadioEngineWrapperPrivate::frequencyEvent()
 {
+    if ( mNextFrequency ) { // Seeking
+        mFrequency = mNextFrequency;
+        mStationHandler.addScannedFrequency( mFrequency );
+    }
+
     mStationHandler.setCurrentStation( mFrequency );
     mObserver.tunedToFrequency( mFrequency, mCommandSender );
     mStationHandler.startDynamicPsCheck();
+}
+
+/*!
+ * Private slot
+ */
+void RadioEngineWrapperPrivate::addSongTags()
+{
+    const uint frequency = mStationHandler.currentFrequency();
+    mStationHandler.setCurrentRadioTextPlus( frequency, RtPlus::Artist, mArtist );
+    mStationHandler.setCurrentRadioTextPlus( frequency, RtPlus::Title, mTitle );
+    mArtist = "";
+    mTitle = "";
 }
 
 /*!

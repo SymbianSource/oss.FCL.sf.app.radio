@@ -19,7 +19,7 @@
 #define RADIOBANNERLABEL_H_
 
 // System includes
-#include <hblabel.h>
+#include <HbLabel>
 
 class RadioBannerLabel : public HbLabel
 {

@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qgraphicssceneevent>
+#include <QGraphicsSceneEvent>
 
 // User includes
 #include "radiostripbase.h"
@@ -218,8 +218,10 @@ void RadioStripBase::setIndex( int index, bool animateToCenter )
  */
 void RadioStripBase::resizeEvent( QGraphicsSceneResizeEvent* event )
 {
-    QPixmap background = mBackgroundImage->pixmap().scaledToWidth( event->newSize().width() );
-    mBackgroundImage->setPixmap( background );
+    if ( mBackgroundImage ) {
+        QPixmap background = mBackgroundImage->pixmap().scaledToWidth( event->newSize().width() );
+        mBackgroundImage->setPixmap( background );
+    }
     populateAndLayout();
 }
 

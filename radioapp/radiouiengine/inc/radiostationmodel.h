@@ -19,8 +19,8 @@
 #define RADIOSTATIONMODEL_H_
 
 // System includes
-#include <qabstractlistmodel>
-#include <qmap>
+#include <QAbstractListModel>
+#include <QMap>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -159,6 +159,7 @@ signals:
     void radioTextReceived( const RadioStation& station );
     void dynamicPsChanged( const RadioStation& station );
     void favoriteChanged( const RadioStation& station );
+    void stationRemoved( const RadioStation& station );
     void stationAdded( const RadioStation& station );
 
 public slots:

@@ -20,10 +20,10 @@
 
 // System includes
 #ifndef COMPILE_WITH_NEW_PRESET_UTILITY
-#   include <radiopresetutility.h>
+#   include <RadioPresetUtility.h>
 #endif // COMPILE_WITH_NEW_PRESET_UTILITY
 
-#include <qscopedpointer>
+#include <QScopedPointer>
 #include <e32std.h>
 
 // User includes

@@ -18,12 +18,14 @@
 #ifndef C_RADIOENGINESETTINGS_H
 #define C_RADIOENGINESETTINGS_H
 
+// User includes
 #include "mradioenginesettings.h"
 #include "mradiosettingssetter.h"
 #include "cradioregion.h"
 #include "mradiorepositoryentityobserver.h"
 #include "cradiosettingsbase.h"
 
+// Forward declarations
 class MRadioSettingsObserver;
 
 /**

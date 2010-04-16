@@ -18,6 +18,7 @@
 #ifndef MRADIOENGINEOBSERVER_H
 #define MRADIOENGINEOBSERVER_H
 
+// User includes
 #include "radioenginedef.h"
 
 /**

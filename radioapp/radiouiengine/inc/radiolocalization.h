@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qobject.h>
+#include <QObject>
 
 typedef struct{ const char* source; const char* comment; } Translation;
 

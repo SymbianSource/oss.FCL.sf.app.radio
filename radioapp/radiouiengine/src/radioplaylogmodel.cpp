@@ -16,13 +16,15 @@
 */
 
 // System includes
-#include <qstringlist>
+#include <QStringList>
 
 // User includes
 #include "radioplaylogmodel.h"
 #include "radioplaylogmodel_p.h"
 #include "radiouiengine.h"
 #include "radioplaylogitem.h"
+#include "radiostation.h"
+#include "radiouiengine.h"
 #include "radio_global.h"
 #include "radiologger.h"
 
@@ -82,9 +84,13 @@ QVariant RadioPlayLogModel::data( const QModelIndex& index, int role ) const
         RadioPlayLogItem item = d->mItems.at( index.row() );
 
         QStringList list;
-        list.append( item.artist() + " - " + item.title() );
-        QString secondLine = QString( "Count: %1. Favorite: %2" ).arg( item.playCount() ).arg( item.isFavorite() );
-        list.append( secondLine );
+        if ( d->mShowDetails ) {
+            list.append( item.artist() + " - " + item.title() );
+            list.append( item.time() + " " + item.station() + " " + RadioUiEngine::parseFrequency( item.frequency() ) );
+        } else {
+            list.append( item.artist() );
+            list.append( item.title() );
+        }
 
         return list;
     }
@@ -160,7 +166,17 @@ bool RadioPlayLogModel::isCurrentSongRecognized() const
 /*!
  *
  */
-void RadioPlayLogModel::addItem( const QString& artist, const QString& title )
+void RadioPlayLogModel::setShowDetails( bool showDetails )
+{
+    Q_D( RadioPlayLogModel );
+    d->mShowDetails = showDetails;
+    reset();
+}
+
+/*!
+ *
+ */
+void RadioPlayLogModel::addItem( const QString& artist, const QString& title, const RadioStation& station )
 {
     Q_D( RadioPlayLogModel );
 
@@ -172,6 +188,9 @@ void RadioPlayLogModel::addItem( const QString& artist, const QString& title )
     } else {
         item.setArtist( artist );
         item.setTitle( title );
+        item.setStation( station.name() );
+        item.setFrequency( station.frequency() );
+        item.setCurrentTime();
 
         beginInsertRows( QModelIndex(), 0, 0 );
 
@@ -197,7 +216,7 @@ void RadioPlayLogModel::clearRadioTextPlus()
 /*!
  *
  */
-void RadioPlayLogModel::addRadioTextPlus( int rtClass, const QString& rtItem )
+void RadioPlayLogModel::addRadioTextPlus( int rtClass, const QString& rtItem, const RadioStation& station )
 {
     if ( rtClass == RtPlus::Artist || rtClass == RtPlus::Title ) {
         Q_D( RadioPlayLogModel );
@@ -205,9 +224,9 @@ void RadioPlayLogModel::addRadioTextPlus( int rtClass, const QString& rtItem )
             d->mRtItemHolder = rtItem;
         } else {
             if ( rtClass == RtPlus::Title ) {
-                addItem( d->mRtItemHolder, rtItem );
+                addItem( d->mRtItemHolder, rtItem, station );
             } else {
-                addItem( rtItem, d->mRtItemHolder );
+                addItem( rtItem, d->mRtItemHolder, station );
             }
             d->mRtItemHolder = "";
         }

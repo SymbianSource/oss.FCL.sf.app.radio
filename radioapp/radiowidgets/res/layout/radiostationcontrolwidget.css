@@ -9,29 +9,39 @@ HbPushButton::background {
     border-width: 0px;
 }
 
-HbPushButton::text {
-    text-align: left center;
-    color: white;
-    font-variant: primary;
-}
-
 RadioStationControlWidget::tag_song_button {
     left: -var(hb-param-margin-gene-left);
     right: var(hb-param-margin-gene-right);
-    top: 0un;
-    bottom: 0un;
+    top: -var(hb-param-margin-gene-top);
+}
+
+HbPushButton#tag_song_button::text {
+    text-align: left;
+    color: white;
+    font-variant: primary;
 }
 
 RadioStationControlWidget::recognize_button {
     left: -var(hb-param-margin-gene-left);
     right: var(hb-param-margin-gene-right);
-    top: 0un;
-    bottom: 0un;
+    top: -var(hb-param-margin-gene-top);
+}
+
+HbPushButton#recognize_button::text {
+    text-align: left;
+    color: white;
+    font-variant: primary;
 }
 
 RadioStationControlWidget::stations_button {
     left: -var(hb-param-margin-gene-left);
     right: var(hb-param-margin-gene-right);
-    top: 0un;
-    bottom: 0un;
+    top: -var(hb-param-margin-gene-top);
+    bottom: var(hb-param-margin-gene-bottom);
+}
+
+HbPushButton#stations_button::text {
+    text-align: left;
+    color: white;
+    font-variant: primary;
 }

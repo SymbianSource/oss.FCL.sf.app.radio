@@ -19,10 +19,10 @@
 #define FREQUENCYSTRIP_H
 
 // System includes
-#include <qmap>
-#include <qhash>
-#include <hbicon.h>
-#include <hbeffect.h>
+#include <QMap>
+#include <QHash>
+#include <HbIcon>
+#include <HbEffect>
 
 // User includes
 #include "radiostripbase.h"
@@ -77,6 +77,8 @@ public:
 public slots:
 
     void favoriteChanged( const RadioStation& station );
+    void stationAdded( const RadioStation& station );
+    void stationRemoved( const RadioStation& station );
     void setFrequency( const uint frequency, int commandSender = 0 );
 
 signals:

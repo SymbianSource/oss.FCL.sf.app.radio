@@ -20,9 +20,8 @@
 #define RADIOUIENGINE_H_
 
 // System includes
-#include <qobject>
-#include <qstring>
-//#include <qlist>
+#include <QObject>
+#include <QString>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -35,6 +34,7 @@ class RadioSettings;
 class RadioStation;
 class RadioPlayLogModel;
 class RadioStationFilterModel;
+class RadioMonitorService;
 
 class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 {
@@ -62,6 +62,7 @@ public:
     RadioStationModel& model();
     RadioPlayLogModel& playLogModel();
     RadioStationFilterModel* createNewFilterModel( QObject* parent = 0 );
+    RadioMonitorService& monitor();
 
     bool isRadioOn() const;
     bool isScanning() const;
@@ -84,7 +85,7 @@ public:
 
     bool isSongRecognitionAppAvailable();
 
-    void addRecognizedSong( const QString& artist, const QString& title );
+    void addRecognizedSong( const QString& artist, const QString& title, const RadioStation& station );
 
 signals:
 

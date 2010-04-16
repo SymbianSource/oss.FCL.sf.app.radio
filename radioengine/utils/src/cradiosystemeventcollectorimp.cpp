@@ -15,15 +15,17 @@
 *
 */
 
+// System includes
 #include <e32cmn.h>
-#include <uiklafinternalcrkeys.h>
-#include "cradioenginelogger.h"
+#include <UiklafInternalCRKeys.h>
 
+// User includes
 #include "cradioaccessoryobserver.h"
 #include "cradiorepositorymanager.h"
 #include "cradiosystemeventcollectorimp.h"
 #include "cradiosystemeventdetector.h"
 #include "radioengineutils.h"
+#include "cradioenginelogger.h"
 
 const TInt KVRObserverArrayGranularity( 2 );
 

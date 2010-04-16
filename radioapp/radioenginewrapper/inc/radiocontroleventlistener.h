@@ -19,8 +19,8 @@
 #define RADIOCONTROLEVENTLISTENER_H_
 
 // System includes
-#include <qglobal.h>
-#include <qscopedpointer>
+#include <QtGlobal>
+#include <QScopedPointer>
 
 // User includes
 #include "mradiocontroleventobserver.h"

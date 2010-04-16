@@ -19,7 +19,7 @@
 #define RADIOPLAYLOGMODEL_H
 
 // System includes
-#include <qabstractlistmodel>
+#include <QAbstractListModel>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -28,6 +28,7 @@
 // Forward declarations
 class RadioPlayLogModelPrivate;
 class RadioUiEngine;
+class RadioStation;
 
 class UI_ENGINE_DLL_EXPORT RadioPlayLogModel : public QAbstractListModel
 {
@@ -57,6 +58,7 @@ public:
 // New functions
 
     bool isCurrentSongRecognized() const;
+    void setShowDetails( bool showDetails );
 
 signals:
 
@@ -75,10 +77,10 @@ private:
 
     ~RadioPlayLogModel();
 
-    void addItem( const QString& artist, const QString& title );
+    void addItem( const QString& artist, const QString& title, const RadioStation& station );
 
     void clearRadioTextPlus();
-    void addRadioTextPlus( int rtClass, const QString& rtItem );
+    void addRadioTextPlus( int rtClass, const QString& rtItem, const RadioStation& station );
 
     int findItem( const QString& artist, const QString& title, RadioPlayLogItem& item );
 

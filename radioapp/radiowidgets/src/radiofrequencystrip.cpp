@@ -16,13 +16,12 @@
 */
 
 // System includes
-#include <qpainter>
-#include <qstringlistmodel>
-#include <qpainterpath>
-#include <qgraphicssceneresizeevent>
-#include <qpen>
-#include <hbpushbutton.h>
-#include <qtimer>
+#include <QPainter>
+#include <QStringListModel>
+#include <QGraphicsSceneResizeEvent>
+#include <QPen>
+#include <HbPushButton>
+#include <QTimer>
 
 #include "radiofrequencystrip.h"
 #include "radiofrequencyitem.h"
@@ -34,7 +33,7 @@
 // Frequency lines
 const int KTabHeightSmall = 10;
 const int KTabHeightBig = 15;
-const int KTabHeightFavorite = 15;
+//const int KTabHeightFavorite = 15;
 const int KTabWidthFavorite = 4;
 const qreal KIndicatorWidth = 2.0;
 
@@ -44,7 +43,7 @@ const int KSelectorZPos = 100;
 
 const int K100Khz = 100000;
 
-const int KTouchPosThreshold = 30;
+//const int KTouchPosThreshold = 30;
 
 const QString KSlideToLeft      = "SlideToLeft";
 const QString KSlideFromLeft    = "SlideFromLeft";
@@ -181,6 +180,32 @@ void RadioFrequencyStrip::favoriteChanged( const RadioStation& station )
     updateFavorites( pos.mItem );
 
     emitFavoriteSelected( station.isFavorite() );
+}
+
+/*!
+ * Public slot
+ *
+ */
+void RadioFrequencyStrip::stationAdded( const RadioStation& station )
+{
+    LOG_SLOT_CALLER;
+    FrequencyPos pos = mFrequencies.value( station.frequency() );
+    updateFavorites( pos.mItem );
+}
+
+/*!
+ * Public slot
+ *
+ */
+void RadioFrequencyStrip::stationRemoved( const RadioStation& station )
+{
+    LOG_SLOT_CALLER;
+    uint frequency = station.frequency();
+    if ( mFrequencies.contains( frequency ) ) {
+        FrequencyPos pos = mFrequencies.value( frequency );
+        mFrequencies.remove( frequency );
+        updateFavorites( pos.mItem );
+    }
 }
 
 /*!
@@ -609,6 +634,7 @@ void RadioFrequencyStrip::emitFrequencyChanged( uint frequency )
  */
 void RadioFrequencyStrip::emitFavoriteSelected( bool favoriteSelected )
 {
+    // TODO: remove this
     if ( favoriteSelected != mFavoriteSelected ) {
         mFavoriteSelected = favoriteSelected;
         emit frequencyIsFavorite( mFavoriteSelected );

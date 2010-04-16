@@ -19,7 +19,8 @@
 #define RADIOPLAYLOGITEM_P_H
 
 // System includes
-#include <qstring>
+#include <QString>
+#include <QDateTime>
 
 // User includes
 
@@ -44,6 +45,12 @@ public: // data
     QString         mArtist;
 
     QString         mTitle;
+
+    QString         mStation;
+
+    QDateTime       mTime;
+
+    uint            mFrequency;
 
     int             mPlayCount;
 

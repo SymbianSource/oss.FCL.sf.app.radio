@@ -19,10 +19,10 @@
 #define _RADIOVIEWBASE_H_
 
 // System includes
-#include <hbview.h>
+#include <HbView>
 
 //#define QT_SHAREDPOINTER_TRACK_POINTERS // Debugging support for QSharedPointer
-#include <qsharedpointer>
+#include <QSharedPointer>
 
 // User includes
 
@@ -56,9 +56,6 @@ public:
 
     bool isTransient() const;
 
-    virtual void initSecondarySoftkey();
-    HbAction* secondarySoftkey() const;
-
     void updateOrientation( Qt::Orientation orientation, bool forceUpdate = false );
 
 protected slots:
@@ -71,6 +68,8 @@ protected:
 
 // New functinos
 
+    void initBackAction();
+    
     HbAction* addMenuItem( const QString& aTitle, QObject* aRecipient, const char* aSlot );
 
     void connectCommonMenuItem( int menuItem );
@@ -113,11 +112,6 @@ protected: // data
      * Route audio to Loudspeaker/Headset menu item
      */
     HbAction*                       	mUseLoudspeakerAction;
-
-    /**
-     * Action for the secondary softkey. Used for "back" and "done" buttons
-     */
-    HbAction*                       	mSecondarySoftkeyction;
 
     /**
      * View orientation.

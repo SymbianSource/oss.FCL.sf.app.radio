@@ -43,6 +43,7 @@ void RadioPlayLogItemPrivate::init( const QString& artist, const QString& title 
     ref = 1;
     mArtist = artist;
     mTitle = title;
+    mFrequency = 0;
     mFavorite = false;
     mPlayCount = 1;
 }

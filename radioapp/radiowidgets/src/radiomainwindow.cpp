@@ -15,10 +15,10 @@
 *
 */
 
-#include <hbinstance.h>
-#include <hbaction.h>
-#include <hbmessagebox.h>
-#include <hbvolumesliderpopup.h>
+#include <HbInstance>
+#include <HbAction>
+#include <HbMessageBox>
+#include <HbVolumeSliderPopup>
 
 #include "radiomainwindow.h"
 #include "radiotuningview.h"
@@ -61,7 +61,8 @@ bool RadioMainWindow::isOfflineUsageAllowed()
 {
     DummyViewPtr dummyView = prepareToShowDialog();
 
-    const bool answer = HbMessageBox::launchQuestionMessageBox( TRANSLATE( KQueryTextStartOffline ) );
+    const bool answer = HbMessageBox::question( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ) );
+
     dialogShown( dummyView );
 
     return answer;
@@ -74,7 +75,7 @@ void RadioMainWindow::showErrorMessage( const QString& text )
 {
     DummyViewPtr dummyView = prepareToShowDialog();
 
-    HbMessageBox::launchWarningMessageBox( text );
+    HbMessageBox::warning( text );
 
     dialogShown( dummyView );
 }
@@ -127,7 +128,7 @@ QString RadioMainWindow::orientationSection()
  */
 void RadioMainWindow::activateTuningView()
 {
-    activateView( mTuningView, DOCML_TUNINGVIEW_FILE );
+    activateView( mTuningView, DOCML_TUNINGVIEW_FILE, Hb::ViewSwitchUseBackAnim );
 }
 
 /*!
@@ -195,7 +196,7 @@ void RadioMainWindow::showVolumeLevel( int volume )
 void RadioMainWindow::headsetStatusChanged( bool connected )
 {
     if ( !connected ) {
-        HbMessageBox infoBox( TRANSLATE( KTitleHeadsetDisconnectedPopup ) );
+        HbMessageBox infoBox( hbTrId( "txt_rad_dpophead_connect_wired_headset" ) );
         infoBox.exec();
     }
 }
@@ -203,21 +204,17 @@ void RadioMainWindow::headsetStatusChanged( bool connected )
 /*!
  *
  */
-void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile )
+void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags )
 {
+    LOG_METHOD;
     if ( aMember && aMember == currentView() ) {
         return;
     }
 
-    // Remove the secondary softkey of the previous view
-    //TODO: Check how the soft keys work nowaways in Orbit. This doesn't seem to do anything
     RadioViewBase* previousView = static_cast<RadioViewBase*>( currentView() );
-    if ( previousView && previousView->secondarySoftkey() ) {
-        removeSoftKeyAction( Hb::SecondarySoftKey, previousView->secondarySoftkey() );
-        if ( previousView->isTransient() ) {
-            removeView( previousView );
-            previousView->deleteLater();
-        }
+    if ( previousView && previousView->isTransient() ) {
+        removeView( previousView );
+        previousView->deleteLater();
     }
 
     bool viewCreated = false;
@@ -239,19 +236,13 @@ void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile )
 
         aMember = ViewPtr( uiLoader->findObject<RadioViewBase>( DOCML_NAME_VIEW ) );
         aMember->init( this, &mUiEngine->model() );
-        aMember->initSecondarySoftkey();
 
         addView( aMember );
     }
 
-    // Add the secondary softkey if the view has one
-    if ( aMember->secondarySoftkey() ) {
-        addSoftKeyAction( Hb::SecondarySoftKey, aMember->secondarySoftkey() );
-    }
-
     aMember->updateOrientation( orientation(), viewCreated );
 
-    setCurrentView( aMember, true );
+    setCurrentView( aMember, true, flags );
 }
 
 /*!

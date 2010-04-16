@@ -25,7 +25,8 @@ RadioPlayLogModelPrivate::RadioPlayLogModelPrivate( RadioPlayLogModel* model,
                                                     RadioUiEngine& uiEngine ) :
     q_ptr( model ),
     mUiEngine( uiEngine ),
-    mTopItemIsPlaying( false )
+    mTopItemIsPlaying( false ),
+    mShowDetails( false )
 {
 
 }

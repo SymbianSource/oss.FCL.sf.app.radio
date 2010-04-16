@@ -19,7 +19,7 @@
 #define RADIOPRESETSCANNER_H_
 
 // System includes
-#include <qobject>
+#include <QObject>
 
 // Forward declarations
 class HbProgressDialog;

@@ -31,8 +31,12 @@ symbian: {
 }
 
 QT          = core
-CONFIG      += hb
+CONFIG      += hb service
 CONFIG      -= gui network svg
+
+# Service provider specific configuration.
+SERVICE.FILE = resources/service_conf.xml
+#SERVICE.OPTIONS = embeddable
 
 INCLUDEPATH += . inc
 INCLUDEPATH += ../radioenginewrapper/commoninc

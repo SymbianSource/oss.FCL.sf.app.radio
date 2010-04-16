@@ -18,11 +18,8 @@
 #ifndef RADIOPRESETSTORAGE_P_H_
 #define RADIOPRESETSTORAGE_P_H_
 
-
-#include <qscopedpointer>
-
 // User includes
-#include <qscopedpointer>
+#include <QScopedPointer>
 #include <QByteArray>
 
 // Forward declarations

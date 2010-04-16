@@ -18,6 +18,7 @@
 #ifndef MRADIORDSRECEIVER_H
 #define MRADIORDSRECEIVER_H
 
+// Forward declarations
 class CRadioUtility;
 class CRadioPubSub;
 class MRadioRdsDataObserver;

@@ -19,7 +19,7 @@
 #define RADIOSTATIONINFO_P_H_
 
 // System includes
-#include <qtime>
+#include <QTime>
 
 // User includes
 #include "radiostation.h"

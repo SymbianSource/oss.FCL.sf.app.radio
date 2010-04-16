@@ -18,7 +18,7 @@
 // System includes
 #include <bautils.h>
 #include <coemain.h>
-#include <coneresloader.h>
+#include <ConeResLoader.h>
 #include <f32file.h>
 #include <data_caging_path_literals.hrh>
 

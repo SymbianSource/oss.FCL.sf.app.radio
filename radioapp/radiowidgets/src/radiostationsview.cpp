@@ -16,17 +16,16 @@
 */
 
 // System includes
-#include <hblistview.h>
-#include <hbabstractviewitem.h>
-#include <hbpushbutton.h>
-#include <hbeffect.h>
-#include <hbaction.h>
+#include <HbListView>
+#include <HbAbstractViewItem>
+#include <HbPushButton>
+#include <HbEffect>
+#include <HbAction>
 
 // User includes
 #include "radiostationsview.h"
 #include "radiologger.h"
 #include "radiomainwindow.h"
-
 #include "radiolocalization.h"
 #include "radiouiengine.h"
 #include "radiobannerlabel.h"
@@ -35,6 +34,11 @@
 #include "radioxmluiloader.h"
 #include "radiostationmodel.h"
 #include "radiostationfiltermodel.h"
+
+const char* SECTION_SHOW_ALL_STATIONS = "show_all_stations";
+const char* SECTION_SHOW_FAVORITES = "show_favorites";
+const char* SECTION_SHOW_SCAN_TEXT = "show_scan_text";
+const char* SECTION_HIDE_SCAN_TEXT = "hide_scan_text";
 
 /*!
  *
@@ -109,8 +113,8 @@ void RadioStationsView::listItemLongPressed( HbAbstractViewItem* item, const QPo
 
     RadioContextMenu* menu = mUiLoader->findObject<RadioContextMenu>( DOCML_NAME_CONTEXT_MENU );
     menu->init( station, *mUiLoader );
-    menu->setPos( QPointF( size().width() / 2 - menu->size().width() / 2, coords.y() - menu->size().height() / 2 ) );
-    menu->exec();
+    menu->setPreferredPos( QPointF( size().width() / 2 - menu->size().width() / 2, coords.y() - menu->size().height() / 2 ) );
+    menu->show();
 }
 
 /*!
@@ -138,11 +142,12 @@ void RadioStationsView::updateCurrentStation()
  */
 
 void RadioStationsView::deckButtonPressed()
-{
+{    
+    bool ok = false;
     if ( sender() == mFavoritesButton ) {
-        mHeadingBanner->setPlainText( TRANSLATE( KHeadingTextFavorites ));
+        mUiLoader->load( DOCML_STATIONSVIEW_FILE, SECTION_SHOW_FAVORITES, &ok );
     } else {
-        mHeadingBanner->setPlainText( TRANSLATE( KHeadingTextLocalStations ));
+        mUiLoader->load( DOCML_STATIONSVIEW_FILE, SECTION_SHOW_ALL_STATIONS, &ok );
     }
 
     const bool showFavorites = mFavoritesButton->isChecked();
@@ -173,19 +178,14 @@ void RadioStationsView::updateControlVisibilities()
     LOG_SLOT_CALLER;
     const bool listEmpty = mModel->rowCount() == 0;
     const bool localStationsMode = !mFavoritesButton->isChecked();
-    if ( HbPushButton* button = mUiLoader->findWidget<HbPushButton>( DOCML_NAME_SCANBUTTON ) )
-    {
-#ifdef USE_DEBUGGING_CONTROLS
-        button->setVisible( listEmpty && localStationsMode );
-#else
-        button->setVisible( false );
-#endif
-    }
 
     mScanStationsAction->setVisible( mMainWindow->uiEngine().isAntennaAttached()
                                      && localStationsMode
                                      && !mMainWindow->uiEngine().isScanning() );
     mRemoveAllPresetsAction->setVisible( !listEmpty && localStationsMode );
+
+    bool ok = false;
+    mUiLoader->load( DOCML_STATIONSVIEW_FILE, listEmpty ? SECTION_SHOW_SCAN_TEXT : SECTION_HIDE_SCAN_TEXT, &ok );
 }
 
 /*!
@@ -231,16 +231,9 @@ void RadioStationsView::init( RadioMainWindow* aMainWindow, RadioStationModel* a
     // "Go to tuning view" menu item
     connectViewChangeMenuItem( DOCML_NAME_TUNINGVIEWACTION, SLOT(activateTuningView()) );
 
-    // "Go to wizard view" menu item
-#ifdef USE_DEBUGGING_CONTROLS
-    connectViewChangeMenuItem( DOCML_NAME_WIZARDVIEWACTION, SLOT(activateWizardView()) );
-#else
-    mUiLoader->findObject<HbAction>( DOCML_NAME_WIZARDVIEWACTION )->setVisible( false );
-#endif // USE_DEBUGGING_CONTROLS
-
     // "Scan local stations" menu item
     mScanStationsAction = mUiLoader->findObject<HbAction>( DOCML_NAME_SCANSTATIONSACTION );
-
+    
     // "Remove all presets" menu item
     mRemoveAllPresetsAction = mUiLoader->findObject<HbAction>( DOCML_NAME_REMOVESTATIONSACTION );
 
@@ -250,6 +243,8 @@ void RadioStationsView::init( RadioMainWindow* aMainWindow, RadioStationModel* a
     connectXmlElement( DOCML_NAME_REMOVESTATIONSACTION, SIGNAL(triggered()), mModel, SLOT(removeAll()) );
 
     initListView();
+    
+    initBackAction();
 }
 
 /*!
@@ -279,6 +274,6 @@ void RadioStationsView::initListView()
  */
 void RadioStationsView::updateHeading()
 {
-    mHeadingBanner->setPlainText( mFavoritesButton->isChecked() ? TRANSLATE( KHeadingTextFavorites )
-                                                                : TRANSLATE( KHeadingTextLocalStations ) );
+//    mHeadingBanner->setPlainText( mFavoritesButton->isChecked() ? TRANSLATE( KHeadingTextFavorites )
+//                                                                : TRANSLATE( KHeadingTextLocalStations ) );
 }

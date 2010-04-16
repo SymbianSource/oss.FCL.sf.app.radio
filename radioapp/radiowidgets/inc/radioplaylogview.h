@@ -25,6 +25,9 @@
 // Forward declarations
 class RadioXmlUiLoader;
 class HbListView;
+class HbAction;
+class RadioStationFilterModel;
+class HbAbstractViewItem;
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioPlayLogView : public RadioViewBase
@@ -35,15 +38,31 @@ public:
 
     explicit RadioPlayLogView( RadioXmlUiLoader* uiLoader );
 
+private slots:
+
+    void deckButtonPressed();
+    void clearList();
+    void updateVisibilities();
+    void listItemClicked( const QModelIndex& index );
+    void listItemLongPressed( HbAbstractViewItem* item, const QPointF& coords );
+
 private:
 
 // from base class RadioViewBase
 
     void init( RadioMainWindow* aMainWindow, RadioStationModel* aModel );
+    void setOrientation();
+
+// New functions
+
+    void showContextMenu( const QModelIndex& index );
 
 private: //data
 
-    HbListView* mPlayLogList;
+    HbListView*         mPlayLogList;
+    HbAction*           mAllSongsButton;
+    HbAction*           mFavoritesButton;
+    RadioStationFilterModel*   mFilterModel;
 
 };
 

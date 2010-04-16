@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <hbprogressdialog.h>
+#include <HbProgressDialog>
 
 // User includes
 #include "radiofrequencyscanner.h"

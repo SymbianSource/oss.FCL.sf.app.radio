@@ -19,7 +19,7 @@
 #define RADIOXMLUILOADER_H_
 
 // System includes
-#include <hbdocumentloader.h>
+#include <HbDocumentLoader>
 
 // Constants
 #ifdef USE_LAYOUT_FROM_E_DRIVE

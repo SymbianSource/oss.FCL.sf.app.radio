@@ -19,7 +19,7 @@
 #define RADIOUIENGINE_P_H_
 
 // System includes
-#include <qscopedpointer>
+#include <QScopedPointer>
 
 #include "radioenginewrapperobserver.h"
 
@@ -29,6 +29,8 @@ class RadioEngineWrapper;
 class RadioStationModel;
 class RadioPlayLogModel;
 class RadioPresetStorage;
+class RadioControlService;
+class RadioMonitorService;
 
 class RadioUiEnginePrivate : public RadioEngineWrapperObserver
 {
@@ -82,6 +84,10 @@ private: // data
     RadioStationModel*                  mStationModel;
 
     RadioPlayLogModel*                  mPlayLogModel;
+
+    RadioControlService*                mControlService;
+
+    RadioMonitorService*                mMonitorService;
 
 };
 

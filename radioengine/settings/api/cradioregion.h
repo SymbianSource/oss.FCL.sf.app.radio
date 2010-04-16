@@ -19,20 +19,21 @@
 #define CRADIOREGION_H
 
 
-//  INCLUDES
+// System includes
 #include <e32base.h>
 
+// User includes
 #include "radioengine.hrh"
 
-// FORWARD DECLARATIONS
+// Forward declarations
 class CRadioRegion;
 class TResourceReader;
 
-// DATA TYPES
+// Data types
 typedef RPointerArray<CRadioRegion> RRadioRegionArray;
 typedef RPointerArray<HBufC16> RRadioCountryCodeArray;
 
-// CLASS DECLARATION
+// Class declaration
 
 /**
 *  Class CRadioRegion provides information about FM region

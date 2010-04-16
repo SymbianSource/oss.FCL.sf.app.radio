@@ -16,12 +16,12 @@
 */
 
 // System includes
-#include <qpushbutton>
-#include <qgridlayout>
-#include <qvboxlayout>
-#include <hbmainwindow.h>
-#include <qtimer.h>
-#include <qmessagebox>
+#include <QPushButton>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <HbMainWindow>
+#include <QTimer>
+#include <QMessageBox>
 
 // User includes
 #include "testwindow_win32.h"
@@ -32,6 +32,7 @@
 
 const int KWindowWidth = 360;
 const int KWindowHeight = 640;
+const int KToolbarHeight = 140;
 
 const QString KBtnDisconnectHeadset = "Disconnect Headset";
 const QString KBtnConnectHeadset = "Connect Headset";
@@ -67,9 +68,9 @@ Win32Window::Win32Window() :
     mAddSongButton( new QPushButton( "Add Song", this ) ),
     mClearSongButton( new QPushButton( "Clear Song", this ) ),
     mOfflineButton( new QPushButton( KBtnGoOffline, this ) ),
+    mUpdateButton( new QPushButton( "Update", this ) ),
     mHeadsetConnected( true ),
     mVolume( 5 ),
-    mToolbarHeight( 0 ),
     mRadioWindow( 0 ),
     mSongIndex( 0 )
 {
@@ -80,6 +81,7 @@ Win32Window::Win32Window() :
     connectAndTest( mAddSongButton, SIGNAL(clicked()), this, SLOT(addSong()) );
     connectAndTest( mClearSongButton, SIGNAL(clicked()), this, SLOT(clearSong()) );
     connectAndTest( mOfflineButton, SIGNAL(clicked()), this, SLOT(toggleOffline()) );
+    connectAndTest( mUpdateButton, SIGNAL(clicked()), this, SLOT(updateWindow()) );
 
     QTimer::singleShot( 0, this, SLOT(updateWindowSize()) );
 }
@@ -115,6 +117,7 @@ void Win32Window::addHbWindow( HbMainWindow* radioWindow )
     mToolbarLayout->addWidget( mAddSongButton, 2, 0 );
     mToolbarLayout->addWidget( mClearSongButton, 2, 1 );
     mToolbarLayout->addWidget( mOfflineButton, 3, 0 );
+    mToolbarLayout->addWidget( mUpdateButton, 3, 1 );
 
     layout->addItem( mToolbarLayout );
     layout->addWidget( radioWindow );
@@ -139,6 +142,7 @@ void Win32Window::init()
             mOfflineButton->setText( KBtnGoOnline );
         }
     }
+    updateWindowSize();
 }
 
 /*!
@@ -198,9 +202,9 @@ void Win32Window::toggleHeadsetStatus()
 void Win32Window::updateWindowSize()
 {
     if ( mOrientation == Qt::Horizontal ) {
-        resize( KWindowHeight, KWindowWidth + mToolbarHeight );
+        resize( KWindowHeight, KWindowWidth + KToolbarHeight );
     } else {
-        resize( KWindowWidth, KWindowHeight + mToolbarHeight );
+        resize( KWindowWidth, KWindowHeight + KToolbarHeight );
     }
 }
 
@@ -238,10 +242,9 @@ void Win32Window::toggleOffline()
 }
 
 /*!
- *
+ * Private slot
  */
-void Win32Window::resizeEvent( QResizeEvent* event )
+void Win32Window::updateWindow()
 {
-    QWidget::resizeEvent( event );
-    mToolbarHeight = mToolbarLayout->contentsRect().height();
+    update();
 }

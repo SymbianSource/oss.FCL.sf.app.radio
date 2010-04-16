@@ -43,7 +43,6 @@ private:
 // from base class RadioViewBase
 
     void init( RadioMainWindow* aMainWindow, RadioStationModel* aModel );
-    void initSecondarySoftkey();
 
 // from base class QGraphicsWidget
 
@@ -57,6 +56,7 @@ private slots:
 
 private:
 
+    void setDoneAction();
     void startScanning();
 
 private: // data

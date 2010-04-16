@@ -19,8 +19,8 @@
 #define RADIOPLAYLOGMODEL_P_H
 
 // System includes
-#include <qlist>
-#include <qstring>
+#include <QList>
+#include <QString>
 
 // Forward declarations
 class RadioPlayLogModel;
@@ -56,6 +56,8 @@ public: // data
     QString                     mRtItemHolder;
 
     bool                        mTopItemIsPlaying;
+
+    bool                        mShowDetails;
 
 };
 

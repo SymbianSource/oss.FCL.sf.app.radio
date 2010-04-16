@@ -18,9 +18,9 @@
 #ifndef CRADIOACCESSORYOBSERVER_H
 #define CRADIOACCESSORYOBSERVER_H
 
-#include <accessoryserver.h>
-#include <accessoryconnection.h>
-#include <accpolsubblocknamearray.h>
+#include <AccessoryServer.h>
+#include <AccessoryConnection.h>
+#include <AccPolSubblockNameArray.h>
 
 class MRadioHeadsetEventObserver;
 

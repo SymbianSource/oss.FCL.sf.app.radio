@@ -18,9 +18,11 @@
 #ifndef T_CRADIORDSRECEIVERSIMULATOR_H
 #define T_CRADIORDSRECEIVERSIMULATOR_H
 
+// User includes
 #include "mradiordsdataobserver.h"
 #include "cradiordsreceiverbase.h"
 
+// Class declaration
 NONSHARABLE_CLASS( CRadioRdsReceiverSimulator ) : public CRadioRdsReceiverBase
     {
 public:

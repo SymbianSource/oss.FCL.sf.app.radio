@@ -18,8 +18,10 @@
 #ifndef MRADIORDSDATAOBSERVER_H
 #define MRADIORDSDATAOBSERVER_H
 
+// System includes
 #include <e32std.h>
 
+// Class declaration
 NONSHARABLE_CLASS( MRadioRdsDataObserver )
     {
 public:

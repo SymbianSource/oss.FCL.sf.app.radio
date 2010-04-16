@@ -16,8 +16,8 @@
 */
 
 // System includes
-#include <hblistview.h>
-#include <hbaction.h>
+#include <HbListView>
+#include <HbAction>
 
 // User includes
 #include "radiowizardview.h"
@@ -79,18 +79,6 @@ void RadioWizardView::listItemClicked( const QModelIndex& index )
 }
 
 /*!
- *
- */
-void RadioWizardView::startScanning()
-{
-    if ( !mStartScanningRequested ) {
-        mStartScanningRequested = true;
-        RadioFrequencyScanner* scanner = new RadioFrequencyScanner( mMainWindow->uiEngine(), this );
-        scanner->startScanning();
-    }
-}
-
-/*!
  * From RadioViewBase
  *
  */
@@ -110,18 +98,8 @@ void RadioWizardView::init( RadioMainWindow* aMainWindow, RadioStationModel* aMo
 
     // "Go to stations view" menu item
     connectViewChangeMenuItem( DOCML_NAME_WV_STATIONSVIEWACTION, SLOT(activateStationsView()) );
-}
-
-/*!
- * From RadioViewBase
- *
- */
-void RadioWizardView::initSecondarySoftkey()
-{
-    // The default back button activates the tuning view
-    mSecondarySoftkeyction = new HbAction( Hb::DoneAction, this );
-    connectAndTest( mSecondarySoftkeyction, SIGNAL(triggered()),
-                    this,                   SLOT(saveSelectedAsFavorites()) );
+    
+    setDoneAction();
 }
 
 /*!
@@ -141,5 +119,29 @@ void RadioWizardView::showEvent( QShowEvent* event )
     else
     {
         connectAndTest( engine, SIGNAL(radioStatusChanged(bool)), this, SLOT(engineStatusChanged(bool)) );
+    }
+}
+
+/*!
+ *
+ */
+void RadioWizardView::setDoneAction()
+{
+    // The default back button activates the tuning view
+    HbAction* doneAction = new HbAction( Hb::DoneNaviAction, this );
+    connectAndTest( doneAction, SIGNAL(triggered()),
+                    this,       SLOT(saveSelectedAsFavorites()) );
+    setNavigationAction( doneAction );
+}
+
+/*!
+ *
+ */
+void RadioWizardView::startScanning()
+{
+    if ( !mStartScanningRequested ) {
+        mStartScanningRequested = true;
+        RadioFrequencyScanner* scanner = new RadioFrequencyScanner( mMainWindow->uiEngine(), this );
+        scanner->startScanning();
     }
 }

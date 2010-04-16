@@ -15,11 +15,11 @@
 *
 */
 
-#include "cradioenginelogger.h"
-
+// User includes
 #include "cradiordsreceiver.h"
 #include "mradioenginesettings.h"
 #include "mradiordsdataobserver.h"
+#include "cradioenginelogger.h"
 
 // ======== MEMBER FUNCTIONS ========
 

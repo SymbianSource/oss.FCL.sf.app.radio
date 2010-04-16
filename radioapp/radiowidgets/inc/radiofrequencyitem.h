@@ -19,7 +19,7 @@
 #define RADIOFREQUENCYITEM_H
 
 // System includes
-#include <qpixmap>
+#include <QPixmap>
 
 // Forward declarations
 class RadioFrequencyStrip;

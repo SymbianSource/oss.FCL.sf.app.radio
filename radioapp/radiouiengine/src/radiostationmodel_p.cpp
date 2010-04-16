@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qtimer>
+#include <QTimer>
 
 // User includes
 #include "radiostationmodel.h"
@@ -27,6 +27,11 @@
 #include "radiouiengine.h"
 #include "radiostation.h"
 #include "radioplaylogmodel.h"
+#ifndef BUILD_WIN32
+#   include "radiomonitorservice.h"
+#else
+#   include "radiomonitorservice_win32.h"
+#endif
 
 // Constants
 /**
@@ -89,6 +94,9 @@ void RadioStationModelPrivate::setCurrentStation( uint frequency )
         mManualStation.setFrequency( frequency );
         mCurrentStation = &mManualStation;
     }
+
+    mUiEngine.monitor().notifyName( mCurrentStation->name().isEmpty() ? mCurrentStation->frequencyMhz() 
+                                                                      : mCurrentStation->name() );
 }
 
 /*!
@@ -105,6 +113,7 @@ void RadioStationModelPrivate::setCurrentGenre( uint frequency, int genre )
     }
     station.setGenre( genre );
     q->saveStation( station );
+    mUiEngine.monitor().notifyGenre( mUiEngine.genreToString( genre ) );
 }
 
 /*!
@@ -193,6 +202,7 @@ void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& 
         if ( name.compare( station.name() ) != 0 && !station.isRenamed() ) {
             station.setName( name );
             q->saveStation( station );
+            mUiEngine.monitor().notifyName( name );
         }
 
     } else {
@@ -251,6 +261,7 @@ void RadioStationModelPrivate::setCurrentRadioText( uint frequency, const QStrin
     station.setRadioText( radioText );
     q->saveStation( station );
     mUiEngine.playLogModel().clearRadioTextPlus();
+    mUiEngine.monitor().notifyRadioText( radioText );
 }
 
 /*!
@@ -267,7 +278,7 @@ void RadioStationModelPrivate::setCurrentRadioTextPlus( uint frequency, int rtCl
     }
     station.setRadioTextPlus( rtClass, rtItem );
     q->saveStation( station );
-    mUiEngine.playLogModel().addRadioTextPlus( rtClass, rtItem );
+    mUiEngine.playLogModel().addRadioTextPlus( rtClass, rtItem, station );
 }
 
 /*!

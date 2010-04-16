@@ -19,12 +19,12 @@
 #define _RADIOMAINWINDOW_H_
 
 // System includes
-#include <hbmainwindow.h>
-#include <hbeffect.h>
-#include <qpointer>
+#include <HbMainWindow>
+#include <HbEffect>
+#include <QPointer>
 
 //#define QT_SHAREDPOINTER_TRACK_POINTERS // Debugging support for QSharedPointer
-#include <qsharedpointer>
+#include <QSharedPointer>
 
 // User includes
 #include "radiowidgetsexport.h"
@@ -87,7 +87,7 @@ private:
 
 // New functions
 
-    void activateView( ViewPtr& aMember, const QString& docmlFile );
+    void activateView( ViewPtr& aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags = Hb::ViewSwitchDefault );
 
     DummyViewPtr prepareToShowDialog();
     void dialogShown( DummyViewPtr pointer );

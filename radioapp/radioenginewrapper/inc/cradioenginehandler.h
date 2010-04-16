@@ -21,7 +21,7 @@
 // System includes
 #include <e32base.h>
 
-#include <mw/profileenginesdkcrkeys.h>
+#include <mw/ProfileEngineSDKCRKeys.h>
 
 // User includes
 #include "radio_global.h"

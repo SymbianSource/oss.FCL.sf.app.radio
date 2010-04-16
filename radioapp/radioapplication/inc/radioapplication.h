@@ -19,10 +19,10 @@
 #define _RADIOAPPLICATION_H_
 
 // System includes
-#include <hbapplication.h>
+#include <HbApplication>
 
 //#define QT_SHAREDPOINTER_TRACK_POINTERS // Debugging support for QSharedPointer
-#include <qsharedpointer.h>
+#include <QSharedPointer>
 
 // Forward declarations
 class RadioUiEngine;
@@ -43,9 +43,13 @@ class RadioApplication : public HbApplication
 
 public:
 
-    explicit RadioApplication( int argc, char* argv[] );
+    explicit RadioApplication( int &argc, char *argv[] );
 
     ~RadioApplication();
+
+private slots:
+
+    void init();
 
 private: // data
 

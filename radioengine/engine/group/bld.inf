@@ -17,11 +17,7 @@
 
 #include "../../group/buildflags.hrh"
 
-#ifdef COMPILE_IN_WK48_ENV
-#   include <domain/osextensions/platform_paths.hrh>
-#else
-#   include <platform_paths.hrh>
-#endif // COMPILE_IN_WK48_ENV
+#include <platform_paths.hrh>
 
 PRJ_PLATFORMS
 WINSCW ARMV5

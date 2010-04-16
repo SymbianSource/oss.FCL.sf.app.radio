@@ -19,7 +19,7 @@
 #define RADIOSTRIPBASE_H_
 
 // System includes
-#include <hbscrollarea.h>
+#include <HbScrollArea>
 
 // Forward declarations
 class HbWidget;

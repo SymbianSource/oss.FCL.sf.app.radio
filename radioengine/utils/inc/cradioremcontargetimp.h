@@ -19,7 +19,7 @@
 #define CRADIOREMCONTARGETIMP_H
 
 // System includes
-#include <remconcallhandlingtargetobserver.h>
+#include <RemConCallHandlingTargetObserver.h>
 #include <remconcoreapitargetobserver.h>
 
 // User includes

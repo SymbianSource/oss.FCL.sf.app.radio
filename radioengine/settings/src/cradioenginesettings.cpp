@@ -14,11 +14,14 @@
 * Description:
 *
 */
+
+// System includes
 #include <barsread.h>
 #include <coemain.h>
+
+// User includes
 #include "radiointernalcrkeys.h"
 #include "radioenginesettings.rsg"
-
 #include "radioenginedef.h"
 #include "cradioenginesettings.h"
 #include "mradiosettingsobserver.h"

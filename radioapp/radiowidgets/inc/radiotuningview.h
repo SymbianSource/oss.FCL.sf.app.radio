@@ -48,7 +48,6 @@ private:
 // from base class RadioViewBase
 
     void init( RadioMainWindow* aMainWindow, RadioStationModel* aModel );
-    void initSecondarySoftkey();
     void setOrientation();
 
 // New functions

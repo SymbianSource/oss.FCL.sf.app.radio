@@ -19,70 +19,26 @@
 #define RADIOSTATIONCAROUSEL_H
 
 // System includes
-#include <hbgridview.h>
-#include <hbabstractviewitem.h>
-#include <qmap>
-#include <qabstractitemmodel>
-#include <hbicon.h>
+#include <HbGridView>
+#include <QMap>
+#include <QAbstractItemModel>
+#include <HbIcon>
 
 // Forward declarations
 class RadioUiEngine;
-class RadioFadingLabel;
-class HbPushButton;
-class HbAnchorLayout;
 class RadioStation;
+class RadioStationItem;
 class RadioStationCarousel;
 class RadioStationFilterModel;
-
-// Class declaration
-class RadioStationItem : public HbAbstractViewItem
-{
-    Q_OBJECT
-    friend class RadioStationCarousel;
-
-public:
-
-    RadioStationItem( QGraphicsItem* parent = 0 );
-
-// From base class HbAbstractViewItem
-
-    HbAbstractViewItem* createItem();
-    void updateChildItems();
-
-// New functions
-
-    uint frequency() const;
-
-    void update( const RadioStation* station = 0 );
-
-    void setFrequency( uint frequency );
-    void setSeekingText();
-
-private slots:
-
-    void toggleFavorite();
-
-private:
-
-    void updateFavoriteIcon( bool isFavorite );
-
-    RadioStationCarousel* carousel();
-
-private: // data
-
-    HbAnchorLayout*         mLayout;
-    RadioFadingLabel*       mNameLabel;
-    HbPushButton*           mIconButton;
-    RadioFadingLabel*       mGenreLabel;
-    RadioFadingLabel*       mRadiotextLabel;
-    uint                    mFrequency;
-};
+class RadioFadingLabel;
 
 // Class declaration
 class RadioStationCarousel : public HbGridView
 {
     Q_OBJECT
     Q_PROPERTY(HbIcon background READ background WRITE setBackground)
+    Q_PROPERTY(HbIcon favoriteIcon READ favoriteIcon WRITE setFavoriteIcon)
+    Q_PROPERTY(HbIcon nonFavoriteIcon READ nonFavoriteIcon WRITE setNonFavoriteIcon)
 
 public:
 
@@ -90,6 +46,12 @@ public:
 
     void setBackground( const HbIcon& background );
     HbIcon background() const;
+
+    void setFavoriteIcon( const HbIcon& favoriteIcon );
+    HbIcon favoriteIcon() const;
+
+    void setNonFavoriteIcon( const HbIcon& nonFavoriteIcon );
+    HbIcon nonFavoriteIcon() const;
 
     RadioUiEngine& uiEngine();
 
@@ -108,12 +70,18 @@ public slots:
 private slots:
 
     void update( const RadioStation& station );
+    void updateRadioText( const RadioStation& station );
     void leftGesture( int speedPixelsPerSecond );
     void rightGesture( int speedPixelsPerSecond );
     void insertFrequency( const QModelIndex& parent, int first, int last );
     void removeFrequency( const QModelIndex& parent, int first, int last );
     void updateFrequencies();
     void updateLoopedPos();
+    void radioTextPlusCheckEnded();
+
+#ifdef USE_DEBUGGING_CONTROLS
+    void setRdsAvailable( bool available );
+#endif // USE_DEBUGGING_CONTROLS
 
 private:
 
@@ -148,6 +116,16 @@ private: // data
     QMap<uint,QModelIndex>  mModelIndexes;
 
     HbIcon                  mBackground;
+    HbIcon                  mFavoriteIcon;
+    HbIcon                  mNonFavoriteIcon;
+
+    QTimer*                 mRadioTextTimer;
+
+    QString                 mRadioTextHolder;
+	
+#ifdef USE_DEBUGGING_CONTROLS
+    RadioFadingLabel*       mRdsLabel;
+#endif
 
 };
 

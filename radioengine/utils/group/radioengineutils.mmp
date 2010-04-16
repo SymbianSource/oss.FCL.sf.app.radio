@@ -17,11 +17,7 @@
 
 #include "../../group/buildflags.hrh"
 
-#ifdef COMPILE_IN_WK48_ENV
-#   include <domain/osextensions/platform_paths.hrh>
-#else
-#   include <platform_paths.hrh>
-#endif // COMPILE_IN_WK48_ENV
+#include <platform_paths.hrh>
 
 #include <data_caging_paths.hrh>
 
@@ -66,7 +62,7 @@ LIBRARY                 bafl.lib
 LIBRARY                 accclient.lib
 LIBRARY                 accpolicy.lib
 LIBRARY                 centralrepository.lib
-LIBRARY                 commonengine.lib
+LIBRARY                 CommonEngine.lib
 LIBRARY                 efsrv.lib
 LIBRARY                 euser.lib
 LIBRARY                 cone.lib

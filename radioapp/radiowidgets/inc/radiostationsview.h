@@ -19,7 +19,7 @@
 #define RADIOSTATIONSVIEW_H
 
 // System includes
-#include <hbicon.h>
+#include <HbIcon>
 
 // User includes
 #include "radioviewbase.h"

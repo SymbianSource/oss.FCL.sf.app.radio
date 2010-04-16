@@ -16,9 +16,9 @@
 */
 
 // System includes
-#include <hbaction.h>
-#include <hbinputdialog.h>
-#include <qgraphicssceneresizeevent>
+#include <HbAction>
+#include <HbInputDialog>
+#include <QGraphicsSceneResizeEvent>
 
 // User includes
 #include "radiocontextmenu.h"
@@ -44,59 +44,14 @@ void RadioContextMenu::init( const RadioStation& station, RadioXmlUiLoader& uiLo
 {
     mStation = station;
 
-    if ( station.isRenamed() )
-    {
-        uiLoader.findObject<HbAction>( DOCML_NAME_CONTEXT_RENAME )->setText( TRANSLATE( KMenuItemRemoveRenaming ) );
-    }
-    else
-    {
-        uiLoader.findObject<HbAction>( DOCML_NAME_CONTEXT_RENAME )->setText( TRANSLATE( KMenuItemRenameStation ) );
-    }
-
     if ( station.isFavorite() )
     {
-        uiLoader.findObject<HbAction>( DOCML_NAME_CONTEXT_FAVORITE )->setText( TRANSLATE( KMenuItemRemoveFavorite ) );
+        uiLoader.findObject<HbAction>( DOCML_NAME_CONTEXT_FAVORITE )->setText( hbTrId( "txt_rad_menu_remove_favourite" ) );
     }
     else
     {
-        uiLoader.findObject<HbAction>( DOCML_NAME_CONTEXT_FAVORITE )->setText( TRANSLATE( KMenuItemSetAsFavorite ) );
+        uiLoader.findObject<HbAction>( DOCML_NAME_CONTEXT_FAVORITE )->setText( hbTrId( "txt_rad_menu_add_to_favourites" ) );
     }
-}
-
-/*!
- * Initializes the menu
- */
-void RadioContextMenu::init( const RadioStation& station, QPointF pos )
-{
-    mStation = station;
-    mPos = pos;
-
-    if ( station.isRenamed() )
-    {
-        HbAction* action = addAction( TRANSLATE( KMenuItemRemoveRenaming ) );
-        connectAndTest( action, SIGNAL(triggered()), this, SLOT(rename()) );
-    }
-    else
-    {
-        HbAction* action = addAction( TRANSLATE( KMenuItemRenameStation ) );
-        connectAndTest( action, SIGNAL(triggered()), this, SLOT(rename()) );
-    }
-
-    if ( station.isFavorite() )
-    {
-        HbAction* action = addAction( TRANSLATE( KMenuItemRemoveFavorite ) );
-        connectAndTest( action, SIGNAL(triggered()), this, SLOT(toggleFavorite()) );
-    }
-    else
-    {
-        HbAction* action = addAction( TRANSLATE( KMenuItemSetAsFavorite ) );
-        connectAndTest( action, SIGNAL(triggered()), this, SLOT(toggleFavorite()) );
-    }
-
-    HbAction* deleteAction = addAction( TRANSLATE( KMenuItemRemoveStation ) );
-    connectAndTest( deleteAction, SIGNAL(triggered()), this, SLOT(deleteStation()) );
-
-    connectAndTest( this, SIGNAL(aboutToClose()), this, SLOT(deleteLater()) );
 }
 
 /*!
@@ -105,20 +60,13 @@ void RadioContextMenu::init( const RadioStation& station, QPointF pos )
  */
 void RadioContextMenu::rename()
 {
-    if ( mStation.isRenamed() )
+    HbInputDialog nameQuery;
+    nameQuery.setPromptText( hbTrId( "txt_rad_dialog_new_name" ) );
+    nameQuery.setInputMode( HbInputDialog::TextInput );
+    nameQuery.setValue( mStation.name() );
+    if ( nameQuery.exec() == nameQuery.primaryAction() )
     {
-        mUiEngine.model().renameStation( mStation.presetIndex(), "" );
-    }
-    else
-    {
-        HbInputDialog nameQuery;
-        nameQuery.setPromptText( TRANSLATE( KQueryEnterStationName ) );
-        nameQuery.setInputMode( HbInputDialog::TextInput );
-        nameQuery.setTextValue( mStation.name() );
-        if ( nameQuery.exec() == nameQuery.primaryAction() )
-        {
-            mUiEngine.model().renameStation( mStation.presetIndex(), nameQuery.textValue().toString() );
-        }
+        mUiEngine.model().renameStation( mStation.presetIndex(), nameQuery.value().toString() );
     }
 }
 

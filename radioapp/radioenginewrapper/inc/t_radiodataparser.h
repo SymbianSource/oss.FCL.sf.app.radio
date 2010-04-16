@@ -19,10 +19,10 @@
 #define T_RADIODATAPARSER_H
 
 // System includes
-#include <qscopedpointer>
-#include <qxml.h>
-#include <qstring>
-#include <qlist>
+#include <QScopedPointer>
+#include <QXxml>
+#include <QString>
+#include <QList>
 
 // Forward declarations
 class T_RadioDataParser;

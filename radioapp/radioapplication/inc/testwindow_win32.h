@@ -19,7 +19,7 @@
 #define WIN32_WINDOW_H
 
 // System includes
-#include <qwidget>
+#include <QWidget>
 
 // Forward declarations
 class HbMainWindow;
@@ -48,10 +48,9 @@ private slots:
     void addSong();
     void clearSong();
     void toggleOffline();
+    void updateWindow();
 
 private:
-
-    void resizeEvent( QResizeEvent* event );
 
 private: // data
 
@@ -68,11 +67,11 @@ private: // data
 
     QPushButton*    mOfflineButton;
 
+    QPushButton*    mUpdateButton;
+
     QGridLayout*    mToolbarLayout;
 
     int             mVolume;
-
-    int             mToolbarHeight;
 
     HbMainWindow*   mRadioWindow;
 

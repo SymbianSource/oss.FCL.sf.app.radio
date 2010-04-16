@@ -15,9 +15,11 @@
 *
 */
 
+// System includes
 #include <etelmm.h>
 #include <commsdattypesv1_1.h>
 
+// User includes
 #include "cradionetworkinfolistener.h"
 #include "mradiosettingssetter.h"
 #include "cradioenginelogger.h"

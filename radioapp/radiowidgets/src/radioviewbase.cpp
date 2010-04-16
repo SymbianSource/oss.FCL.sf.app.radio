@@ -15,10 +15,10 @@
 *
 */
 
-#include <hbmenu.h>
-#include <hbaction.h>
-#include <hbeffect.h>
-#include <qcoreapplication>
+#include <HbMenu>
+#include <HbAction>
+#include <HbEffect>
+#include <QCoreApplication>
 
 #include "radioviewbase.h"
 #include "radiomainwindow.h"
@@ -38,7 +38,6 @@ RadioViewBase::RadioViewBase( RadioXmlUiLoader* uiLoader, bool transient ) :
     mUiLoader( uiLoader ),
     mTransientView( transient ),
     mUseLoudspeakerAction( 0 ),
-    mSecondarySoftkeyction( 0 ),
     mOrientation( Qt::Vertical )
 {
 }
@@ -75,29 +74,9 @@ bool RadioViewBase::isTransient() const
 /*!
  *
  */
-void RadioViewBase::initSecondarySoftkey()
-{
-    // The default back button activates the tuning view
-    mSecondarySoftkeyction = new HbAction( Hb::BackAction, this );
-    connectAndTest( mSecondarySoftkeyction, SIGNAL(triggered()),
-                    mMainWindow,            SLOT(activateTuningView()) );
-}
-
-/*!
- *
- */
-HbAction* RadioViewBase::secondarySoftkey() const
-{
-    return mSecondarySoftkeyction;
-}
-
-/*!
- *
- */
 void RadioViewBase::updateOrientation( Qt::Orientation orientation, bool forceUpdate )
 {
-    if ( orientation != mOrientation || forceUpdate )
-    {
+    if ( orientation != mOrientation || forceUpdate ) {
         mOrientation = orientation;
         setOrientation();
     }
@@ -110,7 +89,8 @@ void RadioViewBase::updateOrientation( Qt::Orientation orientation, bool forceUp
 void RadioViewBase::updateAudioRouting( bool loudspeaker )
 {
     if ( mUseLoudspeakerAction ) {
-        mUseLoudspeakerAction->setText( loudspeaker ? TRANSLATE( KMenuUseHeadset ) : TRANSLATE( KMenuUseLoudspeaker ) );
+        mUseLoudspeakerAction->setText( loudspeaker ? hbTrId( "txt_common_opt_deactivate_loudspeaker" )
+                                                    : hbTrId( "txt_common_opt_activate_loudspeaker" ) );
     }
 }
 
@@ -130,6 +110,18 @@ void RadioViewBase::activatePreviousView()
 void RadioViewBase::quit()
 {
     qApp->quit();
+}
+
+/*!
+ *
+ */
+void RadioViewBase::initBackAction()
+{
+    // The default back button activates the tuning view
+    HbAction* backAction = new HbAction( Hb::BackNaviAction, this );
+    connectAndTest( backAction,     SIGNAL(triggered()),
+                    mMainWindow,    SLOT(activateTuningView()) );
+    setNavigationAction( backAction );    
 }
 
 /*!

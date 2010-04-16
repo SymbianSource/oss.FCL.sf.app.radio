@@ -7,6 +7,8 @@
         <file>layout/playlogview.docml</file>
         <file>layout/radiostationcontrolwidget.css</file>
         <file>layout/radiostationcontrolwidget.widgetml</file>
+        <file>layout/radiostationitem.css</file>
+        <file>layout/radiostationitem.widgetml</file>
     </qresource>
 
     <qresource>

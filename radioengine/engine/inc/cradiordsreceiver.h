@@ -18,10 +18,13 @@
 #ifndef CRADIORDSRECEIVER_H
 #define CRADIORDSRECEIVER_H
 
+// User includes
 #include "cradiordsreceiverbase.h"
 
+// Forward declarations
 class MRadioEngineSettings;
 
+// Class declaration
 NONSHARABLE_CLASS( CRadioRdsReceiver ) : public CRadioRdsReceiverBase
     {
 public:

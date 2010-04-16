@@ -29,12 +29,14 @@
 #include <ctsydomainpskeys.h>
 #include <publicruntimeids.hrh>
 #include <sacls.h>
+
 #ifdef COMPILE_IN_IVALO
 #   include <voiceuidomainpskeys.h>
 #endif //COMPILE_IN_IVALO
 #include <featmgr.h>
-#include "cradioenginelogger.h"
 
+// User includes
+#include "cradioenginelogger.h"
 #include "cradiosystemeventdetector.h"
 #include "mradiosystemeventdetectorobserver.h"
 

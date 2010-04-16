@@ -18,10 +18,13 @@
 #ifndef M_RADIOSETTINGS_H
 #define M_RADIOSETTINGS_H
 
+// System includes
 #include <e32def.h>
 
+// User includes
 #include "radioengine.hrh"
 
+// Forward declarations
 class CRadioRegion;
 
 /**

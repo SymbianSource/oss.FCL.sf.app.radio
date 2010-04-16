@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widgetprovider>
+    <widget library="fmradiohswidgetplugin"
+            uri="fmradiohswidgetplugin"
+            title="#FM Radio Widget"
+            iconuri="fmradiohswidgetplugin_icon.png"
+	    description="FM Radio homescreen widget."/>
+</widgetprovider>

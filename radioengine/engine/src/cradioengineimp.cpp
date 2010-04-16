@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <audiooutput.h>
+#include <AudioOutput.h>
 #include <eikdef.h>
 #include <coemain.h>
 #include <badesca.h>
@@ -767,12 +767,12 @@ void CRadioEngineImp::Seek( RadioEngine::TRadioTuneDirection aDirection )
         if ( aDirection == RadioEngine::ERadioDown )
             {
             iSeekingState = RadioEngine::ERadioSeekingDown;
-            iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonDown;
+            iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonSeekDown;
             }
         else
             {
             iSeekingState = RadioEngine::ERadioSeekingUp;
-            iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonUp;
+            iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonSeekUp;
             }
 
         NotifyRadioEvent( ERadioEventSeeking );

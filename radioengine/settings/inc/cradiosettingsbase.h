@@ -18,9 +18,11 @@
 #ifndef C_RADIOSETTINGSBASE_H
 #define C_RADIOSETTINGSBASE_H
 
+// System includes
 #include <badesca.h>
 #include <e32base.h>
 
+// Forward declarations
 class CCoeEnv;
 class CRadioRepositoryManager;
 

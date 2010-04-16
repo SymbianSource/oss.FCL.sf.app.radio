@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <stringloader.h>
+#include <StringLoader.h>
 #include <utf.h>
 
 // User includes

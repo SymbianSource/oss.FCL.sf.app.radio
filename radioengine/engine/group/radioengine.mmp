@@ -17,11 +17,7 @@
 
 #include "../../group/buildflags.hrh"
 
-#ifdef COMPILE_IN_WK48_ENV
-#   include <domain/osextensions/platform_paths.hrh>
-#else
-#   include <platform_paths.hrh>
-#endif // COMPILE_IN_WK48_ENV
+#include <platform_paths.hrh>
 
 #include <data_caging_paths.hrh>
 
@@ -59,10 +55,10 @@ APP_LAYER_SYSTEMINCLUDE
 LIBRARY                 radioengineutils.lib
 LIBRARY                 radioenginesettings.lib
 
-LIBRARY                 audiooutputrouting.lib
+LIBRARY                 AudioOutputRouting.lib
 LIBRARY                 euser.lib
 LIBRARY                 efsrv.lib
-LIBRARY                 radio_utility.lib
+LIBRARY                 Radio_Utility.lib
 LIBRARY                 cone.lib
 LIBRARY                 etel3rdparty.lib            // For CTelephony
 LIBRARY                 etel.lib                    // For RTelServer

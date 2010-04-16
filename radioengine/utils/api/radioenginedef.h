@@ -66,6 +66,8 @@ namespace RadioEngine
         ERadioFrequencyEventReasonPrevious,    // Step to previous preset
         ERadioFrequencyEventReasonUp,          // Tune or step to higher frequency
         ERadioFrequencyEventReasonDown,        // Tune or step to lower frequency
+        ERadioFrequencyEventReasonSeekUp,      // Seek to higher frequency
+        ERadioFrequencyEventReasonSeekDown,    // Seek to lower frequency
         ERadioFrequencyEventReasonImplicit,    // Event originated by radio component
         ERadioFrequencyEventReasonDummy        // Dummy event, doesn't cause any actions
         };

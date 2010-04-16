@@ -19,7 +19,7 @@
 #define RADIOPRESETSTORAGE_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 #include "radiopresetstorageexport.h"
 

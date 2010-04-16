@@ -25,7 +25,6 @@
 
 S60_APP_RESOURCE(qtfmradio)
 
-//TODO: change to fmradio.qm once availabe
-data=DATAZ_\QT_TRANSLATIONS_DIR\fmradio_en.qm QT_TRANSLATIONS_DIR\fmradio.qm
+data=DATAZ_\QT_TRANSLATIONS_DIR\fmradio.qm  QT_TRANSLATIONS_DIR\fmradio.qm
 
 #endif // FMRADIO_RESOURCES_IBY

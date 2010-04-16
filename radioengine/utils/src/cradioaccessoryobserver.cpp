@@ -15,10 +15,10 @@
 *
 */
 
-#include "cradioenginelogger.h"
-
+// User includes
 #include "cradioaccessoryobserver.h"
 #include "mradioheadseteventobserver.h"
+#include "cradioenginelogger.h"
 
 // ---------------------------------------------------------------------------
 //

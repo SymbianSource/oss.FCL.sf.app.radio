@@ -18,8 +18,10 @@
 #ifndef M_RADIOSETTINGSSETTERS_H
 #define M_RADIOSETTINGSSETTERS_H
 
+// User includes
 #include "mradioenginesettings.h"
 
+// Forward declarations
 class MRadioSettingsObserver;
 
 /**

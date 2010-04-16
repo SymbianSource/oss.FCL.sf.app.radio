@@ -23,8 +23,10 @@ DEFINES     += BUILD_UI_ENGINE_DLL
 win32:DESTDIR = ../bin
 
 # Wrapper does not depend on QtGui or Orbit
-QT          = core gui
+QT          = core gui network
 CONFIG      -= hb
+CONFIG      += mobility
+MOBILITY    = systeminfo
 
 symbian: {
     DEFINES += SYMBIAN
@@ -42,9 +44,9 @@ win32:LIBS += -L../bin
 LIBS += -lradiopresetstorage
 LIBS += -lradioenginewrapper
 
-USE_MOBILE_EXTENSIONS_API {
-    symbian:LIBS += -lxqprofile
-}
+symbian:LIBS += -lxqservice
+symbian:LIBS += -lxqserviceutil
+symbian:LIBS += -lxqsettingsmanager
 
 DEPENDPATH += $$INCLUDEPATH src
 
@@ -60,6 +62,10 @@ HEADERS += radioplaylogitem.h
 HEADERS += radioplaylogmodel.h
 HEADERS += radiolocalization.h
 HEADERS += radiouiengineexport.h
+symbian:HEADERS += radiocontrolservice.h
+symbian:HEADERS += radiomonitorservice.h
+win32:HEADERS += radiomonitorservice_win32.h
+HEADERS += radioserviceconst.h
 
 INTERNAL_HEADERS += radiostation_p.h
 INTERNAL_HEADERS += radioplaylogitem_p.h
@@ -80,3 +86,6 @@ SOURCES += radioplaylogitem.cpp
 SOURCES += radioplaylogitem_p.cpp
 SOURCES += radioplaylogmodel.cpp
 SOURCES += radioplaylogmodel_p.cpp
+symbian:SOURCES += radiocontrolservice.cpp
+symbian:SOURCES += radiomonitorservice.cpp
+win32:SOURCES += radiomonitorservice_win32.cpp

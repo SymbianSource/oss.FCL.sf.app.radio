@@ -19,10 +19,10 @@
 #define RADIOSTATIONMODEL_P_H_
 
 // System includes
-#include <qlist>
-#include <qmap>
-#include <qscopedpointer>
-#include <qicon>
+#include <QList>
+#include <QMap>
+#include <QScopedPointer>
+#include <QIcon>
 
 // User includes
 //#include "radiostation.h"

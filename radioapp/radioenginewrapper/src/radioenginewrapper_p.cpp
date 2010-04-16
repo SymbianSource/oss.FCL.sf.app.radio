@@ -182,14 +182,14 @@ void RadioEngineWrapperPrivate::FrequencyEventL( TUint32 aFrequency,
         const uint frequency = static_cast<uint>( aFrequency );
 
         mStationHandler.setCurrentStation( frequency );
+
         // Stations found by seeking (autotune) are saved as local stations
-//        if ( aReason == RadioEngine::ERadioFrequencyEventReasonUp
-//             || aReason == RadioEngine::ERadioFrequencyEventReasonDown  )
-//        {
-//            mStationHandler.addScannedFrequency( frequency );
-//            mIsSeeking = false;
-//            mCommandSender = 0;
-//        }
+        if ( aReason == RadioEngine::ERadioFrequencyEventReasonSeekUp
+             || aReason == RadioEngine::ERadioFrequencyEventReasonSeekDown  )
+        {
+            mStationHandler.addScannedFrequency( frequency );
+            mCommandSender = 0;
+        }
 
         //mEngineHandler->SetMuted( EFalse );
         LOG_TIMESTAMP( "Channel change finished" );
@@ -258,11 +258,12 @@ void RadioEngineWrapperPrivate::AudioRoutingEventL( TInt aAudioDestination, TInt
  */
 void RadioEngineWrapperPrivate::SeekingEventL( TInt aSeekingState, TInt DEBUGVAR( aError ) )
 {
-    LOG_FORMAT( "RadioEngineWrapperPrivate::SeekingEventL, aSeekingState: %d, Error: %d", aSeekingState, aError );
-    if ( aSeekingState != RadioEngine::ERadioNotSeeking ) {
-        // We only set the flag here. It is reset in the FrequencyEventL
-        mIsSeeking = true;
-    }
+    Q_UNUSED( aSeekingState )
+//    LOG_FORMAT( "RadioEngineWrapperPrivate::SeekingEventL, aSeekingState: %d, Error: %d", aSeekingState, aError );
+//    if ( aSeekingState != RadioEngine::ERadioNotSeeking ) {
+//        // We only set the flag here. It is reset in the FrequencyEventL
+//        mIsSeeking = true;
+//    }
 //    Document()->PubSubL().PublishTuningStateL( EVRPSTuningStarted );
 }
 

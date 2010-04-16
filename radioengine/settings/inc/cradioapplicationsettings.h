@@ -18,6 +18,7 @@
 #ifndef C_RADIOAPPLICATIONSETTINGS_H
 #define C_RADIOAPPLICATIONSETTINGS_H
 
+// User includes
 #include "mradioapplicationsettings.h"
 #include "cradiosettingsbase.h"
 

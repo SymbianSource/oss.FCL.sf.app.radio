@@ -20,10 +20,10 @@
 #include <presetutility.h>
 #include <preset.h>
 #else
-#   include <radiofmpresetutility.h>
+#   include <RadioFmPresetUtility.h>
 #endif // COMPILE_WITH_NEW_PRESET_UTILITY
 
-#include <qstring>
+#include <QString>
 
 // User includes
 #include "radiopresetstorage.h"

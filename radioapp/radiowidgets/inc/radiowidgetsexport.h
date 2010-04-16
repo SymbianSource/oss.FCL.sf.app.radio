@@ -19,7 +19,7 @@
 #define RADIO_WIDGETS_EXPORT_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 #ifdef BUILD_WIDGETS_DLL
     #define WIDGETS_DLL_EXPORT Q_DECL_EXPORT

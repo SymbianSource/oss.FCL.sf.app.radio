@@ -19,13 +19,14 @@
 #define RADIOSTATION_H_
 
 // System includes
-#include <qstring>
-#include <qmetatype>
-#include <qobject>
+#include <QString>
+#include <QMetaType>
+#include <QObject>
 
 // User includes
 #include "radiouiengineexport.h"
 #include "radio_global.h"
+
 // Constants
 const int KLastCallSignCharCode = 25;
 const uint KThreeLetterCallSignCount = 72;

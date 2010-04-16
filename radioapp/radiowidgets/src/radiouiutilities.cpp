@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <hbeffect.h>
+#include <HbEffect>
 
 // User includes
 #include "radiouiutilities.h"

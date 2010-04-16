@@ -19,8 +19,8 @@
 #define RADIOSTATIONFILTERMODEL_H_
 
 // System includes
-#include <qsortfilterproxymodel>
-#include <qmap>
+#include <QSortFilterProxyModel>
+#include <QMap>
 
 // User includes
 #include "radiouiengineexport.h"

@@ -67,6 +67,10 @@ void RadioTuningView::init( RadioMainWindow* aMainWindow, RadioStationModel* aMo
                     frequencyStrip,     SLOT(setFrequency(uint,int)) );
     connectAndTest( stationModel,       SIGNAL(favoriteChanged(RadioStation)),
                     frequencyStrip,     SLOT(favoriteChanged(RadioStation)) );
+    connectAndTest( stationModel,       SIGNAL(stationAdded(RadioStation)),
+                    frequencyStrip,     SLOT(stationAdded(RadioStation)) );
+    connectAndTest( stationModel,       SIGNAL(stationRemoved(RadioStation)),
+                    frequencyStrip,     SLOT(stationRemoved(RadioStation)) );
     connectAndTest( frequencyStrip,     SIGNAL(swipedLeft()),
                     engine,             SLOT(skipNext()) );
     connectAndTest( frequencyStrip,     SIGNAL(swipedRight()),
@@ -79,25 +83,13 @@ void RadioTuningView::init( RadioMainWindow* aMainWindow, RadioStationModel* aMo
     frequencyStrip->connectLeftButton( SIGNAL(clicked()), engine, SLOT(skipPrevious()) );
     frequencyStrip->connectRightButton( SIGNAL(clicked()), engine, SLOT(skipNext()) );
 
-    frequencyStrip->connectLeftButton( SIGNAL(longPress(QPointF)), engine, SLOT(seekUp()) );
-    frequencyStrip->connectRightButton( SIGNAL(longPress(QPointF)), engine, SLOT(seekDown()) );
+    frequencyStrip->connectLeftButton( SIGNAL(longPress(QPointF)), engine, SLOT(seekDown()) );
+    frequencyStrip->connectRightButton( SIGNAL(longPress(QPointF)), engine, SLOT(seekUp()) );
 
     // "Play log" menu item
     connectViewChangeMenuItem( DOCML_NAME_PLAYLOGVIEWACTION, SLOT(activatePlayLogView()) );
 
-    // "StationsView" menu item
-    connectViewChangeMenuItem( DOCML_NAME_STATIONSVIEWACTION, SLOT(activateStationsView()) );
-
     connectCommonMenuItem( MenuItem::UseLoudspeaker );
-}
-
-/*!
- * From RadioViewBase
- *
- */
-void RadioTuningView::initSecondarySoftkey()
-{
-    // Intentionally empty so that the tuning view won't have the back button
 }
 
 /*!

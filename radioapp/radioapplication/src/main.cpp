@@ -15,8 +15,16 @@
 *
 */
 
+// System includes
+#include <QTranslator>
+#include <QLocale>
+#include <QFile>
+
+// User includes
 #include "radioapplication.h"
 #include "radiologger.h"
+
+static const QString TRANSLATIONS_PATH_FORMAT = "%1:/resource/qt/translations/";
 
 /*!
  * Runs the application
@@ -27,7 +35,17 @@ int main( int argc, char* argv[] )
 
     LOG_TIMESTAMP( "Tesla started" );
 
+    const QString localizedRadio = "fmradio_" + QLocale::system().name();
+    QString path = QString( TRANSLATIONS_PATH_FORMAT ).arg( "C" );  
+    if ( !QFile::exists( path + localizedRadio ) ) {
+        path = QString( TRANSLATIONS_PATH_FORMAT ).arg( "Z" );
+    }
+    
+    QTranslator translator;
+    translator.load( localizedRadio, path );
+   
     RadioApplication app( argc, argv );
+    app.installTranslator( &translator );
     int returnValue = app.exec();
 
     UNINSTALL_MESSAGE_HANDLER // Uninstalls the file tracer

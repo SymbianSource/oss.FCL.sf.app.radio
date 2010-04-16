@@ -19,8 +19,8 @@
 #define RADIOPLAYLOGITEM_H
 
 // System includes
-#include <qmetatype>
-#include <qobject>
+#include <QMetaType>
+#include <QObject>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -52,6 +52,15 @@ public:
 
     QString title() const;
     void setTitle( const QString& title );
+
+    QString station() const;
+    void setStation( const QString& station );
+
+    uint frequency() const;
+    void setFrequency( uint frequency );
+
+    QString time() const;
+    void setCurrentTime();
 
     bool isFavorite() const;
     void setFavorite();

@@ -33,4 +33,8 @@ EXPORTS
 	_ZNK18RadioEngineWrapper6regionEv @ 32 NONAME
 	_ZNK18RadioEngineWrapper7isMutedEv @ 33 NONAME
 	_ZNK18RadioEngineWrapper9isRadioOnEv @ 34 NONAME
+	_ZN12MethodLoggerC1EPKcS1_ @ 35 NONAME
+	_ZN12MethodLoggerC2EPKcS1_ @ 36 NONAME
+	_ZN12MethodLoggerD1Ev @ 37 NONAME
+	_ZN12MethodLoggerD2Ev @ 38 NONAME
 

@@ -19,14 +19,13 @@
 #define RADIOSTATIONCONTROLWIDGET_H
 
 // System includes
-#include <hbwidget.h>
-#include <hbicon.h>
-#include <hbeffect.h>
+#include <HbWidget>
+#include <HbIcon>
+#include <HbEffect>
 
 // Forward declarations
 class RadioUiEngine;
 class HbPushButton;
-class RadioXmlUiLoader;
 class RadioMainWindow;
 
 // Class declaration
@@ -79,8 +78,8 @@ private: // data
 
     HbIcon              mBackground;
     HbPushButton*       mTagSongButton;
-    HbPushButton*       mRecognizeButton;
     HbPushButton*       mStationsViewButton;
+    HbPushButton*       mRecognizeButton;
 
     RadioMainWindow*    mMainWindow;
 

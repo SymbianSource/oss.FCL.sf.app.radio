@@ -19,7 +19,7 @@
 #define RADIO_UI_ENGINE_EXPORT_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 #ifdef BUILD_UI_ENGINE_DLL
     #define UI_ENGINE_DLL_EXPORT Q_DECL_EXPORT

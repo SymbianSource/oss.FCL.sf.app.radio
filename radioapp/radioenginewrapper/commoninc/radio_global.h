@@ -19,7 +19,7 @@
 #define RADIO_GLOBAL_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 // Constants
 

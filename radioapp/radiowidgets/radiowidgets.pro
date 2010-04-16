@@ -64,6 +64,7 @@ HEADERS += radiofrequencyscanner.h
 HEADERS += radiocontextmenu.h
 HEADERS += radiofadinglabel.h
 HEADERS += radiostationcarousel.h
+HEADERS += radiostationitem.h
 HEADERS += radiostationcontrolwidget.h
 HEADERS += radioplaylogview.h
 
@@ -82,6 +83,7 @@ SOURCES += radiofrequencyscanner.cpp
 SOURCES += radiocontextmenu.cpp
 SOURCES += radiofadinglabel.cpp
 SOURCES += radiostationcarousel.cpp
+SOURCES += radiostationitem.cpp
 SOURCES += radiostationcontrolwidget.cpp
 SOURCES += radioplaylogview.cpp
 

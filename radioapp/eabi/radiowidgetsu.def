@@ -2,7 +2,7 @@ EXPORTS
 	_ZN15RadioMainWindow11dialogShownE14QSharedPointerI6HbViewE @ 1 NONAME
 	_ZN15RadioMainWindow11qt_metacallEN11QMetaObject4CallEiPPv @ 2 NONAME
 	_ZN15RadioMainWindow11qt_metacastEPKc @ 3 NONAME
-	_ZN15RadioMainWindow12activateViewER8QPointerI13RadioViewBaseERK7QString @ 4 NONAME
+	_ZN15RadioMainWindow12activateViewER8QPointerI13RadioViewBaseERK7QString6QFlagsIN2Hb14ViewSwitchFlagEE @ 4 NONAME
 	_ZN15RadioMainWindow15showVolumeLevelEi @ 5 NONAME
 	_ZN15RadioMainWindow16showErrorMessageERK7QString @ 6 NONAME
 	_ZN15RadioMainWindow16staticMetaObjectE @ 7 NONAME DATA 16
@@ -29,66 +29,71 @@ EXPORTS
 	_ZN15RadioTuningView14toggleFavoriteEv @ 28 NONAME
 	_ZN15RadioTuningView16staticMetaObjectE @ 29 NONAME DATA 16
 	_ZN15RadioTuningView19getStaticMetaObjectEv @ 30 NONAME
-	_ZN15RadioTuningView20initSecondarySoftkeyEv @ 31 NONAME
-	_ZN15RadioTuningView4initEP15RadioMainWindowP17RadioStationModel @ 32 NONAME
-	_ZN15RadioTuningViewC1EP16RadioXmlUiLoader @ 33 NONAME
-	_ZN15RadioTuningViewC2EP16RadioXmlUiLoader @ 34 NONAME
-	_ZN15RadioWizardView11qt_metacallEN11QMetaObject4CallEiPPv @ 35 NONAME
-	_ZN15RadioWizardView11qt_metacastEPKc @ 36 NONAME
-	_ZN15RadioWizardView13startScanningEv @ 37 NONAME
-	_ZN15RadioWizardView15listItemClickedERK11QModelIndex @ 38 NONAME
-	_ZN15RadioWizardView16staticMetaObjectE @ 39 NONAME DATA 16
-	_ZN15RadioWizardView19engineStatusChangedEb @ 40 NONAME
-	_ZN15RadioWizardView19getStaticMetaObjectEv @ 41 NONAME
-	_ZN15RadioWizardView20initSecondarySoftkeyEv @ 42 NONAME
-	_ZN15RadioWizardView23saveSelectedAsFavoritesEv @ 43 NONAME
-	_ZN15RadioWizardView4initEP15RadioMainWindowP17RadioStationModel @ 44 NONAME
-	_ZN15RadioWizardView9showEventEP10QShowEvent @ 45 NONAME
-	_ZN15RadioWizardViewC1EP16RadioXmlUiLoader @ 46 NONAME
-	_ZN15RadioWizardViewC2EP16RadioXmlUiLoader @ 47 NONAME
-	_ZN16RadioPlayLogView11qt_metacallEN11QMetaObject4CallEiPPv @ 48 NONAME
-	_ZN16RadioPlayLogView11qt_metacastEPKc @ 49 NONAME
-	_ZN16RadioPlayLogView16staticMetaObjectE @ 50 NONAME DATA 16
-	_ZN16RadioPlayLogView19getStaticMetaObjectEv @ 51 NONAME
-	_ZN16RadioPlayLogView4initEP15RadioMainWindowP17RadioStationModel @ 52 NONAME
-	_ZN16RadioPlayLogViewC1EP16RadioXmlUiLoader @ 53 NONAME
-	_ZN16RadioPlayLogViewC2EP16RadioXmlUiLoader @ 54 NONAME
-	_ZN17RadioStationsView11qt_metacallEN11QMetaObject4CallEiPPv @ 55 NONAME
-	_ZN17RadioStationsView11qt_metacastEPKc @ 56 NONAME
-	_ZN17RadioStationsView12initListViewEv @ 57 NONAME
-	_ZN17RadioStationsView13updateHeadingEv @ 58 NONAME
-	_ZN17RadioStationsView15listItemClickedERK11QModelIndex @ 59 NONAME
-	_ZN17RadioStationsView15setFavoriteIconERK6HbIcon @ 60 NONAME
-	_ZN17RadioStationsView16staticMetaObjectE @ 61 NONAME DATA 16
-	_ZN17RadioStationsView17deckButtonPressedEv @ 62 NONAME
-	_ZN17RadioStationsView17setNowPlayingIconERK6HbIcon @ 63 NONAME
-	_ZN17RadioStationsView19getStaticMetaObjectEv @ 64 NONAME
-	_ZN17RadioStationsView19listItemLongPressedEP18HbAbstractViewItemRK7QPointF @ 65 NONAME
-	_ZN17RadioStationsView19updateHeadsetStatusEb @ 66 NONAME
-	_ZN17RadioStationsView20updateCurrentStationEv @ 67 NONAME
-	_ZN17RadioStationsView23startScanAndSavePresetsEv @ 68 NONAME
-	_ZN17RadioStationsView25updateControlVisibilitiesEv @ 69 NONAME
-	_ZN17RadioStationsView4initEP15RadioMainWindowP17RadioStationModel @ 70 NONAME
-	_ZN17RadioStationsView9showEventEP10QShowEvent @ 71 NONAME
-	_ZN17RadioStationsViewC1EP16RadioXmlUiLoader @ 72 NONAME
-	_ZN17RadioStationsViewC2EP16RadioXmlUiLoader @ 73 NONAME
-	_ZNK15RadioMainWindow10metaObjectEv @ 74 NONAME
-	_ZNK15RadioTuningView10metaObjectEv @ 75 NONAME
-	_ZNK15RadioWizardView10metaObjectEv @ 76 NONAME
-	_ZNK16RadioPlayLogView10metaObjectEv @ 77 NONAME
-	_ZNK17RadioStationsView10metaObjectEv @ 78 NONAME
-	_ZNK17RadioStationsView12favoriteIconEv @ 79 NONAME
-	_ZNK17RadioStationsView14nowPlayingIconEv @ 80 NONAME
-	_ZTI15RadioMainWindow @ 81 NONAME
-	_ZTI15RadioTuningView @ 82 NONAME
-	_ZTI15RadioWizardView @ 83 NONAME
-	_ZTI16RadioPlayLogView @ 84 NONAME
-	_ZTI17RadioStationsView @ 85 NONAME
-	_ZTV15RadioMainWindow @ 86 NONAME
-	_ZTV15RadioTuningView @ 87 NONAME
-	_ZTV15RadioWizardView @ 88 NONAME
-	_ZTV16RadioPlayLogView @ 89 NONAME
-	_ZTV17RadioStationsView @ 90 NONAME
-	_ZThn8_N15RadioMainWindowD0Ev @ 91 NONAME
-	_ZThn8_N15RadioMainWindowD1Ev @ 92 NONAME
+	_ZN15RadioTuningView4initEP15RadioMainWindowP17RadioStationModel @ 31 NONAME
+	_ZN15RadioTuningViewC1EP16RadioXmlUiLoader @ 32 NONAME
+	_ZN15RadioTuningViewC2EP16RadioXmlUiLoader @ 33 NONAME
+	_ZN15RadioWizardView11qt_metacallEN11QMetaObject4CallEiPPv @ 34 NONAME
+	_ZN15RadioWizardView11qt_metacastEPKc @ 35 NONAME
+	_ZN15RadioWizardView13startScanningEv @ 36 NONAME
+	_ZN15RadioWizardView15listItemClickedERK11QModelIndex @ 37 NONAME
+	_ZN15RadioWizardView16staticMetaObjectE @ 38 NONAME DATA 16
+	_ZN15RadioWizardView19engineStatusChangedEb @ 39 NONAME
+	_ZN15RadioWizardView19getStaticMetaObjectEv @ 40 NONAME
+	_ZN15RadioWizardView23saveSelectedAsFavoritesEv @ 41 NONAME
+	_ZN15RadioWizardView4initEP15RadioMainWindowP17RadioStationModel @ 42 NONAME
+	_ZN15RadioWizardView9showEventEP10QShowEvent @ 43 NONAME
+	_ZN15RadioWizardViewC1EP16RadioXmlUiLoader @ 44 NONAME
+	_ZN15RadioWizardViewC2EP16RadioXmlUiLoader @ 45 NONAME
+	_ZN16RadioPlayLogView11qt_metacallEN11QMetaObject4CallEiPPv @ 46 NONAME
+	_ZN16RadioPlayLogView11qt_metacastEPKc @ 47 NONAME
+	_ZN16RadioPlayLogView14setOrientationEv @ 48 NONAME
+	_ZN16RadioPlayLogView15listItemClickedERK11QModelIndex @ 49 NONAME
+	_ZN16RadioPlayLogView15showContextMenuERK11QModelIndex @ 50 NONAME
+	_ZN16RadioPlayLogView16staticMetaObjectE @ 51 NONAME DATA 16
+	_ZN16RadioPlayLogView17deckButtonPressedEv @ 52 NONAME
+	_ZN16RadioPlayLogView18updateVisibilitiesEv @ 53 NONAME
+	_ZN16RadioPlayLogView19getStaticMetaObjectEv @ 54 NONAME
+	_ZN16RadioPlayLogView19listItemLongPressedEP18HbAbstractViewItemRK7QPointF @ 55 NONAME
+	_ZN16RadioPlayLogView4initEP15RadioMainWindowP17RadioStationModel @ 56 NONAME
+	_ZN16RadioPlayLogView9clearListEv @ 57 NONAME
+	_ZN16RadioPlayLogViewC1EP16RadioXmlUiLoader @ 58 NONAME
+	_ZN16RadioPlayLogViewC2EP16RadioXmlUiLoader @ 59 NONAME
+	_ZN17RadioStationsView11qt_metacallEN11QMetaObject4CallEiPPv @ 60 NONAME
+	_ZN17RadioStationsView11qt_metacastEPKc @ 61 NONAME
+	_ZN17RadioStationsView12initListViewEv @ 62 NONAME
+	_ZN17RadioStationsView13updateHeadingEv @ 63 NONAME
+	_ZN17RadioStationsView15listItemClickedERK11QModelIndex @ 64 NONAME
+	_ZN17RadioStationsView15setFavoriteIconERK6HbIcon @ 65 NONAME
+	_ZN17RadioStationsView16staticMetaObjectE @ 66 NONAME DATA 16
+	_ZN17RadioStationsView17deckButtonPressedEv @ 67 NONAME
+	_ZN17RadioStationsView17setNowPlayingIconERK6HbIcon @ 68 NONAME
+	_ZN17RadioStationsView19getStaticMetaObjectEv @ 69 NONAME
+	_ZN17RadioStationsView19listItemLongPressedEP18HbAbstractViewItemRK7QPointF @ 70 NONAME
+	_ZN17RadioStationsView19updateHeadsetStatusEb @ 71 NONAME
+	_ZN17RadioStationsView20updateCurrentStationEv @ 72 NONAME
+	_ZN17RadioStationsView23startScanAndSavePresetsEv @ 73 NONAME
+	_ZN17RadioStationsView25updateControlVisibilitiesEv @ 74 NONAME
+	_ZN17RadioStationsView4initEP15RadioMainWindowP17RadioStationModel @ 75 NONAME
+	_ZN17RadioStationsView9showEventEP10QShowEvent @ 76 NONAME
+	_ZN17RadioStationsViewC1EP16RadioXmlUiLoader @ 77 NONAME
+	_ZN17RadioStationsViewC2EP16RadioXmlUiLoader @ 78 NONAME
+	_ZNK15RadioMainWindow10metaObjectEv @ 79 NONAME
+	_ZNK15RadioTuningView10metaObjectEv @ 80 NONAME
+	_ZNK15RadioWizardView10metaObjectEv @ 81 NONAME
+	_ZNK16RadioPlayLogView10metaObjectEv @ 82 NONAME
+	_ZNK17RadioStationsView10metaObjectEv @ 83 NONAME
+	_ZNK17RadioStationsView12favoriteIconEv @ 84 NONAME
+	_ZNK17RadioStationsView14nowPlayingIconEv @ 85 NONAME
+	_ZTI15RadioMainWindow @ 86 NONAME
+	_ZTI15RadioTuningView @ 87 NONAME
+	_ZTI15RadioWizardView @ 88 NONAME
+	_ZTI16RadioPlayLogView @ 89 NONAME
+	_ZTI17RadioStationsView @ 90 NONAME
+	_ZTV15RadioMainWindow @ 91 NONAME
+	_ZTV15RadioTuningView @ 92 NONAME
+	_ZTV15RadioWizardView @ 93 NONAME
+	_ZTV16RadioPlayLogView @ 94 NONAME
+	_ZTV17RadioStationsView @ 95 NONAME
+	_ZThn8_N15RadioMainWindowD0Ev @ 96 NONAME
+	_ZThn8_N15RadioMainWindowD1Ev @ 97 NONAME
 

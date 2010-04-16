@@ -19,7 +19,7 @@
 #define RADIO_PRESET_STORAGE_EXPORT_H_
 
 // System includes
-#include <qglobal.h>
+#include <QtGlobal>
 
 #ifdef BUILD_PRESET_STORAGE_DLL
     #define STORAGE_DLL_EXPORT Q_DECL_EXPORT

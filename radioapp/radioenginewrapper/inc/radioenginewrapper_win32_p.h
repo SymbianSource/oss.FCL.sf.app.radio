@@ -19,8 +19,8 @@
 #define RADIOENGINEWRAPPER_P_H
 
 // System includes
-#include <qobject>
-#include <qscopedpointer>
+#include <QObject>
+#include <QScopedPointer>
 
 // User includes
 #include "radioenginewrapper.h"
@@ -94,6 +94,7 @@ public:
 private slots:
 
     void frequencyEvent();
+    void addSongTags();
 
 private:
 
@@ -163,6 +164,7 @@ private: // data
     bool                                            mAntennaAttached;
 
     uint                                            mFrequency;
+    uint                                            mNextFrequency;
 
     int                                             mVolume;
 
@@ -171,6 +173,9 @@ private: // data
     RadioRegion::Region                             mRegionId;
     uint                                            mMinFrequency;
     uint                                            mMaxFrequency;
+
+    QString                                         mArtist;
+    QString                                         mTitle;
 
 };
 

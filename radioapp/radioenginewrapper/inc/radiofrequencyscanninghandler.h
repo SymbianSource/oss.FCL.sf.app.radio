@@ -19,8 +19,8 @@
 #define RADIOFREQUENCYSCANNINGHANDLER_H
 
 // System includes
-#include <qobject>
-#include <qmap>
+#include <QObject>
+#include <QMap>
 
 // User includes
 #include "mradioscanobserver.h"

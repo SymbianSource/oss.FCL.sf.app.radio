@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qtime>
+#include <QTime>
 
 // User includes
 #include "radiostation.h"

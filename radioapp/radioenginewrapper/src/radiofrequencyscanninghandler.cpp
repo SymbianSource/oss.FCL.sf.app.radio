@@ -16,7 +16,7 @@
 */
 
 // System includes
-#include <qtimer>
+#include <QTimer>
 
 // User includes
 #include "radiofrequencyscanninghandler.h"
@@ -77,6 +77,7 @@ void RadioFrequencyScanningHandler::ScanCompletedEventL( TInt aError )
  */
 void RadioFrequencyScanningHandler::startScanning( bool muted )
 {
+    Q_UNUSED( muted )
     cancel();
     QTimer::singleShot( 1000, this, SLOT(delayedStart()) );
 }
