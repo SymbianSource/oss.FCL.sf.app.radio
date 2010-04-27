@@ -189,18 +189,19 @@ void CFMRadioScanLocalStationsContainer::InitializeChannelListL()
 // values specified
 // ----------------------------------------------------
 //
-void CFMRadioScanLocalStationsContainer::UpdateChannelListContentL( TInt aIndex, const TDesC& aInfoText, TInt aChannelFrequency, TBool aNowPlaying, TBool aInfoTextPlacement )
-	{
+void CFMRadioScanLocalStationsContainer::UpdateChannelListContentL( TInt aIndex,
+        const TDesC& aInfoText,
+        TInt aChannelFrequency,
+        TBool aNowPlaying,
+        TBool aInfoTextPlacement )
+    {
     TBuf<KLengthOfChannelItemString> textChannelItem;
     TBuf<KLengthOfChIndexStringChList> textChIndex;
     TBuf<KLengthOfChannelItemIconIndexString> textChIconIndex;
     
-    //textChIndex.Format( KChIndexFormatChList, aIndex+1 ); // One over index
     textChIndex.SetLength( 0 );
-        
+    
     textChIconIndex.Format( KChIconIndexFormatChList, KNowPlayingIconIndexChList ) ;
-	//Update to display Devnagari numbers for Text Index.
-   	//AknTextUtils::LanguageSpecificNumberConversion(textChIndex);
     textChannelItem.Append( textChIndex );
     textChannelItem.Append( KColumnListSeparator );
     
@@ -210,7 +211,7 @@ void CFMRadioScanLocalStationsContainer::UpdateChannelListContentL( TInt aIndex,
     TBuf<30> frequencyString;
     frequencyString.Num( frequency, format );
 
-    HBufC* listItemString = NULL;             
+    HBufC* listItemString = NULL;
     if ( aInfoTextPlacement ) // frequency and PS name
         {
         const TInt granularity = 2;
@@ -240,24 +241,24 @@ void CFMRadioScanLocalStationsContainer::UpdateChannelListContentL( TInt aIndex,
     textChannelItem.Append( KColumnListSeparator );
     
     if ( aNowPlaying )
-	    {	    
-    	textChannelItem.Append( textChIconIndex );	
-	    }
+        {
+        textChannelItem.Append( textChIconIndex );	
+        }
     
-    if( aIndex <= ( iChannelItemArray->Count() - 1 ) )
-    	{
-    	iChannelItemArray->Delete( aIndex );
-        iChannelList->HandleItemRemovalL();
+    if ( aIndex < iChannelItemArray->Count() && aIndex >= 0 )
+        {
+        iChannelItemArray->Delete( aIndex );
         iChannelItemArray->InsertL( aIndex, textChannelItem );
-    	}
+        }
     else
-    	{
+        {
         iChannelItemArray->AppendL( textChannelItem );
-    	}
-    iChannelList->HandleItemAdditionL(); // Update list
-    iChannelList->UpdateScrollBarsL();
-	iChannelList->DrawDeferred();
-	}
+        iChannelList->HandleItemAdditionL(); // Update list
+        iChannelList->UpdateScrollBarsL();
+        }
+
+    iChannelList->DrawDeferred();
+    }
 
 // --------------------------------------------------------------------------------
 // CFMRadioScanLocalStationsContainer::InsertScannedChannelToListL

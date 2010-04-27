@@ -721,11 +721,13 @@ void CFMRadioChannelListView::DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* 
 // CFMRadioChannelListView::LayoutChangedL
 // ---------------------------------------------------------------------------
 //
-void CFMRadioChannelListView::LayoutChangedL(
-    TInt aType )
+void CFMRadioChannelListView::LayoutChangedL( TInt aType )
     {
-    iContainer->SetRect( ClientRect() );
-    iContainer->HandleResourceChange( aType );
+    if ( iContainer )
+        {
+        iContainer->SetRect( ClientRect() );
+        iContainer->HandleResourceChange( aType );
+        }
     }
 
 // ---------------------------------------------------------------------------------------------

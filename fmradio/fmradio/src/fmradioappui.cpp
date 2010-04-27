@@ -431,15 +431,6 @@ void CFMRadioAppUi::HandleCommandL( TInt aCommand )
 #endif
                 }
                 break;
-            case EFMRadioCmdScanLocalStationsViewActive:
-                iLayoutChangeObserver = iScanLocalStationsView;
-                break;
-            case EFMRadioCmdChannelListViewActive:
-                iLayoutChangeObserver = iChannelListView;
-                break;
-            case EFMRadioCmdMainViewActive:
-                iLayoutChangeObserver = iMainView;
-                break;
             default:
                 break;
             }
@@ -459,6 +450,15 @@ void CFMRadioAppUi::HandleCommandL( TInt aCommand )
         }
     switch ( aCommand )
         {
+        case EFMRadioCmdScanLocalStationsViewActive:
+            iLayoutChangeObserver = iScanLocalStationsView;
+            break;
+        case EFMRadioCmdChannelListViewActive:
+            iLayoutChangeObserver = iChannelListView;
+            break;
+        case EFMRadioCmdMainViewActive:
+            iLayoutChangeObserver = iMainView;
+            break;
         case EAknSoftkeyExit:
         case EEikCmdExit:
         case EAknCmdExit:

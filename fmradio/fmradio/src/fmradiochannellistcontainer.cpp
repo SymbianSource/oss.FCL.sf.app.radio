@@ -223,60 +223,57 @@ void CFMRadioChannelListContainer::InitializeChannelListL()
 // values specified
 // ----------------------------------------------------
 //
-void CFMRadioChannelListContainer::UpdateChannelListContentL( TInt aIndex, const TDesC& aChannelName, TInt aChannelFrequency )
-	{
+void CFMRadioChannelListContainer::UpdateChannelListContentL( TInt aIndex,
+        const TDesC& aChannelName,
+        TInt aChannelFrequency )
+    {
     TBuf<KLengthOfChannelItemString> textChannelItem;
     TBuf<KLengthOfChIndexStringChList> textChIndex;
     TBuf<KLengthOfChannelItemIconIndexString> textChIconIndex;
-
+    
     textChIndex.Format( KChIndexFormatChList, aIndex+1 ); // One over index
- 
+    
     textChIconIndex.Format( KChIconIndexFormatChList, KNowPlayingIconIndexChList );
+    
+    //Update to display Devnagari numbers for Text Index.
+    AknTextUtils::LanguageSpecificNumberConversion( textChIndex );
 
-	//Update to display Devnagari numbers for Text Index.
-   	AknTextUtils::LanguageSpecificNumberConversion( textChIndex );
-   	//
     textChannelItem.Append( textChIndex );
     textChannelItem.Append( KColumnListSeparator );
     textChannelItem.Append( aChannelName );
     textChannelItem.Append( KColumnListSeparator );
     
     if ( aChannelFrequency )
-		{
-		TReal frequency = static_cast<TReal>( aChannelFrequency / static_cast<TReal>( KHzConversionFactor ));
-		// Gets locale decimal separator automatically
-		TRealFormat format(KFrequencyMaxLength, iRadioEngine.DecimalCount() );
-		TBuf<30> frequencyString;
-		frequencyString.Num( frequency, format );
-
-		HBufC* stringHolder = StringLoader::LoadLC( R_QTN_FMRADIO_DOUBLE2_FREQ, frequencyString, iEikonEnv );
-		//Update for display of Hindi Devnagari Numbers
-		TPtr textItem2 = stringHolder->Des();
-   		AknTextUtils::LanguageSpecificNumberConversion(textItem2);
-		textChannelItem.Append( textItem2 );
-		CleanupStack::PopAndDestroy( stringHolder );
-		}
+        {
+        TReal frequency = static_cast<TReal>( aChannelFrequency / static_cast<TReal>( KHzConversionFactor ));
+        // Gets locale decimal separator automatically
+        TRealFormat format(KFrequencyMaxLength, iRadioEngine.DecimalCount() );
+        TBuf<30> frequencyString;
+        frequencyString.Num( frequency, format );
+    
+        HBufC* stringHolder = StringLoader::LoadLC( R_QTN_FMRADIO_DOUBLE2_FREQ, frequencyString, iEikonEnv );
+        //Update for display of Hindi Devnagari Numbers
+        TPtr textItem2 = stringHolder->Des();
+        AknTextUtils::LanguageSpecificNumberConversion(textItem2);
+        textChannelItem.Append( textItem2 );
+        CleanupStack::PopAndDestroy( stringHolder );
+        }
         
     // Set 'Now Playing' icon to the channel item
     textChannelItem.Append( KColumnListSeparator );
-        		 
+                 
     if ( iRadioEngine.GetPresetIndex() == aIndex )
-	    {	    
+        {
         textChannelItem.Append( textChIconIndex );
-	    }
+        }
     
-    if( iChannelItemArray->Count() > 0 )
-    	{
-	    iChannelItemArray->Delete( aIndex );
-	    iChannelList->HandleItemRemovalL();
-	    iChannelItemArray->InsertL( aIndex, textChannelItem );
-	    //iChannelItemArray->AppendL(  textChannelItem );
-	    
-	    iChannelList->HandleItemAdditionL(); // Update list
-	    iChannelList->UpdateScrollBarsL();
-		iChannelList->DrawDeferred();
-    	}
-	}
+    if ( aIndex < iChannelItemArray->Count() && aIndex >= 0 )
+        {
+        iChannelItemArray->Delete( aIndex );
+        iChannelItemArray->InsertL( aIndex, textChannelItem );
+        iChannelList->DrawDeferred();
+        }
+    }
 
 // ----------------------------------------------------
 // CFMRadioChannelListContainer::RemoveChannelL
@@ -416,11 +413,8 @@ void CFMRadioChannelListContainer::UpdateItemIconL( TInt aIndex, TInt aIconIndex
         ptr.Append( textChIconIndex ); // Add icon index
         
         iChannelItemArray->Delete( aIndex );
-        iChannelList->HandleItemRemovalL();
         iChannelItemArray->InsertL( aIndex, *channelItem );
         CleanupStack::PopAndDestroy( channelItem );
-        iChannelList->HandleItemAdditionL(); // Update list
-        iChannelList->UpdateScrollBarsL();
         }
     // use draw now so that view is up to date during fast channel switching
     iChannelList->DrawNow();
@@ -447,10 +441,7 @@ void CFMRadioChannelListContainer::HideIconsL()
             {
             ptr.Delete( ptr.Length() - iconIndexPtr.Length(), iconIndexPtr.Length() ); // Remove icon index		
             iChannelItemArray->Delete( index );
-            iChannelList->HandleItemRemovalL();
             iChannelItemArray->InsertL( index, *channelItem );
-            iChannelList->HandleItemAdditionL(); // Update list
-            iChannelList->UpdateScrollBarsL();
             }
         CleanupStack::PopAndDestroy( channelItem );
         }

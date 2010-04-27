@@ -698,7 +698,8 @@ void CFMRadioMCPPlugin::HandleMuteStateChangeL( TFMRadioPSRadioMuteState aMuteSt
         switch( aMuteState )
             {
             case EFMRadioPSMuteStateOn:
-                if ( iEngine->ApplicationRunningState() != EFMRadioPSApplicationRunning )
+                if ( iEngine->ApplicationRunningState() != EFMRadioPSApplicationRunning ||
+                        iEngine->AntennaStatus() == EFMRadioPSHeadsetDisconnected )
                     {
                     UpdatePublishedToolBarL( KFMRadioUnmuteDimmed );
                     }
@@ -709,7 +710,8 @@ void CFMRadioMCPPlugin::HandleMuteStateChangeL( TFMRadioPSRadioMuteState aMuteSt
                 break;
             case EFMRadioPSMuteStateOff:
             case EFMRadioPSMuteStateUninitialized:
-                if ( iEngine->ApplicationRunningState() != EFMRadioPSApplicationRunning )
+                if ( iEngine->ApplicationRunningState() != EFMRadioPSApplicationRunning ||
+                        iEngine->AntennaStatus() == EFMRadioPSHeadsetDisconnected )
                     {
                     UpdatePublishedToolBarL( KFMRadioMuteDimmed );
                     }
