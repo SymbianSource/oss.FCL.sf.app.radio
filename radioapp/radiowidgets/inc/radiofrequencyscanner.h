@@ -20,11 +20,17 @@
 
 // System includes
 #include <QObject>
+#include <QScopedPointer>
 
 // Forward declarations
 class HbProgressDialog;
 class RadioStation;
 class RadioUiEngine;
+class RadioXmlUiLoader;
+class RadioMainWindow;
+class RadioFrequencyStrip;
+class RadioStationCarousel;
+class RadioScannerEngine;
 
 // Class declaration
 class RadioFrequencyScanner : public QObject
@@ -33,9 +39,10 @@ class RadioFrequencyScanner : public QObject
 
 public:
 
-    RadioFrequencyScanner( RadioUiEngine& uiEngine, QObject* parent = 0 );
+    RadioFrequencyScanner( RadioUiEngine& uiEngine, QObject* parent );
+    ~RadioFrequencyScanner();
 
-    void startScanning();
+    void startScanning( RadioXmlUiLoader& uiLoader );
 
 signals:
 
@@ -43,8 +50,14 @@ signals:
 
 private slots:
 
+    void delayedStart();
     void updateScanAndSaveProgress( const RadioStation& station );
+    void continueScanning();
     void scanAndSavePresetsCancelled();
+    void restoreUiControls();
+
+private:
+
     void scanAndSavePresetsFinished();
 
 private: // data
@@ -53,6 +66,10 @@ private: // data
      * Reference to the Ui engine
      */
     RadioUiEngine&      mUiEngine;
+
+    bool                mInTuningView;
+
+    QScopedPointer<RadioScannerEngine> mScannerEngine;
 
     /**
      * Scanning progress note
@@ -65,10 +82,8 @@ private: // data
      */
     uint                mChannelCount;
 
-    /**
-     * Low frequency band edge. The lowest valid frequency at the current region
-     */
-    uint                mMinFrequency;
+    int                 mStripScrollTime;
+    int                 mCarouselScrollTime;
 
 };
 

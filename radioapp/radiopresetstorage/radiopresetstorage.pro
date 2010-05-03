@@ -20,17 +20,6 @@ TEMPLATE    = lib
 TARGET      = radiopresetstorage
 CONFIG      += dll
 DEFINES     += BUILD_PRESET_STORAGE_DLL
-win32:DESTDIR = ../bin
-
-# Wrapper does not depend on QtGui or Orbit
-QT          = core
-CONFIG      -= hb
-
-symbian: {
-    DEFINES += SYMBIAN
-    TARGET.EPOCALLOWDLLDATA = 1
-    TARGET.CAPABILITY = CAP_GENERAL_DLL
-}
 
 INCLUDEPATH += inc
 
@@ -43,16 +32,19 @@ COMPILE_WITH_NEW_PRESET_UTILITY {
 
 DEPENDPATH += $$INCLUDEPATH src
 
-# $$_PRO_FILE_PWD_ points to the directory of the pro file
-MOC_DIR = $$_PRO_FILE_PWD_/tmp
-
 # Input
-HEADERS += radiopresetstorage.h
-HEADERS += radiostationif.h
-HEADERS += radiopresetstorageexport.h
+HEADERS     += radiopresetstorage.h
+HEADERS     += radiostationif.h
+HEADERS     += radiopresetstorageexport.h
 
-symbian:INTERNAL_HEADERS += radiopresetstorage_p.h
-symbian:SOURCES += radiopresetstorage.cpp
+# Symbian specific stuff
+symbian: {
+    INTERNAL_HEADERS += radiopresetstorage_p.h
+    SOURCES += radiopresetstorage.cpp
+}
 
-win32:HEADERS += radiopresetstorage_win32_p.h
-win32:SOURCES += radiopresetstorage_win32.cpp
+# Win32 specific stuff
+win32: {
+    HEADERS += radiopresetstorage_win32_p.h
+    SOURCES += radiopresetstorage_win32.cpp
+}

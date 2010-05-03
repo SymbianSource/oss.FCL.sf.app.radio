@@ -20,83 +20,67 @@ TEMPLATE    = lib
 TARGET      = radioenginewrapper
 CONFIG      += dll
 DEFINES     += BUILD_WRAPPER_DLL
-win32:DESTDIR = ../bin
 
-# Wrapper does not depend on QtGui or Orbit
-QT          = core
-CONFIG      -= gui hb
 USE_DUMMY_RADIO_DATA:QT += xml
 
-symbian: {
-    DEFINES += SYMBIAN
-    TARGET.EPOCALLOWDLLDATA = 1
-    TARGET.CAPABILITY = CAP_GENERAL_DLL
-    
-    INCLUDEPATH += ../../radioengine/utils/api
-    INCLUDEPATH += ../../radioengine/settings/api
-    INCLUDEPATH += ../../radioengine/engine/api
-}
-
-win32: {
-    INCLUDEPATH += inc/win32
-}
 INCLUDEPATH += inc
-INCLUDEPATH += commoninc
+INCLUDEPATH += ../commoninc
 
-
-USE_STUBBED_RADIOENGINE {
-    symbian:LIBS += -lfmradioengine_stub
-} else {
-    symbian:LIBS *= -lradioengineutils
-    symbian:LIBS *= -lradioenginesettings
-    symbian:LIBS *= -lradioengine
-}
-
-DEPENDPATH += $$INCLUDEPATH src
-
-# $$_PRO_FILE_PWD_ points to the directory of the pro file
-MOC_DIR = $$_PRO_FILE_PWD_/tmp
-
-# Input
-HEADERS += radiowrapperexport.h
-HEADERS += radio_global.h
-HEADERS += radiologger.h
-HEADERS += radioenginewrapper.h
-HEADERS += radiosettings.h
-HEADERS += radiostationhandlerif.h
+# Common headers
+HEADERS     += radiowrapperexport.h
+HEADERS     += radio_global.h
+HEADERS     += radiologger.h
+HEADERS     += radioenginewrapper.h
+HEADERS     += radiosettings.h
+HEADERS     += radiostationhandlerif.h
+HEADERS     += radioenginewrapperobserver.h
 
 INTERNAL_HEADERS += radiosettings_p.h
 
-symbian: {
-    HEADERS += cradioenginehandler.h
-    HEADERS += mradioenginehandlerobserver.h
-    HEADERS += radiofrequencyscanninghandler.h
-    HEADERS += radiocontroleventlistener.h
-    HEADERS += radiordslistener.h
-    
-    INTERNAL_HEADERS += radioenginewrapper_p.h
-}
-
 #USE_DUMMY_RADIO_DATA:HEADERS += t_radiodataparser.h
 
-win32:HEADERS += radioenginewrapper_win32_p.h
-win32:HEADERS += $$INTERNAL_HEADERS
+# Common sources
+SOURCES     += radiosettings.cpp
+SOURCES     += radiologger.cpp
+SOURCES     += radioenginewrapperobserver.cpp
 
-SOURCES += radiosettings.cpp
-SOURCES += radiologger.cpp
-
+# Symbian specific stuff
 symbian: {
+    INCLUDEPATH += ../../radioengine/utils/api
+    INCLUDEPATH += ../../radioengine/settings/api
+    INCLUDEPATH += ../../radioengine/engine/api
+
+    LIBS *= -lradioengineutils
+    LIBS *= -lradioenginesettings
+    LIBS *= -lradioengine
+
+    HEADERS += cradioenginehandler.h
+    HEADERS += mradioenginehandlerobserver.h
+    HEADERS += radiocontroleventlistener.h
+    HEADERS += radiordslistener.h
+
+    INTERNAL_HEADERS += radioenginewrapper_p.h
+
     SOURCES += radiosettings_p.cpp
     SOURCES += radioenginewrapper.cpp
     SOURCES += radioenginewrapper_p.cpp
     SOURCES += cradioenginehandler.cpp
-    SOURCES += radiofrequencyscanninghandler.cpp
     SOURCES += radiocontroleventlistener.cpp
     SOURCES += radiordslistener.cpp
 }
 
 #USE_DUMMY_RADIO_DATA:SOURCES += t_radiodataparser.cpp
 
-win32:SOURCES += radiosettings_win32_p.cpp
-win32:SOURCES += radioenginewrapper_win32.cpp
-win32:SOURCES += radioenginewrapper_win32_p.cpp
+# Win32 specific stuff
+win32: {
+    INCLUDEPATH += inc/win32
+
+    HEADERS += radioenginewrapper_win32_p.h
+    HEADERS += $$INTERNAL_HEADERS
+
+    SOURCES += radiosettings_win32_p.cpp
+    SOURCES += radioenginewrapper_win32.cpp
+    SOURCES += radioenginewrapper_win32_p.cpp
+}
+
+DEPENDPATH  += $$INCLUDEPATH src

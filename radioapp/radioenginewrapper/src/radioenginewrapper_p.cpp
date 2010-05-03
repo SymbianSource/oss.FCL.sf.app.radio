@@ -24,7 +24,6 @@
 #include "radiologger.h"
 #include "radio_global.h"
 #include "cradioenginehandler.h"
-#include "radiofrequencyscanninghandler.h"
 #include "radiostationhandlerif.h"
 #include "cradiopubsub.h"
 #include "radiocontroleventlistener.h"
@@ -38,17 +37,14 @@
  *
  */
 RadioEngineWrapperPrivate::RadioEngineWrapperPrivate( RadioEngineWrapper* wrapper,
-                                                      RadioStationHandlerIf& stationHandler,
-                                                      RadioEngineWrapperObserver& observer ) :
+                                                      RadioStationHandlerIf& stationHandler ) :
     q_ptr( wrapper ),
     mStationHandler( stationHandler ),
-    mObserver( observer ),
     mEngineHandler( new CRadioEngineHandler( *this ) ),
     mControlEventListener( new RadioControlEventListener( *this ) ),
     mRdsListener ( new RadioRdsListener( mStationHandler, *this ) ),
-    mCommandSender( 0 ),
-    mUseLoudspeaker( false ),
-    mIsSeeking( false )
+    mTuneReason( 0 ),
+    mUseLoudspeaker( false )
 {
 }
 
@@ -86,7 +82,7 @@ void RadioEngineWrapperPrivate::init()
 
     mUseLoudspeaker = mEngineHandler->IsAudioRoutedToLoudspeaker();
     if ( !mUseLoudspeaker ) {
-        mObserver.audioRouteChanged( false );
+        RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( false ) );
     }
 }
 
@@ -121,36 +117,40 @@ CRadioEngineHandler& RadioEngineWrapperPrivate::RadioEnginehandler()
 /*!
  * Tunes to the given frequency
  */
-void RadioEngineWrapperPrivate::tuneFrequency( uint frequency, const int sender )
+void RadioEngineWrapperPrivate::tuneFrequency( uint frequency, const int reason )
 {
-    mCommandSender = sender;
-    mEngineHandler->Tune( frequency );
+    if ( mEngineHandler->TunedFrequency() != frequency ) {
+        mTuneReason = reason;
+        mEngineHandler->Tune( frequency );
+    }
 }
 
 /*!
  * Tunes to the given frequency after a delay
  */
-void RadioEngineWrapperPrivate::tuneWithDelay( uint frequency, const int sender )
+void RadioEngineWrapperPrivate::tuneWithDelay( uint frequency, const int reason )
 {
-    mCommandSender = sender;
-    mEngineHandler->TuneWithDelay( frequency );
+    if ( mEngineHandler->TunedFrequency() != frequency ) {
+        mTuneReason = reason;
+        mEngineHandler->TuneWithDelay( frequency );
+    }
 }
 
 /*!
  *
  */
-RadioEngineWrapperObserver& RadioEngineWrapperPrivate::observer()
+ObserverList& RadioEngineWrapperPrivate::observers()
 {
-    return mObserver;
+    return mObservers;
 }
 
 /*!
  *
  */
-void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction )
+void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction, const int reason )
 {
+    mTuneReason = reason;
     mEngineHandler->Seek( direction );
-    mObserver.seekingStarted( direction );
 }
 
 /*!
@@ -159,8 +159,7 @@ void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction )
 void RadioEngineWrapperPrivate::PowerEventL( TBool aPowerState, TInt DEBUGVAR( aError ) )
 {
     LOG_FORMAT( "RadioEngineWrapperPrivate::PowerEventL, PowerState: %d, Error: %d", aPowerState, aError );
-    mObserver.radioStatusChanged( aPowerState );
-    mEngineHandler->PubSub().PublishPowerState( aPowerState );
+    RUN_NOTIFY_LOOP( mObservers, radioStatusChanged( aPowerState ) );
 }
 
 /*!
@@ -170,35 +169,12 @@ void RadioEngineWrapperPrivate::FrequencyEventL( TUint32 aFrequency,
                                                  RadioEngine::TRadioFrequencyEventReason aReason,
                                                  TInt aError )
 {
+    Q_UNUSED( aReason );
     LOG_FORMAT( "RadioEngineWrapperPrivate::FrequencyEventL - Frequency: %d, Reason: %d, Error: %d", aFrequency, aReason, aError );
-
-    if ( mFrequencyScanningHandler )
-    {
-        // frequencyevents not handled during scanning //TODO remove
-        return;
-    }
 
     if ( !aError ) {
         const uint frequency = static_cast<uint>( aFrequency );
-
-        mStationHandler.setCurrentStation( frequency );
-
-        // Stations found by seeking (autotune) are saved as local stations
-        if ( aReason == RadioEngine::ERadioFrequencyEventReasonSeekUp
-             || aReason == RadioEngine::ERadioFrequencyEventReasonSeekDown  )
-        {
-            mStationHandler.addScannedFrequency( frequency );
-            mCommandSender = 0;
-        }
-
-        //mEngineHandler->SetMuted( EFalse );
-        LOG_TIMESTAMP( "Channel change finished" );
-
-        mObserver.tunedToFrequency( frequency, mCommandSender );
-
-        mStationHandler.startDynamicPsCheck();
-
-        mEngineHandler->PubSub().PublishFrequency( aFrequency );
+        RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( frequency, mTuneReason ) );
     }
 }
 
@@ -208,8 +184,7 @@ void RadioEngineWrapperPrivate::FrequencyEventL( TUint32 aFrequency,
 void RadioEngineWrapperPrivate::VolumeEventL( TInt aVolume, TInt aError )
 {
     Q_UNUSED( aError );
-    mObserver.volumeChanged( aVolume );
-    mEngineHandler->PubSub().PublishVolume( aVolume );
+    RUN_NOTIFY_LOOP( mObservers, volumeChanged( aVolume ) );
 }
 
 /*!
@@ -218,8 +193,7 @@ void RadioEngineWrapperPrivate::VolumeEventL( TInt aVolume, TInt aError )
 void RadioEngineWrapperPrivate::MuteEventL( TBool aMuteState, TInt aError )
 {
     Q_UNUSED( aError );
-    mObserver.muteChanged( aMuteState );
-    mEngineHandler->PubSub().PublishRadioMuteState( aMuteState );
+    RUN_NOTIFY_LOOP( mObservers, muteChanged( aMuteState ) );
 }
 
 /*!
@@ -236,8 +210,7 @@ void RadioEngineWrapperPrivate::AudioModeEventL( TInt DEBUGVAR( aAudioMode ), TI
 void RadioEngineWrapperPrivate::AntennaEventL( TBool aAntennaAttached, TInt aError )
 {
     Q_UNUSED( aError );
-    mObserver.headsetStatusChanged( aAntennaAttached );
-//    doc->PubSubL().PublishHeadsetStatusL( EVRPSHeadsetConnected );
+    RUN_NOTIFY_LOOP( mObservers, antennaStatusChanged( aAntennaAttached ) );
 }
 
 /*!
@@ -248,7 +221,6 @@ void RadioEngineWrapperPrivate::AudioRoutingEventL( TInt aAudioDestination, TInt
     //TODO: Check how this event differs from AudioRoutingChangedL
     Q_UNUSED( aAudioDestination )
     Q_UNUSED( aError )
-//    doc->PubSubL().PublishLoudspeakerStatusL( EVRPSLoudspeakerNotInUse );
 //    Q_Q( RadioEngineWrapper );
 //    q->audioRouteChanged( aAudioDestination == RadioEngine::ERadioSpeaker );
 }
@@ -264,7 +236,6 @@ void RadioEngineWrapperPrivate::SeekingEventL( TInt aSeekingState, TInt DEBUGVAR
 //        // We only set the flag here. It is reset in the FrequencyEventL
 //        mIsSeeking = true;
 //    }
-//    Document()->PubSubL().PublishTuningStateL( EVRPSTuningStarted );
 }
 
 /*!
@@ -273,8 +244,6 @@ void RadioEngineWrapperPrivate::SeekingEventL( TInt aSeekingState, TInt DEBUGVAR
 void RadioEngineWrapperPrivate::RegionEventL( TInt DEBUGVAR( aRegion ), TInt DEBUGVAR( aError ) )
 {
     LOG_FORMAT( "RadioEngineWrapperPrivate::RegionEventL, aRegion: %d, Error: %d", aRegion, aError );
-//    Document()->PubSubL().PublishFrequencyDecimalCountL(
-//        static_cast<TVRPSFrequencyDecimalCount>( Document()->RadioSettings()->DecimalCount() ) );
 }
 
 /*!
@@ -283,7 +252,7 @@ void RadioEngineWrapperPrivate::RegionEventL( TInt DEBUGVAR( aRegion ), TInt DEB
 void RadioEngineWrapperPrivate::AudioRouteChangedL( RadioEngine::TRadioAudioRoute aRoute )
 {
     mUseLoudspeaker = aRoute == RadioEngine::ERadioSpeaker;
-    mObserver.audioRouteChanged( mUseLoudspeaker );
+    RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( mUseLoudspeaker ) );
 }
 
 /*!
@@ -315,14 +284,4 @@ void RadioEngineWrapperPrivate::HandleRepositoryValueChangeL( const TUid& aUid, 
     if ( aUid == KCRUidProfileEngine && aKey == KProEngActiveProfile && !aError && aValue == KOfflineProfileId ) {
         LOG( "RadioEngineWrapperPrivate::HandleRepositoryValueChangeL: Offline profile activated" );
     }
-}
-
-/*!
- *
- */
-void RadioEngineWrapperPrivate::frequencyScannerFinished()
-{
-    RadioFrequencyScanningHandler* handler = mFrequencyScanningHandler.take(); // Nulls the pointer
-    handler->deleteLater();
-    mObserver.scanAndSaveFinished();
 }

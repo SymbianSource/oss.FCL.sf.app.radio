@@ -38,7 +38,7 @@ INCLUDEPATH += . \
     stub/inc \
     ../../../inc \
     ../inc \
-    ../../radioenginewrapper/commoninc \
+    ../../commoninc \
     ../../radioenginewrapper/inc \
     ../../radiopresetstorage/inc \
     ../../../../inc

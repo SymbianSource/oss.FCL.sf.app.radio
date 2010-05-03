@@ -35,11 +35,16 @@ int main( int argc, char* argv[] )
 
     LOG_TIMESTAMP( "Tesla started" );
 
+#ifdef BUILD_WIN32
+    QString path = ".";
+    QString localizedRadio = "fmradio_en_US.qm";
+#else
     const QString localizedRadio = "fmradio_" + QLocale::system().name();
-    QString path = QString( TRANSLATIONS_PATH_FORMAT ).arg( "C" );  
+    QString path = QString( TRANSLATIONS_PATH_FORMAT ).arg( "C" );
     if ( !QFile::exists( path + localizedRadio ) ) {
         path = QString( TRANSLATIONS_PATH_FORMAT ).arg( "Z" );
     }
+#endif // BUILD_WIN32
     
     QTranslator translator;
     translator.load( localizedRadio, path );

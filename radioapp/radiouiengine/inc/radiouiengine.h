@@ -32,9 +32,20 @@ class RadioUiEnginePrivate;
 class RadioStationModel;
 class RadioSettings;
 class RadioStation;
-class RadioPlayLogModel;
+class RadioHistoryModel;
 class RadioStationFilterModel;
+class RadioScannerEngine;
 class RadioMonitorService;
+
+namespace GenreTarget
+{
+    enum Target{
+        Carousel,
+        StationsList,
+        HomeScreen
+    };
+}
+
 
 class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 {
@@ -45,8 +56,6 @@ class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 public:
 
     static bool isOfflineProfile();
-    static QString parseFrequency( uint frequency );
-    static QString nameOrFrequency( const RadioStation& station, uint frequency = 0 );
 
     RadioUiEngine( QObject* parent = 0 );
     ~RadioUiEngine();
@@ -60,8 +69,9 @@ public:
      */
     RadioSettings& settings();
     RadioStationModel& model();
-    RadioPlayLogModel& playLogModel();
+    RadioHistoryModel& historyModel();
     RadioStationFilterModel* createNewFilterModel( QObject* parent = 0 );
+    RadioScannerEngine* createScannerEngine();
     RadioMonitorService& monitor();
 
     bool isRadioOn() const;
@@ -76,12 +86,9 @@ public:
     uint maxFrequency() const;
     uint frequencyStepSize() const;
 
-    void scanFrequencyBand();
-    void cancelScanFrequencyBand();
-
     QList<RadioStation> stationsInRange( uint minFrequency, uint maxFrequency );
 
-    QString genreToString( int genre );
+    QString genreToString( int genre, GenreTarget::Target target );
 
     bool isSongRecognitionAppAvailable();
 
@@ -99,16 +106,15 @@ signals:
     void muteChanged( bool muted );
 
     void audioRouteChanged( bool loudspeaker );
-    void scanAndSaveFinished();
-    void headsetStatusChanged( bool connected );
+    void antennaStatusChanged( bool connected );
 
 public slots:
 
     /**
      * Slots to tune to given frequency or preset
      */
-    void tuneFrequency( uint frequency, const int sender = CommandSender::Unspecified );
-    void tuneWithDelay( uint frequency, const int sender = CommandSender::Unspecified );
+    void tuneFrequency( uint frequency, const int sender = TuneReason::Unspecified );
+    void tuneWithDelay( uint frequency, const int sender = TuneReason::Unspecified );
     void tunePreset( int presetIndex );
 
     /*!
@@ -138,8 +144,7 @@ private:
     void emitVolumeChanged( int volume );
     void emitMuteChanged( bool muted );
     void emitAudioRouteChanged( bool loudspeaker );
-    void emitScanAndSaveFinished();
-    void emitheadsetStatusChanged( bool connected );
+    void emitAntennaStatusChanged( bool connected );
 
 private: // data
 

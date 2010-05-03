@@ -18,7 +18,12 @@
 #ifndef _RADIOUIUTILITIES_H_
 #define _RADIOUIUTILITIES_H_
 
+// System includes
+#include <QPointer>
+
 // Forward declarations
+class RadioFrequencyStrip;
+class RadioStationCarousel;
 
 struct EffectInfo
 {
@@ -44,10 +49,24 @@ public:
 
     static bool addEffects( QEffectList list );
 
+    static RadioFrequencyStrip* frequencyStrip();
+    static RadioStationCarousel* carousel();
+
+    static void setFrequencyStrip( RadioFrequencyStrip* frequencyStrip );
+    static void setCarousel( RadioStationCarousel* carousel );
+
 private:
 
     RadioUiUtilities();
     ~RadioUiUtilities();
+
+    static RadioUiUtilities& instance();
+
+private: // data
+
+    QPointer<RadioFrequencyStrip> mFrequencyStrip;
+
+    QPointer<RadioStationCarousel> mCarousel;
 
 };
 

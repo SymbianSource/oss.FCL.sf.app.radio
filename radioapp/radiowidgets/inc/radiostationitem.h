@@ -46,11 +46,9 @@ public:
 // New functions
 
     uint frequency() const;
-
     void update( const RadioStation* station = 0 );
-
     void setFrequency( uint frequency );
-    void setSeekingText();
+    void cleanRdsData();
 
 private slots:
 
@@ -61,6 +59,9 @@ private:
     void updateFavoriteIcon( bool isFavorite );
 
     RadioStationCarousel* carousel();
+
+    QString parseFrequency( const uint frequency );
+    QString nameOrFrequency( const RadioStation& station, uint frequency = 0 );
 
 private: // data
 

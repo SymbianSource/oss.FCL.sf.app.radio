@@ -31,8 +31,8 @@ class RadioStationModelPrivate;
 class RadioPresetStorage;
 class RadioStationHandlerIf;
 class RadioEngineWrapper;
-class RadioUiEngine;
 class RadioStation;
+class RadioUiEnginePrivate;
 class QIcon;
 
 // Constants
@@ -61,7 +61,7 @@ public:
     };
     Q_DECLARE_FLAGS( Detail, DetailFlag )
 
-    explicit RadioStationModel( RadioUiEngine& uiEngine );
+    explicit RadioStationModel( RadioUiEnginePrivate& uiEngine );
 
     ~RadioStationModel();
 
@@ -75,9 +75,9 @@ public:
 // New functions
 
     /*!
-     * Called by the wrapper to initialize the list with given amount of presets
+     * Called by the engine to initialize the list with given amount of presets
      */
-    void initialize( RadioPresetStorage* storage, RadioEngineWrapper* engine );
+    void initialize( RadioPresetStorage* storage, RadioEngineWrapper* wrapper );
 
     /*!
      * Sets the icons to be used in the lists
@@ -104,6 +104,11 @@ public:
      * Functions to find stations by frequency
      */
     bool findFrequency( uint frequency, RadioStation& station );
+
+    /*!
+    * Function to check the number of favorite stations
+    */
+    int favoriteCount();
 
     /*!
      * Functions to find stations by preset index

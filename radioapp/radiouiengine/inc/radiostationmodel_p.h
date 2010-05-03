@@ -25,24 +25,25 @@
 #include <QIcon>
 
 // User includes
-//#include "radiostation.h"
+#include "radioenginewrapperobserver.h"
 #include "radiostationhandlerif.h"
 
 // Forward declarations
-class RadioUiEngine;
+class RadioUiEnginePrivate;
 class RadioPresetStorage;
 class RadioEngineWrapper;
 class QTimer;
 
 // Class declaration
 class RadioStationModelPrivate : public RadioStationHandlerIf
+                               , public RadioEngineWrapperObserver
 {
     Q_DECLARE_PUBLIC( RadioStationModel )
     Q_DISABLE_COPY( RadioStationModelPrivate )
 
 public:
 
-    explicit RadioStationModelPrivate( RadioStationModel* model, RadioUiEngine& uiEngine );
+    explicit RadioStationModelPrivate( RadioStationModel* model, RadioUiEnginePrivate& uiEngine );
 
     virtual ~RadioStationModelPrivate();
 
@@ -64,6 +65,14 @@ private:
     void setCurrentPiCode( uint frequency, int piCode );
     void setCurrentGenre( uint frequency, int genre );
 
+// from base class RadioEngineWrapperObserver
+
+    void tunedToFrequency( uint frequency, int reason );
+
+// New functions
+
+    void doSaveStation( RadioStation& station, bool persistentSave = true );
+
 private: // data
 
     /**
@@ -75,7 +84,7 @@ private: // data
     /**
      * Reference to the ui engine
      */
-    RadioUiEngine&              mUiEngine;
+    RadioUiEnginePrivate&       mUiEngine;
 
     /**
      * Pointer to the preset storage
@@ -85,7 +94,7 @@ private: // data
     /**
      * Pointer to the radio engine wrapper
      */
-    RadioEngineWrapper*         mEngine;
+    RadioEngineWrapper*         mWrapper;
 
     /**
      * List of station items

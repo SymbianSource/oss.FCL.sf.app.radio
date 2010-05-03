@@ -67,7 +67,7 @@ Q_GLOBAL_STATIC_WITH_ARGS( RadioStationPrivate, shared_null, ( RadioStation::Sha
 QString RadioStation::parseFrequency( uint frequency )
 {
     QString freqString;
-    freqString.sprintf( "%.2f", qreal( frequency ) / KFrequencyMultiplier );
+    freqString.sprintf( "%.1f", qreal( frequency ) / KFrequencyMultiplier );
     return freqString;
 }
 
@@ -169,7 +169,7 @@ void RadioStation::setName( const QString& name )
 {
     // Name emptiness is checked because this name setter is used by incoming RDS PS name
     // and empty names should be ignored
-    if ( !name.isEmpty() && mData->mName.compare( name ) != 0 ) {
+    if ( !name.isEmpty() && !mData->mRenamedByUser && mData->mName.compare( name ) != 0 ) {
         detach();
         mData->mName = name.trimmed();
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::NameChanged;
@@ -347,7 +347,7 @@ bool RadioStation::isValid() const
  */
 QString RadioStation::name() const
 {
-    return mData->mName;
+    return mData->mName.isEmpty() ? "" : mData->mName;
 }
 
 /*!

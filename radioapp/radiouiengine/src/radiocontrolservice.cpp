@@ -21,7 +21,7 @@
 // User includes
 #include "radiocontrolservice.h"
 #include "radiouiengine.h"
-#include "radioserviceconst.h"
+#include "radioservicedef.h"
 
 /*!
  *

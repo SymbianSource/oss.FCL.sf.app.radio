@@ -1,19 +1,19 @@
 RadioStationItem {
-    layout: default
+	layout: default
 }
 
 RadioStationItem::favorite_button {
-    top: -var(hb-param-margin-gene-top);
-    left: -var(hb-param-margin-gene-left)
-    max-width: 6un;
-    max-height: 6un;
+	max-width: 6un;
+	max-height: 6un;
+	top: -var(hb-param-margin-gene-top);
+	left: -var(hb-param-margin-gene-left)
 }
 
 RadioStationItem::genre_label {
-    top: -var(hb-param-margin-gene-top);
-    right: 8un;
-    left: -var(hb-param-margin-gene-left);
-    pref-height: 6un;
+	pref-height: 6un;
+	top: -var(hb-param-margin-gene-top);
+	right: 8un;
+	left: -var(hb-param-margin-gene-left);
 }
 
 RadioFadingLabel#genre_label::text {
@@ -23,10 +23,10 @@ RadioFadingLabel#genre_label::text {
 }
 
 RadioStationItem::name_label {
-    pref-height: 5un;
-    left: -var(hb-param-margin-gene-left);
-    top: -var(hb-param-margin-gene-top);
-    right: var(hb-param-margin-gene-right)
+	pref-height: 5un;
+	left: -var(hb-param-margin-gene-left);
+	top: -var(hb-param-margin-gene-top);
+	right: var(hb-param-margin-gene-right)
 }
 
 RadioFadingLabel#name_label::text {
@@ -36,10 +36,10 @@ RadioFadingLabel#name_label::text {
 }
 
 RadioStationItem::rt_label {
-    pref-height: 15un;
-    left: -var(hb-param-margin-gene-left);
-    top: -var(hb-param-margin-gene-top);
-    right: var(hb-param-margin-gene-right);
+	pref-height: 21un;
+	left: -var(hb-param-margin-gene-left);
+	top: -var(hb-param-margin-gene-top);
+	right: var(hb-param-margin-gene-right);
 }
 
 RadioFadingLabel#rt_label::text {
@@ -49,11 +49,11 @@ RadioFadingLabel#rt_label::text {
 }
 
 RadioStationItem::url_label {
-    pref-height: 5un;
-    left: -var(hb-param-margin-gene-left);
-    top: -var(hb-param-margin-gene-top);
-    right: var(hb-param-margin-gene-right);
-    bottom: var(hb-param-margin-gene-bottom);
+	pref-height: 5un;
+	left: -var(hb-param-margin-gene-left);
+	top: -var(hb-param-margin-gene-top);
+	right: var(hb-param-margin-gene-right);
+	bottom: var(hb-param-margin-gene-bottom);
 }
 
 RadioFadingLabel#url_label::text {

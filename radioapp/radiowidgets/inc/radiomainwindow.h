@@ -23,8 +23,7 @@
 #include <HbEffect>
 #include <QPointer>
 
-//#define QT_SHAREDPOINTER_TRACK_POINTERS // Debugging support for QSharedPointer
-#include <QSharedPointer>
+#include <QScopedPointer>
 
 // User includes
 #include "radiowidgetsexport.h"
@@ -34,11 +33,11 @@ class RadioViewBase;
 class RadioUiEngine;
 class HbVolumeSliderPopup;
 
-typedef QSharedPointer<HbVolumeSliderPopup> VolumeSliderPtr;
+typedef QScopedPointer<HbVolumeSliderPopup> VolumeSliderPtr;
 
 /**
  * QPointer is used to store the views because it tracks the deletion of the object and nulls
- * the reference. Transient views like RadioWizardView and RadioPlayLogView are destroyed after they are closed
+ * the reference. Transient view like RadioHistoryView is destroyed after they are closed
  * and QPointer will notice it.
  */
 typedef QPointer<RadioViewBase> ViewPtr;
@@ -71,17 +70,15 @@ public slots:
 
     void activateTuningView();
 
-    void activateWizardView();
-
     void activateStationsView();
 
-    void activatePlayLogView();
+    void activateHistoryView();
 
 private slots:
 
     void updateOrientation( Qt::Orientation orientation );
     void showVolumeLevel( int volume );
-    void headsetStatusChanged( bool connected );
+    void updateAntennaStatus( bool connected );
 
 private:
 
@@ -112,16 +109,10 @@ private: // data
     ViewPtr         mStationsView;
 
     /**
-     * Wizard view
+     * Play history view
      * Own.
      */
-    ViewPtr         mWizardView;
-
-    /**
-     * Play log view
-     * Own.
-     */
-    ViewPtr         mPlayLogView;
+    ViewPtr         mHistoryView;
 
     /**
      * Pointer to the volume slider

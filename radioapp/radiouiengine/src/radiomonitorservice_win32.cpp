@@ -18,7 +18,7 @@
 // User includes
 #include "radiomonitorservice_win32.h"
 #include "radiouiengine.h"
-#include "radioserviceconst.h"
+#include "radioservicedef.h"
 
 /*!
  *
@@ -34,6 +34,38 @@ RadioMonitorService::RadioMonitorService( RadioUiEngine& engine ) :
  */
 RadioMonitorService::~RadioMonitorService()
 {
+}
+
+/*!
+ *
+ */
+void RadioMonitorService::notifyFavoriteCount( const int favoriteCount )
+{
+    Q_UNUSED( favoriteCount )
+}
+
+/*!
+ *
+ */
+void RadioMonitorService::notifyAntennaStatus( bool connected )
+{
+    Q_UNUSED( connected )
+}
+
+/*!
+ *
+ */
+void RadioMonitorService::notifyRadioStatus( RadioStatus::Status radioStatus )
+{
+    Q_UNUSED( radioStatus )
+}
+
+/*!
+ *
+ */
+void RadioMonitorService::notifyFrequency( const uint frequency )
+{
+    Q_UNUSED( frequency )
 }
 
 /*!
@@ -63,9 +95,9 @@ void RadioMonitorService::notifyRadioText( const QString& radioText )
 /*!
  *
  */
-void RadioMonitorService::notifyHomepage( const QString& homepage )
+void RadioMonitorService::notifyHomePage( const QString& homePage )
 {
-    Q_UNUSED( homepage )
+    Q_UNUSED( homePage )
 }
 
 /*!

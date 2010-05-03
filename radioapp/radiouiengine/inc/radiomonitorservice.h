@@ -22,6 +22,7 @@
 #include <xqserviceprovider.h>
 
 // User includes
+#include "radioservicedef.h"
 
 // Forward declarations
 class RadioUiEngine;
@@ -35,25 +36,31 @@ public:
     RadioMonitorService( RadioUiEngine& engine );
     virtual ~RadioMonitorService();
 
+    void notifyFavoriteCount( const int favoriteCount );
+    void notifyAntennaStatus( bool connected );
+    void notifyRadioStatus( RadioStatus::Status radioStatus );
+    void notifyFrequency( const uint frequency );
     void notifyName( const QString& name );
     void notifyGenre( const QString& genre );
     void notifyRadioText( const QString& radioText );
-    void notifyHomepage( const QString& homepage );
+    void notifyHomePage( const QString& homePage );
     void notifySong( const QString& song );
 
 public slots:
 
     void requestNotifications();
+    void requestAllData();
 
 private:
     
-    void notify( int notificationId, const QString& message );
+    void notify( const QVariant& notification );
+    void notifyList( const QVariantList& list );
     
 private: // data
 
     RadioUiEngine&  mUiEngine;
     
-    int mRequestIndex;
+    QList<int>      mRequestIndexes;
 
 };
 

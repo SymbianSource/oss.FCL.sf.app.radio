@@ -22,6 +22,13 @@
 #include <HbMainWindow>
 #include <QTimer>
 #include <QMessageBox>
+#include <QComboBox>
+#include <QLocalSocket>
+#include <QDir>
+#include <QStringListModel>
+#include <QSettings>
+#include <HbInstance>
+#include <QLabel>
 
 // User includes
 #include "testwindow_win32.h"
@@ -64,16 +71,21 @@ Win32Window::Win32Window() :
     mOrientationButton( new QPushButton( "Change Orientation", this ) ),
     mVolUpButton( new QPushButton( "Volume Up", this ) ),
     mVolDownButton( new QPushButton( "Volume Down", this ) ),
-    mHeadsetButton( new QPushButton( KBtnDisconnectHeadset, this ) ),
     mAddSongButton( new QPushButton( "Add Song", this ) ),
     mClearSongButton( new QPushButton( "Clear Song", this ) ),
-    mOfflineButton( new QPushButton( KBtnGoOffline, this ) ),
-    mUpdateButton( new QPushButton( "Update", this ) ),
+    mHeadsetButton( new QPushButton( KBtnDisconnectHeadset, this ) ),
     mHeadsetConnected( true ),
+    mOfflineButton( new QPushButton( KBtnGoOffline, this ) ),
+    mThemeBox( new QComboBox( this ) ),
+    mToolbarLayout( 0 ),
     mVolume( 5 ),
     mRadioWindow( 0 ),
+    mOrientation( Qt::Vertical ),
     mSongIndex( 0 )
 {
+    mThemeBox->setEditable( false );
+    initThemes();    
+
     connectAndTest( mOrientationButton, SIGNAL(clicked()), this, SLOT(changeOrientation()) );
     connectAndTest( mVolUpButton, SIGNAL(clicked()), this, SLOT(volumeUp()) );
     connectAndTest( mVolDownButton, SIGNAL(clicked()), this, SLOT(volumeDown()) );
@@ -81,7 +93,7 @@ Win32Window::Win32Window() :
     connectAndTest( mAddSongButton, SIGNAL(clicked()), this, SLOT(addSong()) );
     connectAndTest( mClearSongButton, SIGNAL(clicked()), this, SLOT(clearSong()) );
     connectAndTest( mOfflineButton, SIGNAL(clicked()), this, SLOT(toggleOffline()) );
-    connectAndTest( mUpdateButton, SIGNAL(clicked()), this, SLOT(updateWindow()) );
+    connectAndTest( mThemeBox, SIGNAL(activated(QString)), this, SLOT(changeTheme(QString)) );
 
     QTimer::singleShot( 0, this, SLOT(updateWindowSize()) );
 }
@@ -117,7 +129,15 @@ void Win32Window::addHbWindow( HbMainWindow* radioWindow )
     mToolbarLayout->addWidget( mAddSongButton, 2, 0 );
     mToolbarLayout->addWidget( mClearSongButton, 2, 1 );
     mToolbarLayout->addWidget( mOfflineButton, 3, 0 );
-    mToolbarLayout->addWidget( mUpdateButton, 3, 1 );
+
+    QGridLayout* themeLayout = new QGridLayout( this );
+    themeLayout->addWidget( new QLabel( "Theme:", this ), 0, 0 );
+    themeLayout->addWidget( mThemeBox, 0, 1 );
+    themeLayout->setColumnStretch( 1, 2 );
+
+    mToolbarLayout->addLayout( themeLayout, 3, 1 );
+    mToolbarLayout->setColumnStretch( 0, 1 );
+    mToolbarLayout->setColumnStretch( 1, 1 );
 
     layout->addItem( mToolbarLayout );
     layout->addWidget( radioWindow );
@@ -244,7 +264,83 @@ void Win32Window::toggleOffline()
 /*!
  * Private slot
  */
-void Win32Window::updateWindow()
+void Win32Window::changeTheme( const QString& theme )
 {
-    update();
+    QLocalSocket socket;
+    socket.connectToServer( "hbthemeserver" );
+    if ( socket.waitForConnected( 3000 ) ) {
+        QByteArray outputByteArray;
+        QDataStream outputDataStream( &outputByteArray, QIODevice::WriteOnly );
+        outputDataStream << 4; // EThemeSelection from HbThemeServerRequest in hbthemecommon_p.h
+        outputDataStream << theme;
+        socket.write( outputByteArray );
+        socket.flush();
+    }
+}
+
+/*!
+ *
+ */
+void Win32Window::initThemes()
+{
+    QStringList themeList;
+    foreach ( const QString& themeRootPath, themeRootPaths() ) {
+        QDir dir( themeRootPath ) ;
+        QStringList list = dir.entryList( QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Name );
+
+        if ( list.contains( "themes", Qt::CaseSensitive ) ) {
+            QDir root = themeRootPath;
+            dir.setPath( root.path() + "/themes/icons/" );
+            QStringList iconthemeslist = dir.entryList( QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Name );
+            foreach ( QString themefolder, iconthemeslist ) {
+                QDir iconThemePath( root.path() + "/themes/icons/" + themefolder );
+                if ( iconThemePath.exists( "index.theme" ) ) {
+                    QSettings iniSetting( iconThemePath.path() + "/index.theme", QSettings::IniFormat );
+                    iniSetting.beginGroup( "Icon Theme" );
+                    QString hidden = iniSetting.value( "Hidden" ).toString();
+                    QString name = iniSetting.value( "Name" ).toString();
+                    iniSetting.endGroup();
+                    if ( (hidden == "true") || ( hidden == "" ) || ( name != themefolder ) ) {
+                        iconthemeslist.removeOne( themefolder );
+                    }
+                }
+                else {
+                     iconthemeslist.removeOne( themefolder );
+                }
+
+            }
+
+            themeList.append( iconthemeslist );
+        }
+    }
+
+    if ( themeList.count() == 0 ) {
+        themeList.insert( 0, "hbdefault" ); //adding one default entry
+        mThemeBox->setEnabled( false );
+    }
+
+    mThemeBox->setModel( new QStringListModel( themeList, mThemeBox ) );
+
+    for ( int i = 0; i < themeList.count(); ++i ) {
+        QString theme = themeList.at( i );
+        if ( theme == HbInstance::instance()->theme()->name() ) {
+            mThemeBox->setCurrentIndex( i );
+        }
+    }
+}
+
+/*!
+ *
+ */
+QStringList Win32Window::themeRootPaths()
+{
+    QStringList rootDirs;
+    QString envDir = qgetenv( "HB_THEMES_DIR" );
+    if ( !envDir.isEmpty() ) {
+        rootDirs << envDir;
+    }
+
+    rootDirs << HB_RESOURCES_DIR;
+
+    return rootDirs;
 }

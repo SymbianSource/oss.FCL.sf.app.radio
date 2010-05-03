@@ -157,10 +157,9 @@ void RadioControlEventListener::StopL( TBool aDownPressed )
  */
 void RadioControlEventListener::ForwardL( TBool aDownPressed )
 {
-    if( aDownPressed )
-        {
-        mEngine.observer().skipNext();
-        }
+    if( aDownPressed ) {
+        RUN_NOTIFY_LOOP( mEngine.observers(), skipNext() );
+    }
 }
 
 /*!
@@ -179,10 +178,9 @@ void RadioControlEventListener::FastForwardL( TBool aDownPressed )
  */
 void RadioControlEventListener::BackwardL( TBool aDownPressed )
 {
-    if( aDownPressed )
-        {
-        mEngine.observer().skipPrevious();
-        }
+    if( aDownPressed ) {
+        RUN_NOTIFY_LOOP( mEngine.observers(), skipPrevious() );
+    }
 }
 
 /*!
@@ -190,8 +188,7 @@ void RadioControlEventListener::BackwardL( TBool aDownPressed )
  */
 void RadioControlEventListener::RewindL( TBool aDownPressed )
 {
-    if( aDownPressed )
-    {
+    if( aDownPressed ) {
         mEngine.startSeeking( Seeking::Down );
     }
 }
@@ -217,9 +214,8 @@ void RadioControlEventListener::ChannelDownL( TBool DEBUGVAR( aDownPressed ) )
  */
 void RadioControlEventListener::VolumeUpL( TBool aDownPressed )
 {
-    if ( aDownPressed )
-    {
-    mEngine.RadioEnginehandler().IncreaseVolume();
+    if ( aDownPressed ) {
+        mEngine.RadioEnginehandler().IncreaseVolume();
     }
 }
 
@@ -228,9 +224,8 @@ void RadioControlEventListener::VolumeUpL( TBool aDownPressed )
  */
 void RadioControlEventListener::VolumeDownL( TBool aDownPressed )
 {
-    if ( aDownPressed )
-    {
-    mEngine.RadioEnginehandler().DecreaseVolume();
+    if ( aDownPressed ) {
+        mEngine.RadioEnginehandler().DecreaseVolume();
     }
 }
 
@@ -255,5 +250,5 @@ void RadioControlEventListener::SetAudioRouteL( RadioEngine::TRadioAudioRoute DE
  */
 void RadioControlEventListener::AnswerEndCallL()
 {
-    mEngine.observer().skipNext();
+    RUN_NOTIFY_LOOP( mEngine.observers(), skipNext() );
 }

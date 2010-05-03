@@ -18,7 +18,7 @@
 &EN
 
 ; SIS header: name, uid, version
-#{"fmradiohswidgetplugin"},(0xE0022EEE),1,0,0
+#{"fmradiohswidgetplugin"},(0x2002E6D6),1,0,0
 
 ; Localised Vendor name
 %{"Vendor"}
@@ -34,11 +34,11 @@
 [0x1028315F],0,0,0,{"S60ProductID"}
  
 "/epoc32/release/armv5/urel/fmradiohswidgetplugin.dll"                                           - "c:/sys/bin/fmradiohswidgetplugin.dll"
-"../fmradiohswidgetplugin/qmakepluginstubs/fmradiohswidgetplugin.qtplugin"  - "c:/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.qtplugin"
-"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.manifest"  - "c:/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.manifest"
-"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.s60xml"       - "c:/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.xml"
-;"/epoc32/data/z/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.s60xml"       - "c:/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.xml"
-;"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.xml"       - "c:/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.xml"
-;"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin_icon.png"    - "!:\private\20022F35\import\widgetregistry\E0022EEE\fmradiohswidgetplugin_icon.png"
+"../fmradiohswidgetplugin/qmakepluginstubs/fmradiohswidgetplugin.qtplugin"  - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.qtplugin"
+"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.manifest"  - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.manifest"
+"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.s60xml"       - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.xml"
+;"/epoc32/data/z/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.s60xml"       - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.xml"
+;"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.xml"       - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.xml"
+;"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin_icon.png"    - "!:\private\20022F35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin_icon.png"
 
 "/epoc32/release/armv5/urel/fmradiohswidgetplugininstaller.exe"                                  - "c:/sys/bin/fmradiohswidgetplugininstaller.exe", FR, RB, RW

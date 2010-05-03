@@ -23,9 +23,8 @@
 /*!
  * Constructor
  */
-RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler,
-                                        RadioEngineWrapperObserver& observer ) :
-    d_ptr( new RadioEngineWrapperPrivate( this, stationHandler, observer ) )
+RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler ) :
+    d_ptr( new RadioEngineWrapperPrivate( this, stationHandler ) )
 {
     Q_D( RadioEngineWrapper );
     d->init();
@@ -37,6 +36,24 @@ RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler,
 RadioEngineWrapper::~RadioEngineWrapper()
 {
     delete d_ptr;
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapper::addObserver( RadioEngineWrapperObserver* observer )
+{
+    Q_D( RadioEngineWrapper );
+    d->mObservers.append( observer );
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapper::removeObserver( RadioEngineWrapperObserver* observer )
+{
+    Q_D( RadioEngineWrapper );
+    d->mObservers.removeAll( observer );
 }
 
 /*!
@@ -111,14 +128,6 @@ bool RadioEngineWrapper::isRadioOn() const
 }
 
 /*!
- * Checks if the scan is on
- */
-bool RadioEngineWrapper::isScanning() const
-{
-    return false;
-}
-
-/*!
  * Returns the currently tuned frequency
  */
 uint RadioEngineWrapper::currentFrequency() const
@@ -136,7 +145,7 @@ bool RadioEngineWrapper::isMuted() const
 }
 
 /*!
- * Returns the headset connection status
+ * Returns the antenna connection status
  */
 bool RadioEngineWrapper::isAntennaAttached() const
 {
@@ -193,31 +202,23 @@ void RadioEngineWrapper::toggleMute()
 void RadioEngineWrapper::toggleAudioRoute()
 {
     Q_D( RadioEngineWrapper );
-    d->mUseLoudspeaker = !d->mUseLoudspeaker;
-    d->mObserver.audioRouteChanged( d->mUseLoudspeaker );
+    d->toggleAudioRoute();
 }
 
 /*!
  *
  */
-void RadioEngineWrapper::startSeeking( Seeking::Direction direction )
+void RadioEngineWrapper::startSeeking( Seeking::Direction direction, const int reason )
 {
     Q_D( RadioEngineWrapper );
-    d->startSeeking( direction );
+    d->startSeeking( direction, reason );
 }
 
 /*!
  *
  */
-void RadioEngineWrapper::scanFrequencyBand()
-{
-}
-
-/*!
- *
- */
-void RadioEngineWrapper::cancelScanFrequencyBand()
+void RadioEngineWrapper::cancelSeeking()
 {
     Q_D( RadioEngineWrapper );
-    d->frequencyScannerFinished();
+    d->cancelSeeking();
 }

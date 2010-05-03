@@ -33,16 +33,103 @@ using namespace QtMobility;
 #include "radiologger.h"
 #include "radioenginewrapper.h"
 #include "radiostationmodel.h"
-#include "radioplaylogmodel.h"
+#include "radiohistorymodel.h"
 #include "radiosettings.h"
 #include "radiostationfiltermodel.h"
-#include "radiolocalization.h"
+#include "radioscannerengine.h"
+#ifdef BUILD_WIN32
+#   include "radiomonitorservice_win32.h"
+#else
+#   include "radiomonitorservice.h"
+#endif
 
 // Constants
 const QString KPathFormatter = "%1:%2%3";
 const QString KApplicationDir = "\\sys\\bin\\";
 const QString KSongRecognitionApp = "Shazam_0x200265B3.exe";
 const QString KSongRecognitionAppParams = "-listen";
+
+struct GenreStruct
+    {
+    int mGenreCode;
+    const char* mInCarousel;
+    const char* mInStationsList;
+    const char* mInHomeScreen;
+    };
+
+const GenreStruct EuropeanGenres[] =
+    {
+     { GenreEurope::RdsNone, "", "", "" }
+    ,{ GenreEurope::RdsNews, "txt_rad_info_news", "txt_rad_dblist_l1_mhz_val_news", "txt_rad_info_news_hs" }
+    ,{ GenreEurope::RdsCurrentAffairs, "txt_rad_info_current_affairs", "txt_rad_dblist_l1_mhz_val_current_affairs", "txt_rad_info_current_affairs_hs" }
+    ,{ GenreEurope::RdsInformation, "txt_rad_info_information", "txt_rad_dblist_l1_mhz_val_information", "txt_rad_info_information_hs" }
+    ,{ GenreEurope::RdsSport, "txt_rad_info_sport", "txt_rad_dblist_l1_mhz_val_sport", "txt_rad_info_sport_hs" }
+    ,{ GenreEurope::RdsEducation, "txt_rad_info_education", "txt_rad_dblist_l1_mhz_val_education", "txt_rad_info_education_hs" }
+    ,{ GenreEurope::RdsDrama, "txt_rad_info_drama", "txt_rad_dblist_l1_mhz_val_drama", "txt_rad_info_drama_hs" }
+    ,{ GenreEurope::RdsCulture, "txt_rad_info_culture", "txt_rad_dblist_l1_mhz_val_culture", "txt_rad_info_culture_hs" }
+    ,{ GenreEurope::RdsScience, "txt_rad_info_science", "txt_rad_dblist_l1_mhz_val_science", "txt_rad_info_science_hs" }
+    ,{ GenreEurope::RdsVariedSpeech, "txt_rad_info_varied", "txt_rad_dblist_l1_mhz_val_varied", "txt_rad_info_varied_hs" }
+    ,{ GenreEurope::RdsPopMusic, "txt_rad_info_pop_music", "txt_rad_dblist_l1_mhz_val_pop_music", "txt_rad_info_pop_music_hs" }
+    ,{ GenreEurope::RdsRockMusic, "txt_rad_info_rock_music", "txt_rad_dblist_l1_mhz_val_rock_music", "txt_rad_info_rock_music_hs" }
+    ,{ GenreEurope::RdsEasyListening, "txt_rad_info_easy_listening", "txt_rad_dblist_l1_mhz_val_easy_listening", "txt_rad_info_easy_listening_hs" }
+    ,{ GenreEurope::RdsLightClassical, "txt_rad_info_light_classical", "txt_rad_dblist_l1_mhz_val_light_classical", "txt_rad_info_light_classical_hs" }
+    ,{ GenreEurope::RdsSeriousClassical, "txt_rad_info_serious_classical", "txt_rad_dblist_l1_mhz_val_serious_classical", "txt_rad_info_serious_classical_hs" }
+    ,{ GenreEurope::RdsOtherMusic, "txt_rad_info_other_music", "txt_rad_dblist_l1_mhz_val_other_music", "txt_rad_info_other_music_hs" }
+    ,{ GenreEurope::RdsWeather, "txt_rad_info_weather", "txt_rad_dblist_l1_mhz_val_weather", "txt_rad_info_weather_hs" }
+    ,{ GenreEurope::RdsFinance, "txt_rad_info_finance", "txt_rad_dblist_l1_mhz_val_finance", "txt_rad_info_finance_hs" }
+    ,{ GenreEurope::RdsChildrensProgrammes, "txt_rad_info_childrens_programmes", "txt_rad_dblist_l1_mhz_val_childrens_programmes", "txt_rad_info_childrens_programmes_hs" }
+    ,{ GenreEurope::RdsSocialAffairs, "txt_rad_info_social_affairs", "txt_rad_dblist_l1_mhz_val_social_affairs", "txt_rad_info_social_affairs_hs" }
+    ,{ GenreEurope::RdsReligion, "txt_rad_info_religion", "txt_rad_dblist_l1_mhz_val_religion", "txt_rad_info_religion_hs" }
+    ,{ GenreEurope::RdsPhoneIn, "txt_rad_info_phone_in", "txt_rad_dblist_l1_mhz_val_phone_in", "txt_rad_info_phone_in_hs" }
+    ,{ GenreEurope::RdsTravel, "txt_rad_info_travel", "txt_rad_dblist_l1_mhz_val_travel", "txt_rad_info_travel_hs" }
+    ,{ GenreEurope::RdsLeisure, "txt_rad_info_leisure", "txt_rad_dblist_l1_mhz_val_leisure", "txt_rad_info_leisure_hs" }
+    ,{ GenreEurope::RdsJazzMusic, "txt_rad_info_jazz_music", "txt_rad_dblist_l1_mhz_val_jazz_music", "txt_rad_info_jazz_music_hs" }
+    ,{ GenreEurope::RdsCountryMusic, "txt_rad_info_country_music", "txt_rad_dblist_l1_mhz_val_country_music", "txt_rad_info_country_music_hs" }
+    ,{ GenreEurope::RdsNationalMusic, "txt_rad_info_national_music", "txt_rad_dblist_l1_mhz_val_national_music", "txt_rad_info_national_music_hs" }
+    ,{ GenreEurope::RdsOldiesMusic, "txt_rad_info_oldies_music", "txt_rad_dblist_l1_mhz_val_oldies_music", "txt_rad_info_oldies_music_hs" }
+    ,{ GenreEurope::RdsFolkMusic, "txt_rad_info_folk_music", "txt_rad_dblist_l1_mhz_val_folk_music", "txt_rad_info_folk_music_hs" }
+    ,{ GenreEurope::RdsDocumentary, "txt_rad_info_documentary", "txt_rad_dblist_l1_mhz_val_documentary", "txt_rad_info_documentary_hs" }
+    ,{ GenreEurope::RdsAlarmTest, "txt_rad_info_alarm_test", "txt_rad_dblist_l1_mhz_val_alarm_test", "txt_rad_info_alarm_test_hs" }
+    ,{ GenreEurope::RdsAlarm, "txt_rad_info_alarm", "txt_rad_dblist_l1_mhz_val_alarm", "txt_rad_info_alarm_hs" }
+    };
+const int EuropeanGenresCount = sizeof( EuropeanGenres ) / sizeof ( EuropeanGenres[0] );
+
+const GenreStruct AmericanGenres[] =
+    {
+     { GenreAmerica::RbdsNone, "", "", "" }
+    ,{ GenreAmerica::RbdsNews, "txt_rad_info_news", "txt_rad_dblist_l1_mhz_val_news", "txt_rad_info_news_hs" }
+    ,{ GenreAmerica::RbdsInformation, "txt_rad_info_information", "txt_rad_dblist_l1_mhz_val_information", "txt_rad_info_information_hs" }
+    ,{ GenreAmerica::RbdsSports, "txt_rad_info_sport", "txt_rad_dblist_l1_mhz_val_sport", "txt_rad_info_sport_hs" }
+    ,{ GenreAmerica::RbdsTalk, "txt_rad_info_talk", "txt_rad_dblist_l1_mhz_val_talk", "txt_rad_info_talk_hs" }
+    ,{ GenreAmerica::RbdsRock, "txt_rad_info_rock_music", "txt_rad_dblist_l1_mhz_val_rock_music", "txt_rad_info_rock_music_hs" } //TODO: Check
+    ,{ GenreAmerica::RbdsClassicRock, "txt_rad_info_classic_rock", "txt_rad_dblist_l1_mhz_val_classic_rock", "txt_rad_info_classic_rock_hs" }
+    ,{ GenreAmerica::RbdsAdultHits, "txt_rad_info_adult_hits", "txt_rad_dblist_l1_mhz_val_adult_hits", "txt_rad_info_adult_hits_hs" }
+    ,{ GenreAmerica::RbdsSoftRock, "txt_rad_info_soft_rock", "txt_rad_dblist_l1_mhz_val_soft_rock", "txt_rad_info_soft_rock_hs" }
+    ,{ GenreAmerica::RbdsTop40, "txt_rad_info_top_40", "txt_rad_dblist_l1_mhz_val_top_40", "txt_rad_info_top_40_hs" }
+    ,{ GenreAmerica::RbdsCountry, "txt_rad_info_country_music", "txt_rad_dblist_l1_mhz_val_country_music", "txt_rad_info_country_music_hs" }  //TODO: Check
+    ,{ GenreAmerica::RbdsOldies, "txt_rad_info_oldies_music", "txt_rad_dblist_l1_mhz_val_oldies_music", "txt_rad_info_oldies_music_hs" }  //TODO: Check
+    ,{ GenreAmerica::RbdsSoft, "txt_rad_info_soft", "txt_rad_dblist_l1_mhz_val_soft", "txt_rad_info_soft_hs" }
+    ,{ GenreAmerica::RbdsNostalgia, "txt_rad_info_nostalgia", "txt_rad_dblist_l1_mhz_val_nostalgia", "txt_rad_info_nostalgia_hs" }
+    ,{ GenreAmerica::RbdsJazz, "txt_rad_info_jazz_music", "txt_rad_dblist_l1_mhz_val_jazz_music", "txt_rad_info_jazz_music_hs" } //TODO: Check
+    ,{ GenreAmerica::RbdsClassical, "txt_rad_info_classical", "txt_rad_dblist_l1_mhz_val_classical", "txt_rad_info_classical_hs" }
+    ,{ GenreAmerica::RbdsRhythmAndBlues, "txt_rad_info_rhythm_and_blues", "txt_rad_dblist_l1_mhz_val_rhythm_and_blues", "txt_rad_info_rhythm_and_blues_hs" }
+    ,{ GenreAmerica::RbdsSoftRhythmAndBlues, "txt_rad_info_soft_rhythm_and_blues", "txt_rad_dblist_l1_mhz_val_soft_rhythm_and_blues", "txt_rad_info_soft_rhythm_and_blues_hs" }
+    ,{ GenreAmerica::RbdsLanguage, "txt_rad_info_language", "txt_rad_dblist_l1_mhz_val_language", "txt_rad_info_language_hs" }
+    ,{ GenreAmerica::RbdsReligiousMusic, "txt_rad_info_religious_music", "txt_rad_dblist_l1_mhz_val_religious_music", "txt_rad_info_religious_music_hs" }
+    ,{ GenreAmerica::RbdsReligiousTalk, "txt_rad_info_religious_talk", "txt_rad_dblist_l1_mhz_val_religious_talk", "txt_rad_info_religious_talk_hs" }
+    ,{ GenreAmerica::RbdsPersonality, "txt_rad_info_personality", "txt_rad_dblist_l1_mhz_val_personality", "txt_rad_info_personality_hs" }
+    ,{ GenreAmerica::RbdsPublic, "txt_rad_info_public", "txt_rad_dblist_l1_mhz_val_public", "txt_rad_info_public_hs" }
+    ,{ GenreAmerica::RbdsCollege, "txt_rad_info_college", "txt_rad_dblist_l1_mhz_val_college", "txt_rad_info_college_hs" }
+    ,{ GenreAmerica::RbdsUnassigned1, "", "", "" }
+    ,{ GenreAmerica::RbdsUnassigned2, "", "", "" }
+    ,{ GenreAmerica::RbdsUnassigned3, "", "", "" }
+    ,{ GenreAmerica::RbdsUnassigned4, "", "", "" }
+    ,{ GenreAmerica::RbdsUnassigned5, "", "", "" }
+    ,{ GenreAmerica::RbdsWeather, "txt_rad_info_weather", "txt_rad_dblist_l1_mhz_val_weather", "txt_rad_info_weather_hs" }//TODO: Check
+    ,{ GenreAmerica::RbdsEmergencyTest, "txt_rad_info_alarm_test", "txt_rad_dblist_l1_mhz_val_alarm_test", "txt_rad_info_alarm_test_hs" }//TODO: Check
+    ,{ GenreAmerica::RbdsEmergency, "txt_rad_info_alarm", "txt_rad_dblist_l1_mhz_val_alarm", "txt_rad_info_alarm_hs" }//TODO: Check
+    };
+const int AmericanGenresCount = sizeof( AmericanGenres ) / sizeof ( AmericanGenres[0] );
 
 /*!
  *
@@ -67,37 +154,6 @@ bool RadioUiEngine::isOfflineProfile()
 /*!
  *
  */
-QString RadioUiEngine::parseFrequency( uint frequency )
-{
-    return QTRANSLATE( KFrequencyMhz ).arg( RadioStation::parseFrequency( frequency ) );
-}
-
-/*!
- *
- */
-QString RadioUiEngine::nameOrFrequency( const RadioStation& station, uint frequency )
-{
-    if ( frequency == 0 )
-    {
-        frequency = station.frequency();
-    }
-
-    QString text = "";
-    if ( station.isValid() && !station.name().isEmpty() )
-    {
-        text = station.name();
-    }
-    else
-    {
-        text = parseFrequency( frequency );
-    }
-
-    return text;
-}
-
-/*!
- *
- */
 RadioUiEngine::RadioUiEngine( QObject* parent ) :
     QObject( parent ),
     d_ptr( new RadioUiEnginePrivate( this ) )
@@ -109,6 +165,7 @@ RadioUiEngine::RadioUiEngine( QObject* parent ) :
  */
 RadioUiEngine::~RadioUiEngine()
 {
+    delete d_ptr;
 }
 
 /*!
@@ -148,16 +205,16 @@ RadioStationModel& RadioUiEngine::model()
 }
 
 /*!
- * Returns the play log model
+ * Returns the history model
  */
-RadioPlayLogModel& RadioUiEngine::playLogModel()
+RadioHistoryModel& RadioUiEngine::historyModel()
 {
     Q_D( RadioUiEngine );
-    if ( !d->mPlayLogModel ) {
-        d->mPlayLogModel = new RadioPlayLogModel( *this );
+    if ( !d->mHistoryModel ) {
+        d->mHistoryModel = new RadioHistoryModel( *this );
     }
 
-    return *d->mPlayLogModel;
+    return *d->mHistoryModel;
 }
 
 /*!
@@ -166,6 +223,18 @@ RadioPlayLogModel& RadioUiEngine::playLogModel()
 RadioStationFilterModel* RadioUiEngine::createNewFilterModel( QObject* parent )
 {
     return new RadioStationFilterModel( *this, parent );
+}
+
+/*!
+ *
+ */
+RadioScannerEngine* RadioUiEngine::createScannerEngine()
+{
+    Q_D( RadioUiEngine );
+    if ( d->mScannerEngine.isNull() ) {
+        d->mScannerEngine = new RadioScannerEngine( *d );
+    }
+    return d->mScannerEngine;
 }
 
 /*!
@@ -192,7 +261,7 @@ bool RadioUiEngine::isRadioOn() const
 bool RadioUiEngine::isScanning() const
 {
     Q_D( const RadioUiEngine );
-    return d->mEngineWrapper->isScanning();
+    return d->mScannerEngine != 0;
 }
 
 /*!
@@ -270,24 +339,6 @@ uint RadioUiEngine::frequencyStepSize() const
 /*!
  *
  */
-void RadioUiEngine::scanFrequencyBand()
-{
-    Q_D( RadioUiEngine );
-    d->mEngineWrapper->scanFrequencyBand();
-}
-
-/*!
- *
- */
-void RadioUiEngine::cancelScanFrequencyBand()
-{
-    Q_D( RadioUiEngine );
-    d->mEngineWrapper->cancelScanFrequencyBand();
-}
-
-/*!
- *
- */
 QList<RadioStation> RadioUiEngine::stationsInRange( uint minFrequency, uint maxFrequency )
 {
     Q_D( RadioUiEngine );
@@ -297,7 +348,7 @@ QList<RadioStation> RadioUiEngine::stationsInRange( uint minFrequency, uint maxF
 /*!
  *
  */
-QString RadioUiEngine::genreToString( int genre )
+QString RadioUiEngine::genreToString( int genre, GenreTarget::Target target )
 {
     RadioRegion::Region currentRegion = region();
 
@@ -306,10 +357,13 @@ QString RadioUiEngine::genreToString( int genre )
 
     for( int i = 0; i < genreCount; ++i ) {
         if ( genreArray[i].mGenreCode == genre ) {
-            return TRANSLATE( genreArray[i].mTranslation );
-//            return qApp->translate( GenreContext,
-//                    genreArray[i].mTranslation.source,
-//                    genreArray[i].mTranslation.comment );
+            if ( target == GenreTarget::Carousel ) {
+                return qtTrId( genreArray[i].mInCarousel );
+            } else if ( target == GenreTarget::StationsList ) {
+                return qtTrId( genreArray[i].mInStationsList );
+            } else if ( target == GenreTarget::HomeScreen ) {
+                return qtTrId( genreArray[i].mInHomeScreen );
+            }
         }
     }
 
@@ -351,7 +405,7 @@ bool RadioUiEngine::isSongRecognitionAppAvailable()
 void RadioUiEngine::addRecognizedSong( const QString& artist, const QString& title, const RadioStation& station )
 {
     Q_D( RadioUiEngine );
-    d->mPlayLogModel->addItem( artist, title, station );
+    d->mHistoryModel->addItem( artist, title, station );
 }
 
 /*!
@@ -363,6 +417,7 @@ void RadioUiEngine::tuneFrequency( uint frequency, const int sender )
     Q_D( RadioUiEngine );
     if ( frequency != d->mStationModel->currentStation().frequency() && d->mEngineWrapper->isFrequencyValid( frequency ) ) {
         LOG_FORMAT( "RadioUiEngine::tuneFrequency, frequency: %d", frequency );
+        d->cancelSeeking();
         d->mEngineWrapper->tuneFrequency( frequency, sender );
     }
 }
@@ -376,6 +431,7 @@ void RadioUiEngine::tuneWithDelay( uint frequency, const int sender )
     Q_D( RadioUiEngine );
     if ( frequency != d->mStationModel->currentStation().frequency() &&  d->mEngineWrapper->isFrequencyValid( frequency ) ) {
         LOG_FORMAT( "RadioEngineWrapperPrivate::tuneWithDelay, frequency: %d", frequency );
+        d->cancelSeeking();
         d->mEngineWrapper->tuneWithDelay( frequency, sender );
     }
 }
@@ -393,7 +449,7 @@ void RadioUiEngine::tunePreset( int presetIndex )
                 d->mEngineWrapper->isFrequencyValid( station.frequency() ) ) {
             LOG_FORMAT( "RadioEngineWrapperPrivate::tunePreset, presetIndexPosition: %d", presetIndex );
 
-            d->mEngineWrapper->tuneFrequency( station.frequency(), CommandSender::Unspecified );
+            d->mEngineWrapper->tuneFrequency( station.frequency(), TuneReason::Unspecified );
         }
     }
 }
@@ -454,8 +510,11 @@ void RadioUiEngine::skipNext()
  */
 void RadioUiEngine::seekUp()
 {
-    Q_D( RadioUiEngine );
-    d->mEngineWrapper->startSeeking( Seeking::Up );
+    if ( isAntennaAttached() ) {
+        Q_D( RadioUiEngine );
+        emitSeekingStarted( Seeking::Up );
+        d->mEngineWrapper->startSeeking( Seeking::Up, TuneReason::Seek );
+    }
 }
 
 /*!
@@ -464,8 +523,11 @@ void RadioUiEngine::seekUp()
  */
 void RadioUiEngine::seekDown()
 {
-    Q_D( RadioUiEngine );
-    d->mEngineWrapper->startSeeking( Seeking::Down );
+    if ( isAntennaAttached() ) {
+        Q_D( RadioUiEngine );
+        emitSeekingStarted( Seeking::Down );
+        d->mEngineWrapper->startSeeking( Seeking::Down, TuneReason::Seek );
+    }
 }
 
 /*!
@@ -496,9 +558,9 @@ void RadioUiEngine::emitTunedToFrequency( uint frequency, int commandSender )
  */
 void RadioUiEngine::emitSeekingStarted( Seeking::Direction direction )
 {
-    if ( isAntennaAttached() ) {
-        emit seekingStarted( direction );
-    }
+    emit seekingStarted( direction );
+    Q_D( RadioUiEngine );
+    d->mMonitorService->notifyRadioStatus( RadioStatus::Seeking );
 }
 
 /*!
@@ -542,17 +604,10 @@ void RadioUiEngine::emitAudioRouteChanged( bool loudspeaker )
 }
 
 /*!
- * Function used by the private implementation to emit a scanAndSaveFinished signal
+ * Function used by the private implementation to emit a antennaStatusChanged signal
  */
-void RadioUiEngine::emitScanAndSaveFinished()
+void RadioUiEngine::emitAntennaStatusChanged( bool connected )
 {
-    emit scanAndSaveFinished();
-}
-/*!
- * Function used by the private implementation to emit a headsetStatusChanged signal
- */
-void RadioUiEngine::emitheadsetStatusChanged( bool connected )
-{
-    emit headsetStatusChanged( connected );
+    emit antennaStatusChanged( connected );
 }
 

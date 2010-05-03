@@ -20,6 +20,7 @@
 // User includes
 #include "radiofrequencyitem.h"
 #include "radiofrequencystrip.h"
+#include "radio_global.h"
 
 /*!
  *

@@ -28,8 +28,9 @@ HEADERS += ./inc/*.h
 SOURCES += ./src/*.cpp
 
 INCLUDEPATH += ./inc
+INCLUDEPATH += ../../radioapp/commoninc
 
-UID = E0022EEE
+UID = 2002E6D6
 
 RESOURCES = resources.qrc
 #exportResources(./resource/$${TARGET}_icon*.png, $$PLUGIN_SUBDIR)

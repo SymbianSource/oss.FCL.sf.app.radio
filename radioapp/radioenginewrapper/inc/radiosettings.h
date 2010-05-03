@@ -34,6 +34,8 @@ class WRAPPER_DLL_EXPORT RadioSettings
 
 public:
 
+    ~RadioSettings();
+
     // First time start
     bool isFirstTimeStart();
 

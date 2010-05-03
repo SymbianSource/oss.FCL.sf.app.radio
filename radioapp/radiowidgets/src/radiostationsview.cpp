@@ -21,34 +21,43 @@
 #include <HbPushButton>
 #include <HbEffect>
 #include <HbAction>
+#include <HbMessageBox>
+#include <HbInputDialog>
+#include <HbMenu>
 
 // User includes
 #include "radiostationsview.h"
 #include "radiologger.h"
 #include "radiomainwindow.h"
-#include "radiolocalization.h"
 #include "radiouiengine.h"
 #include "radiobannerlabel.h"
 #include "radiofrequencyscanner.h"
-#include "radiocontextmenu.h"
 #include "radioxmluiloader.h"
 #include "radiostationmodel.h"
+#include "radiostation.h"
 #include "radiostationfiltermodel.h"
-
-const char* SECTION_SHOW_ALL_STATIONS = "show_all_stations";
-const char* SECTION_SHOW_FAVORITES = "show_favorites";
-const char* SECTION_SHOW_SCAN_TEXT = "show_scan_text";
-const char* SECTION_HIDE_SCAN_TEXT = "hide_scan_text";
 
 /*!
  *
  */
-RadioStationsView::RadioStationsView( RadioXmlUiLoader* uiLoader ) :
-    RadioViewBase( uiLoader, false ),
+RadioStationsView::RadioStationsView() :
+    RadioViewBase( false ),
+    mModel( 0 ),
+    mFilterModel( 0 ),
+    mScanStationsAction( 0 ),
+    mClearListAction( 0 ),
     mStationsList( 0 ),
     mHeadingBanner( 0 ),
     mFavoritesButton( 0 ),
-    mLocalStationsButton( 0 )
+    mLocalStationsButton( 0 ),
+    mSelectedStation( new RadioStation )
+{
+}
+
+/*!
+ *
+ */
+RadioStationsView::~RadioStationsView()
 {
 }
 
@@ -92,9 +101,9 @@ void RadioStationsView::listItemClicked( const QModelIndex& index )
 {
     LOG_TIMESTAMP( "Channel change started" );
     QModelIndex sourceIndex = mFilterModel->mapToSource( index );
-    RadioStation station = mModel->stationAt( sourceIndex.row() );
+    *mSelectedStation = mModel->stationAt( sourceIndex.row() );
     RADIO_ASSERT( station.isValid(), "FMRadio", "invalid RadioStation");
-    mMainWindow->uiEngine().tunePreset( station.presetIndex() );
+    mMainWindow->uiEngine().tunePreset( mSelectedStation->presetIndex() );
 }
 
 /*!
@@ -103,16 +112,19 @@ void RadioStationsView::listItemClicked( const QModelIndex& index )
  */
 void RadioStationsView::listItemLongPressed( HbAbstractViewItem* item, const QPointF& coords )
 {
-    QModelIndex sourceIndex = mFilterModel->mapToSource( item->modelIndex() );
-    RadioStation station = mModel->stationAt( sourceIndex.row() );
-    RADIO_ASSERT( station.isValid() , "FMRadio", "invalid RadioStation");
+    Q_UNUSED( item );
 
-    //TODO: Remove this. This is a temporary workaround for an Orbit bug in HbMenu
-//    RadioContextMenu* menu = new RadioContextMenu( mMainWindow->uiEngine() );
-//    menu->init( station, QPointF( size().width() / 2, coords.y() ) );
+    HbMenu* menu = mUiLoader->findObject<HbMenu>( DOCML::NAME_CONTEXT_MENU );
 
-    RadioContextMenu* menu = mUiLoader->findObject<RadioContextMenu>( DOCML_NAME_CONTEXT_MENU );
-    menu->init( station, *mUiLoader );
+    *mSelectedStation = mFilterModel->data( item->modelIndex(), RadioStationModel::RadioStationRole ).value<RadioStation>();
+
+    HbAction* favoriteAction = mUiLoader->findObject<HbAction>( DOCML::NAME_CONTEXT_FAVORITE );
+    if ( mSelectedStation->isFavorite() ) {
+        favoriteAction->setText( hbTrId( "txt_rad_menu_remove_favourite" ) );
+    } else {
+        favoriteAction->setText( hbTrId( "txt_rad_menu_add_to_favourites" ) );
+    }
+
     menu->setPreferredPos( QPointF( size().width() / 2 - menu->size().width() / 2, coords.y() - menu->size().height() / 2 ) );
     menu->show();
 }
@@ -121,7 +133,7 @@ void RadioStationsView::listItemLongPressed( HbAbstractViewItem* item, const QPo
  * Private slot
  *
  */
-void RadioStationsView::updateHeadsetStatus( bool connected )
+void RadioStationsView::updateAntennaStatus( bool connected )
 {
     Q_UNUSED( connected );
     updateControlVisibilities();
@@ -140,14 +152,12 @@ void RadioStationsView::updateCurrentStation()
  * Private slot
  *
  */
-
 void RadioStationsView::deckButtonPressed()
-{    
-    bool ok = false;
+{
     if ( sender() == mFavoritesButton ) {
-        mUiLoader->load( DOCML_STATIONSVIEW_FILE, SECTION_SHOW_FAVORITES, &ok );
+        loadSection( DOCML::FILE_STATIONSVIEW, DOCML::SV_SECTION_SHOW_FAVORITES );
     } else {
-        mUiLoader->load( DOCML_STATIONSVIEW_FILE, SECTION_SHOW_ALL_STATIONS, &ok );
+        loadSection( DOCML::FILE_STATIONSVIEW, DOCML::SV_SECTION_SHOW_ALL_STATIONS );
     }
 
     const bool showFavorites = mFavoritesButton->isChecked();
@@ -161,12 +171,22 @@ void RadioStationsView::deckButtonPressed()
  * Private slot
  *
  */
-void RadioStationsView::startScanAndSavePresets()
+void RadioStationsView::startScanning()
 {
-    RadioFrequencyScanner* scanner = new RadioFrequencyScanner( mMainWindow->uiEngine(), this );
-    scanner->startScanning();
-    connectAndTest( scanner,    SIGNAL(frequencyScannerFinished()),
-                    this,       SLOT(updateControlVisibilities()) );
+    const int rowCount =  mMainWindow->uiEngine().model().rowCount();
+    bool scanAllowed = true;
+    if ( rowCount > 0 ) {
+        scanAllowed = HbMessageBox::question( hbTrId( "txt_rad_info_all_stations_in_stations_list_will_be" ) );
+    }
+
+    if ( scanAllowed ) {
+        RadioFrequencyScanner* scanner = new RadioFrequencyScanner( mMainWindow->uiEngine(), this );
+
+        connectAndTest( scanner,    SIGNAL(frequencyScannerFinished()),
+                        this,       SLOT(updateControlVisibilities()) );
+
+        scanner->startScanning( *mUiLoader );
+    }
 }
 
 /*!
@@ -180,41 +200,97 @@ void RadioStationsView::updateControlVisibilities()
     const bool localStationsMode = !mFavoritesButton->isChecked();
 
     mScanStationsAction->setVisible( mMainWindow->uiEngine().isAntennaAttached()
-                                     && localStationsMode
-                                     && !mMainWindow->uiEngine().isScanning() );
-    mRemoveAllPresetsAction->setVisible( !listEmpty && localStationsMode );
+                                     && localStationsMode );
+    mClearListAction->setVisible( !listEmpty && localStationsMode );
 
-    bool ok = false;
-    mUiLoader->load( DOCML_STATIONSVIEW_FILE, listEmpty ? SECTION_SHOW_SCAN_TEXT : SECTION_HIDE_SCAN_TEXT, &ok );
+    HbPushButton* scanButton = mUiLoader->findWidget<HbPushButton>( DOCML::SV_NAME_SCAN_BUTTON );
+
+    if ( !mMainWindow->uiEngine().isAntennaAttached() ) {
+        scanButton->setEnabled( false );
+    } else {
+        scanButton->setEnabled( true );
+    }
+
+    loadSection( DOCML::FILE_STATIONSVIEW, listEmpty ? DOCML::SV_SECTION_SHOW_SCAN_TEXT : DOCML::SV_SECTION_HIDE_SCAN_TEXT );
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioStationsView::rename()
+{
+    HbInputDialog nameQuery;
+    nameQuery.setPromptText( hbTrId( "txt_rad_dialog_new_name" ) );
+    nameQuery.setInputMode( HbInputDialog::TextInput );
+    nameQuery.setValue( mSelectedStation->name() );
+    nameQuery.setObjectName( DOCML::NAME_INPUT_QUERY );
+
+    if ( nameQuery.exec() == nameQuery.primaryAction() ) {
+        mModel->renameStation( mSelectedStation->presetIndex(), nameQuery.value().toString() );
+    }
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioStationsView::toggleFavorite()
+{
+    if ( mSelectedStation->isFavorite() ) {
+        const bool answer = HbMessageBox::question( hbTrId( "txt_rad_info_remove_station_from_favorites" ) );
+
+        if ( answer ){
+            mModel->setFavoriteByPreset( mSelectedStation->presetIndex(), !mSelectedStation->isFavorite() );
+        }
+    } else {
+        mModel->setFavoriteByPreset( mSelectedStation->presetIndex(), !mSelectedStation->isFavorite() );
+    }
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioStationsView::deleteStation()
+{
+    const bool answer = HbMessageBox::question( hbTrId( "txt_rad_menu_delete_station" ) );
+
+    if ( answer ) {
+        mModel->removeStation( mModel->currentStation() );
+    }
 }
 
 /*!
  * From RadioViewBase
  *
  */
-void RadioStationsView::init( RadioMainWindow* aMainWindow, RadioStationModel* aModel )
+void RadioStationsView::init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow )
 {
     LOG_METHOD;
-    mMainWindow = aMainWindow;
-    mModel = aModel;
+    mUiLoader.reset( uiLoader );
+    mMainWindow = mainWindow;
+    mModel = &mMainWindow->uiEngine().model();
 
     RadioUiEngine* engine = &mMainWindow->uiEngine();
 
     mFilterModel = engine->createNewFilterModel( this );
     mFilterModel->setTypeFilter( RadioStation::LocalStation );
 
+    loadSection( DOCML::FILE_STATIONSVIEW, DOCML::SV_SECTION_SHOW_ALL_STATIONS );
+
     if ( !mFavoriteIcon.isNull() && !mNowPlayingIcon.isNull() ) {
         mModel->setIcons( mFavoriteIcon.qicon(), mNowPlayingIcon.qicon() );
     }
     mModel->setDetail( RadioStationModel::ShowIcons | RadioStationModel::ShowGenre );
 
-    mStationsList           = mUiLoader->findObject<HbListView>( DOCML_NAME_STATIONSLIST );
-    mHeadingBanner          = mUiLoader->findWidget<RadioBannerLabel>( DOCML_NAME_HEADINGBANNER );
-    mFavoritesButton        = mUiLoader->findObject<HbAction>( DOCML_NAME_FAVORITESBUTTON );
-    mLocalStationsButton    = mUiLoader->findObject<HbAction>( DOCML_NAME_LOCALSBUTTON );
+    mStationsList           = mUiLoader->findObject<HbListView>( DOCML::SV_NAME_STATIONS_LIST );
+    mHeadingBanner          = mUiLoader->findWidget<RadioBannerLabel>( DOCML::SV_NAME_HEADING_BANNER );
+    mFavoritesButton        = mUiLoader->findObject<HbAction>( DOCML::SV_NAME_FAVORITES_BUTTON );
+    mLocalStationsButton    = mUiLoader->findObject<HbAction>( DOCML::SV_NAME_LOCALS_BUTTON );
 
-    connectAndTest( engine,                 SIGNAL(headsetStatusChanged(bool)),
-                    this,                   SLOT(updateHeadsetStatus(bool)) );
+    connectAndTest( engine,                 SIGNAL(antennaStatusChanged(bool)),
+                    this,                   SLOT(updateAntennaStatus(bool)) );
     connectAndTest( mModel,                 SIGNAL(rowsInserted(QModelIndex,int,int)),
                     this,                   SLOT(updateControlVisibilities() ) );
     connectAndTest( mModel,                 SIGNAL(rowsRemoved(QModelIndex,int,int)),
@@ -228,19 +304,15 @@ void RadioStationsView::init( RadioMainWindow* aMainWindow, RadioStationModel* a
 
     connectAndTest( engine, SIGNAL(tunedToFrequency(uint,int)), this, SLOT(updateCurrentStation()) );
 
-    // "Go to tuning view" menu item
-    connectViewChangeMenuItem( DOCML_NAME_TUNINGVIEWACTION, SLOT(activateTuningView()) );
-
     // "Scan local stations" menu item
-    mScanStationsAction = mUiLoader->findObject<HbAction>( DOCML_NAME_SCANSTATIONSACTION );
+    mScanStationsAction = mUiLoader->findObject<HbAction>( DOCML::SV_NAME_SCAN_ACTION );
     
     // "Remove all presets" menu item
-    mRemoveAllPresetsAction = mUiLoader->findObject<HbAction>( DOCML_NAME_REMOVESTATIONSACTION );
+    mClearListAction = mUiLoader->findObject<HbAction>( DOCML::SV_NAME_CLEAR_LIST_ACTION );
+    connectAndTest( mClearListAction,   SIGNAL(triggered() ),
+                    mModel,             SLOT(removeAll() ) );
 
     connectCommonMenuItem( MenuItem::UseLoudspeaker );
-
-    // Connect the "Remove all presets" menu item
-    connectXmlElement( DOCML_NAME_REMOVESTATIONSACTION, SIGNAL(triggered()), mModel, SLOT(removeAll()) );
 
     initListView();
     
@@ -255,7 +327,6 @@ void RadioStationsView::showEvent( QShowEvent* event )
     RadioViewBase::showEvent( event );
     mModel->setDetail( RadioStationModel::ShowIcons | RadioStationModel::ShowGenre );
     updateControlVisibilities();
-    updateHeading();
 }
 
 /*!
@@ -267,13 +338,4 @@ void RadioStationsView::initListView()
     mStationsList->setModel( mFilterModel );
     mStationsList->setSelectionMode( HbListView::NoSelection );
     mStationsList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-}
-
-/*!
- *
- */
-void RadioStationsView::updateHeading()
-{
-//    mHeadingBanner->setPlainText( mFavoritesButton->isChecked() ? TRANSLATE( KHeadingTextFavorites )
-//                                                                : TRANSLATE( KHeadingTextLocalStations ) );
 }

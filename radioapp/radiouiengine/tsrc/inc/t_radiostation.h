@@ -28,7 +28,7 @@
 
 class RadioUiEngine;
 class RadioStationModel;
-class RadioPlayLogModel;
+class RadioHistoryModel;
 class RadioPresetStorage;
 class RadioEngineWrapper;
 class RadioEngineWrapperObserver;
@@ -75,8 +75,8 @@ private slots:
     void TestCallSignChar();
     void testPICodeToCallSign();
     void testRadioStationModel();
-    void testPlayLogModel();
-    void testPlayLogModelItem();
+    void testhistoryModel();
+    void testHistoryModelItem();
     
 private:
 
@@ -110,20 +110,20 @@ private:
 
     void testRenameStation();
     void testSetRadioTextPlus();
-    void testPlayLogModelInit();
-    void testPlayLogModelAddItem();
-    void testPlayLogModelFindItem();
-    void testPlayLogModelUpdateItem();
-    void testPlayLogModelSetData();
+    void testHistoryModelInit();
+    void testHistoryModelAddItem();
+    void testHistoryModelFindItem();
+    void testHistoryModelUpdateItem();
+    void testHistoryModelSetData();
     void testAddRadioTextPlus();
     void testClearRadioTextPlus();
-    void testRadioPlayLogItem();
+    void testRadioHistoryItem();
     
 private:
 	RadioUiEngine* mUiEngine;
 	QScopedPointer<RadioEngineWrapper>  mEngineWrapper;
 	RadioStationModel* mRadioStationModel;
-	RadioPlayLogModel* mPlayLogModel;
+	RadioHistoryModel* mhistoryModel;
 	QScopedPointer<RadioPresetStorage>  mPresetStorage;
 	int mExpectedStationCount;	
 	/**

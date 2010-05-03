@@ -25,8 +25,10 @@
 #include "radiopresetstorage.h"
 #include "radioenginewrapper.h"
 #include "radiouiengine.h"
+#include "radiouiengine_p.h"
 #include "radiostation.h"
-#include "radioplaylogmodel.h"
+#include "radiostation_p.h"
+#include "radiohistorymodel.h"
 #ifndef BUILD_WIN32
 #   include "radiomonitorservice.h"
 #else
@@ -43,7 +45,7 @@ const int KDynamicPsCheckTimeout = 10 * 1000;
  *
  */
 RadioStationModelPrivate::RadioStationModelPrivate( RadioStationModel* model,
-                                                    RadioUiEngine& uiEngine ) :
+                                                    RadioUiEnginePrivate& uiEngine ) :
     q_ptr( model ),
     mUiEngine( uiEngine ),
     mCurrentStation( &mManualStation ),
@@ -85,6 +87,7 @@ int RadioStationModelPrivate::currentPresetIndex() const
 void RadioStationModelPrivate::setCurrentStation( uint frequency )
 {
     LOG_METHOD;
+    RadioStation* oldStation = mCurrentStation;
     if ( mStations.contains( frequency ) ) {
         // We have to be careful to check that key exists before using operator[]
         // with QMap since it will insert a default-constructed value if it doesn't exist yet.
@@ -95,8 +98,13 @@ void RadioStationModelPrivate::setCurrentStation( uint frequency )
         mCurrentStation = &mManualStation;
     }
 
-    mUiEngine.monitor().notifyName( mCurrentStation->name().isEmpty() ? mCurrentStation->frequencyMhz() 
-                                                                      : mCurrentStation->name() );
+    Q_Q( RadioStationModel );
+    if ( oldStation && oldStation->isValid() ) {
+        q->emitDataChanged( *oldStation );
+    }
+
+    mUiEngine.api().monitor().notifyName( mCurrentStation->name().isEmpty() ? mCurrentStation->frequencyMhz()
+                                                                            : mCurrentStation->name() );
 }
 
 /*!
@@ -113,7 +121,21 @@ void RadioStationModelPrivate::setCurrentGenre( uint frequency, int genre )
     }
     station.setGenre( genre );
     q->saveStation( station );
-    mUiEngine.monitor().notifyGenre( mUiEngine.genreToString( genre ) );
+    mUiEngine.api().monitor().notifyGenre( mUiEngine.api().genreToString( genre, GenreTarget::HomeScreen ) );
+}
+
+/*!
+ * \reimp
+ *
+ */
+void RadioStationModelPrivate::tunedToFrequency( uint frequency, int reason )
+{
+    if ( reason == TuneReason::Seek ) {
+        addScannedFrequency( frequency );
+    }
+
+    setCurrentStation( frequency );
+    startDynamicPsCheck();
 }
 
 /*!
@@ -181,6 +203,7 @@ void RadioStationModelPrivate::removeLocalStations()
             q->removeStation( station );
         }
     }
+    q->reset();
 }
 
 /*!
@@ -190,7 +213,7 @@ void RadioStationModelPrivate::removeLocalStations()
 void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& name )
 {
     Q_Q( RadioStationModel );
-    LOG_FORMAT( "RadioEngineWrapperPrivate::updateCurrentStationName: %s", GETSTRING( name ) );
+    LOG_FORMAT( "void RadioStationModelPrivate::setCurrentPsName: %s", GETSTRING( name ) );
     RadioStation station = q->findCurrentStation( frequency );
     if ( !station.isValid() ) {
         LOG( "Unable to find current station. Ignoring RDS" );
@@ -202,7 +225,7 @@ void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& 
         if ( name.compare( station.name() ) != 0 && !station.isRenamed() ) {
             station.setName( name );
             q->saveStation( station );
-            mUiEngine.monitor().notifyName( name );
+            mUiEngine.api().monitor().notifyName( name );
         }
 
     } else {
@@ -219,7 +242,7 @@ void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& 
                 // Cleanup the station name if region is not America
                 if ( !station.name().isEmpty()
                      && !station.isRenamed()
-                     && mEngine->region() != RadioRegion::America )
+                     && mWrapper->region() != RadioRegion::America )
                 {
                     LOG( "Station name cleanup" );
                     station.setName( "" );
@@ -260,8 +283,8 @@ void RadioStationModelPrivate::setCurrentRadioText( uint frequency, const QStrin
     }
     station.setRadioText( radioText );
     q->saveStation( station );
-    mUiEngine.playLogModel().clearRadioTextPlus();
-    mUiEngine.monitor().notifyRadioText( radioText );
+    mUiEngine.api().historyModel().clearRadioTextPlus();
+    mUiEngine.api().monitor().notifyRadioText( radioText );
 }
 
 /*!
@@ -278,7 +301,7 @@ void RadioStationModelPrivate::setCurrentRadioTextPlus( uint frequency, int rtCl
     }
     station.setRadioTextPlus( rtClass, rtItem );
     q->saveStation( station );
-    mUiEngine.playLogModel().addRadioTextPlus( rtClass, rtItem, station );
+    mUiEngine.api().historyModel().addRadioTextPlus( rtClass, rtItem, station );
 }
 
 /*!
@@ -296,10 +319,22 @@ void RadioStationModelPrivate::setCurrentPiCode( uint frequency, int piCode )
 #ifdef SHOW_CALLSIGN_IN_ANY_REGION
     RadioRegion::Region region = RadioRegion::America;
 #else
-    RadioRegion::Region region =  mEngine->region();
+    RadioRegion::Region region =  mWrapper->region();
 #endif
 
     station.setPiCode( piCode, region );
     q->saveStation( station );
 }
 
+/*!
+ *
+ */
+void RadioStationModelPrivate::doSaveStation( RadioStation& station, bool persistentSave )
+{
+    mStations.insert( station.frequency(), station );
+
+    if ( persistentSave ) {
+        const bool success = mPresetStorage->savePreset( *station.data_ptr() );
+        RADIO_ASSERT( success, "RadioStationModelPrivate::saveStation", "Failed to add station" );
+    }
+}

@@ -22,7 +22,10 @@
 #include <HbLabel>
 #include <HbEffect>
 
-class RadioFadingLabel : public HbLabel //TODO: Derive from HbLineEdit
+// User includes
+#include "radiowidgetsexport.h"
+
+class WIDGETS_DLL_EXPORT RadioFadingLabel : public HbLabel //TODO: Derive from HbLineEdit
 {
     Q_OBJECT
 

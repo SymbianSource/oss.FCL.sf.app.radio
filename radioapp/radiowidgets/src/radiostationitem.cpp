@@ -26,15 +26,14 @@
 #include "radiouiengine.h"
 #include "radiofadinglabel.h"
 #include "radiostationmodel.h"
-#include "radiolocalization.h"
 #include "radiologger.h"
 
 //static const char* FILE_PATH_WIDGETML   = ":/layout/radiostationitem.widgetml";
 //static const char* FILE_PATH_CSS        = ":/layout/radiostationitem.css";
-//static const char* GENRE_LABEL          = "genre_label";
-//static const char* NAME_LABEL           = "name_label";
-//static const char* RADIOTEXT_LABEL      = "radiotext_label";
-//static const char* URL_LABEL            = "url_label";
+static const char* GENRE_LABEL            = "tv:genre_label";
+static const char* NAME_LABEL             = "tv:name_label";
+static const char* RADIOTEXT_LABEL        = "tv:radiotext_label";
+static const char* URL_LABEL              = "tv:url_label";
 //static const char* FAVORITE_BUTTON      = "favorite_button";
 
 const char* SEEKING_TEXT = "txt_rad_list_tuning";
@@ -88,6 +87,7 @@ void RadioStationItem::updateChildItems()
 
         mNameLabel = new RadioFadingLabel( this );
         mNameLabel->setAlignment( Qt::AlignCenter );
+        mNameLabel->setObjectName( NAME_LABEL );
         HbFontSpec spec = mNameLabel->fontSpec();
         spec.setRole( HbFontSpec::Primary );
         mNameLabel->setFontSpec( spec );
@@ -96,10 +96,12 @@ void RadioStationItem::updateChildItems()
 
         mGenreLabel = new RadioFadingLabel( this );
         mGenreLabel->setAlignment( Qt::AlignCenter );
+        mGenreLabel->setObjectName( GENRE_LABEL );
         mGenreLabel->setTextColor( Qt::white );
 
         mRadiotextLabel = new RadioFadingLabel( this );
         mRadiotextLabel->setAlignment( Qt::AlignCenter );
+        mRadiotextLabel->setObjectName( RADIOTEXT_LABEL );
         mRadiotextLabel->setTextWrapping( Hb::TextWordWrap );
 //        mRadiotextLabel->setFadingEnabled( true );    TODO
 //        mRadiotextLabel->setFontSpec( spec );
@@ -107,6 +109,7 @@ void RadioStationItem::updateChildItems()
 
         mUrlLabel = new RadioFadingLabel( this );
         mUrlLabel->setAlignment( Qt::AlignCenter );
+        mUrlLabel->setObjectName( URL_LABEL );
         mUrlLabel->setTextColor( Qt::white );
 
         mLayout = new HbAnchorLayout();
@@ -143,7 +146,10 @@ void RadioStationItem::updateChildItems()
  */
 void RadioStationItem::toggleFavorite()
 {
-    carousel()->uiEngine().model().setData( modelIndex(), mFrequency, RadioStationModel::ToggleFavoriteRole );
+    RadioUiEngine* uiEngine = carousel()->uiEngine();
+    if ( uiEngine ) {
+        uiEngine->model().setData( modelIndex(), mFrequency, RadioStationModel::ToggleFavoriteRole );
+    }
 }
 
 /*!
@@ -164,14 +170,15 @@ void RadioStationItem::update( const RadioStation* station )
         return;
     }
 
-    RadioStation tempStation = ( station && station->isValid() ) ? *station
-                    : index.data( RadioStationModel::RadioStationRole ).value<RadioStation>();
+    RadioUiEngine* uiEngine = carousel()->uiEngine();
+    if ( !mCarousel.isInScanningMode() && uiEngine ) {
+        RadioStation tempStation = ( station && station->isValid() ) ? *station
+                        : index.data( RadioStationModel::RadioStationRole ).value<RadioStation>();
 
-    mNameLabel->setTextWithoutFading( RadioUiEngine::nameOrFrequency( tempStation ) );
-    mGenreLabel->setText( carousel()->uiEngine().genreToString( tempStation.genre() ) );
-    if ( !carousel()->isAntennaAttached() ) {
-        mRadiotextLabel->setText( hbTrId( CONNECT_HEADSET_TEXT ) );
-    } else {
+        mNameLabel->setTextWithoutFading( nameOrFrequency( tempStation ) );
+
+        mGenreLabel->setText( uiEngine->genreToString( tempStation.genre(), GenreTarget::Carousel ) );
+
         if ( !tempStation.radioText().isEmpty() ) {
             mRadiotextLabel->setText( tempStation.radioText() );
         } else if ( !tempStation.dynamicPsText().isEmpty() ) {
@@ -179,13 +186,13 @@ void RadioStationItem::update( const RadioStation* station )
         } else {
             mRadiotextLabel->setText( "" );
         }
+
+        mUrlLabel->setText( tempStation.url() );
+
+        mFrequency = tempStation.frequency();
+
+        updateFavoriteIcon( tempStation.isFavorite() );
     }
-
-    mUrlLabel->setText( tempStation.url() );
-
-    mFrequency = tempStation.frequency();
-
-    updateFavoriteIcon( tempStation.isFavorite() );
 }
 
 /*!
@@ -193,10 +200,11 @@ void RadioStationItem::update( const RadioStation* station )
  */
 void RadioStationItem::setFrequency( uint frequency )
 {
-    LOG_FORMAT( "RadioStationItem::setFrequency: %u", frequency );
-    mNameLabel->setTextWithoutFading( RadioUiEngine::parseFrequency( frequency ) );
+    LOG_FORMAT( "RadioStationItem::setFrequency: %d", frequency );
+
+    mNameLabel->setTextWithoutFading( parseFrequency( frequency ) );
     mGenreLabel->setTextWithoutFading( "" );
-    mRadiotextLabel->setTextWithoutFading( carousel()->isAntennaAttached() ? "" : hbTrId( CONNECT_HEADSET_TEXT ) );
+    mRadiotextLabel->setTextWithoutFading( "" );
     mUrlLabel->setTextWithoutFading( "" );
     mFrequency = frequency;
     updateFavoriteIcon( false );
@@ -205,12 +213,12 @@ void RadioStationItem::setFrequency( uint frequency )
 /*!
  *
  */
-void RadioStationItem::setSeekingText()
+void RadioStationItem::cleanRdsData()
 {
-    mNameLabel->setTextWithoutFading( hbTrId( SEEKING_TEXT ) );
+    mNameLabel->setTextWithoutFading( "" );
     mGenreLabel->setTextWithoutFading( "" );
-    mUrlLabel->setTextWithoutFading( "" );
     mRadiotextLabel->setTextWithoutFading( "" );
+    mUrlLabel->setTextWithoutFading( "" );
 }
 
 /*!
@@ -218,7 +226,11 @@ void RadioStationItem::setSeekingText()
  */
 void RadioStationItem::updateFavoriteIcon( bool isFavorite )
 {
-    mIconButton->setIcon( isFavorite ? mCarousel.favoriteIcon() : mCarousel.nonFavoriteIcon() );
+    if ( !mCarousel.isInScanningMode() ) {
+        mIconButton->setIcon( isFavorite ? mCarousel.favoriteIcon() : mCarousel.nonFavoriteIcon() );
+    } else {
+        mIconButton->setIcon( HbIcon( "" ) );
+    }
 }
 
 /*!
@@ -229,3 +241,31 @@ RadioStationCarousel* RadioStationItem::carousel()
     return static_cast<RadioStationCarousel*>( itemView() );
 }
 
+/*!
+ *
+ */
+QString RadioStationItem::parseFrequency( const uint frequency )
+{
+    //TODO: Frequency localization temporarily disabled
+    QString loc = "%L1 Mhz";// "txt_rad_list_l1_mhz_big" );
+    return loc.arg( RadioStation::parseFrequency( frequency ) );
+}
+
+/*!
+ *
+ */
+QString RadioStationItem::nameOrFrequency( const RadioStation& station, uint frequency )
+{
+    if ( frequency == 0 ) {
+        frequency = station.frequency();
+    }
+
+    QString text = "";
+    if ( station.isValid() && !station.name().isEmpty() ) {
+        text = station.name();
+    } else {
+        text = parseFrequency( frequency );
+    }
+
+    return text;
+}

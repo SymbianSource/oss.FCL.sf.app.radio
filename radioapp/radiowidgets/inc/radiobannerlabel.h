@@ -21,7 +21,10 @@
 // System includes
 #include <HbLabel>
 
-class RadioBannerLabel : public HbLabel
+// User includes
+#include "radiowidgetsexport.h"
+
+class WIDGETS_DLL_EXPORT RadioBannerLabel : public HbLabel
 {
     Q_OBJECT
 

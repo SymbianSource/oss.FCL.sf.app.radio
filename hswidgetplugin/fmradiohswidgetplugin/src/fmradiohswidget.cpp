@@ -26,6 +26,8 @@
 #include "fmradiohswidgetprocesshandler.h"
 #include "fmradiohswidgetprofilereader.h"
 #include "fmradiohswidgetradioserviceclient.h"
+#include "radioservicedef.h"
+#include "radio_global.h"
 
 /*!
     \ingroup group_fmradiohs_widget
@@ -64,6 +66,8 @@ FmRadioHsWidget::FmRadioHsWidget(QGraphicsItem* parent, Qt::WindowFlags flags)
     load(DOCML_WIDGET);
     
     handleRadioStateChange(QVariant(NotRunning));
+
+    mRadioServiceClient->init();
 }
 
 /*!
@@ -280,27 +284,28 @@ void FmRadioHsWidget::radioToBackground()
 void FmRadioHsWidget::handleRadioInformationChange(
     int notificationId, QVariant value)
 {
-    QString informationText;
-    if (value.canConvert(QVariant::String)) {
-        informationText = value.toString();
-    } else {
-        return;
-    }
-    
-    switch (notificationId) {
-    /*
-     Name = 0,
-     Genre,
-     RadioText,
-     Homepage,
-     Song
-     */
-    case 0: // Name
-        if (updateRadioInformation(KRadioInformationStationName,
-            informationText)) {
-            radioInformationChanged();
+    switch ( notificationId ) {
+
+        case RadioServiceNotification::FavoriteCount:
+            break;
+
+        case RadioServiceNotification::Frequency:
+        {
+            const uint frequency = value.toUInt();
+            QString freqString;
+            freqString.sprintf( "%.1f", qreal( frequency ) / KFrequencyMultiplier );
+            if (updateRadioInformation( KRadioInformationFrequency, freqString )) {
+                radioInformationChanged();
+            }
         }
         break;
+
+        case RadioServiceNotification::Name:
+            if (updateRadioInformation( KRadioInformationStationName, value.toString() )) {
+                radioInformationChanged();
+            }
+        break;
+
 /*    case FmRadioHsWidgetRadioServiceClient::InformationTypeCallSign:
         if (updateRadioInformation(KRadioInformationCallSign, informationText)) {
 
@@ -312,22 +317,32 @@ void FmRadioHsWidget::handleRadioInformationChange(
 
         }
         break;
- */   case 2: // RadioText
-        if (updateRadioInformation(KRadioInformationRt, informationText)) {
-            radioInformationChanged();
-        }
+        */
+        case RadioServiceNotification::RadioText:
+            if (updateRadioInformation( KRadioInformationRt, value.toString() )) {
+                radioInformationChanged();
+            }
         break;
+
 /*    case FmRadioHsWidgetRadioServiceClient::InformationTypeDynamicPsName:
         if (updateRadioInformation(KRadioInformationDynamicPsName,
             informationText)) {
 
         }
         break;
-*/    case 1: // Genre
-        if (updateRadioInformation(KRadioInformationPty, informationText)) {
-            radioInformationChanged();
-        }
+        */
+        case RadioServiceNotification::Genre:
+            if (updateRadioInformation( KRadioInformationPty, value.toString() )) {
+                radioInformationChanged();
+            }
         break;
+
+        case RadioServiceNotification::HomePage:
+        break;
+
+        case RadioServiceNotification::Song:
+        break;
+
     default:
         break;
     }

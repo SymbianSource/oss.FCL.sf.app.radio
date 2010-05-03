@@ -123,7 +123,7 @@ public:
 
     RadioStation& operator=( const RadioStation& other );
 
-private:
+public:
 
     explicit RadioStation( int presetIndex, uint frequency );
 

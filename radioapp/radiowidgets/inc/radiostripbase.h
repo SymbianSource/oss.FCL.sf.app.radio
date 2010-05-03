@@ -29,15 +29,12 @@ class QAbstractItemModel;
 class RadioStripBase : public HbScrollArea
 {
     Q_OBJECT
-    Q_PROPERTY( HbIcon background READ background WRITE setBackground )
     Q_PROPERTY( int autoScrollTime READ autoScrollTime WRITE setAutoScrollTime )
 
 public:
 
     virtual ~RadioStripBase();
 
-    void setBackground( const HbIcon& background );
-    HbIcon background() const;
     void setAutoScrollTime( const int time );
     int autoScrollTime() const;
 
@@ -122,10 +119,6 @@ private: //data
 
     QList<QGraphicsItem*>   mItemAtSlot;
     QList<int>              mIndexAtSlot; // Can be bigger than rowcount if cyclic is used
-
-    HbIcon                  mBackground;
-
-    QGraphicsPixmapItem*    mBackgroundImage;
 
 };
 

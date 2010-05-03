@@ -22,7 +22,6 @@
 #include "radioapplication.h"
 #include "radiomainwindow.h"
 #include "radiouiengine.h"
-#include "radiolocalization.h"
 #include "radio_global.h"
 #include "radiologger.h"
 
@@ -87,7 +86,8 @@ void RadioApplication::init()
         // Start the engine
         mUiEngine = new RadioUiEngine( this );
         if ( !mUiEngine->startRadio() ) {
-            mMainWindow->showErrorMessage( TRANSLATE( KErrorEngineStartFailed ) );
+            //TODO: Get error message
+//            mMainWindow->showErrorMessage( TRANSLATE( KErrorEngineStartFailed ) );
             quit();
             return;
         }

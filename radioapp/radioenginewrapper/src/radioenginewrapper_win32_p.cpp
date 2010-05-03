@@ -55,15 +55,12 @@ const int KScanFrequencyCount = sizeof( KScanFrequencies ) / sizeof( KScanFreque
  *
  */
 RadioEngineWrapperPrivate::RadioEngineWrapperPrivate( RadioEngineWrapper* wrapper,
-                                                      RadioStationHandlerIf& stationHandler,
-                                                      RadioEngineWrapperObserver& observer ) :
+                                                      RadioStationHandlerIf& stationHandler ) :
     q_ptr( wrapper ),
     mStationHandler( stationHandler ),
-    mObserver( observer ),
     mTuneTimer( new QTimer( this ) ),
-    mCommandSender( 0 ),
+    mTuneReason( 0 ),
     mUseLoudspeaker( false ),
-    mIsSeeking( false ),
     mAntennaAttached( true ),
     mFrequency( 0 ),
     mNextFrequency( 0 ),
@@ -110,7 +107,7 @@ void RadioEngineWrapperPrivate::init()
 {
     mUseLoudspeaker = false;
     if ( !mUseLoudspeaker ) {
-        mObserver.audioRouteChanged( false );
+        RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( false ) );
     }
 
     parseData();
@@ -139,11 +136,10 @@ RadioSettings& RadioEngineWrapperPrivate::settings()
 /*!
  * Tunes to the given frequency
  */
-void RadioEngineWrapperPrivate::tuneFrequency( uint frequency, const int sender )
+void RadioEngineWrapperPrivate::tuneFrequency( uint frequency, const int reason )
 {
-    mFrequency = frequency;
-    mEngineSettings->setValue( KKeyFrequency, mFrequency );
-    mCommandSender = sender;
+    mNextFrequency = frequency;
+    mTuneReason = reason;
     mTuneTimer->stop();
     mTuneTimer->start( 500 );
 }
@@ -151,11 +147,10 @@ void RadioEngineWrapperPrivate::tuneFrequency( uint frequency, const int sender 
 /*!
  * Tunes to the given frequency after a delay
  */
-void RadioEngineWrapperPrivate::tuneWithDelay( uint frequency, const int sender )
+void RadioEngineWrapperPrivate::tuneWithDelay( uint frequency, const int reason )
 {
-    mFrequency = frequency;
-    mEngineSettings->setValue( KKeyFrequency, mFrequency );
-    mCommandSender = sender;
+    mNextFrequency = frequency;
+    mTuneReason = reason;
     mTuneTimer->stop();
     mTuneTimer->start( 1500 );
 }
@@ -163,24 +158,24 @@ void RadioEngineWrapperPrivate::tuneWithDelay( uint frequency, const int sender 
 /*!
  *
  */
-RadioEngineWrapperObserver& RadioEngineWrapperPrivate::observer()
+ObserverList& RadioEngineWrapperPrivate::observers()
 {
-    return mObserver;
+    return mObservers;
 }
 
 /*!
  *
  */
-void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction )
+void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction, const int reason )
 {
-    mObserver.seekingStarted( direction );
+    mTuneReason = reason;
 
     // Find the previous and next favorite from current frequency
     uint previous = 0;
     uint next = 0;
     for( int i = 0; i < KScanFrequencyCount; ++i ) {
-        int testFreq = KScanFrequencies[i];
-        if ( testFreq > mFrequency ) {
+        const uint testFreq = KScanFrequencies[i];
+        if ( KScanFrequencies[i] > mFrequency ) {
             next = testFreq;
             break;
         }
@@ -206,6 +201,24 @@ void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction )
 /*!
  *
  */
+void RadioEngineWrapperPrivate::cancelSeeking()
+{
+    mTuneTimer->stop();
+    mNextFrequency = 0;
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapperPrivate::toggleAudioRoute()
+{
+    mUseLoudspeaker = !mUseLoudspeaker;
+    RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( mUseLoudspeaker ) );
+}
+
+/*!
+ *
+ */
 QString RadioEngineWrapperPrivate::dataParsingError() const
 {
     return mParsingError;
@@ -217,7 +230,7 @@ QString RadioEngineWrapperPrivate::dataParsingError() const
 void RadioEngineWrapperPrivate::setHeadsetStatus( bool connected )
 {
     mAntennaAttached = connected;
-    mObserver.headsetStatusChanged( mAntennaAttached );
+    RUN_NOTIFY_LOOP( mObservers, antennaStatusChanged( mAntennaAttached ) );
 }
 
 /*!
@@ -226,7 +239,7 @@ void RadioEngineWrapperPrivate::setHeadsetStatus( bool connected )
 void RadioEngineWrapperPrivate::setVolume( int volume )
 {
     mVolume = volume;
-    mObserver.volumeChanged( mVolume );
+    RUN_NOTIFY_LOOP( mObservers, volumeChanged( mVolume ) );
 }
 
 /*!
@@ -273,14 +286,10 @@ void RadioEngineWrapperPrivate::setOffline( bool offline )
  */
 void RadioEngineWrapperPrivate::frequencyEvent()
 {
-    if ( mNextFrequency ) { // Seeking
-        mFrequency = mNextFrequency;
-        mStationHandler.addScannedFrequency( mFrequency );
-    }
+    mFrequency = mNextFrequency;
+    mEngineSettings->setValue( KKeyFrequency, mFrequency );
 
-    mStationHandler.setCurrentStation( mFrequency );
-    mObserver.tunedToFrequency( mFrequency, mCommandSender );
-    mStationHandler.startDynamicPsCheck();
+    RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( mFrequency, mTuneReason ) );
 }
 
 /*!
@@ -293,14 +302,6 @@ void RadioEngineWrapperPrivate::addSongTags()
     mStationHandler.setCurrentRadioTextPlus( frequency, RtPlus::Title, mTitle );
     mArtist = "";
     mTitle = "";
-}
-
-/*!
- *
- */
-void RadioEngineWrapperPrivate::frequencyScannerFinished()
-{
-    mObserver.scanAndSaveFinished();
 }
 
 /*!

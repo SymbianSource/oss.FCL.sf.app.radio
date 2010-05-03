@@ -44,7 +44,7 @@ RadioRdsListener::RadioRdsListener( RadioStationHandlerIf& stationHandler, Radio
  */
 void RadioRdsListener::RdsAvailable( TUint32 /*aFrequency*/, TBool aAvailable )
 {
-    mWrapper.observer().rdsAvailabilityChanged( aAvailable );
+    RUN_NOTIFY_LOOP( mWrapper.observers(), rdsAvailabilityChanged( aAvailable ) );
 }
 
 /*!
@@ -77,9 +77,6 @@ void RadioRdsListener::RdsDataProgrammeService( TUint32 aFrequency, const TDesC&
         LOG_TIMESTAMP( "RdsName changed" );
         const uint frequency = static_cast<uint>( aFrequency );
         mStationHandler.setCurrentPsName( frequency, convertString( aProgramService ) );
-
-        // TODO: Remove below when RdsDataPTY callback is available
-        RdsDataGenre( frequency, GenreEurope::RdsRockMusic );
 
 #ifdef SHOW_CALLSIGN_IN_ANY_REGION
         RdsDataPiCode( frequency, 0x3BB7 ); //KQOL-FM - Las Vegas, NV

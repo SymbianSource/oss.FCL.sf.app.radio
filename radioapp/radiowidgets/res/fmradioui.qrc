@@ -3,10 +3,7 @@
     <qresource>
         <file>layout/tuningview.docml</file>
         <file>layout/stationsview.docml</file>
-        <file>layout/wizardview.docml</file>
-        <file>layout/playlogview.docml</file>
-        <file>layout/radiostationcontrolwidget.css</file>
-        <file>layout/radiostationcontrolwidget.widgetml</file>
+        <file>layout/historyview.docml</file>
         <file>layout/radiostationitem.css</file>
         <file>layout/radiostationitem.widgetml</file>
     </qresource>
@@ -20,20 +17,24 @@
         <file>effects/slide_to_right.fxml</file>
         <file>effects/slide_from_right.fxml</file>
     </qresource>
-
+    
     <qresource>
         <file>images/stripbackground.png</file>
-        <file>images/buttonleft.png</file>
-        <file>images/buttonright.png</file>
-        <file>images/infowidgetbackground.png</file>
-        <file>images/controlwidgetbackground.png</file>
-        <file>images/removefavoriteicon.png</file>
         <file>images/setfavoriteicon.png</file>
         <file>images/nowplayingicon.png</file>
-        <file>images/identifysongbuttonicon.png</file>
-        <file>images/stationsbuttonicon.png</file>
-        <file>images/tagsongbuttonicon.png</file>
-        <file>images/favoriteiconactive.png</file>
-        <file>images/favoriteiconinactive.png</file>
+        <file>images/qtg_mono_previous.svg</file>
+        <file>images/qtg_mono_next.svg</file>
+        <file>images/qtg_mono_radio_stations.svg</file>
+        <file>images/qtg_mono_station_scan.svg</file>        
+        <file>images/qtg_mono_speaker.svg</file>
+        <file>images/qtg_mono_speaker_off.svg</file>        
+        <file>images/pri_small_shazam.svg</file>
+        <file>images/qtg_mono_play_history.svg</file>
+        <file>images/pri_small_star.svg</file>
+        <file>images/pri_small_star_inactive.svg</file>
+        <file>images/qtg_fr_lcd.svg</file>
+        <file>images/qtg_fr_lcd_overlay.svg</file>
+        <file>images/qtg_fr_tuner.svg</file>
     </qresource>
+    
 </RCC>

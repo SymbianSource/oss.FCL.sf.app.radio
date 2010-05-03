@@ -24,7 +24,7 @@
 #include "radiopresetstorage.h"
 #include "radiostation.h"
 #include "radiostationmodel.h"
-#include "radioplaylogmodel.h"
+#include "radiohistorymodel.h"
 #include "radioenginewrapper.h"
 #include "radiouiengine.h"
 #include "radiologger.h" //connectAndTest
@@ -168,7 +168,7 @@ void TestRadioUiEngine::initTestCase()
 #endif 
     mUiEngine = new RadioUiEngine;
     mRadioStationModel = new RadioStationModel( *mUiEngine );
-    mPlayLogModel = new RadioPlayLogModel( *mUiEngine );
+    mhistoryModel = new RadioHistoryModel( *mUiEngine );
     
     mEngineWrapper.reset( new RadioEngineWrapper( mRadioStationModel->stationHandlerIf(), *this ) );
     mPresetStorage.reset( new RadioPresetStorage() );
@@ -192,7 +192,7 @@ void TestRadioUiEngine::initTestCase()
     connectAndTest( mRadioStationModel,           SIGNAL(favoriteChanged(RadioStation)),
         this,    SLOT(favoriteChanged(RadioStation)) );
     
-    connectAndTest( mPlayLogModel,           SIGNAL(itemAdded()),
+    connectAndTest( mhistoryModel,           SIGNAL(itemAdded()),
         this,    SLOT(itemAdded()) );
 }
 
@@ -873,109 +873,109 @@ void TestRadioUiEngine::testRadioStationModel()
 	testSetRadioTextPlus();
 }
 /*!
- * Test RadioPlayLogModel API
+ * Test RadioHistoryModel API
  */
-void TestRadioUiEngine::testPlayLogModel()
+void TestRadioUiEngine::testhistoryModel()
     {
-    testPlayLogModelInit();
-    testPlayLogModelAddItem();
-    testPlayLogModelFindItem();
-    testPlayLogModelUpdateItem();
-    testPlayLogModelSetData();
+    testHistoryModelInit();
+    testHistoryModelAddItem();
+    testHistoryModelFindItem();
+    testHistoryModelUpdateItem();
+    testHistoryModelSetData();
     testAddRadioTextPlus();
     testClearRadioTextPlus();
     }
 
 /*!
- * Testing of RadioPlayLogModel initial state
+ * Testing of RadioHistoryModel initial state
  */
-void TestRadioUiEngine::testPlayLogModelInit()
+void TestRadioUiEngine::testHistoryModelInit()
 {
-    //TODO:: Check why ASSERT fails when mPlayLogModel->rowCount() == 0 
-    if( mPlayLogModel->rowCount()>0 )
+    //TODO:: Check why ASSERT fails when mhistoryModel->rowCount() == 0 
+    if( mhistoryModel->rowCount()>0 )
     {       
-        mPlayLogModel->removeAll();
-        QVERIFY2((mRadioStationModel->rowCount()==0), "API:RadioPlayLogModel removeAll() 1");
+        mhistoryModel->removeAll();
+        QVERIFY2((mRadioStationModel->rowCount()==0), "API:RadioHistoryModel removeAll() 1");
     }
-    QVERIFY2((mPlayLogModel->rowCount()==0), "API:RadioPlayLogModel removeAll() 2");           
+    QVERIFY2((mhistoryModel->rowCount()==0), "API:RadioHistoryModel removeAll() 2");           
 }
 
 /*!
  *
  */
-void TestRadioUiEngine::testPlayLogModelAddItem()
+void TestRadioUiEngine::testHistoryModelAddItem()
 {
-    int expectedPlayLogItemCount( mPlayLogModel->rowCount() + 1 );
+    int expectedHistoryItemCount( mhistoryModel->rowCount() + 1 );
     mEnteredSlots = NoSlotsEntered;
-    mPlayLogModel->addItem( KTestArtist1, KTestTitle1 );    
+    mhistoryModel->addItem( KTestArtist1, KTestTitle1 );    
     bool correctSignalsReceived = mEnteredSlots.testFlag( ItemAdded );
     // check that correct signals received
-    QVERIFY2(correctSignalsReceived, "API:RadioPlayLogModel addItem() 1");
+    QVERIFY2(correctSignalsReceived, "API:RadioHistoryModel addItem() 1");
     // check that item count increases
-    QVERIFY2((mPlayLogModel->rowCount()==expectedPlayLogItemCount), "API:RadioPlayLogModel addItem() 2");
+    QVERIFY2((mhistoryModel->rowCount()==expectedHistoryItemCount), "API:RadioHistoryModel addItem() 2");
     
     // check that artist/title stored into the model conforms to the one read from the model
-    QModelIndex index = mPlayLogModel->index( 0, 0 );
-    QStringList stringList = mPlayLogModel->data( index, Qt::DisplayRole ).value<QStringList>();        
+    QModelIndex index = mhistoryModel->index( 0, 0 );
+    QStringList stringList = mhistoryModel->data( index, Qt::DisplayRole ).value<QStringList>();        
     QString artistTitle = stringList.at(0);    
-    QVERIFY2(!(artistTitle.compare(KTestArtist1+" - "+KTestTitle1)), "API:RadioPlayLogModel addItem() 3");
+    QVERIFY2(!(artistTitle.compare(KTestArtist1+" - "+KTestTitle1)), "API:RadioHistoryModel addItem() 3");
     
     
-    expectedPlayLogItemCount = mPlayLogModel->rowCount();
+    expectedHistoryItemCount = mhistoryModel->rowCount();
     // trying to add an item that allready exists must not increase the item count
-    mPlayLogModel->addItem( KTestArtist1, KTestTitle1 );
-    QVERIFY2((mPlayLogModel->rowCount()==expectedPlayLogItemCount), "API:RadioPlayLogModel addItem() 4");
+    mhistoryModel->addItem( KTestArtist1, KTestTitle1 );
+    QVERIFY2((mhistoryModel->rowCount()==expectedHistoryItemCount), "API:RadioHistoryModel addItem() 4");
 }
 
 /*!
  *
  */
-void TestRadioUiEngine::testPlayLogModelFindItem()
+void TestRadioUiEngine::testHistoryModelFindItem()
 {
-    RadioPlayLogItem item;
-    mPlayLogModel->findItem( KTestArtist1, KTestTitle1, item );
-    QVERIFY2((item.artist()==KTestArtist1), "API:RadioPlayLogModel findItem() 1");
-    QVERIFY2((item.title()==KTestTitle1), "API:RadioPlayLogModel findItem() 2");
+    RadioHistoryItem item;
+    mhistoryModel->findItem( KTestArtist1, KTestTitle1, item );
+    QVERIFY2((item.artist()==KTestArtist1), "API:RadioHistoryModel findItem() 1");
+    QVERIFY2((item.title()==KTestTitle1), "API:RadioHistoryModel findItem() 2");
     // try to find an item that doesn't exist
-    int ret = mPlayLogModel->findItem( KTestArtist1+"+", KTestTitle1, item );
-    QVERIFY2(ret==-1, "API:RadioPlayLogModel findItem() 3");
+    int ret = mhistoryModel->findItem( KTestArtist1+"+", KTestTitle1, item );
+    QVERIFY2(ret==-1, "API:RadioHistoryModel findItem() 3");
 }
 
 /*!
  *
  */
-void TestRadioUiEngine::testPlayLogModelUpdateItem()
+void TestRadioUiEngine::testHistoryModelUpdateItem()
 {
-    RadioPlayLogItem item;    
-    mPlayLogModel->findItem( KTestArtist1, KTestTitle1, item );
+    RadioHistoryItem item;    
+    mhistoryModel->findItem( KTestArtist1, KTestTitle1, item );
     item.setTitle( KTestTitle2 );    
     // update an existing item
-    mPlayLogModel->updateItem( 0, item, true );
+    mhistoryModel->updateItem( 0, item, true );
     
-    RadioPlayLogItem foundItem;
+    RadioHistoryItem foundItem;
     // original item must not be found any more
-    int ret = mPlayLogModel->findItem(KTestArtist1, KTestTitle1, foundItem);
-    QVERIFY2(ret==-1, "API:RadioPlayLogModel updateItem() 1");
+    int ret = mhistoryModel->findItem(KTestArtist1, KTestTitle1, foundItem);
+    QVERIFY2(ret==-1, "API:RadioHistoryModel updateItem() 1");
     // but the updated one instead
-    mPlayLogModel->findItem(KTestArtist1, KTestTitle2, foundItem);
-    QVERIFY2((foundItem.title()==KTestTitle2), "API:RadioPlayLogModel updateItem() 2"); 
+    mhistoryModel->findItem(KTestArtist1, KTestTitle2, foundItem);
+    QVERIFY2((foundItem.title()==KTestTitle2), "API:RadioHistoryModel updateItem() 2"); 
 }
 
 /*!
  *
  */
-void TestRadioUiEngine::testPlayLogModelSetData()
+void TestRadioUiEngine::testHistoryModelSetData()
 {
-   RadioPlayLogItem foundItem;
-   mPlayLogModel->findItem(KTestArtist1, KTestTitle2, foundItem);
-   QVERIFY2(!foundItem.isFavorite(), "API:RadioPlayLogModel SetData() 1");
+   RadioHistoryItem foundItem;
+   mhistoryModel->findItem(KTestArtist1, KTestTitle2, foundItem);
+   QVERIFY2(!foundItem.isFavorite(), "API:RadioHistoryModel SetData() 1");
    
-   QModelIndex index = mPlayLogModel->index( 0, 0 );
+   QModelIndex index = mhistoryModel->index( 0, 0 );
    QString artistTitle = KTestArtist1 + KTestTitle2;
-   mPlayLogModel->setData( index, artistTitle, RadioPlayLogModel::SetFavoriteRole );
-   mPlayLogModel->findItem(KTestArtist1, KTestTitle2, foundItem);
+   mhistoryModel->setData( index, artistTitle, RadioHistoryModel::SetFavoriteRole );
+   mhistoryModel->findItem(KTestArtist1, KTestTitle2, foundItem);
    // item should be now favorite
-   QVERIFY2(foundItem.isFavorite(), "API:RadioPlayLogModel SetData() 2");    
+   QVERIFY2(foundItem.isFavorite(), "API:RadioHistoryModel SetData() 2");    
 }
 
 /*!
@@ -983,8 +983,8 @@ void TestRadioUiEngine::testPlayLogModelSetData()
  */
 void TestRadioUiEngine::testAddRadioTextPlus()
 {   
-    mPlayLogModel->addRadioTextPlus( RtPlus::Artist, KTestArtist1 );
-    mPlayLogModel->addRadioTextPlus( RtPlus::Title, KTestTitle1 );
+    mhistoryModel->addRadioTextPlus( RtPlus::Artist, KTestArtist1 );
+    mhistoryModel->addRadioTextPlus( RtPlus::Title, KTestTitle1 );
 }
 
 /*!
@@ -992,22 +992,22 @@ void TestRadioUiEngine::testAddRadioTextPlus()
  */
 void TestRadioUiEngine::testClearRadioTextPlus()
 {   
-    mPlayLogModel->clearRadioTextPlus();
+    mhistoryModel->clearRadioTextPlus();
 }
 
 /*!
- * Test RadioPlayLogModelItem API
+ * Test RadioHistoryModelItem API
  */
-void TestRadioUiEngine::testPlayLogModelItem()
+void TestRadioUiEngine::testHistoryModelItem()
 {
-    RadioPlayLogItem* item = new RadioPlayLogItem( KTestArtist3, KTestTitle3 );
+    RadioHistoryItem* item = new RadioHistoryItem( KTestArtist3, KTestTitle3 );
     item->setArtist( KTestArtist3 );
-    QVERIFY2(!(item->artist().compare(KTestArtist3)), "API:testPlayLogModelItem setArtist()");
+    QVERIFY2(!(item->artist().compare(KTestArtist3)), "API:testHistoryModelItem setArtist()");
     item->setTitle( KTestTitle3 );
-    QVERIFY2(!(item->title().compare(KTestTitle3)), "API:testPlayLogModelItem setTitle()");
-    QVERIFY2(!item->isFavorite(), "API:testPlayLogModelItem isFavorite() 1");
+    QVERIFY2(!(item->title().compare(KTestTitle3)), "API:testHistoryModelItem setTitle()");
+    QVERIFY2(!item->isFavorite(), "API:testHistoryModelItem isFavorite() 1");
     item->setFavorite();
-    QVERIFY2(item->isFavorite(), "API:testPlayLogModelItem isFavorite() 2");
+    QVERIFY2(item->isFavorite(), "API:testHistoryModelItem isFavorite() 2");
     item->setFavorite();
     delete item;
     item = NULL;

@@ -21,8 +21,7 @@
 // System includes
 #include <HbView>
 
-//#define QT_SHAREDPOINTER_TRACK_POINTERS // Debugging support for QSharedPointer
-#include <QSharedPointer>
+#include <QScopedPointer>
 
 // User includes
 
@@ -48,11 +47,11 @@ class RadioViewBase : public HbView
     Q_DISABLE_COPY( RadioViewBase )
 
 public:
-    explicit RadioViewBase( RadioXmlUiLoader* uiLoader, bool transient = true );
+    explicit RadioViewBase( bool transient = true );
 
     virtual ~RadioViewBase();
 
-    virtual void init( RadioMainWindow* aMainWindow, RadioStationModel* aModel );
+    virtual void init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow );
 
     bool isTransient() const;
 
@@ -70,13 +69,13 @@ protected:
 
     void initBackAction();
     
-    HbAction* addMenuItem( const QString& aTitle, QObject* aRecipient, const char* aSlot );
-
     void connectCommonMenuItem( int menuItem );
 
     void connectXmlElement( const char* name, const char* signal, QObject* receiver, const char* slot );
 
     void connectViewChangeMenuItem( QString name, const char* slot );
+
+    void loadSection( const QString& docml, const QString& section );
 
 private:
 
@@ -88,35 +87,29 @@ protected: // data
      * Pointer to the main window.
      * Not own.
      */
-    RadioMainWindow*                	mMainWindow;
-
-    /**
-     * Pointer to the radio data model.
-     * Not own.
-     */
-    RadioStationModel*                  mModel;
+    RadioMainWindow*                    mMainWindow;
 
     /**
      * Pointer to the XML UI (DocML) loader
      * Own.
      */
-    QSharedPointer<RadioXmlUiLoader>	mUiLoader;
+    QScopedPointer<RadioXmlUiLoader>    mUiLoader;
 
     /**
      * Flag indicating whether or not the view is transient
      * Transient views are deleted when they are hidden.
      */
-    bool                            	mTransientView;
+    bool                                mTransientView;
 
     /**
      * Route audio to Loudspeaker/Headset menu item
      */
-    HbAction*                       	mUseLoudspeakerAction;
+    HbAction*                           mUseLoudspeakerAction;
 
     /**
      * View orientation.
      */
-    Qt::Orientation                 	mOrientation;
+    Qt::Orientation                     mOrientation;
 
 };
 

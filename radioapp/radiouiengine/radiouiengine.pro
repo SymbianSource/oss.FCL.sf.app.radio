@@ -37,7 +37,7 @@ symbian: {
 INCLUDEPATH += inc
 INCLUDEPATH += ../radiopresetstorage/inc
 INCLUDEPATH += ../radioenginewrapper/inc
-INCLUDEPATH += ../radioenginewrapper/commoninc
+INCLUDEPATH += ../commoninc
 
 win32:LIBS += -L../bin
 
@@ -54,24 +54,27 @@ DEPENDPATH += $$INCLUDEPATH src
 MOC_DIR = $$_PRO_FILE_PWD_/tmp
 
 # Input
+HEADERS += radiouiengineexport.h
 HEADERS += radiostation.h
 HEADERS += radiostationmodel.h
 HEADERS += radiostationfiltermodel.h
 HEADERS += radiouiengine.h
-HEADERS += radioplaylogitem.h
-HEADERS += radioplaylogmodel.h
-HEADERS += radiolocalization.h
-HEADERS += radiouiengineexport.h
+HEADERS += radiohistoryitem.h
+HEADERS += radiohistorymodel.h
+HEADERS += radioscannerengine.h
+HEADERS += radioservicedef.h
+HEADERS += radionotificationdata.h
+
 symbian:HEADERS += radiocontrolservice.h
 symbian:HEADERS += radiomonitorservice.h
 win32:HEADERS += radiomonitorservice_win32.h
-HEADERS += radioserviceconst.h
 
 INTERNAL_HEADERS += radiostation_p.h
-INTERNAL_HEADERS += radioplaylogitem_p.h
-INTERNAL_HEADERS += radioplaylogmodel_p.h
+INTERNAL_HEADERS += radiohistoryitem_p.h
+INTERNAL_HEADERS += radiohistorymodel_p.h
 INTERNAL_HEADERS += radiouiengine_p.h
 INTERNAL_HEADERS += radiostationmodel_p.h
+INTERNAL_HEADERS += radioscannerengine_p.h
 
 win32:HEADERS += $$INTERNAL_HEADERS
 
@@ -82,10 +85,13 @@ SOURCES += radiostationmodel_p.cpp
 SOURCES += radiostationfiltermodel.cpp
 SOURCES += radiouiengine.cpp
 SOURCES += radiouiengine_p.cpp
-SOURCES += radioplaylogitem.cpp
-SOURCES += radioplaylogitem_p.cpp
-SOURCES += radioplaylogmodel.cpp
-SOURCES += radioplaylogmodel_p.cpp
+SOURCES += radiohistoryitem.cpp
+SOURCES += radiohistoryitem_p.cpp
+SOURCES += radiohistorymodel.cpp
+SOURCES += radiohistorymodel_p.cpp
+SOURCES += radioscannerengine.cpp
+SOURCES += radioscannerengine_p.cpp
+
 symbian:SOURCES += radiocontrolservice.cpp
 symbian:SOURCES += radiomonitorservice.cpp
 win32:SOURCES += radiomonitorservice_win32.cpp

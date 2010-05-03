@@ -20,9 +20,27 @@
 
 // User includes
 #include "radiouiutilities.h"
+#include "radiofrequencystrip.h"
+#include "radiostationcarousel.h"
 #include "radiologger.h"
 
 // Constants
+
+static RadioUiUtilities* theInstance = 0;
+
+/*!
+ *
+ */
+RadioUiUtilities::RadioUiUtilities()
+{
+}
+
+/*!
+ *
+ */
+RadioUiUtilities::~RadioUiUtilities()
+{
+}
 
 /*!
  *
@@ -51,3 +69,48 @@ bool RadioUiUtilities::addEffects( QEffectList list )
 
     return allAvailable;
 }
+
+
+/*!
+ *
+ */
+RadioFrequencyStrip* RadioUiUtilities::frequencyStrip()
+{
+    return instance().mFrequencyStrip;
+}
+
+/*!
+ *
+ */
+RadioStationCarousel* RadioUiUtilities::carousel()
+{
+    return instance().mCarousel;
+}
+
+/*!
+ *
+ */
+void RadioUiUtilities::setFrequencyStrip( RadioFrequencyStrip* frequencyStrip )
+{
+    instance().mFrequencyStrip = frequencyStrip;
+}
+
+/*!
+ *
+ */
+void RadioUiUtilities::setCarousel( RadioStationCarousel* carousel )
+{
+    instance().mCarousel = carousel;
+}
+
+/*!
+ *
+ */
+RadioUiUtilities& RadioUiUtilities::instance()
+{
+    if ( !::theInstance ) {
+        ::theInstance = new RadioUiUtilities;
+    }
+    return *::theInstance;
+}
+

@@ -21,7 +21,7 @@
 
 QTM_USE_NAMESPACE
 
-const QString KXml = "c:/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.xml";
+const QString KXml = "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.xml";
 
 int main(int argc, char *argv[])
 {

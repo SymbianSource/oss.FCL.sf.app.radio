@@ -21,14 +21,17 @@
 // User includes
 #include "fmradiohswidgetradioserviceclient.h"
 #include "fmradiohswidget.h"
+#include "radioservicedef.h"
+#include "radionotificationdata.h"
 
 /*!
  Constructor
  */
 FmRadioHsWidgetRadioServiceClient::FmRadioHsWidgetRadioServiceClient(QObject *parent) :
     QObject(parent),
-    mRadioInformationServiceRequest(0),
-    mRadioControlServiceRequest(0)
+    mRadioInformationServiceRequest( 0 ),
+    mRadioControlServiceRequest(0),
+    mDataInitialized( false )
 {
 }
 
@@ -41,15 +44,25 @@ FmRadioHsWidgetRadioServiceClient::~FmRadioHsWidgetRadioServiceClient()
 }
 
 /*!
+ * Initialize all data
+ */
+void FmRadioHsWidgetRadioServiceClient::init()
+{
+    const bool radioIsRunning = false; //TODO: Find out if radio is running. Use P&S key for now
+    if ( radioIsRunning ) {
+        startMonitoring();
+    }
+}
+
+
+/*!
  Starting of FM Radio.
- 
- /param startupState 
+
+ /param startupState
  */
 void FmRadioHsWidgetRadioServiceClient::doStartFmRadio(FmRadioStartupState startupState)
 {
-    if (!mRadioControlServiceRequest) {
-        createControlServiceRequest();
-    }
+    createControlServiceRequest();
 
     int commandId = 0;
 
@@ -81,9 +94,7 @@ void FmRadioHsWidgetRadioServiceClient::doStartFmRadio(FmRadioStartupState start
  */
 void FmRadioHsWidgetRadioServiceClient::doBringFmRadioToForeground(bool toForeground)
 {
-    if (!mRadioControlServiceRequest) {
-        createControlServiceRequest();
-    }
+    createControlServiceRequest();
     QVariant commandArgument;
     if (toForeground) {
         // TODO: Include header and remove comment.
@@ -144,9 +155,7 @@ void FmRadioHsWidgetRadioServiceClient::test()
     /*req = mApplicationManager.create(KRadioServiceMonitorInterfaceName, KRadioServiceMonitorOperation,
         false);*/
     
-    if (!mRadioInformationServiceRequest) {
-        createMonitorServiceRequest();
-    }
+    createMonitorServiceRequest();
     bool res = mRadioInformationServiceRequest->send();
 
     /*if (req) {*/
@@ -196,8 +205,7 @@ void FmRadioHsWidgetRadioServiceClient::test()
 void FmRadioHsWidgetRadioServiceClient::doChangeFmRadioChannel(
     FmRadioChannelChangeCommand command)
 {
-    if (!mRadioControlServiceRequest) {
-        createControlServiceRequest();    }
+    createControlServiceRequest();
     int commandId;
     
     switch (command) {
@@ -238,8 +246,7 @@ void FmRadioHsWidgetRadioServiceClient::doChangeFmRadioChannel(
 void FmRadioHsWidgetRadioServiceClient::doControlFmRadioAudio(
     FmRadioAudioControlCommand command)
 {
-    if (!mRadioControlServiceRequest) {
-        createControlServiceRequest();    }
+    createControlServiceRequest();
 
     int commandId;
 
@@ -282,20 +289,18 @@ void FmRadioHsWidgetRadioServiceClient::doGetFmRadioInformation()
  */
 void FmRadioHsWidgetRadioServiceClient::handleFmRadioInformationChange(const QVariant& value)
 {
+    if ( !mDataInitialized ) {
+        mRadioInformationServiceRequest->setMessage( KRadioServiceMonitorOperation );
+        mDataInitialized = true;
+    }
+
     startMonitoring();
-    if (value.isValid() && value.canConvert(QVariant::String)) {
-        QString str = value.toString();
-        // Extract the number from the beginning of the string.
-        int i = str.indexOf(" ");
-        QString notificationIdStr = str.left(i);
-        bool conversionOk;
-        int notificationId = notificationIdStr.toInt(&conversionOk);
-        // Rest is the actual string.
-        QString msg = str.mid(i);
-        
-        // If the type was converted ok
-        if (conversionOk) {
-            emit radioInformationChanged(notificationId, msg);
+    if ( value.isValid() && value.canConvert( QVariant::List ) ) {
+        QVariantList notificationList = value.toList();
+        foreach ( const QVariant& variant, notificationList ) {
+            RadioNotificationData notification = variant.value<RadioNotificationData>();
+            const int notificationId = notification.mType;
+            emit radioInformationChanged( notificationId, notification.mData );
         }
     }
 }
@@ -450,6 +455,7 @@ void FmRadioHsWidgetRadioServiceClient::createControlServiceRequest()
         QString fullServiceName = KRadioServiceName + "." + KRadioServiceControlInterfaceName;
         mRadioControlServiceRequest = new XQServiceRequest(fullServiceName,
             KRadioServiceControlOperation, false);
+
         bool a = connect(mRadioControlServiceRequest, SIGNAL(requestCompleted(QVariant)), this,
             SLOT(requestCompleted(QVariant)));
         bool b = connect(mRadioControlServiceRequest, SIGNAL(requestError(int)), this,
@@ -463,13 +469,13 @@ void FmRadioHsWidgetRadioServiceClient::createControlServiceRequest()
 void FmRadioHsWidgetRadioServiceClient::createMonitorServiceRequest()
 {
     if (!mRadioInformationServiceRequest) {
+        QString operation = mDataInitialized ? KRadioServiceMonitorOperation : KRadioServiceRefreshOperation;
         QString fullServiceName = KRadioServiceName + "." + KRadioServiceMonitorInterfaceName;
-        mRadioInformationServiceRequest = new XQServiceRequest(fullServiceName,
-            KRadioServiceMonitorOperation, false);
-        bool a = connect(mRadioInformationServiceRequest, SIGNAL(requestCompleted(QVariant)), this,
-            SLOT(handleFmRadioInformationChange(QVariant)));
-        bool b = connect(mRadioInformationServiceRequest, SIGNAL(requestError(int)), this,
-            SLOT(handleRequestError(int)));
+        mRadioInformationServiceRequest = new XQServiceRequest(fullServiceName, operation, false);
+        bool a = connect( mRadioInformationServiceRequest, SIGNAL(requestCompleted(QVariant)),
+                          this,                            SLOT(handleFmRadioInformationChange(QVariant)));
+        bool b = connect( mRadioInformationServiceRequest, SIGNAL(requestError(int)),
+                         this,                             SLOT(handleRequestError(int)));
     }
 }
 
@@ -478,9 +484,7 @@ void FmRadioHsWidgetRadioServiceClient::createMonitorServiceRequest()
  */
 void FmRadioHsWidgetRadioServiceClient::startMonitoring()
 {
-    if (!mRadioInformationServiceRequest) {
-        createMonitorServiceRequest();
-    }
+    createMonitorServiceRequest();
     doGetFmRadioInformation();
 }
 
@@ -489,12 +493,6 @@ void FmRadioHsWidgetRadioServiceClient::startMonitoring()
  */
 void FmRadioHsWidgetRadioServiceClient::stopMonitoring()
 {
-    if (mRadioInformationServiceRequest) {
-        delete mRadioInformationServiceRequest;
-        mRadioInformationServiceRequest = NULL;
-    }
-    if (mRadioControlServiceRequest) {
-        delete mRadioControlServiceRequest;
-        mRadioControlServiceRequest = NULL;
-    }
+    delete mRadioInformationServiceRequest;
+    delete mRadioControlServiceRequest;
 }

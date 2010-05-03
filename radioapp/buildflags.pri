@@ -26,12 +26,6 @@
 # Reads the layout docml files and images from e:/radiotest/ folder
 # RADIOFLAGS += USE_LAYOUT_FROM_E_DRIVE
 
-# Usage of the Mobile Extensions APIs
-# RADIOFLAGS += USE_MOBILE_EXTENSIONS_API
-
-# Usage of stubbed radio engine
-# RADIOFLAGS += USE_STUBBED_RADIOENGINE
-
 # Flag to use dummy radio data read from XML file
 # RADIOFLAGS += USE_DUMMY_RADIO_DATA
 
@@ -39,7 +33,7 @@
 # RADIOFLAGS += SHOW_CALLSIGN_IN_ANY_REGION
 
 # Build flag to enable usage of the new preset utility
-# RADIOFLAGS += COMPILE_WITH_NEW_PRESET_UTILITY
+RADIOFLAGS += COMPILE_WITH_NEW_PRESET_UTILITY
 
 # Build flag to add EXPORTUNFROZEN to the pro file
 # RADIOFLAGS += USE_UNFROZEN_EXPORTS
@@ -95,24 +89,23 @@ DEFINES += $$RADIOFLAGS
 CONFIG += $$RADIOFLAGS
 CONFIG += $$LOGGING_FLAGS
 
-win32:DEFINES += BUILD_WIN32
-
-# Mobile extension headers are in a special path
-MOBILE_EXTENSIONS_PATH = /mobile_extensions/include
-!exists($$MOBILE_EXTENSIONS_PATH) {
-    CONFIG -= USE_MOBILE_EXTENSIONS_API
-    DEFINES -= USE_MOBILE_EXTENSIONS_API
-}
-USE_MOBILE_EXTENSIONS_API {
-    INCLUDEPATH += $$MOBILE_EXTENSIONS_PATH
+symbian: {
+    DEFINES += SYMBIAN
+    TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.VID              = VID_DEFAULT
+    TARGET.CAPABILITY       = CAP_GENERAL_DLL
 }
 
-USE_STUBBED_RADIOENGINE {
-    INCLUDEPATH += /epoc32/include/radioengine_stub
+win32: {
+    DEFINES     += BUILD_WIN32
+    DESTDIR     = ../bin
+    LIBS        += -L../bin
+    INCLUDEPATH += ../radioenginewrapper/inc
 }
 
 USE_UNFROZEN_EXPORTS {
-    symbian:MMP_RULES +=  "exportunfrozen"
+    symbian:MMP_RULES   +=  "exportunfrozen"
+    symbian:DEF_FILE    = not_used.def
 }
 
 # $$_PRO_FILE_PWD_ points to the directory of the pro file

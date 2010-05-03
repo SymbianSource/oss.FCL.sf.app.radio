@@ -19,14 +19,12 @@
 #include "radioenginewrapper.h"
 #include "radioenginewrapper_p.h"
 #include "cradioenginehandler.h"
-#include "radiofrequencyscanninghandler.h"
 
 /*!
  * Constructor
  */
-RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler,
-                                        RadioEngineWrapperObserver& observer ) :
-    d_ptr( new RadioEngineWrapperPrivate( this, stationHandler, observer ) )
+RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler ) :
+    d_ptr( new RadioEngineWrapperPrivate( this, stationHandler ) )
 {
     Q_D( RadioEngineWrapper );
     d->init();
@@ -38,6 +36,24 @@ RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler,
 RadioEngineWrapper::~RadioEngineWrapper()
 {
     delete d_ptr;
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapper::addObserver( RadioEngineWrapperObserver* observer )
+{
+    Q_D( RadioEngineWrapper );
+    d->mObservers.append( observer );
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapper::removeObserver( RadioEngineWrapperObserver* observer )
+{
+    Q_D( RadioEngineWrapper );
+    d->mObservers.removeAll( observer );
 }
 
 /*!
@@ -113,15 +129,6 @@ bool RadioEngineWrapper::isRadioOn() const
 }
 
 /*!
- * Checks if the scan is on
- */
-bool RadioEngineWrapper::isScanning() const
-{
-    Q_D( const RadioEngineWrapper );
-    return !d->mFrequencyScanningHandler.isNull();
-}
-
-/*!
  * Returns the currently tuned frequency
  */
 uint RadioEngineWrapper::currentFrequency() const
@@ -140,7 +147,7 @@ bool RadioEngineWrapper::isMuted() const
 }
 
 /*!
- * Returns the headset connection status
+ * Returns the antenna connection status
  */
 bool RadioEngineWrapper::isAntennaAttached() const
 {
@@ -160,19 +167,19 @@ bool RadioEngineWrapper::isUsingLoudspeaker() const
 /*!
  * Tunes to the given frequency
  */
-void RadioEngineWrapper::tuneFrequency( uint frequency, const int sender )
+void RadioEngineWrapper::tuneFrequency( uint frequency, const int reason )
 {
     Q_D( RadioEngineWrapper );
-    d->tuneFrequency( frequency, sender );
+    d->tuneFrequency( frequency, reason );
 }
 
 /*!
  * Tunes to the given frequency after a delay
  */
-void RadioEngineWrapper::tuneWithDelay( uint frequency, const int sender )
+void RadioEngineWrapper::tuneWithDelay( uint frequency, const int reason )
 {
     Q_D( RadioEngineWrapper );
-    d->tuneWithDelay( frequency, sender );
+    d->tuneWithDelay( frequency, reason );
 }
 
 /*!
@@ -206,30 +213,17 @@ void RadioEngineWrapper::toggleAudioRoute()
 /*!
  *
  */
-void RadioEngineWrapper::startSeeking( Seeking::Direction direction )
+void RadioEngineWrapper::startSeeking( Seeking::Direction direction, const int reason )
 {
     Q_D( RadioEngineWrapper );
-    d->startSeeking( direction );
+    d->startSeeking( direction, reason );
 }
 
 /*!
  *
  */
-void RadioEngineWrapper::scanFrequencyBand()
+void RadioEngineWrapper::cancelSeeking()
 {
     Q_D( RadioEngineWrapper );
-    if ( !d->mFrequencyScanningHandler ) {
-        d->mFrequencyScanningHandler.reset( new RadioFrequencyScanningHandler( *d ) );
-    }
-    d->mFrequencyScanningHandler->startScanning( d->mEngineHandler->IsMuted() );
-}
-
-/*!
- *
- */
-void RadioEngineWrapper::cancelScanFrequencyBand()
-{
-    Q_D( RadioEngineWrapper );
-    d->mFrequencyScanningHandler->cancel();
-    d->frequencyScannerFinished();
+    d->mEngineHandler->CancelSeek();
 }

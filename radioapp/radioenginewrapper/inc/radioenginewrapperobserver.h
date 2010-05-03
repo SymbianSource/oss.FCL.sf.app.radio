@@ -19,26 +19,26 @@
 #define RADIOENGINEWRAPPEROBSERVER_H_
 
 #include "radio_global.h"
+#include "radiowrapperexport.h"
 
-class RadioEngineWrapperObserver
+class WRAPPER_DLL_EXPORT RadioEngineWrapperObserver
 {
 public:
 
-    virtual void tunedToFrequency( uint frequency, int commandSender ) = 0;
-    virtual void seekingStarted( Seeking::Direction direction ) = 0;
-    virtual void radioStatusChanged( bool radioIsOn ) = 0;
+    virtual void tunedToFrequency( uint frequency, int reason );
 
-    virtual void rdsAvailabilityChanged( bool available ) = 0;
+    virtual void radioStatusChanged( bool radioIsOn );
 
-    virtual void volumeChanged( int volume ) = 0;
-    virtual void muteChanged( bool muted ) = 0;
+    virtual void rdsAvailabilityChanged( bool available );
 
-    virtual void audioRouteChanged( bool loudspeaker ) = 0;
-    virtual void scanAndSaveFinished() = 0;
-    virtual void headsetStatusChanged( bool connected ) = 0;
+    virtual void volumeChanged( int volume );
+    virtual void muteChanged( bool muted );
 
-    virtual void skipPrevious() = 0;
-    virtual void skipNext() = 0;
+    virtual void audioRouteChanged( bool loudspeaker );
+    virtual void antennaStatusChanged( bool connected );
+
+    virtual void skipPrevious();
+    virtual void skipNext();
 
 };
 

@@ -21,6 +21,7 @@
 // System includes
 #include <e32std.h>
 #include <QScopedPointer>
+#include <QList>
 
 // User includes
 #include "radioenginewrapper.h"
@@ -31,11 +32,17 @@ class CRadioEngineHandler;
 class RadioControlEventListener;
 class RadioRdsListener;
 class RadioSettings;
-class RadioFrequencyScanningHandler;
 class RadioStationHandlerIf;
 class RadioEngineWrapperObserver;
 
+typedef QList<RadioEngineWrapperObserver*> ObserverList;
+
 // Constants
+
+#define RUN_NOTIFY_LOOP( list, func ) \
+        foreach( RadioEngineWrapperObserver* observer, list ) { \
+            observer->func; \
+        }
 
 // Class declaration
 class RadioEngineWrapperPrivate : public MRadioEngineHandlerObserver
@@ -48,8 +55,7 @@ class RadioEngineWrapperPrivate : public MRadioEngineHandlerObserver
 public:
 
     RadioEngineWrapperPrivate( RadioEngineWrapper* wrapper,
-                               RadioStationHandlerIf& stationHandler,
-                               RadioEngineWrapperObserver& observer );
+                               RadioStationHandlerIf& stationHandler );
 
     virtual ~RadioEngineWrapperPrivate();
 
@@ -73,12 +79,12 @@ public:
     /**
      * Functions called from slots to tune to given frequency or preset
      */
-    void tuneFrequency( uint frequency, const int sender );
-    void tuneWithDelay( uint frequency, const int sender );
+    void tuneFrequency( uint frequency, const int reason );
+    void tuneWithDelay( uint frequency, const int reason );
 
-    RadioEngineWrapperObserver& observer();
+    ObserverList& observers();
 
-    void startSeeking( Seeking::Direction direction );
+    void startSeeking( Seeking::Direction direction, const int reason = TuneReason::Unspecified );
 
 private:
 
@@ -110,13 +116,6 @@ private:
     void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TDesC8& /*aValue*/, TInt /*aError*/ ) {}
     void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TDesC16& /*aValue*/, TInt /*aError*/ ) {}
 
-// New functions
-
-    /**
-     * Called by RadioFrequencyScanningHandler when the scanning has finished
-     */
-    void frequencyScannerFinished();
-
 private: // data
 
     /**
@@ -134,7 +133,7 @@ private: // data
     /**
      * Reference to the wrapper observer
      */
-    RadioEngineWrapperObserver&                     mObserver;
+    ObserverList                                    mObservers;
 
     /**
      * Radio settings handler
@@ -161,25 +160,14 @@ private: // data
     QScopedPointer<RadioRdsListener>                mRdsListener;
 
     /**
-     * Preset scanning handler
-     * Own.
+     * Reason for the tune event. Can be FrequencyStrip, Carousel or station scanner
      */
-    QScopedPointer<RadioFrequencyScanningHandler>   mFrequencyScanningHandler;
-
-    /**
-     * Id of the sender of the last tune command. RadioFrequencyStrip or someone else
-     */
-    int                                             mCommandSender;
+    int                                             mTuneReason;
 
     /**
      * Flag to indicate whether or not audio should be routed to loudspeaker
      */
     bool                                            mUseLoudspeaker;
-
-    /**
-     * Flag to indicate whether or not the engine is seeking
-     */
-    bool                                            mIsSeeking;
 
 };
 

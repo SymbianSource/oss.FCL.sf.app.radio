@@ -15,21 +15,15 @@
 *
 */
 
-
-#ifdef USE_STUBBED_RADIOENGINE
-#   include "t_cradioengine.h"
-#   include "t_mrdshandler.h"
-#else
-#   include "cradioengine.h"
-#   include "cradioaudiorouter.h"
-#   include "cradiosystemeventcollector.h"
-#   include "cradiosettings.h"
-#   include "mradioenginesettings.h"
-#   include "cradiopubsub.h"
-#   include "cradiorepositorymanager.h"
-#   include "mradiordsreceiver.h"
-#endif
-
+// User includes
+#include "cradioengine.h"
+#include "cradioaudiorouter.h"
+#include "cradiosystemeventcollector.h"
+#include "cradiosettings.h"
+#include "mradioenginesettings.h"
+#include "cradiopubsub.h"
+#include "cradiorepositorymanager.h"
+#include "mradiordsreceiver.h"
 #include "cradioenginehandler.h"
 #include "mradioenginehandlerobserver.h"
 #include "radio_global.h"

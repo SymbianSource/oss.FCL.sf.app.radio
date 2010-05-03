@@ -24,6 +24,7 @@
 // Forward declarations
 class HbMainWindow;
 class QPushButton;
+class QComboBox;
 class QGridLayout;
 
 class Win32Window : public QWidget
@@ -48,9 +49,12 @@ private slots:
     void addSong();
     void clearSong();
     void toggleOffline();
-    void updateWindow();
+    void changeTheme( const QString& theme );
 
 private:
+
+    void initThemes();
+    QStringList themeRootPaths();
 
 private: // data
 
@@ -67,7 +71,7 @@ private: // data
 
     QPushButton*    mOfflineButton;
 
-    QPushButton*    mUpdateButton;
+    QComboBox*      mThemeBox;
 
     QGridLayout*    mToolbarLayout;
 

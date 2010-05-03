@@ -19,9 +19,9 @@
 #define __FMRADIOHSWIDGETPLUGIN_IBY__
 
 file=ABI_DIR\BUILD_DIR\fmradiohswidgetplugin.dll                                            SHARED_LIB_DIR\fmradiohswidgetplugin.dll
-data=ZPRIVATE\20022f35\import\widgetregistry\E0022EEE\fmradiohswidgetplugin.qtplugin        private\20022f35\import\widgetregistry\E0022EEE\fmradiohswidgetplugin.qtplugin
-data=ZPRIVATE\20022f35\import\widgetregistry\E0022EEE\fmradiohswidgetplugin.manifest        private\20022f35\import\widgetregistry\E0022EEE\fmradiohswidgetplugin.manifest
-data=ZPRIVATE\20022f35\import\widgetregistry\E0022EEE\fmradiohswidgetplugin.xml             private\20022f35\import\widgetregistry\E0022EEE\fmradiohswidgetplugin.xml
+data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin.qtplugin        private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin.qtplugin
+data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin.manifest        private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin.manifest
+data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin.xml             private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin.xml
 
 
 #endif //__FMRADIOHSWIDGETPLUGIN_IBY__

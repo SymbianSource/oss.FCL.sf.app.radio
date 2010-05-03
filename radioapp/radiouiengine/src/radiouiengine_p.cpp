@@ -30,16 +30,19 @@
 #include "radiouiengine_p.h"
 #include "radioenginewrapper.h"
 #include "radiostationmodel.h"
+#include "radiostationmodel_p.h"
 #include "radiopresetstorage.h"
 #include "radiosettings.h"
 #include "radiostation.h"
+#include "radioscannerengine.h"
+#include "radiostationhandlerif.h"
 #ifndef BUILD_WIN32
 #   include "radiocontrolservice.h"
 #   include "radiomonitorservice.h"
 #else
 #   include "radiomonitorservice_win32.h"
 #endif
-#include "radioserviceconst.h"
+#include "radioservicedef.h"
 #include "radiologger.h"
 
 /*!
@@ -49,7 +52,7 @@ RadioUiEnginePrivate::RadioUiEnginePrivate( RadioUiEngine* engine ) :
     q_ptr( engine ),
     mEngineWrapper( 0 ),
     mStationModel( 0 ),
-    mPlayLogModel( 0 ),
+    mHistoryModel( 0 ),
     mControlService( 0 ),
     mMonitorService( 0 )
 {
@@ -71,14 +74,24 @@ RadioUiEnginePrivate::~RadioUiEnginePrivate()
 /*!
  *
  */
+RadioUiEngine& RadioUiEnginePrivate::api()
+{
+    Q_Q( RadioUiEngine );
+    return *q;
+}
+
+/*!
+ *
+ */
 bool RadioUiEnginePrivate::startRadio()
 {
 #ifndef BUILD_WIN32
     mControlService = new RadioControlService( *q_ptr );
 #endif
     mMonitorService = new RadioMonitorService( *q_ptr );
-    mStationModel = new RadioStationModel( *q_ptr );
-    mEngineWrapper.reset( new RadioEngineWrapper( mStationModel->stationHandlerIf(), *this ) );
+    mStationModel = new RadioStationModel( *this );
+    mEngineWrapper.reset( new RadioEngineWrapper( mStationModel->stationHandlerIf() ) );
+    mEngineWrapper->addObserver( this );
     mPresetStorage.reset( new RadioPresetStorage() );
     mStationModel->initialize( mPresetStorage.data(), mEngineWrapper.data() );
 
@@ -97,19 +110,28 @@ bool RadioUiEnginePrivate::startRadio()
 /*!
  *
  */
-void RadioUiEnginePrivate::tunedToFrequency( uint frequency, int commandSender )
+void RadioUiEnginePrivate::cancelSeeking()
 {
-    Q_Q( RadioUiEngine );
-    q->emitTunedToFrequency( frequency, commandSender );
+    mEngineWrapper->cancelSeeking();
+    mMonitorService->notifyRadioStatus( mEngineWrapper->isMuted() ? RadioStatus::Muted : RadioStatus::Playing );
 }
 
 /*!
  *
  */
-void RadioUiEnginePrivate::seekingStarted( Seeking::Direction direction )
+RadioEngineWrapper& RadioUiEnginePrivate::wrapper()
+{
+    return *mEngineWrapper;
+}
+
+/*!
+ *
+ */
+void RadioUiEnginePrivate::tunedToFrequency( uint frequency, int reason )
 {
     Q_Q( RadioUiEngine );
-    q->emitSeekingStarted( direction );
+    q->emitTunedToFrequency( frequency, reason );
+    mMonitorService->notifyRadioStatus( RadioStatus::Playing );
 }
 
 /*!
@@ -173,6 +195,7 @@ void RadioUiEnginePrivate::muteChanged( bool muted )
 {
     Q_Q( RadioUiEngine );
     q->emitMuteChanged( muted );
+    mMonitorService->notifyRadioStatus( muted ? RadioStatus::Muted : RadioStatus::Playing );
 }
 
 /*!
@@ -187,19 +210,11 @@ void RadioUiEnginePrivate::audioRouteChanged( bool loudspeaker )
 /*!
  *
  */
-void RadioUiEnginePrivate::scanAndSaveFinished()
+void RadioUiEnginePrivate::antennaStatusChanged( bool connected )
 {
     Q_Q( RadioUiEngine );
-    q->emitScanAndSaveFinished();
-}
-
-/*!
- *
- */
-void RadioUiEnginePrivate::headsetStatusChanged( bool connected )
-{
-    Q_Q( RadioUiEngine );
-    q->emitheadsetStatusChanged( connected );
+    q->emitAntennaStatusChanged( connected );
+    mMonitorService->notifyAntennaStatus( connected );
 }
 
 /*!
@@ -257,13 +272,13 @@ void RadioUiEnginePrivate::skip( RadioUiEnginePrivate::TuneDirection direction )
             previous = favorites.last();
         }
         LOG_FORMAT( "RadioUiEnginePrivate::skip. CurrentFreq: %u, tuning to: %u", currentFreq, previous );
-        mEngineWrapper->tuneFrequency( previous, CommandSender::Unspecified );
+        mEngineWrapper->tuneFrequency( previous, TuneReason::Unspecified );
     } else {
         if ( next == 0 ) {
             next = favorites.first();
         }
         LOG_FORMAT( "RadioUiEnginePrivate::skip. CurrentFreq: %u, tuning to: %u", currentFreq, next );
-        mEngineWrapper->tuneFrequency( next, CommandSender::Unspecified );
+        mEngineWrapper->tuneFrequency( next, TuneReason::Unspecified );
     }    
 }
 

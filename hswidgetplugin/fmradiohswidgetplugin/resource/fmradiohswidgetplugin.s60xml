@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <service>
     <name>fmradiohswidgetplugin</name>
-    <filepath>c:/private/20022F35/import/widgetregistry/E0022EEE/fmradiohswidgetplugin.qtplugin</filepath>
+    <filepath>c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.qtplugin</filepath>
     <description>FM Radio homescreen widget</description>
     <interface>
         <name>com.nokia.IHomeScreenWidget</name>

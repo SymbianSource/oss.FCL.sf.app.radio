@@ -41,8 +41,11 @@ public:
     /**
      * Constructor and destructor
      */
-    RadioEngineWrapper( RadioStationHandlerIf& stationHandler, RadioEngineWrapperObserver& observer );
+    RadioEngineWrapper( RadioStationHandlerIf& stationHandler );
     ~RadioEngineWrapper();
+
+    void addObserver( RadioEngineWrapperObserver* observer );
+    void removeObserver( RadioEngineWrapperObserver* observer );
 
     /**
      * Checks if the radio engine has been constructed properly
@@ -67,28 +70,26 @@ public:
      * Getters for current radio status
      */
     bool isRadioOn() const;
-    bool isScanning() const;
     uint currentFrequency() const;
     bool isMuted() const;
     bool isAntennaAttached() const;
     bool isUsingLoudspeaker() const;
 
     /**
-     * Slots to tune to given frequency or preset
+     * Functions to tune to given frequency or preset
      */
-    void tuneFrequency( uint frequency, const int sender = CommandSender::Unspecified );
-    void tuneWithDelay( uint frequency, const int sender = CommandSender::Unspecified );
+    void tuneFrequency( uint frequency, const int reason = TuneReason::Unspecified );
+    void tuneWithDelay( uint frequency, const int reason = TuneReason::Unspecified );
 
     /*!
-     * volume update command slot for the engine
+     * Audio update command functions for the engine
      */
     void setVolume( int volume );
     void toggleMute();
     void toggleAudioRoute();
 
-    void startSeeking( Seeking::Direction direction );
-    void scanFrequencyBand();
-    void cancelScanFrequencyBand();
+    void startSeeking( Seeking::Direction direction, const int reason = TuneReason::Unspecified );
+    void cancelSeeking();
 
 private: // data
 

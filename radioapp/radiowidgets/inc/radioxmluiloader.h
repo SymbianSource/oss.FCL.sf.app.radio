@@ -22,89 +22,87 @@
 #include <HbDocumentLoader>
 
 // Constants
-#ifdef USE_LAYOUT_FROM_E_DRIVE
-    static const char* DOCML_TUNINGVIEW_FILE           = "e:/radiotest/layout/tuningview.docml";
-    static const char* DOCML_STATIONSVIEW_FILE         = "e:/radiotest/layout/stationsview.docml";
-    static const char* DOCML_WIZARDVIEW_FILE           = "e:/radiotest/layout/wizardview.docml";
-    static const char* DOCML_PLAYLOGVIEW_FILE          = "e:/radiotest/layout/playlogview.docml";
-#else
-    static const char* DOCML_TUNINGVIEW_FILE           = ":/layout/tuningview.docml";
-    static const char* DOCML_STATIONSVIEW_FILE         = ":/layout/stationsview.docml";
-    static const char* DOCML_WIZARDVIEW_FILE           = ":/layout/wizardview.docml";
-    static const char* DOCML_PLAYLOGVIEW_FILE          = ":/layout/playlogview.docml";
-#endif
 
-// XML UI definitions
-static const char* DOCML_NAME_VIEW                 = "view";
-static const char* DOCML_LAYOUT_PORTRAIT           = "portrait";
-static const char* DOCML_LAYOUT_LANDSCAPE          = "landscape";
-static const char* DOCML_NAME_EXITACTION           = "mExitAction";
-static const char* DOCML_NAME_LOUDSPEAKERACTION    = "mLoudspeakerAction";
+namespace DOCML
+{
 
-// RadioTuningView
-static const char* DOCML_NAME_FAVORITEACTION       = "tv:FavoriteAction";
-static const char* DOCML_NAME_PLAYLOGVIEWACTION    = "tv:PlayLogViewAction";
-static const char* DOCML_NAME_STATIONSVIEWACTION   = "tv:StationsViewAction";
-static const char* DOCML_NAME_STATIONCAROUSEL      = "tv:mStationCarousel";
-static const char* DOCML_NAME_STATIONCONTROLWIDGET = "tv:mStationControlWidget";
-static const char* DOCML_NAME_FREQUENCYSTRIP       = "tv:mFrequencyStrip";
+    #ifdef USE_LAYOUT_FROM_E_DRIVE
+        static const char* FILE_TUNINGVIEW              = "e:/radiotest/layout/tuningview.docml";
+        static const char* FILE_STATIONSVIEW            = "e:/radiotest/layout/stationsview.docml";
+        static const char* FILE_HISTORYVIEW             = "e:/radiotest/layout/historyview.docml";
+    #else
+        static const char* FILE_TUNINGVIEW              = ":/layout/tuningview.docml";
+        static const char* FILE_STATIONSVIEW            = ":/layout/stationsview.docml";
+        static const char* FILE_HISTORYVIEW             = ":/layout/historyview.docml";
+    #endif
 
-// RadioStationsView
-static const char* DOCML_NAME_HEADINGBANNER        = "sv:mHeadingBanner";
-static const char* DOCML_NAME_STATIONSLIST         = "sv:mStationsList";
-static const char* DOCML_NAME_FAVORITESBUTTON      = "sv:FavoritesButton";
-static const char* DOCML_NAME_LOCALSBUTTON         = "sv:LocalStationsButton";
-static const char* DOCML_NAME_TUNINGVIEWACTION     = "sv:mTuningViewAction";
-static const char* DOCML_NAME_WIZARDVIEWACTION     = "sv:mWizardViewAction";
-static const char* DOCML_NAME_SCANSTATIONSACTION   = "sv:mScanStationsAction";
-static const char* DOCML_NAME_REMOVESTATIONSACTION = "sv:mRemoveAllStations";
-static const char* DOCML_NAME_SCANBUTTON           = "sv:mScanButton";
+    // Generic XML UI definitions
+    static const char* NAME_VIEW                        = "view";
+    static const char* SECTION_PORTRAIT                 = "portrait";
+    static const char* SECTION_LANDSCAPE                = "landscape";
+    static const char* NAME_LOUDSPEAKER_ACTION          = "loudspeaker_action";
 
-// RadioStationsView Context Menu
-static const char* DOCML_NAME_CONTEXT_MENU         = "sv:mContextMenu";
-static const char* DOCML_NAME_CONTEXT_RENAME       = "sv:mRenameStationAction";
-static const char* DOCML_NAME_CONTEXT_FAVORITE     = "sv:mFavoriteAction";
-static const char* DOCML_NAME_CONTEXT_DELETE       = "sv:mDeleteStationAction";
+    // RadioTuningView
+    static const char* TV_NAME_HISTORYVIEW_ACTION       = "tv:historyview_action";
+    static const char* TV_NAME_STATION_CAROUSEL         = "tv:station_carousel";
+    static const char* TV_NAME_FREQUENCY_STRIP          = "tv:frequency_strip";
+    static const char* TV_NAME_STATIONS_BUTTON          = "tv:stations_button";
+    static const char* TV_NAME_SCAN_BUTTON              = "tv:scan_button";
+    static const char* TV_NAME_SPEAKER_BUTTON           = "tv:loudspeaker_button";
+    static const char* TV_SECTION_NO_ANTENNA            = "tv:no_antenna";
+    static const char* TV_SECTION_SEEKING               = "tv:seeking";
+    static const char* TV_SECTION_SCANNING              = "tv:scanning";
+    static const char* TV_SECTION_NO_FAVORITES          = "tv:no_favorites";
+    static const char* TV_SECTION_NORMAL                = "tv:normal";
 
-// Station Info Widget
-static const char* DOCML_NAME_INFO_FIRST_ROW       = "tv:InfoFirstRow";
-static const char* DOCML_NAME_INFO_SECOND_ROW      = "tv:InfoSecondRow";
-static const char* DOCML_NAME_INFO_THIRD_ROW       = "tv:InfoThirdRow";
-static const char* DOCML_NAME_INFO_FOURTH_ROW      = "tv:InfoFourthRow";
+    // RadioStationsView
+    static const char* SV_NAME_HEADING_BANNER           = "sv:heading_banner";
+    static const char* SV_NAME_STATIONS_LIST            = "sv:stations_list";
+    static const char* SV_NAME_FAVORITES_BUTTON         = "sv:favorite_stations_button";
+    static const char* SV_NAME_LOCALS_BUTTON            = "sv:local_stations_button";
+    static const char* SV_NAME_SCAN_ACTION              = "sv:scan_action";
+    static const char* SV_NAME_CLEAR_LIST_ACTION        = "sv:clear_list_action";
+    static const char* SV_NAME_SCAN_BUTTON              = "sv:scan_button";
 
-// Station Control Widget
-static const char* DOCML_NAME_STATIONSVIEWBUTTON   = "tv:mStationsViewButton";
-static const char* DOCML_NAME_TAGBUTTON            = "tv:mTagButton";
-static const char* DOCML_NAME_RECOGNIZEBUTTON      = "tv:mRecognizeButton";
+    static const char* SV_SECTION_SHOW_ALL_STATIONS     = "show_all_stations";
+    static const char* SV_SECTION_SHOW_FAVORITES        = "show_favorites";
+    static const char* SV_SECTION_SHOW_SCAN_TEXT        = "show_scan_text";
+    static const char* SV_SECTION_HIDE_SCAN_TEXT        = "hide_scan_text";
 
-// Wizard View
-static const char* DOCML_NAME_WV_STATIONSVIEWACTION = "wv:mStationsViewAction";
-static const char* DOCML_NAME_WV_HEADINGBANNER     = "wv:mHeadingBanner";
-static const char* DOCML_NAME_WV_STATIONSLIST      = "wv:mStationsList";
-static const char* DOCML_NAME_WV_MARKALLBUTTON     = "wv:mMarkAllButton";
-static const char* DOCML_NAME_WV_UNMARKALLBUTTON   = "wv:mUnMarkAllButton";
-static const char* DOCML_NAME_WV_DONEBUTTON        = "wv:mDoneButton";
+    // RadioStationsView Context Menu
+    static const char* NAME_CONTEXT_MENU                = "sv:context_menu";
+    static const char* NAME_CONTEXT_RENAME              = "sv:rename_action";
+    static const char* NAME_CONTEXT_FAVORITE            = "sv:toggle_favorite_action";
+    static const char* NAME_CONTEXT_DELETE              = "sv:delete_action";
+    static const char* NAME_INPUT_QUERY                 = "sv:station_name_query";
 
-// Play Log View
-static const char* DOCML_NAME_PLV_TUNINGVIEWACTION      = "plv:mTuningViewAction";
-static const char* DOCML_NAME_PLV_STATIONSVIEWACTION    = "plv:mStationsViewAction";
-static const char* DOCML_NAME_PLV_REMOVEALLACTION       = "plv:mRemoveAllAction";
-static const char* DOCML_NAME_PLAYLOGLIST               = "plv:mPlayLogList";
-static const char* DOCML_NAME_ALLSONGSBUTTON            = "plv:AllSongsButton";
-static const char* DOCML_NAME_FAVORITESONGSBUTTON       = "plv:FavoriteSongsButton";
+    // Station Carousel
+    static const char* NAME_INFO_FIRST_ROW              = "tv:InfoFirstRow";
+    static const char* NAME_INFO_SECOND_ROW             = "tv:InfoSecondRow";
+    static const char* NAME_INFO_THIRD_ROW              = "tv:InfoThirdRow";
+    static const char* NAME_INFO_FOURTH_ROW             = "tv:InfoFourthRow";
+    static const char* TV_NAME_INFO_TEXT                = "tv:info_text";
 
-// Forward declarations
-class RadioMainWindow;
+    // History View
+    static const char* HV_NAME_CLEAR_LIST_ACTION        = "hv:clear_list_action";
+    static const char* HV_NAME_HISTORY_LIST             = "hv:history_list";
+    static const char* HV_NAME_ALL_SONGS_BUTTON         = "hv:all_songs_button";
+    static const char* HV_NAME_TAGGED_SONGS_BUTTON      = "hv:tagged_songs_button";
+    static const char* HV_SECTION_SHOW_LIST             = "show_list";
+    static const char* HV_SECTION_HIDE_LIST             = "hide_list";
+    static const char* HV_SECTION_HISTORY_MODE          = "history_mode";
+    static const char* HV_SECTION_FAVORITE_MODE         = "favorite_mode";
+
+}
 
 // Class declaration
 class RadioXmlUiLoader : public HbDocumentLoader
 {
-
 public:
 
-    RadioXmlUiLoader( RadioMainWindow& mainWindow );
+    RadioXmlUiLoader();
 
-    /**
+    /*!
      * Returns the requested widget casted to correct type
      *
      * @param name Name of the widget
@@ -116,7 +114,7 @@ public:
         return qobject_cast<T*>( HbDocumentLoader::findWidget( name ) );
     }
 
-    /**
+    /*!
      * Returns the requested object casted to correct type
      *
      * @param name Name of the object
@@ -127,17 +125,6 @@ public:
     {
         return qobject_cast<T*>( HbDocumentLoader::findObject( name ) );
     }
-
-private:
-
-    QObject *createObject( const QString& type, const QString &name );
-
-private: // data
-
-    /*!
-     * Reference to the main window
-     */
-    RadioMainWindow& mMainWindow;
 
 };
 

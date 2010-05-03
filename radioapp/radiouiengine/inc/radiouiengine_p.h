@@ -20,6 +20,7 @@
 
 // System includes
 #include <QScopedPointer>
+#include <QPointer>
 
 #include "radioenginewrapperobserver.h"
 
@@ -27,10 +28,11 @@
 class RadioUiEngine;
 class RadioEngineWrapper;
 class RadioStationModel;
-class RadioPlayLogModel;
+class RadioHistoryModel;
 class RadioPresetStorage;
 class RadioControlService;
 class RadioMonitorService;
+class RadioScannerEngine;
 
 class RadioUiEnginePrivate : public RadioEngineWrapperObserver
 {
@@ -42,23 +44,27 @@ public:
     enum TuneDirection{ Next, Previous };
 
     RadioUiEnginePrivate( RadioUiEngine* engine );
-    ~RadioUiEnginePrivate();
+    virtual ~RadioUiEnginePrivate();
+
+    RadioUiEngine& api();
 
     bool startRadio();
+
+    void cancelSeeking();
+
+    RadioEngineWrapper& wrapper();
 
 private:
 
 // from base class RadioEngineWrapperObserver
 
-    void tunedToFrequency( uint frequency, int commandSender );
-    void seekingStarted( Seeking::Direction direction );
+    void tunedToFrequency( uint frequency, int reason );
     void radioStatusChanged( bool radioIsOn );
     void rdsAvailabilityChanged( bool available );
     void volumeChanged( int volume );
     void muteChanged( bool muted );
     void audioRouteChanged( bool loudspeaker );
-    void scanAndSaveFinished();
-    void headsetStatusChanged( bool connected );
+    void antennaStatusChanged( bool connected );
     void skipPrevious();
     void skipNext();
 
@@ -75,19 +81,21 @@ private: // data
      * Pointer to the public class
      * Not own.
      */
-    RadioUiEngine*                      q_ptr;
+    RadioUiEngine*                          q_ptr;
 
-    QScopedPointer<RadioEngineWrapper>  mEngineWrapper;
+    QScopedPointer<RadioEngineWrapper>      mEngineWrapper;
 
-    QScopedPointer<RadioPresetStorage>  mPresetStorage;
+    QScopedPointer<RadioPresetStorage>      mPresetStorage;
 
-    RadioStationModel*                  mStationModel;
+    RadioStationModel*                      mStationModel;
 
-    RadioPlayLogModel*                  mPlayLogModel;
+    RadioHistoryModel*                      mHistoryModel;
 
-    RadioControlService*                mControlService;
+    RadioControlService*                    mControlService;
 
-    RadioMonitorService*                mMonitorService;
+    RadioMonitorService*                    mMonitorService;
+
+    QPointer<RadioScannerEngine>            mScannerEngine;
 
 };
 

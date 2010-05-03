@@ -23,12 +23,10 @@
 #include "radiomainwindow.h"
 #include "radiotuningview.h"
 #include "radiostationsview.h"
-#include "radiowizardview.h"
 #include "radiouiengine.h"
 #include "radiostationmodel.h"
 #include "radiologger.h"
 #include "radioxmluiloader.h"
-#include "radiolocalization.h"
 
 // Constants
 
@@ -61,7 +59,17 @@ bool RadioMainWindow::isOfflineUsageAllowed()
 {
     DummyViewPtr dummyView = prepareToShowDialog();
 
-    const bool answer = HbMessageBox::question( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ) );
+    HbMessageBox box( HbMessageBox::MessageTypeQuestion );
+    box.setText( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ) );
+    box.setTimeout( HbPopup::NoTimeout );
+    box.setDismissPolicy( HbPopup::NoDismiss );
+
+    HbAction* primaryAction = new HbAction( hbTrId( "txt_common_button_yes" ) );
+    box.setPrimaryAction( primaryAction );
+    HbAction* secondaryAction = new HbAction( hbTrId( "txt_common_button_no" ) );
+    box.setSecondaryAction( secondaryAction );
+
+    const bool answer = box.exec() == box.primaryAction();
 
     dialogShown( dummyView );
 
@@ -95,16 +103,10 @@ void RadioMainWindow::init( RadioUiEngine* uiEngine )
 
     connectAndTest( mUiEngine,  SIGNAL(volumeChanged(int)),
                     this,       SLOT(showVolumeLevel(int)) );
-    connectAndTest( mUiEngine,  SIGNAL(headsetStatusChanged(bool)),
-                    this,       SLOT(headsetStatusChanged(bool)) );
+    connectAndTest( mUiEngine,  SIGNAL(antennaStatusChanged(bool)),
+                    this,       SLOT(updateAntennaStatus(bool)) );
 
-    const bool firstTimeStart = mUiEngine->isFirstTimeStart();
-    const int rowCount = mUiEngine->model().rowCount();
-    if( firstTimeStart && rowCount == 0 ) {
-        activateWizardView();
-    } else {
-        activateTuningView();
-    }
+    activateTuningView();
 }
 
 /*!
@@ -120,7 +122,7 @@ RadioUiEngine& RadioMainWindow::uiEngine()
  */
 QString RadioMainWindow::orientationSection()
 {
-    return orientation() == Qt::Vertical ? DOCML_LAYOUT_PORTRAIT : DOCML_LAYOUT_LANDSCAPE;
+    return orientation() == Qt::Vertical ? DOCML::SECTION_PORTRAIT : DOCML::SECTION_LANDSCAPE;
 }
 
 /*!
@@ -128,15 +130,7 @@ QString RadioMainWindow::orientationSection()
  */
 void RadioMainWindow::activateTuningView()
 {
-    activateView( mTuningView, DOCML_TUNINGVIEW_FILE, Hb::ViewSwitchUseBackAnim );
-}
-
-/*!
- *
- */
-void RadioMainWindow::activateWizardView()
-{
-    activateView( mWizardView, DOCML_WIZARDVIEW_FILE );
+    activateView( mTuningView, DOCML::FILE_TUNINGVIEW, Hb::ViewSwitchUseBackAnim );
 }
 
 /*!
@@ -144,15 +138,15 @@ void RadioMainWindow::activateWizardView()
  */
 void RadioMainWindow::activateStationsView()
 {
-    activateView( mStationsView, DOCML_STATIONSVIEW_FILE );
+    activateView( mStationsView, DOCML::FILE_STATIONSVIEW );
 }
 
 /*!
  *
  */
-void RadioMainWindow::activatePlayLogView()
+void RadioMainWindow::activateHistoryView()
 {
-    activateView( mPlayLogView, DOCML_PLAYLOGVIEW_FILE );
+    activateView( mHistoryView, DOCML::FILE_HISTORYVIEW );
 }
 
 /*!
@@ -174,9 +168,8 @@ void RadioMainWindow::updateOrientation( Qt::Orientation orientation )
  */
 void RadioMainWindow::showVolumeLevel( int volume )
 {
-    if ( !mVolSlider )
-    {
-        mVolSlider = VolumeSliderPtr( new HbVolumeSliderPopup() );
+    if ( !mVolSlider ) {
+        mVolSlider.reset( new HbVolumeSliderPopup() );
         mVolSlider->setRange( 0, KMaximumVolumeLevel );
         mVolSlider->setSingleStep( 1 );
         mVolSlider->setTimeout( KVolumeSliderDelay );
@@ -193,7 +186,7 @@ void RadioMainWindow::showVolumeLevel( int volume )
  * Private slot
  *
  */
-void RadioMainWindow::headsetStatusChanged( bool connected )
+void RadioMainWindow::updateAntennaStatus( bool connected )
 {
     if ( !connected ) {
         HbMessageBox infoBox( hbTrId( "txt_rad_dpophead_connect_wired_headset" ) );
@@ -221,11 +214,11 @@ void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile, 
     if ( !aMember ) {
         viewCreated = true;
 
-        RadioXmlUiLoader* uiLoader = new RadioXmlUiLoader( *this );
+        RadioXmlUiLoader* uiLoader = new RadioXmlUiLoader();
         bool ok = false;
 
         // View takes ownership of the ui loader when it is created inside the load function
-        uiLoader->load( docmlFile, &ok );
+        QObjectList objectList = uiLoader->load( docmlFile, &ok );
 
         RADIO_ASSERT( ok , "FMRadio", "invalid DocML file" );
         if ( !ok ) {
@@ -234,8 +227,16 @@ void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile, 
             return;
         }
 
-        aMember = ViewPtr( uiLoader->findObject<RadioViewBase>( DOCML_NAME_VIEW ) );
-        aMember->init( this, &mUiEngine->model() );
+        aMember = ViewPtr( uiLoader->findObject<RadioViewBase>( DOCML::NAME_VIEW ) );
+
+        foreach( QObject* object, objectList ) {
+            const QString className = object->metaObject()->className();
+            if ( !object->parent() && object != aMember.data() ) {
+                object->setParent( aMember.data() );
+            }
+        }
+
+        aMember->init( uiLoader, this );
 
         addView( aMember );
     }

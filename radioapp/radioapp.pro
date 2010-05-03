@@ -23,6 +23,7 @@ SUBDIRS += radioenginewrapper
 SUBDIRS += radiopresetstorage
 SUBDIRS += radiouiengine
 SUBDIRS += radiowidgets
+SUBDIRS += radiowidgetsplugin
 SUBDIRS += radioapplication
 
 symbian {

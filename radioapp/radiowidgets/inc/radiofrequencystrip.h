@@ -23,10 +23,12 @@
 #include <QHash>
 #include <HbIcon>
 #include <HbEffect>
+#include <QColor>
 
 // User includes
 #include "radiostripbase.h"
 #include "radio_global.h"
+#include "radiowidgetsexport.h"
 
 // Forward declarations
 class RadioUiEngine;
@@ -35,17 +37,9 @@ class RadioStation;
 class HbPushButton;
 class QTimer;
 
-const int KOneHertz = KFrequencyMultiplier;
-const int KHalfHertz = KOneHertz / 2;
-const int KOneTabDistance = 15;
-const uint KOneTabInHz = 0.2 * KOneHertz;
-const qreal KPixelInHz = KOneTabInHz / KOneTabDistance;
-//const int KCharWidth = 8;                  // TODO: Remove hardcoding
-const int KWidth = KOneTabDistance * 5;
-const int KHeight = 50;                 //TODO: Remove hardcoding
 
 // Class declaration
-class RadioFrequencyStrip : public RadioStripBase
+class WIDGETS_DLL_EXPORT RadioFrequencyStrip : public RadioStripBase
 {
     Q_OBJECT
     Q_PROPERTY( HbIcon leftButtonIcon READ leftButtonIcon WRITE setLeftButtonIcon )
@@ -55,11 +49,7 @@ class RadioFrequencyStrip : public RadioStripBase
 
 public:
 
-    RadioFrequencyStrip( uint minFrequency,
-                         uint maxFrequency,
-                         uint stepSize,
-                         uint currentFrequency,
-                         RadioUiEngine* engine = 0 );
+    RadioFrequencyStrip( RadioUiEngine* engine = 0 );
 
     void setLeftButtonIcon( const HbIcon& leftButtonIcon );
     HbIcon leftButtonIcon() const;
@@ -79,7 +69,8 @@ public slots:
     void favoriteChanged( const RadioStation& station );
     void stationAdded( const RadioStation& station );
     void stationRemoved( const RadioStation& station );
-    void setFrequency( const uint frequency, int commandSender = 0 );
+    void setFrequency( const uint frequency, int reason = 0 );
+    void setScanningMode( bool isScanning );
 
 signals:
 
@@ -107,6 +98,7 @@ private:
 
     void resizeEvent ( QGraphicsSceneResizeEvent* event );
     void showEvent( QShowEvent* event );
+    void changeEvent( QEvent* event );
 
 // from base class HbScrollArea
 
@@ -164,13 +156,15 @@ private: // data
 
     };
 
+    RadioUiEngine*              mUiEngine;
+
     uint                        mMinFrequency;
 
     uint                        mMaxFrequency;
 
     uint                        mFrequencyStepSize;
 
-    RadioUiEngine*              mEngine;
+    uint                        mFrequency;
 
     QGraphicsPixmapItem*        mSelectorImage;
 
@@ -179,8 +173,6 @@ private: // data
     short                       mMaxWidth;
 
     qreal                       mSelectorPos;
-
-    uint                        mFrequency;
 
     QList<RadioFrequencyItem*>  mFrequencyItems;
 
@@ -212,6 +204,8 @@ private: // data
     QTimer*                     mButtonTimer;
 
     bool                        mIsPanGesture;
+
+    QColor                      mForegroundColor;
 
 };
 

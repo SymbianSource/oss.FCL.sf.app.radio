@@ -1,39 +1,50 @@
 EXPORTS
-	?frequencyStepSize@RadioEngineWrapper@@QBEIXZ @ 1 NONAME ; unsigned int RadioEngineWrapper::frequencyStepSize(void) const
-	?region@RadioEngineWrapper@@QBE?AW4Region@RadioRegion@@XZ @ 2 NONAME ; enum RadioRegion::Region RadioEngineWrapper::region(void) const
-	??0MethodLogger@@QAE@PBD0@Z @ 3 NONAME ; MethodLogger::MethodLogger(char const *, char const *)
+	?skipPrevious@RadioEngineWrapperObserver@@UAEXXZ @ 1 NONAME ; void RadioEngineWrapperObserver::skipPrevious(void)
+	?volumeChanged@RadioEngineWrapperObserver@@UAEXH@Z @ 2 NONAME ; void RadioEngineWrapperObserver::volumeChanged(int)
+	?region@RadioEngineWrapper@@QBE?AW4Region@RadioRegion@@XZ @ 3 NONAME ; enum RadioRegion::Region RadioEngineWrapper::region(void) const
 	?tuneFrequency@RadioEngineWrapper@@QAEXIH@Z @ 4 NONAME ; void RadioEngineWrapper::tuneFrequency(unsigned int, int)
 	?initCombinedLogger@RadioLogger@@SAXXZ @ 5 NONAME ; void RadioLogger::initCombinedLogger(void)
 	??0RadioSettings@@AAE@XZ @ 6 NONAME ; RadioSettings::RadioSettings(void)
-	?d_func@RadioSettings@@ABEPBVRadioSettingsPrivate@@XZ @ 7 NONAME ; class RadioSettingsPrivate const * RadioSettings::d_func(void) const
-	?logMsg@RadioLogger@@SAXPBDW4Mode@1@@Z @ 8 NONAME ; void RadioLogger::logMsg(char const *, enum RadioLogger::Mode)
-	?isRadioOn@RadioEngineWrapper@@QBE_NXZ @ 9 NONAME ; bool RadioEngineWrapper::isRadioOn(void) const
-	?isMuted@RadioEngineWrapper@@QBE_NXZ @ 10 NONAME ; bool RadioEngineWrapper::isMuted(void) const
-	?scanFrequencyBand@RadioEngineWrapper@@QAEXXZ @ 11 NONAME ; void RadioEngineWrapper::scanFrequencyBand(void)
-	?isUsingLoudspeaker@RadioEngineWrapper@@QBE_NXZ @ 12 NONAME ; bool RadioEngineWrapper::isUsingLoudspeaker(void) const
-	?currentFrequency@RadioEngineWrapper@@QBEIXZ @ 13 NONAME ; unsigned int RadioEngineWrapper::currentFrequency(void) const
-	?isScanning@RadioEngineWrapper@@QBE_NXZ @ 14 NONAME ; bool RadioEngineWrapper::isScanning(void) const
-	?cancelScanFrequencyBand@RadioEngineWrapper@@QAEXXZ @ 15 NONAME ; void RadioEngineWrapper::cancelScanFrequencyBand(void)
-	?isAntennaAttached@RadioEngineWrapper@@QBE_NXZ @ 16 NONAME ; bool RadioEngineWrapper::isAntennaAttached(void) const
-	?isEngineConstructed@RadioEngineWrapper@@QAE_NXZ @ 17 NONAME ; bool RadioEngineWrapper::isEngineConstructed(void)
-	?toggleAudioRoute@RadioEngineWrapper@@QAEXXZ @ 18 NONAME ; void RadioEngineWrapper::toggleAudioRoute(void)
-	?d_func@RadioSettings@@AAEPAVRadioSettingsPrivate@@XZ @ 19 NONAME ; class RadioSettingsPrivate * RadioSettings::d_func(void)
-	?setVolume@RadioEngineWrapper@@QAEXH@Z @ 20 NONAME ; void RadioEngineWrapper::setVolume(int)
-	?d_func@RadioEngineWrapper@@AAEPAVRadioEngineWrapperPrivate@@XZ @ 21 NONAME ; class RadioEngineWrapperPrivate * RadioEngineWrapper::d_func(void)
-	?toggleShowFavorites@RadioSettings@@QAE_NXZ @ 22 NONAME ; bool RadioSettings::toggleShowFavorites(void)
-	?toggleMute@RadioEngineWrapper@@QAEXXZ @ 23 NONAME ; void RadioEngineWrapper::toggleMute(void)
-	?startSeeking@RadioEngineWrapper@@QAEXW4Direction@Seeking@@@Z @ 24 NONAME ; void RadioEngineWrapper::startSeeking(enum Seeking::Direction)
-	?showFavorites@RadioSettings@@QBE_NXZ @ 25 NONAME ; bool RadioSettings::showFavorites(void) const
-	?d_func@RadioEngineWrapper@@ABEPBVRadioEngineWrapperPrivate@@XZ @ 26 NONAME ; class RadioEngineWrapperPrivate const * RadioEngineWrapper::d_func(void) const
-	?isFrequencyValid@RadioEngineWrapper@@QAE_NI@Z @ 27 NONAME ; bool RadioEngineWrapper::isFrequencyValid(unsigned int)
-	?isFirstTimeStart@RadioSettings@@QAE_NXZ @ 28 NONAME ; bool RadioSettings::isFirstTimeStart(void)
-	?minFrequency@RadioEngineWrapper@@QBEIXZ @ 29 NONAME ; unsigned int RadioEngineWrapper::minFrequency(void) const
-	?tuneWithDelay@RadioEngineWrapper@@QAEXIH@Z @ 30 NONAME ; void RadioEngineWrapper::tuneWithDelay(unsigned int, int)
-	?setShowFavorites@RadioSettings@@QAEX_N@Z @ 31 NONAME ; void RadioSettings::setShowFavorites(bool)
-	?releaseCombinedLogger@RadioLogger@@SAXXZ @ 32 NONAME ; void RadioLogger::releaseCombinedLogger(void)
-	??1RadioEngineWrapper@@QAE@XZ @ 33 NONAME ; RadioEngineWrapper::~RadioEngineWrapper(void)
-	??1MethodLogger@@QAE@XZ @ 34 NONAME ; MethodLogger::~MethodLogger(void)
-	?settings@RadioEngineWrapper@@QAEAAVRadioSettings@@XZ @ 35 NONAME ; class RadioSettings & RadioEngineWrapper::settings(void)
-	?maxFrequency@RadioEngineWrapper@@QBEIXZ @ 36 NONAME ; unsigned int RadioEngineWrapper::maxFrequency(void) const
-	??0RadioEngineWrapper@@QAE@AAVRadioStationHandlerIf@@AAVRadioEngineWrapperObserver@@@Z @ 37 NONAME ; RadioEngineWrapper::RadioEngineWrapper(class RadioStationHandlerIf &, class RadioEngineWrapperObserver &)
+	?removeObserver@RadioEngineWrapper@@QAEXPAVRadioEngineWrapperObserver@@@Z @ 7 NONAME ; void RadioEngineWrapper::removeObserver(class RadioEngineWrapperObserver *)
+	?startSeeking@RadioEngineWrapper@@QAEXW4Direction@Seeking@@H@Z @ 8 NONAME ; void RadioEngineWrapper::startSeeking(enum Seeking::Direction, int)
+	?d_func@RadioSettings@@ABEPBVRadioSettingsPrivate@@XZ @ 9 NONAME ; class RadioSettingsPrivate const * RadioSettings::d_func(void) const
+	?isRadioOn@RadioEngineWrapper@@QBE_NXZ @ 10 NONAME ; bool RadioEngineWrapper::isRadioOn(void) const
+	?addObserver@RadioEngineWrapper@@QAEXPAVRadioEngineWrapperObserver@@@Z @ 11 NONAME ; void RadioEngineWrapper::addObserver(class RadioEngineWrapperObserver *)
+	?isAntennaAttached@RadioEngineWrapper@@QBE_NXZ @ 12 NONAME ; bool RadioEngineWrapper::isAntennaAttached(void) const
+	?isEngineConstructed@RadioEngineWrapper@@QAE_NXZ @ 13 NONAME ; bool RadioEngineWrapper::isEngineConstructed(void)
+	?toggleAudioRoute@RadioEngineWrapper@@QAEXXZ @ 14 NONAME ; void RadioEngineWrapper::toggleAudioRoute(void)
+	?setVolume@RadioEngineWrapper@@QAEXH@Z @ 15 NONAME ; void RadioEngineWrapper::setVolume(int)
+	??0RadioEngineWrapper@@QAE@AAVRadioStationHandlerIf@@@Z @ 16 NONAME ; RadioEngineWrapper::RadioEngineWrapper(class RadioStationHandlerIf &)
+	?cancelSeeking@RadioEngineWrapper@@QAEXXZ @ 17 NONAME ; void RadioEngineWrapper::cancelSeeking(void)
+	?d_func@RadioEngineWrapper@@AAEPAVRadioEngineWrapperPrivate@@XZ @ 18 NONAME ; class RadioEngineWrapperPrivate * RadioEngineWrapper::d_func(void)
+	?toggleShowFavorites@RadioSettings@@QAE_NXZ @ 19 NONAME ; bool RadioSettings::toggleShowFavorites(void)
+	?toggleMute@RadioEngineWrapper@@QAEXXZ @ 20 NONAME ; void RadioEngineWrapper::toggleMute(void)
+	?d_func@RadioEngineWrapper@@ABEPBVRadioEngineWrapperPrivate@@XZ @ 21 NONAME ; class RadioEngineWrapperPrivate const * RadioEngineWrapper::d_func(void) const
+	??1RadioSettings@@QAE@XZ @ 22 NONAME ; RadioSettings::~RadioSettings(void)
+	?releaseCombinedLogger@RadioLogger@@SAXXZ @ 23 NONAME ; void RadioLogger::releaseCombinedLogger(void)
+	??1RadioEngineWrapper@@QAE@XZ @ 24 NONAME ; RadioEngineWrapper::~RadioEngineWrapper(void)
+	?radioStatusChanged@RadioEngineWrapperObserver@@UAEX_N@Z @ 25 NONAME ; void RadioEngineWrapperObserver::radioStatusChanged(bool)
+	?frequencyStepSize@RadioEngineWrapper@@QBEIXZ @ 26 NONAME ; unsigned int RadioEngineWrapper::frequencyStepSize(void) const
+	??0MethodLogger@@QAE@PBD0@Z @ 27 NONAME ; MethodLogger::MethodLogger(char const *, char const *)
+	??_ERadioSettings@@QAE@I@Z @ 28 NONAME ABSENT ; RadioSettings::~RadioSettings(unsigned int)
+	?logMsg@RadioLogger@@SAXPBDW4Mode@1@@Z @ 29 NONAME ; void RadioLogger::logMsg(char const *, enum RadioLogger::Mode)
+	?audioRouteChanged@RadioEngineWrapperObserver@@UAEX_N@Z @ 30 NONAME ; void RadioEngineWrapperObserver::audioRouteChanged(bool)
+	?isMuted@RadioEngineWrapper@@QBE_NXZ @ 31 NONAME ; bool RadioEngineWrapper::isMuted(void) const
+	?isUsingLoudspeaker@RadioEngineWrapper@@QBE_NXZ @ 32 NONAME ; bool RadioEngineWrapper::isUsingLoudspeaker(void) const
+	?currentFrequency@RadioEngineWrapper@@QBEIXZ @ 33 NONAME ; unsigned int RadioEngineWrapper::currentFrequency(void) const
+	?skipNext@RadioEngineWrapperObserver@@UAEXXZ @ 34 NONAME ; void RadioEngineWrapperObserver::skipNext(void)
+	?d_func@RadioSettings@@AAEPAVRadioSettingsPrivate@@XZ @ 35 NONAME ; class RadioSettingsPrivate * RadioSettings::d_func(void)
+	?showFavorites@RadioSettings@@QBE_NXZ @ 36 NONAME ; bool RadioSettings::showFavorites(void) const
+	?muteChanged@RadioEngineWrapperObserver@@UAEX_N@Z @ 37 NONAME ; void RadioEngineWrapperObserver::muteChanged(bool)
+	?isFirstTimeStart@RadioSettings@@QAE_NXZ @ 38 NONAME ; bool RadioSettings::isFirstTimeStart(void)
+	?isFrequencyValid@RadioEngineWrapper@@QAE_NI@Z @ 39 NONAME ; bool RadioEngineWrapper::isFrequencyValid(unsigned int)
+	?minFrequency@RadioEngineWrapper@@QBEIXZ @ 40 NONAME ; unsigned int RadioEngineWrapper::minFrequency(void) const
+	?rdsAvailabilityChanged@RadioEngineWrapperObserver@@UAEX_N@Z @ 41 NONAME ; void RadioEngineWrapperObserver::rdsAvailabilityChanged(bool)
+	?tunedToFrequency@RadioEngineWrapperObserver@@UAEXIH@Z @ 42 NONAME ; void RadioEngineWrapperObserver::tunedToFrequency(unsigned int, int)
+	?tuneWithDelay@RadioEngineWrapper@@QAEXIH@Z @ 43 NONAME ; void RadioEngineWrapper::tuneWithDelay(unsigned int, int)
+	?setShowFavorites@RadioSettings@@QAEX_N@Z @ 44 NONAME ; void RadioSettings::setShowFavorites(bool)
+	??1MethodLogger@@QAE@XZ @ 45 NONAME ; MethodLogger::~MethodLogger(void)
+	?antennaStatusChanged@RadioEngineWrapperObserver@@UAEX_N@Z @ 46 NONAME ; void RadioEngineWrapperObserver::antennaStatusChanged(bool)
+	?settings@RadioEngineWrapper@@QAEAAVRadioSettings@@XZ @ 47 NONAME ; class RadioSettings & RadioEngineWrapper::settings(void)
+	?maxFrequency@RadioEngineWrapper@@QBEIXZ @ 48 NONAME ; unsigned int RadioEngineWrapper::maxFrequency(void) const
 

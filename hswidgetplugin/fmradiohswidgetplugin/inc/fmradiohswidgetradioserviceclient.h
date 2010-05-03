@@ -32,8 +32,10 @@ const QString KRadioServiceControlInterfaceName = "IRadioControl";
 const QString KRadioServiceControlOperation = "command(int)";
 /**  Radio monitor interface name. */
 const QString KRadioServiceMonitorInterfaceName = "IRadioMonitor";
-/**  Radio monitor interface name. */
+/**  Radio monitor operation name. */
 const QString KRadioServiceMonitorOperation = "requestNotifications()";
+/**  Radio refresh operation name. */
+const QString KRadioServiceRefreshOperation = "requestAllData()";
 
 class FmRadioHsWidgetRadioServiceClient : public QObject
 {
@@ -68,6 +70,7 @@ public:
         InformationTypePty
     };
 
+    void init();
 
 signals:
     void radioInformationChanged(int notificationId, QVariant value);
@@ -105,6 +108,8 @@ private: // data
     
     XQApplicationManager mApplicationManager;
     
+    bool                mDataInitialized;
+
 };
 
 #endif /* FMRADIOHSWIDGETRADIOSERVICECLIENT_H_ */

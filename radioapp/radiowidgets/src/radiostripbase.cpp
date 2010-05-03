@@ -39,8 +39,7 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
     mCurrentIndex( 0 ),
     mPressedIndex( 0 ),
     mStripLength( 0 ),
-    mContentsLength( 0 ),
-    mBackgroundImage( 0 )
+    mContentsLength( 0 )
 {
     setClampingStyle( HbScrollArea::NoClamping );
     setScrollDirections( Qt::Horizontal );
@@ -64,29 +63,6 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
  */
 RadioStripBase::~RadioStripBase()
 {
-}
-
-/*!
- *
- */
-void RadioStripBase::setBackground( const HbIcon& background )
-{
-    // Create background image for the entire widget
-    mBackground = background;
-    if ( !mBackgroundImage ) {
-        mBackgroundImage = new QGraphicsPixmapItem( this );
-    }
-    mBackgroundImage->setPixmap( mBackground.pixmap() );
-    mBackgroundImage->setOffset( QPointF( 0.0, 0.0 ) );
-    mBackgroundImage->setZValue( -10.0 );
-}
-
-/*!
- *
- */
-HbIcon RadioStripBase::background() const
-{
-    return mBackground;
 }
 
 /*!
@@ -218,10 +194,7 @@ void RadioStripBase::setIndex( int index, bool animateToCenter )
  */
 void RadioStripBase::resizeEvent( QGraphicsSceneResizeEvent* event )
 {
-    if ( mBackgroundImage ) {
-        QPixmap background = mBackgroundImage->pixmap().scaledToWidth( event->newSize().width() );
-        mBackgroundImage->setPixmap( background );
-    }
+    Q_UNUSED( event );
     populateAndLayout();
 }
 

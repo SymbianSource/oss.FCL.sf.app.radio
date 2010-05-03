@@ -25,17 +25,15 @@
 #include "radiostationmodel.h"
 #include "radioxmluiloader.h"
 #include "radiouiengine.h"
-#include "radiolocalization.h"
 #include "radiologger.h"
 
 /*!
  *
  */
-RadioViewBase::RadioViewBase( RadioXmlUiLoader* uiLoader, bool transient ) :
+RadioViewBase::RadioViewBase( bool transient ) :
     HbView( 0 ),
     mMainWindow( 0 ),
-    mModel( 0 ),
-    mUiLoader( uiLoader ),
+    mUiLoader( 0 ),
     mTransientView( transient ),
     mUseLoudspeakerAction( 0 ),
     mOrientation( Qt::Vertical )
@@ -47,8 +45,7 @@ RadioViewBase::RadioViewBase( RadioXmlUiLoader* uiLoader, bool transient ) :
  */
 RadioViewBase::~RadioViewBase()
 {
-    if ( mUiLoader )
-    {
+    if ( mUiLoader ) {
         mUiLoader->reset();
     }
 }
@@ -56,11 +53,11 @@ RadioViewBase::~RadioViewBase()
 /*!
  *
  */
-void RadioViewBase::init( RadioMainWindow* aMainWindow, RadioStationModel* aModel )
+void RadioViewBase::init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow )
 {
     // Default implementation does nothing
-    Q_UNUSED( aMainWindow );
-    Q_UNUSED( aModel );
+    Q_UNUSED( uiLoader );
+    Q_UNUSED( mainWindow );
 }
 
 /*!
@@ -127,23 +124,12 @@ void RadioViewBase::initBackAction()
 /*!
  *
  */
-HbAction* RadioViewBase::addMenuItem( const QString& aTitle, QObject* aRecipient, const char* aSlot )
-{
-    HbAction* action = menu()->addAction( aTitle );
-    connectAndTest( action, SIGNAL(triggered()), aRecipient, aSlot );
-    return action;
-}
-
-/*!
- *
- */
 void RadioViewBase::connectCommonMenuItem( int menuItem )
 {
     RadioUiEngine* engine = &mMainWindow->uiEngine();
-    switch ( menuItem )
-    {
+    switch ( menuItem ) {
         case MenuItem::UseLoudspeaker:
-            mUseLoudspeakerAction = mUiLoader->findObject<HbAction>( DOCML_NAME_LOUDSPEAKERACTION );
+            mUseLoudspeakerAction = mUiLoader->findObject<HbAction>( DOCML::NAME_LOUDSPEAKER_ACTION );
             if ( mUseLoudspeakerAction ) {
                 connectAndTest( mUseLoudspeakerAction, SIGNAL(triggered()), engine, SLOT(toggleAudioRoute()) );
                 updateAudioRouting( engine->isUsingLoudspeaker() );
@@ -161,8 +147,7 @@ void RadioViewBase::connectCommonMenuItem( int menuItem )
  */
 void RadioViewBase::connectXmlElement( const char* name, const char* signal, QObject* receiver, const char* slot )
 {
-    if ( QObject* action = mUiLoader->findObject<QObject>( name ) )
-    {
+    if ( QObject* action = mUiLoader->findObject<QObject>( name ) ) {
         connectAndTest( action, signal, receiver, slot );
     }
 }
@@ -172,10 +157,19 @@ void RadioViewBase::connectXmlElement( const char* name, const char* signal, QOb
  */
 void RadioViewBase::connectViewChangeMenuItem( QString name, const char* slot )
 {
-    if ( QObject* action = mUiLoader->findObject<QObject>( name ) )
-    {
+    if ( QObject* action = mUiLoader->findObject<QObject>( name ) ) {
         connectAndTest( action, SIGNAL(triggered()), mMainWindow, slot );
     }
+}
+
+/*!
+ *
+ */
+void RadioViewBase::loadSection( const QString& docml, const QString& section )
+{
+    bool ok = false;
+    mUiLoader->load( docml, section, &ok );
+    LOG_ASSERT( ok, LOG_FORMAT( "Loading of section %s failed!", GETSTRING( section ) ) );
 }
 
 /*!

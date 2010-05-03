@@ -4,7 +4,7 @@
     <filepath>fmradiohswidgetplugin</filepath>
     <description>FM Radio homescreen widget</description>
     <interface>
-        <name>com.nokia.IHomeScreenWidget</name>
+        <name>com.nokia.symbian.IHomeScreenWidget</name>
         <version>1.0</version>
         <description>FM Radio homescreen widget</description>
         <capabilities></capabilities>

@@ -22,6 +22,8 @@
 #include <QPen>
 #include <HbPushButton>
 #include <QTimer>
+#include <HbColorScheme>
+#include <HbEvent>
 
 #include "radiofrequencystrip.h"
 #include "radiofrequencyitem.h"
@@ -41,6 +43,14 @@ const qreal KRounder = 0.5;
 const int KSelectorWidth = 2;
 const int KSelectorZPos = 100;
 
+const int KHalfHertz = KOneHertz / 2;
+const int KOneTabDistance = 15;
+const uint KOneTabInHz = 0.2 * KOneHertz;
+const qreal KPixelInHz = KOneTabInHz / KOneTabDistance;
+//const int KCharWidth = 8;                  // TODO: Remove hardcoding
+const int KWidth = KOneTabDistance * 5;
+const int KHeight = 50;                 //TODO: Remove hardcoding
+
 const int K100Khz = 100000;
 
 //const int KTouchPosThreshold = 30;
@@ -49,6 +59,10 @@ const QString KSlideToLeft      = "SlideToLeft";
 const QString KSlideFromLeft    = "SlideFromLeft";
 const QString KSlideToRight     = "SlideToRight";
 const QString KSlideFromRight   = "SlideFromRight";
+static const char* BUTTON_LEFT  = "button_left";
+static const char* BUTTON_RIGHT = "button_right";
+
+static const char* TEXT_COLOR_ATTRIBUTE = "text";
 
 /*!
  *
@@ -61,27 +75,25 @@ static QLineF makeTab( qreal pos, int height )
 /*!
  *
  */
-RadioFrequencyStrip::RadioFrequencyStrip( uint minFrequency,
-                                          uint maxFrequency,
-                                          uint stepSize,
-                                          uint currentFrequency,
-                                          RadioUiEngine* engine ) :
+RadioFrequencyStrip::RadioFrequencyStrip( RadioUiEngine* engine ) :
     RadioStripBase( 0 ),
-    mMinFrequency( minFrequency ),
-    mMaxFrequency( maxFrequency ),
-    mFrequencyStepSize( stepSize ),
-    mEngine( engine ),
+    mUiEngine( engine ),
+    mMinFrequency( mUiEngine ? mUiEngine->minFrequency() : 87500000 ),
+    mMaxFrequency( mUiEngine ? mUiEngine->maxFrequency() : 108000000 ),
+    mFrequencyStepSize( mUiEngine ? mUiEngine->frequencyStepSize() : 100000 ),
+    mFrequency( mUiEngine ? mUiEngine->currentFrequency() : 87500000 ),
     mSelectorImage( new QGraphicsPixmapItem( this ) ),
     mSeparatorPos( 0.0 ),
     mMaxWidth( 0 ),
     mSelectorPos( 0.0 ),
-    mFrequency( currentFrequency ),
     mFavoriteSelected( false ),
     mLeftButton( new HbPushButton( this ) ),
     mRightButton( new HbPushButton( this ) ),
     mButtonTimer( new QTimer( this ) ),
-    mIsPanGesture( false )
+    mIsPanGesture( false ),
+    mForegroundColor( HbColorScheme::color( TEXT_COLOR_ATTRIBUTE ) )
 {
+    RadioUiUtilities::setFrequencyStrip( this );
     mButtonTimer->setInterval( 500 );
     mButtonTimer->setSingleShot( true );
     connectAndTest( mButtonTimer, SIGNAL(timeout()), this, SLOT(toggleButtons()) );
@@ -203,7 +215,7 @@ void RadioFrequencyStrip::stationRemoved( const RadioStation& station )
     uint frequency = station.frequency();
     if ( mFrequencies.contains( frequency ) ) {
         FrequencyPos pos = mFrequencies.value( frequency );
-        mFrequencies.remove( frequency );
+//        mFrequencies.remove( frequency );
         updateFavorites( pos.mItem );
     }
 }
@@ -212,17 +224,37 @@ void RadioFrequencyStrip::stationRemoved( const RadioStation& station )
  * Public slot
  *
  */
-void RadioFrequencyStrip::setFrequency( const uint frequency, int commandSender )
+void RadioFrequencyStrip::setFrequency( const uint frequency, int reason )
 {
 //    LOG_SLOT_CALLER;
 //    LOG_FORMAT( "RadioFrequencyStrip::setFrequency, frequency: %d, sender: %d", frequency, commandSender );
-    if ( commandSender != CommandSender::FrequencyStrip &&  // Not sent by the FrequencyStrip
+    if ( reason != TuneReason::FrequencyStrip &&            // Not sent by the FrequencyStrip
          frequency != mFrequency &&                         // Different from the current
          mFrequencies.contains( frequency ) )               // 0 frequency means any illegal value
     {
         scrollToFrequency( frequency, mAutoScrollTime );
         emitFrequencyChanged( frequency );
     }
+}
+
+/*!
+ * Public slot
+ *
+ */
+void RadioFrequencyStrip::setScanningMode( bool isScanning )
+{
+    if (isScanning)
+    {
+        HbEffect::start( mLeftButton, KSlideToLeft );
+        HbEffect::start( mRightButton, KSlideToRight );
+    }
+    else
+    {
+        HbEffect::start( mLeftButton, KSlideFromLeft );
+        HbEffect::start( mRightButton, KSlideFromRight );
+
+    }
+    setEnabled( !isScanning );
 }
 
 /*!
@@ -340,6 +372,22 @@ void RadioFrequencyStrip::showEvent( QShowEvent* event )
 /*!
  * \reimp
  */
+void RadioFrequencyStrip::changeEvent( QEvent* event )
+{
+    if ( event->type() == HbEvent::ThemeChanged ) {
+        // Update the foreground color and redraw each item
+        mForegroundColor = HbColorScheme::color( TEXT_COLOR_ATTRIBUTE );
+        foreach ( RadioFrequencyItem* item, mFrequencyItems ) {
+            updateFavorites( item );
+        }
+    }
+
+    return HbWidgetBase::changeEvent(event);
+}
+
+/*!
+ * \reimp
+ */
 void RadioFrequencyStrip::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
     RadioStripBase::mousePressEvent( event );
@@ -452,8 +500,8 @@ void RadioFrequencyStrip::initItems()
         updateFavorites( item );
     }
 
-    if ( mEngine ) {
-        QList<RadioStation> stations = mEngine->stationsInRange( mMinFrequency, mMaxFrequency );
+    if ( mUiEngine ) {
+        QList<RadioStation> stations = mUiEngine->stationsInRange( mMinFrequency, mMaxFrequency );
         foreach ( const RadioStation& station, stations ) {
             if ( station.isFavorite() ) {
                 mFrequencies[ station.frequency() ].mFavorite = true;
@@ -489,7 +537,9 @@ void RadioFrequencyStrip::initItems()
 void RadioFrequencyStrip::initButtons()
 {
     mLeftButton->setZValue( KSelectorZPos );
+    mLeftButton->setObjectName( BUTTON_LEFT );
     mRightButton->setZValue( KSelectorZPos );
+    mRightButton->setObjectName( BUTTON_RIGHT );
 
     QEffectList effectList;
     effectList.append( EffectInfo( mLeftButton, ":/effects/slide_to_left.fxml", KSlideToLeft ) );
@@ -513,21 +563,23 @@ void RadioFrequencyStrip::addFrequencyPos( int pos, uint frequency, RadioFrequen
  */
 void RadioFrequencyStrip::updateFavorites( RadioFrequencyItem* item )
 {
-    uint frequency = item->frequency();
-    QList<RadioStation> stations;
-    if ( mEngine ) {
-        stations = mEngine->stationsInRange( frequency - KHalfHertz, frequency + KHalfHertz );
-    }
+    if ( item ) {
+        uint frequency = item->frequency();
+        QList<RadioStation> stations;
+        if ( mUiEngine ) {
+            stations = mUiEngine->stationsInRange( frequency - KHalfHertz, frequency + KHalfHertz );
+        }
 
-    QPixmap pixmap = drawPixmap( frequency, stations, item );
-    item->setPixmap( pixmap );
+        QPixmap pixmap = drawPixmap( frequency, stations, item );
+        item->setPixmap( pixmap );
 
-    foreach ( const RadioStation& station, stations ) {
-        frequency = station.frequency();
-        FrequencyPos pos = mFrequencies.value( frequency );
-        pos.mFavorite = station.isFavorite();
-        pos.mLocalStation = station.isType( RadioStation::LocalStation );
-        mFrequencies.insert( frequency, pos );
+        foreach ( const RadioStation& station, stations ) {
+            frequency = station.frequency();
+            FrequencyPos pos = mFrequencies.value( frequency );
+            pos.mFavorite = station.isFavorite();
+            pos.mLocalStation = station.isType( RadioStation::LocalStation );
+            mFrequencies.insert( frequency, pos );
+        }
     }
 }
 
@@ -541,7 +593,7 @@ QPixmap RadioFrequencyStrip::drawPixmap( uint frequency, QList<RadioStation> sta
     QPainter painter( &pixmap );
     QPen normalPen = painter.pen();
     QPen favoritePen = normalPen;
-    normalPen.setColor( Qt::white );
+    normalPen.setColor( mForegroundColor );
     painter.setPen( normalPen );
 
     if ( frequency == 0 ) {
@@ -624,7 +676,7 @@ void RadioFrequencyStrip::emitFrequencyChanged( uint frequency )
 //    LOG_FORMAT( "RadioFrequencyStrip::emitFrequencyChanged, frequency: %d", frequency );
     if ( frequency > 0 && frequency != mFrequency ) {
         mFrequency = frequency;
-        emit frequencyChanged( frequency, CommandSender::FrequencyStrip );
+        emit frequencyChanged( frequency, TuneReason::FrequencyStrip );
         emitFavoriteSelected( mFrequencies.value( frequency ).mFavorite );
     }
 }

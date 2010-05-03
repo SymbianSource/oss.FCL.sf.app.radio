@@ -36,6 +36,13 @@ class T_RadioDataParser;
 class QSettings;
 class QTimer;
 
+typedef QList<RadioEngineWrapperObserver*> ObserverList;
+
+#define RUN_NOTIFY_LOOP( list, func ) \
+        foreach( RadioEngineWrapperObserver* observer, list ) { \
+            observer->func; \
+        }
+
 // Class declaration
 class WRAPPER_DLL_EXPORT RadioEngineWrapperPrivate : public QObject
 {
@@ -48,8 +55,7 @@ class WRAPPER_DLL_EXPORT RadioEngineWrapperPrivate : public QObject
 public:
 
     RadioEngineWrapperPrivate( RadioEngineWrapper* wrapper,
-                               RadioStationHandlerIf& stationHandler,
-                               RadioEngineWrapperObserver& observer );
+                               RadioStationHandlerIf& stationHandler );
 
     ~RadioEngineWrapperPrivate();
 
@@ -69,12 +75,15 @@ public:
     /**
      * Functions called from slots to tune to given frequency or preset
      */
-    void tuneFrequency( uint frequency, const int sender );
-    void tuneWithDelay( uint frequency, const int sender );
+    void tuneFrequency( uint frequency, const int reason );
+    void tuneWithDelay( uint frequency, const int reason );
 
-    RadioEngineWrapperObserver& observer();
+    ObserverList& observers();
 
-    void startSeeking( Seeking::Direction direction );
+    void startSeeking( Seeking::Direction direction, const int reason );
+    void cancelSeeking();
+
+    void toggleAudioRoute();
 
 // Functions used by the win32 test window
 
@@ -100,11 +109,6 @@ private:
 
 // New functions
 
-    /**
-     * Called by RadioFrequencyScanningHandler when the scanning has finished
-     */
-    void frequencyScannerFinished();
-
     void parseData();
 
 private: // data
@@ -124,7 +128,7 @@ private: // data
     /**
      * Reference to the wrapper observer
      */
-    RadioEngineWrapperObserver&                     mObserver;
+    ObserverList                                    mObservers;
 
     /**
      * Radio settings handler
@@ -145,19 +149,14 @@ private: // data
     QString                                         mParsingError;
 
     /**
-     * Id of the sender of the last tune command. RadioFrequencyStrip or someone else
+     * Reason for the tune event. RadioFrequencyStrip or someone else
      */
-    int                                             mCommandSender;
+    int                                             mTuneReason;
 
     /**
      * Flag to indicate whether or not audio should be routed to loudspeaker
      */
     bool                                            mUseLoudspeaker;
-
-    /**
-     * Flag to indicate whether or not the engine is seeking
-     */
-    bool                                            mIsSeeking;
 
     QScopedPointer<QSettings>                       mEngineSettings;
 
