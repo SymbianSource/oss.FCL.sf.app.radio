@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument context="RadioTuningView" version="0.9">
+    <object name="tv:historyview_action" type="HbAction">
+        <string name="text" locid="txt_rad_opt_play_history" />
+    </object>
+    <object name="exit_action" type="HbAction">
+        <string name="text" locid="txt_common_opt_exit" />
+    </object>
+    <widget name="view" plugin="radiowidgetsplugin" type="RadioTuningView">
+        <widget name="menu" role="HbView:menu" type="HbMenu">
+            <ref object="tv:historyview_action" role="HbMenu:addAction"/>
+            <ref object="exit_action" role="HbMenu:addAction"/>
+        </widget>
+        <widget name="tv:container" role="HbView:widget" type="HbWidget">
+            <widget name="tv:info_area" type="HbWidget">
+                <widget name="tv:carousel_background" type="HbLabel">
+                    <icon name="icon" iconName=":/images/qtg_fr_lcd.svg" />
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                </widget>
+                <widget name="tv:carousel_overlay" type="HbLabel">
+                    <icon name="icon" iconName=":/images/qtg_fr_lcd_overlay.svg" />
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                </widget>
+                <widget name="tv:station_carousel" plugin="radiowidgetsplugin" type="RadioStationCarousel">
+                    <icon name="favoriteIcon" iconName=":/images/pri_small_star.svg" />
+                    <icon name="nonFavoriteIcon" iconName=":/images/pri_small_star_inactive.svg" />
+                    <widget name="tv:info_text" type="HbLabel" >
+                        <bool name="visible" value="FALSE"/>
+                        <sizehint height="200" width="300" type="PREFERRED"/>
+                    </widget>
+                </widget>
+                <layout type="stacked">
+                    <stackitem itemname="tv:carousel_background"/>
+                    <stackitem itemname="tv:carousel_overlay"/>
+                    <stackitem itemname="tv:station_carousel"/>
+                </layout>
+            </widget>
+            <widget name="tv:control_widget" type="HbWidget" >
+                <widget name="tv:stations_button" type="HbPushButton">
+                    <bool name="stretched" value="TRUE" />
+                    <string name="text" locid="txt_rad_button_stations" />
+                    <icon name="icon" iconName="qtg_mono_radio_stations.svg" />
+                </widget>
+                <widget name="tv:scan_button" type="HbPushButton">
+                    <bool name="stretched" value="TRUE" />
+                    <string name="text" locid="txt_rad_button_search_all_stations" />
+                    <icon name="icon" iconName="qtg_mono_station_scan.svg" />
+                </widget>
+                <widget name="tv:loudspeaker_button" type="HbPushButton">
+                    <bool name="stretched" value="TRUE" />
+                    <string name="text" locid="txt_rad_button_activate_loudspeaker" />
+                    <icon name="icon" iconName="qtg_mono_speaker.svg.svg" />
+                </widget>
+                <layout orientation="Vertical" spacing="var(hb-param-margin-gene-middle-vertical)" type="linear">
+                    <contentsmargins bottom="var(hb-param-margin-gene-bottom)" left="var(hb-param-margin-gene-left)" right="var(hb-param-margin-gene-right)" top="var(hb-param-margin-gene-top)"/>
+                    <linearitem itemname="tv:stations_button"/>
+                    <stretchitem stretchfactor="1"/>
+                    <linearitem itemname="tv:scan_button"/>
+                    <stretchitem stretchfactor="1"/>
+                    <linearitem itemname="tv:loudspeaker_button"/>
+                </layout>
+            </widget>
+            <widget name="tv:frequency_area" type="HbWidget">
+                 <widget name="tv:frequency_background" type="HbLabel">
+                    <icon name="icon" iconName=":/images/stripbackground.png" />
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                </widget>
+               <widget name="tv:frequency_strip" plugin="radiowidgetsplugin" type="RadioFrequencyStrip">
+                    <icon name="leftButtonIcon" iconName=":/images/qtg_mono_previous.svg" />
+                    <icon name="rightButtonIcon" iconName=":/images/qtg_mono_next.svg" />
+                    <integer name="autoScrollTime" value="1000"/>
+                </widget>
+                <layout type="stacked">
+                    <stackitem itemname="tv:frequency_background"/>
+                    <stackitem itemname="tv:frequency_strip"/>
+                </layout>
+            </widget>
+        </widget>
+        <string name="title" locid="txt_rad_title_fm_radio"/>
+    </widget>
+    <connect receiver="view" sender="exit_action" signal="triggered()" slot="quit()"/>
+    <section name="portrait">
+        <widget name="tv:frequency_area">
+            <sizehint height="70" width="360" type="PREFERRED"/>
+        </widget>
+        <widget name="tv:info_area">
+            <sizehint height="280" type="PREFERRED" width="360"/>
+        </widget>
+        <widget name="tv:control_widget">
+            <sizehint height="280" type="PREFERRED" width="300"/>
+        </widget>
+        <widget name="tv:container">
+            <layout orientation="Vertical" spacing="0un" type="linear">
+                <linearitem itemname="tv:info_area"/>
+                <linearitem itemname="tv:frequency_area"/>
+                <linearitem itemname="tv:control_widget"/>
+            </layout>
+        </widget>
+    </section>
+    <section name="landscape">
+        <widget name="tv:frequency_area">
+            <sizehint height="50" width="640" type="PREFERRED"/>
+        </widget>
+        <widget name="tv:info_area">
+            <sizehint height="300" type="PREFERRED" width="230"/>
+        </widget>
+        <widget name="tv:control_widget">
+            <sizehint height="230" type="PREFERRED" width="230"/>
+        </widget>
+        <widget name="tv:container">
+            <layout spacing="0un" type="grid">
+                <griditem column="0" itemname="tv:info_area" row="0"/>
+                <griditem column="1" itemname="tv:control_widget" row="0"/>
+                <griditem column="0" itemname="tv:frequency_area" row="1" column_span="2" />
+            </layout>
+        </widget>
+    </section>
+    <!-- Scanning layout -->
+    <section name="tv:scanning">
+        <object name="tv:historyview_action">
+            <bool name="visible" value="FALSE"/>
+        </object>
+        <widget name="tv:info_text">
+            <string name="plainText" locid="txt_rad_list_searching_all_available_stations_ple" />
+            <bool name="visible" value="TRUE"/>
+        </widget>
+        <widget name="tv:stations_button">
+            <bool name="visible" value="FALSE"/>
+        </widget>
+        <widget name="tv:scan_button">
+            <string name="text" locid="txt_rad_button_cancel" />
+            <icon name="icon" iconName=" " />
+        </widget>
+        <widget name="tv:loudspeaker_button">
+            <bool name="visible" value="FALSE"/>
+        </widget>
+    </section>
+
+<!-- Seeking layout -->
+    <section name="tv:seeking">
+        <object name="tv:historyview_action">
+            <bool name="visible" value="FALSE"/>
+        </object>
+        <widget name="tv:info_text">
+            <string name="plainText" locid="txt_rad_list_seeking" />
+            <bool name="visible" value="TRUE"/>
+        </widget>
+    </section>
+
+<!-- No antenna layout -->
+    <section name="tv:no_antenna">
+        <widget name="tv:info_text">
+            <string name="plainText" locid="txt_rad_info_connect_wired_headset1" />
+            <bool name="visible" value="TRUE"/>
+        </widget>
+    </section>
+
+<!-- No favorites layout -->
+    <section name="tv:no_favorites">
+        <widget name="tv:info_text">
+            <string name="plainText" locid="txt_rad_dialog_long_press_arrow_keys_to_search_str" />
+            <bool name="visible" value="TRUE"/>
+        </widget>
+    </section>
+
+    <!-- Normal layout (not scanning) -->
+    <section name="tv:normal">
+        <object name="tv:historyview_action">
+            <bool name="visible" value="TRUE"/>
+        </object>
+        <widget name="tv:info_text">
+            <bool name="visible" value="FALSE"/>
+        </widget>
+        <widget name="tv:stations_button">
+            <bool name="visible" value="TRUE"/>
+        </widget>
+        <widget name="tv:scan_button">
+            <string name="text" locid="txt_rad_button_search_all_stations" />
+            <icon name="icon" iconName="qtg_mono_station_scan.svg" />
+        </widget>
+        <widget name="tv:loudspeaker_button">
+            <bool name="visible" value="TRUE"/>
+        </widget>
+    </section>
+
+    <metadata activeUIState="portrait" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+        <uistate name="portrait" sections="#common portrait"/>
+        <uistate name="landscape" sections="#common landscape"/>
+    </metadata>
+</hbdocument>

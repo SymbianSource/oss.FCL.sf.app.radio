@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument context="RadioHistoryView" version="0.9">
+    <object name="hv:clear_list_action" type="HbAction">
+        <string name="text" locid="txt_rad_opt_clear_list" />
+    </object>
+    <object name="exit_action" type="HbAction">
+        <string name="text" locid="txt_common_opt_exit" />
+    </object>
+    <object name="hv:all_songs_button" type="HbAction">
+        <bool name="checkable" value="TRUE"/>
+        <string name="text" locid="txt_rad_button_recently_played_songs" />
+    </object>
+    <object name="hv:tagged_songs_button" type="HbAction">
+        <bool name="checkable" value="TRUE"/>
+        <string name="text" locid="txt_rad_button_tagged_songs" />
+    </object>
+    <widget name="view" plugin="radiowidgetsplugin" type="RadioHistoryView">
+        <widget name="hv:menu" role="HbView:menu" type="HbMenu">
+            <ref object="hv:clear_list_action" role="HbMenu:addAction"/>
+            <ref object="exit_action" role="HbMenu:addAction"/>
+        </widget>
+        <widget name="hv:toolbar" role="HbView:toolBar" type="HbToolBar">
+            <enums name="orientation" value="Horizontal"/>
+            <ref object="hv:all_songs_button" role="HbToolBar:addAction"/>
+            <ref object="hv:tagged_songs_button" role="HbToolBar:addAction"/>
+        </widget>
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <widget name="hv:heading_banner" plugin="radiowidgetsplugin" type="RadioBannerLabel">
+                <sizehint height="30" type="MAXIMUM"/>
+                <string name="text" locid="txt_rad_subhead_play_history" />
+            </widget>
+            <widget name="hv:stacked_widget" type="HbWidget">
+                <widget name="hv:history_list" type="HbListView">
+                    <sizehint height="320" type="PREFERRED" width="240"/>
+                    <bool name="visible" value="FALSE"/>
+                </widget>
+                <widget name="hv:empty_text" type="HbLabel">
+                    <enums name="textWrapping" value="TextWordWrap"/>
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    <sizehint height="320" type="PREFERRED" width="240"/>
+                    <string name="plainText" locid="txt_rad_info_recently_played_songs_collects_song_i" />
+                    <fontspec name="fontSpec" role="Title" textheight="33.5"/>
+                </widget>
+                <layout type="stacked">
+                    <stackitem itemname="hv:history_list"/>
+                    <stackitem itemname="hv:empty_text"/>
+                </layout>
+            </widget>            
+            <layout type="anchor">
+                <anchoritem dst="hv:heading_banner" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
+                <anchoritem dst="hv:heading_banner" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="hv:heading_banner" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="hv:stacked_widget" dstEdge="TOP" spacing="0un" src="hv:heading_banner" srcEdge="BOTTOM"/>
+                <anchoritem dst="hv:stacked_widget" dstEdge="BOTTOM" spacing="0un" src="" srcEdge="BOTTOM"/>
+                <anchoritem dst="hv:stacked_widget" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="hv:stacked_widget" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
+            </layout>
+        </widget>
+        <string name="title" locid="txt_rad_title_fm_radio"/>
+    </widget>
+    <connect receiver="view" sender="exit_action" signal="triggered()" slot="quit()"/>
+    <connect receiver="hv:tagged_songs_button" sender="hv:all_songs_button" signal="triggered()" slot="toggle()"/>
+    <connect receiver="hv:all_songs_button" sender="hv:tagged_songs_button" signal="triggered()" slot="toggle()"/>
+    <connect receiver="view" sender="hv:history_list" signal="activated(QModelIndex)" slot="listItemClicked(QModelIndex)"/>
+    <connect receiver="view" sender="hv:history_list" signal="longPressed(HbAbstractViewItem*,const QPointF)" slot="listItemLongPressed(HbAbstractViewItem*,const QPointF)"/>
+    <section name="show_list">
+        <widget name="hv:history_list" type="HbListView">
+            <bool name="visible" value="TRUE"/>
+        </widget>
+        <widget name="hv:empty_text" type="HbLabel">
+            <bool name="visible" value="FALSE"/>
+        </widget>
+        <object name="hv:clear_list_action">
+            <bool name="visible" value="TRUE"/>
+        </object>
+    </section>
+    <section name="hide_list">
+        <widget name="hv:history_list" type="HbListView">
+            <bool name="visible" value="FALSE"/>
+        </widget>
+        <widget name="hv:empty_text" type="HbLabel">
+            <bool name="visible" value="TRUE"/>
+        </widget>
+        <object name="hv:clear_list_action">
+            <bool name="visible" value="FALSE"/>
+        </object>
+    </section>
+    <section name="history_mode">
+        <object name="hv:all_songs_button">
+            <bool name="checked" value="TRUE"/>
+        </object>
+        <object name="hv:tagged_songs_button">
+            <bool name="checked" value="FALSE"/>
+        </object>
+        <widget name="hv:empty_text" type="HbLabel">
+            <string locid="txt_rad_info_recently_played_songs_collects_song2" name="plainText"/>
+        </widget>
+    </section>
+    <section name="favorite_mode">
+        <object name="hv:all_songs_button">
+            <bool name="checked" value="FALSE"/>
+        </object>
+        <object name="hv:tagged_songs_button">
+            <bool name="checked" value="TRUE"/>
+        </object>
+        <widget name="hv:empty_text" type="HbLabel">
+            <string locid="txt_rad_info_you_can_add_song_to_the_tagged_songs" name="plainText"/>
+        </widget>
+    </section>
+    <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+    </metadata>
+</hbdocument>
