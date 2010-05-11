@@ -37,7 +37,8 @@
 #include "fmradiopubsub.h"
 #include "fmradiordsreceiver.h"
 #include "fmradiordsreceiversimulator.h"
-#include "fmradioaccessoryobserver.h"
+#include "fmradioaccessoryconnection.h"
+
 #ifndef __ACCESSORY_FW
 #include "fmradioenginedosserverobserver.h"
 #endif
@@ -146,10 +147,10 @@ void CRadioEngine::ConstructL()
         iInCall = ETrue;
         }
     // accessory observer
-    iHeadsetObserver = CFMRadioAccessoryObserver::NewL();
+    iHeadsetObserver = CFMRadioAccessoryConnection::NewL();
     iHeadsetObserver->SetObserver( this );    
     // Set audio output to current setting
-    if ( iHeadsetObserver->IsHeadsetAccessoryConnected() )
+    if ( iHeadsetObserver->WiredHeadsetConnected() )
         {
         SetAudioOutput( EFMRadioOutputHeadset );
         }
@@ -836,7 +837,7 @@ EXPORT_C void CRadioEngine::SetAudioOutput( const TFMRadioAudioOutput aAudioOutp
 
     if ( KErrNone == tempError )
         {        
-        if ( !iHeadsetObserver->IsHeadsetAccessoryConnected() )
+        if ( !iHeadsetObserver->WiredHeadsetConnected() )
         	{
         	iRadioSettings->SetAudioOutput( EFMRadioOutputIHF );
         	}
@@ -1898,7 +1899,7 @@ EXPORT_C TBool CRadioEngine::IsAudioRoutingPossible() const
     FTRACE( FPrint( _L("CRadioEngine::IsAudioRoutingPossible()" ) ) );
     TBool isAudioRoutingPossible = EFalse;
     
-    TBool headsetConnected = iHeadsetObserver->IsHeadsetAccessoryConnected();
+    TBool headsetConnected = iHeadsetObserver->WiredHeadsetConnected();
     TBool radioOn = iRadioSettings->IsRadioOn();
         
     if ( headsetConnected && radioOn )

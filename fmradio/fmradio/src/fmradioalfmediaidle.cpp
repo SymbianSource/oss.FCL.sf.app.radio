@@ -62,6 +62,7 @@ const TInt KMediaIdleFadeInDurationTime = 500;
 const TInt  KMediaIdleBackgroundTextScrollInterval = 12000;
 const TReal KMediaIdleBackgroundTextOpacity = 0.2f;
 const TInt  KMediaIdleBackgroundTextSideToSideTransitionDurationTime = 25000;
+const TInt  KMediaIdleBackgroundTextYTransition = 10;
 
 //const TInt KMediaIdleModeChangeInterval = 20000;
 
@@ -307,6 +308,7 @@ void CFMRadioAlfMediaIdle::CreateBackgroundTextL()
 		backgroundText->SetOpacity( TAlfTimedValue( KMediaIdleBackgroundTextOpacity ) ); 
 		backgroundText->EnableBrushesL();
 		backgroundText->EnableShadow( EFalse );
+        backgroundText->SetFlag( EAlfVisualFlagManualSize );
 		SetScrollingToBackgroundText( backgroundText,
 						   KMediaIdleBackgroundTextSideToSideTransitionDurationTime,
 						   EMediaIdleBackgroundTextScrollEnd );	
@@ -991,167 +993,56 @@ void CFMRadioAlfMediaIdle::HandleBackgroundTextScrollEndEventL( const TAlfEvent&
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAlfMediaIdle::SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor,
-													 TInt aOrdinal,
-													 const TPoint& aTopLeftPosition,													 
-													 const TPoint& aBottomRightPosition )
-	{
-	if ( aAnchor )
-		{					
-		// Set top/left anchor.
-	    aAnchor->Attach( aOrdinal, 
-			             EAlfAnchorTypeTopLeft,
-			             TAlfXYMetric( TAlfMetric( aTopLeftPosition.iX ), TAlfMetric( aTopLeftPosition.iY ) ),
-			             EAlfAnchorAttachmentOriginTopLeft );
-		
-		
-		// Set bottom/right anchor.
-		aAnchor->Attach( aOrdinal, 
-		                 EAlfAnchorTypeBottomRight, 
-		                 TAlfXYMetric( TAlfMetric( aBottomRightPosition.iX ), TAlfMetric( aBottomRightPosition.iY ) ),
-		                 EAlfAnchorAttachmentOriginTopLeft );
-		}
-	}
-
-// ---------------------------------------------------------------------------
-// CFMRadioAlfMediaIdle::SetAbsoluteCornerAnchors
-// Sets absolute rect of the anchor by top left point and size of the rect
-// ---------------------------------------------------------------------------
-//	
-void CFMRadioAlfMediaIdle::SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor, TInt aOrdinal, const TPoint& aTopLeftPosition, const TSize& aSize )
-	{
-	if( aAnchor )
-		{
-		// set top left corner position
-		aAnchor->SetAnchor( EAlfAnchorTopLeft, aOrdinal,
-		EAlfAnchorOriginLeft, 
-		EAlfAnchorOriginTop,
-		EAlfAnchorMetricAbsolute, 
-		EAlfAnchorMetricAbsolute, 
-		TAlfTimedPoint( aTopLeftPosition.iX, aTopLeftPosition.iY ) );
-		// .. and set the bottom right corner also to fix the size
-		aAnchor->SetAnchor( EAlfAnchorBottomRight, aOrdinal,
-		EAlfAnchorOriginLeft, 
-		EAlfAnchorOriginTop,
-		EAlfAnchorMetricAbsolute, 
-		EAlfAnchorMetricAbsolute,
-		TAlfTimedPoint( aTopLeftPosition.iX + aSize.iWidth, aTopLeftPosition.iY + aSize.iHeight ) );			
-		}
-	}
-	
-// ---------------------------------------------------------------------------
-// CFMRadioAlfMediaIdle::SetRelativeCornerAnchors
-// Sets relative rect of the anchor by top left and bottom right points.
-// ---------------------------------------------------------------------------
-//
-void CFMRadioAlfMediaIdle::SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor, TInt aOrdinal, const TAlfRealPoint& aTopLeftPosition, const TAlfRealPoint& aBottomRightPosition )
-	{
-	if( aAnchor )
-		{
-		aAnchor->SetRelativeAnchorRect( aOrdinal,
-    	EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aTopLeftPosition,
-        EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aBottomRightPosition );		
-		}
-	}
-	
-// ---------------------------------------------------------------------------
-// CFMRadioAlfMediaIdle::SetRelativeCornerAnchors
-// Sets relative rect of the anchor by top left point and size of the rect
-// ---------------------------------------------------------------------------
-//	
-void CFMRadioAlfMediaIdle::SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor, TInt aOrdinal, const TAlfRealPoint& aTopLeftPosition, const TAlfRealSize& aSize )
-	{
-	if( aAnchor )
-		{
-		aAnchor->SetRelativeAnchorRect( aOrdinal,
-    	EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aTopLeftPosition,
-        EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aTopLeftPosition + TAlfRealPoint( aSize.iWidth, aSize.iHeight ) );		
-		}
-	}
+                                                     TInt aOrdinal,
+                                                     const TPoint& aTopLeftPosition,
+                                                     const TPoint& aBottomRightPosition )
+    {
+    if ( aAnchor )
+        {
+        // Set top/left anchor.
+        aAnchor->Attach( aOrdinal, 
+                         EAlfAnchorTypeTopLeft,
+                         TAlfXYMetric( TAlfMetric( aTopLeftPosition.iX ), TAlfMetric( aTopLeftPosition.iY ) ),
+                         EAlfAnchorAttachmentOriginTopLeft );
+        
+        // Set bottom/right anchor.
+        aAnchor->Attach( aOrdinal, 
+                         EAlfAnchorTypeBottomRight, 
+                         TAlfXYMetric( TAlfMetric( aBottomRightPosition.iX ), TAlfMetric( aBottomRightPosition.iY ) ),
+                         EAlfAnchorAttachmentOriginTopLeft );
+        }
+    }
 
 // ----------------------------------------------------------------------------
 // CFMRadioAlfMediaIdle::SetScrollingToBackgroundText
 // ----------------------------------------------------------------------------
 //
 void CFMRadioAlfMediaIdle::SetScrollingToBackgroundText( CAlfTextVisual* aVisual, TInt aTransitionTime, TMediaIdleCustomEvent aEventAfterScrollingEnd )
-	{
-	FTRACE( FPrint( _L("CFMRadioAlfMediaIdle::SetScrollingToBackgroundText(aTransitionTime=%d)"), aTransitionTime ) );
-	
-	CAlfViewportLayout* mediaIdle = static_cast<CAlfViewportLayout*> ( aVisual->Layout() );
-	TInt mediaIdleItemWidth = aVisual->DisplayRect().Width();
-	TInt mediaIdleItemHeight = aVisual->DisplayRect().Height();
-	TInt mediaIdleWidth = mediaIdle->Size().IntTarget().iX;
-	
-	TAlfTimedValue targetPositionX;
-	if( iBackgroundTextScrollDirection == EScrollRightToLeft  )
-	 	{
-		targetPositionX.SetValueNow(  -mediaIdleItemWidth ); 
-		targetPositionX.SetTarget( mediaIdleWidth, aTransitionTime ); 		
-	 	iBackgroundTextScrollDirection = EScrollLeftToRight;
-	 	}
-	else
-	 	{ 	
-		targetPositionX.SetValueNow( mediaIdleWidth );
-		targetPositionX.SetTarget( -mediaIdleItemWidth, aTransitionTime ); 
-		iBackgroundTextScrollDirection = EScrollRightToLeft;
-	 	}
-	Translate( aVisual, targetPositionX, TAlfTimedValue( -30 ) );
-	Env().Send( TAlfCustomEventCommand( aEventAfterScrollingEnd, this ), 
-			    aTransitionTime + KMediaIdleBackgroundTextScrollInterval );
-	}
+    {
+    FTRACE( FPrint( _L("CFMRadioAlfMediaIdle::SetScrollingToBackgroundText(aTransitionTime=%d)"), aTransitionTime ) );
+    
+    CAlfViewportLayout* mediaIdle = static_cast<CAlfViewportLayout*> ( aVisual->Layout() );
+    TInt mediaIdleItemWidth = aVisual->DisplayRect().Width();
+    TInt mediaIdleWidth = mediaIdle->Size().IntTarget().iX;
+    
+    TAlfTimedValue targetPositionX;
+    if ( iBackgroundTextScrollDirection == EScrollRightToLeft )
+        {
+        targetPositionX.SetValueNow(  -mediaIdleItemWidth );
+        targetPositionX.SetTarget( mediaIdleWidth, aTransitionTime );
+        iBackgroundTextScrollDirection = EScrollLeftToRight;
+        }
+    else
+        { 	
+        targetPositionX.SetValueNow( mediaIdleWidth );
+        targetPositionX.SetTarget( -mediaIdleItemWidth, aTransitionTime ); 
+        iBackgroundTextScrollDirection = EScrollRightToLeft;
+        }
+    Translate( aVisual, targetPositionX, TAlfTimedValue( KMediaIdleBackgroundTextYTransition ) );
+    Env().Send( TAlfCustomEventCommand( aEventAfterScrollingEnd, this ), 
+                aTransitionTime + KMediaIdleBackgroundTextScrollInterval );
+    }
 
-// ----------------------------------------------------------------------------
-// CFMRadioAlfMediaIdle::ScrollToLeft
-// Sets and starts scrolling animation to CAlfTextVisual.
-// The visual object is scrolled from current position to 
-// left side of the display
-// ----------------------------------------------------------------------------
-//	
-void CFMRadioAlfMediaIdle::ScrollToLeft( CAlfTextVisual* aVisual ) const
-	{
-	FTRACE( FPrint( _L("CFMRadioAlfMediaIdle::ScrollToLeft(0x%x)"), aVisual ) );
-	
-	if( aVisual )
-		{
-		TInt visualWidth = aVisual->DisplayRect().Width();
-		TInt textWidth = aVisual->TextExtents().iWidth;
-		TInt scrollValue = visualWidth;
-		if( textWidth > visualWidth )
-			{
-			scrollValue += textWidth - visualWidth; 
-			}
-		TAlfTimedPoint timedPosition = aVisual->Pos();
-		TAlfRealPoint positionZero( 0, timedPosition.iY.ValueNow() );
-		TAlfRealPoint positionLeft( - ( scrollValue ), timedPosition.iY.ValueNow() );
-		aVisual->SetPos( positionZero );
-		aVisual->SetPos( positionLeft, 1000 );
-		}
-	}
-
-// ----------------------------------------------------------------------------
-// CFMRadioAlfMediaIdle::ScrollToRight
-// Sets and starts scrolling animation to CAlfTextVisual.
-// The visual object is scrolled from current position to 
-// right side of the display
-// ----------------------------------------------------------------------------
-//
-void CFMRadioAlfMediaIdle::ScrollToRight( CAlfTextVisual* aVisual ) const
-	{
-	FTRACE( FPrint( _L("CFMRadioAlfMediaIdle::ScrollToRight(0x%x)"), aVisual ) );
-	
-	TInt visualWidth = aVisual->DisplayRect().Width();
-	TInt textWidth = aVisual->TextExtents().iWidth;
-	TInt scrollValue = visualWidth;
-	if( textWidth > visualWidth )
-		{
-		scrollValue += textWidth - visualWidth; 
-		}
-	TAlfTimedPoint timedPosition = aVisual->Pos();
-	TAlfRealPoint positionZero( 0, timedPosition.iY.ValueNow() );
-	TAlfRealPoint positionRight( scrollValue, timedPosition.iY.ValueNow() );
-	aVisual->SetPos( positionZero );
-	aVisual->SetPos( positionRight, 1000 );
-	}
-	
 // ---------------------------------------------------------------------------
 // CFMRadioAlfMediaIdle::FadeIn
 // Sets fade-in animation to the CAlfVisual.
@@ -1271,4 +1162,5 @@ void CFMRadioAlfMediaIdle::Deactivate()
     {
     StopAndFadeOutMediaIdle();
     }
-//  End of File  
+
+//  End of File

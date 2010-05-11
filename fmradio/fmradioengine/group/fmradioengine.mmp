@@ -39,7 +39,6 @@ END  // RESOURCE
 
 
 SOURCEPATH    ../src
-SOURCE        fmradioaccessoryobserver.cpp
 SOURCE        fmradioengine.cpp
 SOURCE        fmradioenginecentralrepositoryhandler.cpp
 SOURCE        fmradioengineradiosettings.cpp
@@ -52,6 +51,7 @@ SOURCE        fmradiordsreceiverbase.cpp
 SOURCE        fmradiordsreceiversimulator.cpp
 SOURCE        fmradioregion.cpp
 SOURCE        fmradiosystemeventdetector.cpp
+SOURCE        fmradioaccessoryconnection.cpp
 
 #ifndef __ACCESSORY_FW
 SOURCE        fmradioenginedosserverobserver.cpp
@@ -82,6 +82,7 @@ LIBRARY etel.lib
 LIBRARY etelmm.lib
 LIBRARY commsdat.lib
 LIBRARY accclient.lib
+LIBRARY accpolicy.lib
 
 DEBUGLIBRARY    flogger.lib
 

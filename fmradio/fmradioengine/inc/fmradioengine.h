@@ -49,7 +49,7 @@ const TInt KFMRadioFreqMultiplier = 1000;
 class CAudioOutput;
 class CCentralRepositoryHandler;
 class CDesC16Array;
-class CFMRadioAccessoryObserver;
+class CFMRadioAccessoryConnection;
 class CFMRadioContextPublisher;
 class CFMRadioMobileNetworkInfoListener;
 class CFMRadioPubSub;
@@ -833,7 +833,7 @@ private:
     //P&S interaction interface for FMRadio actions.
 	CFMRadioPubSub* iPubSub;
     // accessory observer
-    CFMRadioAccessoryObserver* iHeadsetObserver;
+    CFMRadioAccessoryConnection* iHeadsetObserver;
     // tel server session
     RTelServer iTelServer;
     // phone

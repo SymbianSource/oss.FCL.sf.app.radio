@@ -154,39 +154,7 @@ private:    // New functions
                                        TInt aOrdinal,
                                        const TPoint& aTopLeftPosition,
                                        const TPoint& aBottomRightPosition );
-        /**
-        * Sets absolute rect of the anchor by top left and size of the rect.
-        * @param aAnchor Anchor layout for setting placement
-        * @param aOrdinal Index of visual element
-        * @param aTopLeftPosition Top left point of the rect
-        * @param aSize Size of the rect
-        */
-        void SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor,
-                                       TInt aOrdinal,
-                                       const TPoint& aTopLeftPosition,
-                                       const TSize& aSize );
-        /**
-        * Sets relative rect of the anchor by top left and bottom right points.
-        * @param aAnchor Anchor layout for setting placement
-        * @param aOrdinal Index of visual element
-        * @param aTopLeftPosition Top left point of the rect
-        * @param aBottomRightPosition Bottom right point of the rect
-        */
-        void SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor,
-                                       TInt aOrdinal,
-                                       const TAlfRealPoint& aTopLeftPosition,
-                                       const TAlfRealPoint& aBottomRightPosition );
-        /**
-        * Sets relative rect of the anchor by top left and size of the rect.
-        * @param aAnchor Anchor layout for setting placement
-        * @param aOrdinal Index of visual element
-        * @param aTopLeftPosition Top left point of the rect
-        * @param aSize Size of the rect
-        */
-        void SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor,
-                                       TInt aOrdinal,
-                                       const TAlfRealPoint& aTopLeftPosition,
-                                       const TAlfRealSize& aSize );
+
         /**
         * Creates the needed drawing layers and visual objects
         * for the indicator.

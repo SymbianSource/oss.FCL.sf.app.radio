@@ -30,7 +30,7 @@ class MFMRadioActiveIdleEngineNotifyHandler;
 /**
 * Music content publisher plugin for FM Radio.
 *
-* Implements MCP plugin which publishes FM Radio state to affected parties.
+* Implements plugin which publishes FM Radio state to affected parties.
 * 
 * @lib fmradiomcpplugin100.lib
 * 

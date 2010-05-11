@@ -245,20 +245,7 @@ private:	// New functions
 	    * fades with defined fading duration
 		*/
 		void MediaIdleFadeOut( TBool aNow = EFalse );
-		/**
- 	    * Sets and starts scrolling animation to CAlfTextVisual.
- 	    * The visual object is scrolled from current position to 
- 	    * right side of the display
- 	    * @param aVisual a pointer to the visual object
- 	    */
-		void ScrollToRight( CAlfTextVisual* aVisual ) const;
-		/**
- 	    * Sets and starts scrolling animation to CAlfTextVisual.
- 	    * The visual object is scrolled from current position to 
- 	    * left side of the display
- 	    * @param aVisual a pointer to the visual object
- 	    */
-		void ScrollToLeft( CAlfTextVisual* aVisual ) const;
+		
 		/**
  	    * @param aVisual a pointer to the visual object
  	    * @param aTransitionTime Duration for reaching the target.
@@ -302,46 +289,10 @@ private:	// New functions
 	    * @param aTopLeftPosition Top left point of the rect
 	    * @param aBottomRightPosition Bottom right point of the rect
 	    */
-		void SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor,
-									   TInt aOrdinal,
-								       const TPoint& aTopLeftPosition,
-									   const TPoint& aBottomRightPosition );
-        /**
-	    * Sets absolute rect of the anchor by top left and size of the rect.
-	    * @param aAnchor Anchor layout for setting placement
-	    * @param aOrdinal Index of visual element
-	    * @param aTopLeftPosition Top left point of the rect
-	    * @param aSize Size of the rect
-	    */	
-		void SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor,
-									   TInt aOrdinal,
-									   const TPoint& aTopLeftPosition,
-									   const TSize& aSize );
-		/**
-	    * Sets relative rect of the anchor by top left and bottom right points.
-	    * @param aAnchor Anchor layout for setting placement
-	    * @param aOrdinal Index of visual element
-	    * @param aTopLeftPosition Top left point of the rect
-	    * @param aBottomRightPosition Bottom right point of the rect
-	    */
-		void SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor,
-									   TInt aOrdinal,
-									   const TAlfRealPoint& aTopLeftPosition,
-									   const TAlfRealPoint& aBottomRightPosition );
-		/**
-	    * Sets relative rect of the anchor by top left and size of the rect.
-	    * @param aAnchor Anchor layout for setting placement
-	    * @param aOrdinal Index of visual element
-	    * @param aTopLeftPosition Top left point of the rect
-	    * @param aSize Size of the rect
-	    */
-		void SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor, 
-									   TInt aOrdinal, 
-									   const TAlfRealPoint& aTopLeftPosition, 
-									   const TAlfRealSize& aSize );	
-		       
-
-        
+        void SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor,
+                                       TInt aOrdinal,
+                                       const TPoint& aTopLeftPosition,
+                                       const TPoint& aBottomRightPosition );
         /*
          * Transformation end event received
          */

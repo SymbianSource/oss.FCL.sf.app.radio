@@ -196,10 +196,13 @@ void CFMRadioAlfRDSViewer::SetRect( const TRect& aRect )
     {
     iRect = aRect;
     TRAP_IGNORE( SetTextStyleL() );
-    if( iIndicatorTextAnchor )
+    if ( iIndicatorTextAnchor )
         {
         SetAbsoluteCornerAnchors( iIndicatorTextAnchor, 0, iRect.iTl, iRect.iBr );
         iIndicatorTextAnchor->UpdateChildrenLayout();
+        // It seems that layout is not updated if the text is not changed
+        TRAP_IGNORE( iText->SetTextL( KNullDesC );
+                     iText->SetTextL( iRadioText ); )
         }
     }
 
@@ -210,29 +213,17 @@ void CFMRadioAlfRDSViewer::SetRect( const TRect& aRect )
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAlfRDSViewer::AddIndicatorLayerL()
-	{   
-	// Create an anchor for the indicator layout 
-	iIndicatorTextAnchor = CAlfAnchorLayout::AddNewL( *this );	
-	
-	// Create visual object for the indicator
-	iText = CAlfTextVisual::AddNewL( *this, iIndicatorTextAnchor );
-	iText->SetColor( iTextColor );
-	iText->SetAlign( EAlfAlignHCenter, EAlfAlignVCenter );	
-	iText->SetWrapping( CAlfTextVisual::ELineWrapBreak );
-	iText->SetClipping( ETrue );
-	
-	// shadow enablers
-	//iText->EnableDropShadowL( ETrue );
-	//iText->EnableShadow( ETrue );
-	
-	iText->EnableBrushesL();
-	
-	/*CAlfGradientBrush* gradientBrush = CAlfGradientBrush::NewLC( Env() );
-	gradientBrush->SetColor( KRgbBlack, 0.7f );
-	iText->Brushes()->AppendL( gradientBrush, EAlfHasOwnership );
-	CleanupStack::Pop( gradientBrush );	
-	*/
-	}
+    {
+    // Create an anchor for the indicator layout 
+    iIndicatorTextAnchor = CAlfAnchorLayout::AddNewL( *this );	
+    
+    // Create visual object for the indicator
+    iText = CAlfTextVisual::AddNewL( *this, iIndicatorTextAnchor );
+    iText->SetColor( iTextColor );
+    iText->SetAlign( EAlfAlignHCenter, EAlfAlignVCenter );	
+    iText->SetWrapping( CAlfTextVisual::ELineWrapBreak );
+    iText->SetClipping( ETrue );
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAlfRDSViewer::SetTextStyleL
@@ -309,7 +300,7 @@ TBool CFMRadioAlfRDSViewer::SetTextL( const TDesC& aText )
 // ---------------------------------------------------------
 //
 void CFMRadioAlfRDSViewer::Show()
-    {    
+    {
     if ( !iIsRdsTextVisible )
         {
         iIsRdsTextVisible = ETrue;
@@ -372,91 +363,25 @@ void CFMRadioAlfRDSViewer::SetOpacityInHiddenState( const TReal aOpacity )
 // ---------------------------------------------------------------------------
 //
 void CFMRadioAlfRDSViewer::SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor,
-													 TInt aOrdinal,
-													 const TPoint& aTopLeftPosition,
-													 const TPoint& aBottomRightPosition )
-	{
-	if ( aAnchor )
-		{					
-		// Set top/left anchor.
-	    aAnchor->Attach( aOrdinal, 
-			             EAlfAnchorTypeTopLeft,
-			             TAlfXYMetric( TAlfMetric( aTopLeftPosition.iX ), TAlfMetric( aTopLeftPosition.iY ) ),
-			             EAlfAnchorAttachmentOriginTopLeft );
-		
-		
-		// Set bottom/right anchor.
-		aAnchor->Attach( aOrdinal, 
-		                 EAlfAnchorTypeBottomRight, 
-		                 TAlfXYMetric( TAlfMetric( aBottomRightPosition.iX ), TAlfMetric( aBottomRightPosition.iY ) ),
-		                 EAlfAnchorAttachmentOriginTopLeft );
-		}
-	}
-
-// ---------------------------------------------------------------------------
-// CFMRadioAlfRDSViewer::SetAbsoluteCornerAnchors
-// Sets absolute rect of the anchor by top left point and size of the rect
-// ---------------------------------------------------------------------------
-//	
-void CFMRadioAlfRDSViewer::SetAbsoluteCornerAnchors( CAlfAnchorLayout* aAnchor,
-												   	 TInt aOrdinal,
-													 const TPoint& aTopLeftPosition,
-													 const TSize& aSize )
-	{
-	if( aAnchor )
-		{
-		// set top left corner position
-		aAnchor->SetAnchor( EAlfAnchorTopLeft, aOrdinal,
-		EAlfAnchorOriginLeft, 
-		EAlfAnchorOriginTop,
-		EAlfAnchorMetricAbsolute, 
-		EAlfAnchorMetricAbsolute, 
-		TAlfTimedPoint( aTopLeftPosition.iX, aTopLeftPosition.iY ) );
-		// .. and set the bottom right corner also to fix the size
-		aAnchor->SetAnchor( EAlfAnchorBottomRight, aOrdinal,
-		EAlfAnchorOriginLeft, 
-		EAlfAnchorOriginTop,
-		EAlfAnchorMetricAbsolute, 
-		EAlfAnchorMetricAbsolute,
-		TAlfTimedPoint( aTopLeftPosition.iX + aSize.iWidth, aTopLeftPosition.iY + aSize.iHeight ) );			
-		}
-	}
-	
-// ---------------------------------------------------------------------------
-// CFMRadioAlfRDSViewer::SetRelativeCornerAnchors
-// Sets relative rect of the anchor by top left and bottom right points.
-// ---------------------------------------------------------------------------
-//
-void CFMRadioAlfRDSViewer::SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor,
-													 TInt aOrdinal,
-													 const TAlfRealPoint& aTopLeftPosition,
-													 const TAlfRealPoint& aBottomRightPosition )
-	{
-	if( aAnchor )
-		{
-		aAnchor->SetRelativeAnchorRect( aOrdinal,
-    	EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aTopLeftPosition,
-        EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aBottomRightPosition );		
-		}
-	}
-	
-// ---------------------------------------------------------------------------
-// CFMRadioAlfRDSViewer::SetRelativeCornerAnchors
-// Sets relative rect of the anchor by top left point and size of the rect
-// ---------------------------------------------------------------------------
-//	
-void CFMRadioAlfRDSViewer::SetRelativeCornerAnchors( CAlfAnchorLayout* aAnchor,
-													 TInt aOrdinal,
-													 const TAlfRealPoint& aTopLeftPosition,
-													 const TAlfRealSize& aSize )
-	{
-	if( aAnchor )
-		{
-		aAnchor->SetRelativeAnchorRect( aOrdinal,
-    	EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aTopLeftPosition,
-        EAlfAnchorOriginLeft, EAlfAnchorOriginTop, aTopLeftPosition + TAlfRealPoint( aSize.iWidth, aSize.iHeight ) );		
-		}
-	}
+                                                     TInt aOrdinal,
+                                                     const TPoint& aTopLeftPosition,
+                                                     const TPoint& aBottomRightPosition )
+    {
+    if ( aAnchor )
+        {
+        // Set top/left anchor.
+        aAnchor->Attach( aOrdinal, 
+                         EAlfAnchorTypeTopLeft,
+                         TAlfXYMetric( TAlfMetric( aTopLeftPosition.iX ), TAlfMetric( aTopLeftPosition.iY ) ),
+                         EAlfAnchorAttachmentOriginTopLeft );
+                
+        // Set bottom/right anchor.
+        aAnchor->Attach( aOrdinal, 
+                         EAlfAnchorTypeBottomRight, 
+                         TAlfXYMetric( TAlfMetric( aBottomRightPosition.iX ), TAlfMetric( aBottomRightPosition.iY ) ),
+                         EAlfAnchorAttachmentOriginTopLeft );
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CFMRadioAlfRDSViewer::Fade

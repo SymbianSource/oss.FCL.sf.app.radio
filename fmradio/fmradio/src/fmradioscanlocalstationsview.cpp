@@ -822,6 +822,10 @@ void CFMRadioScanLocalStationsView::StopSeekL()
             {
             AppUi()->HandleCommandL( EFMRadioCmdScanLocalStationsScan );
             }
+        else
+            {
+            iRadioEngine.SetMuteOn( EFalse );
+            }
         }
     else if ( iScanAndSaveActivated )
         {
@@ -846,7 +850,7 @@ void CFMRadioScanLocalStationsView::StopSeekL()
                 iScanAndSaveActivated = EFalse;
 
                 RemoveScanningInProgressNoteL();
-                RestoreRadio( EFalse );
+                RestoreRadio();
                 appUi->AutoTuneInMainView(ETrue);
                 
                 ActivateMainViewL();
@@ -890,7 +894,7 @@ void CFMRadioScanLocalStationsView::StopSeekL()
             restoreFrequency = ETrue;
             }
         UpdateToolbar();
-        RestoreRadio( restoreFrequency, EFalse );
+        RestoreRadio( restoreFrequency );
         
         // update now playing index if the tuning is triggered from accessory 
         TInt frequencyIndex = FrequencyIndex( tunedFrequency );
@@ -912,7 +916,7 @@ void CFMRadioScanLocalStationsView::StopSeekL()
 // Restores the radio after scanning
 // -----------------------------------------------------------------------------------------------
 //
-void CFMRadioScanLocalStationsView::RestoreRadio( TBool aTuneInitialFrequency, TBool aUnmute )
+void CFMRadioScanLocalStationsView::RestoreRadio( TBool aTuneInitialFrequency )
     {
     FTRACE( FPrint( _L("CFMRadioScanLocalStationsView::RestoreRadio") ) );
     CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
@@ -923,10 +927,6 @@ void CFMRadioScanLocalStationsView::RestoreRadio( TBool aTuneInitialFrequency, T
             {
             iTuneRequested = ETrue;
             iRadioEngine.Tune( iInitialTunedFrequency );
-            }
-        if ( aUnmute ) // set mute off by default
-            {
-            iRadioEngine.SetMuteOn( EFalse );
             }
         iInitialTunedFrequency = 0;
         }
@@ -991,10 +991,7 @@ void CFMRadioScanLocalStationsView::AddTunedFrequencyToListL()
             PlayCurrentlySelectedChannelL();
             iContainer->DrawDeferred();
             }
-
-        //unmute radio
-        iRadioEngine.SetMuteOn( EFalse );
-
+        
         CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
 
         if ( appUi->IsStartupWizardRunning() )
@@ -1239,6 +1236,7 @@ void CFMRadioScanLocalStationsView::PlayCurrentlySelectedChannelL()
             {
             SetNowPlayingChannelL( selectedChannel );
             SetLastListenedChannel( selectedChannel );
+            iRadioEngine.SetMuteOn( EFalse );
             }
         }
     }
