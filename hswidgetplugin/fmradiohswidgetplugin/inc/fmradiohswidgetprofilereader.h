@@ -33,19 +33,27 @@ Q_OBJECT
 public:
     FmRadioHsWidgetProfileReader(QObject *parent = 0);
     virtual ~FmRadioHsWidgetProfileReader();
+    
+    QVariant radioStatus();
 
 signals:
     void profileChanged(int profile);
+    void radioRunning(QVariant state);
 
 public slots:
     void itemDeleted(const XQSettingsKey& key);
-    void handleChanges(const XQSettingsKey& key, const QVariant& value);
+    //void handleChanges(const XQSettingsKey& key, const QVariant& value);
+    void handleRadioRunningChanges(const XQSettingsKey& key, const QVariant& value);
     
 private slots:
     void currentProfileStatus(QVariant value);
+    void currentRadioRunningStatus(QVariant value);
+    
+    void startMonitoringRadioRunningStatus();
     
 private: // data
     XQSettingsManager *mSettingsManager; // For getting and P&S notifications
+    int mRadioStatus;
 
 };
 

@@ -18,8 +18,8 @@
 #ifndef RADIOSERVICES_H
 #define RADIOSERVICES_H
 
-static const char* RADIO_CONTROL_SERVICE = "com.nokia.services.Radio.IRadioControl";
-static const char* RADIO_MONITOR_SERVICE = "com.nokia.services.Radio.IRadioMonitor";
+static QString RADIO_CONTROL_SERVICE = "com.nokia.services.Radio.IRadioControl";
+static QString RADIO_MONITOR_SERVICE = "com.nokia.services.Radio.IRadioMonitor";
 
 const long KRadioPSUid = 0x101FF976;
 const unsigned long KRadioStartupKey = 0x00000014;
@@ -43,7 +43,6 @@ namespace RadioServiceNotification
 {
     enum Type {
         FavoriteCount = 1,
-        AntennaConnected,
         RadioStatus,
         Frequency,
         Name,
@@ -57,9 +56,11 @@ namespace RadioServiceNotification
 namespace RadioStatus
 {
     enum Status {
+        UnSpecified,
         Playing,
         Muted,
-        Seeking
+        Seeking,
+        NoAntenna
     };
 }
 

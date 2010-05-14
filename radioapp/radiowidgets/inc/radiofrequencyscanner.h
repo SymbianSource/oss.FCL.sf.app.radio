@@ -26,8 +26,7 @@
 class HbProgressDialog;
 class RadioStation;
 class RadioUiEngine;
-class RadioXmlUiLoader;
-class RadioMainWindow;
+class RadioWindow;
 class RadioFrequencyStrip;
 class RadioStationCarousel;
 class RadioScannerEngine;
@@ -42,48 +41,50 @@ public:
     RadioFrequencyScanner( RadioUiEngine& uiEngine, QObject* parent );
     ~RadioFrequencyScanner();
 
-    void startScanning( RadioXmlUiLoader& uiLoader );
+    void startScanning();
+
+    bool isAlive() const;
 
 signals:
 
     void frequencyScannerFinished();
 
+public slots:
+
+    void cancelScanning();
+
 private slots:
 
     void delayedStart();
-    void updateScanAndSaveProgress( const RadioStation& station );
+    void updateScanProgress( const RadioStation& station );
     void continueScanning();
-    void scanAndSavePresetsCancelled();
     void restoreUiControls();
 
 private:
 
-    void scanAndSavePresetsFinished();
+    void finishScanning();
 
 private: // data
 
     /*!
      * Reference to the Ui engine
      */
-    RadioUiEngine&      mUiEngine;
+    RadioUiEngine&                      mUiEngine;
 
-    bool                mInTuningView;
+    bool                                mInMainView;
 
-    QScopedPointer<RadioScannerEngine> mScannerEngine;
+    QScopedPointer<RadioScannerEngine>  mScannerEngine;
 
     /**
      * Scanning progress note
      * Own.
      */
-    HbProgressDialog*     mScanningProgressNote;
+    QScopedPointer<HbProgressDialog>    mScanningProgressNote;
 
-    /**
-     * Amount of radio stations found
-     */
-    uint                mChannelCount;
+    int                                 mStripScrollTime;
+    int                                 mCarouselScrollTime;
 
-    int                 mStripScrollTime;
-    int                 mCarouselScrollTime;
+    bool                                mIsAlive;
 
 };
 

@@ -18,14 +18,17 @@
 #ifndef RADIOSETTINGS_H_
 #define RADIOSETTINGS_H_
 
+// System includes
+#include <QtGlobal>
+
 // User includes
-#include "radiowrapperexport.h"
+#include "radiosettingsif.h"
 
 // Forward declarations
 class RadioSettingsPrivate;
 
 // Class declaration
-class WRAPPER_DLL_EXPORT RadioSettings
+class RadioSettings : public RadioSettingsIf
     {
     Q_DECLARE_PRIVATE_D( d_ptr, RadioSettings )
     Q_DISABLE_COPY( RadioSettings )
@@ -34,19 +37,18 @@ class WRAPPER_DLL_EXPORT RadioSettings
 
 public:
 
-    ~RadioSettings();
-
-    // First time start
-    bool isFirstTimeStart();
-
-    // Favorites
-    bool showFavorites() const;
-    void setShowFavorites( bool showFavorites );
-    bool toggleShowFavorites();
+    virtual ~RadioSettings();
 
 private:
 
-    explicit RadioSettings();
+    RadioSettings();
+
+// from base class RadioSettingsIf
+
+    bool isFirstTimeStart();
+    bool showFavorites() const;
+    void setShowFavorites( bool showFavorites );
+    bool toggleShowFavorites();
 
 private: // data
 

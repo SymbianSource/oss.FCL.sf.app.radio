@@ -24,6 +24,7 @@
 #   include <QSettings>
 #else
 #   include <qsysteminfo.h>
+#   include <XQSettingsManager>
 using namespace QtMobility;
 #endif // WIN32_BUILD
 
@@ -34,14 +35,11 @@ using namespace QtMobility;
 #include "radioenginewrapper.h"
 #include "radiostationmodel.h"
 #include "radiohistorymodel.h"
+#include "radiocarouselmodel.h"
+#include "radiohistoryitem.h"
 #include "radiosettings.h"
 #include "radiostationfiltermodel.h"
 #include "radioscannerengine.h"
-#ifdef BUILD_WIN32
-#   include "radiomonitorservice_win32.h"
-#else
-#   include "radiomonitorservice.h"
-#endif
 
 // Constants
 const QString KPathFormatter = "%1:%2%3";
@@ -49,16 +47,20 @@ const QString KApplicationDir = "\\sys\\bin\\";
 const QString KSongRecognitionApp = "Shazam_0x200265B3.exe";
 const QString KSongRecognitionAppParams = "-listen";
 
+const uint DEFAULT_MIN_FREQUENCY = 87500000;
+const uint RADIO_CENREP_UID = 0x101FF976;
+const uint RADIO_CENREP_FREQUENCY_KEY = 0x00000107;
+
 struct GenreStruct
-    {
+{
     int mGenreCode;
     const char* mInCarousel;
     const char* mInStationsList;
     const char* mInHomeScreen;
-    };
+};
 
 const GenreStruct EuropeanGenres[] =
-    {
+{
      { GenreEurope::RdsNone, "", "", "" }
     ,{ GenreEurope::RdsNews, "txt_rad_info_news", "txt_rad_dblist_l1_mhz_val_news", "txt_rad_info_news_hs" }
     ,{ GenreEurope::RdsCurrentAffairs, "txt_rad_info_current_affairs", "txt_rad_dblist_l1_mhz_val_current_affairs", "txt_rad_info_current_affairs_hs" }
@@ -91,11 +93,11 @@ const GenreStruct EuropeanGenres[] =
     ,{ GenreEurope::RdsDocumentary, "txt_rad_info_documentary", "txt_rad_dblist_l1_mhz_val_documentary", "txt_rad_info_documentary_hs" }
     ,{ GenreEurope::RdsAlarmTest, "txt_rad_info_alarm_test", "txt_rad_dblist_l1_mhz_val_alarm_test", "txt_rad_info_alarm_test_hs" }
     ,{ GenreEurope::RdsAlarm, "txt_rad_info_alarm", "txt_rad_dblist_l1_mhz_val_alarm", "txt_rad_info_alarm_hs" }
-    };
+};
 const int EuropeanGenresCount = sizeof( EuropeanGenres ) / sizeof ( EuropeanGenres[0] );
 
 const GenreStruct AmericanGenres[] =
-    {
+{
      { GenreAmerica::RbdsNone, "", "", "" }
     ,{ GenreAmerica::RbdsNews, "txt_rad_info_news", "txt_rad_dblist_l1_mhz_val_news", "txt_rad_info_news_hs" }
     ,{ GenreAmerica::RbdsInformation, "txt_rad_info_information", "txt_rad_dblist_l1_mhz_val_information", "txt_rad_info_information_hs" }
@@ -128,7 +130,7 @@ const GenreStruct AmericanGenres[] =
     ,{ GenreAmerica::RbdsWeather, "txt_rad_info_weather", "txt_rad_dblist_l1_mhz_val_weather", "txt_rad_info_weather_hs" }//TODO: Check
     ,{ GenreAmerica::RbdsEmergencyTest, "txt_rad_info_alarm_test", "txt_rad_dblist_l1_mhz_val_alarm_test", "txt_rad_info_alarm_test_hs" }//TODO: Check
     ,{ GenreAmerica::RbdsEmergency, "txt_rad_info_alarm", "txt_rad_dblist_l1_mhz_val_alarm", "txt_rad_info_alarm_hs" }//TODO: Check
-    };
+};
 const int AmericanGenresCount = sizeof( AmericanGenres ) / sizeof ( AmericanGenres[0] );
 
 /*!
@@ -154,6 +156,28 @@ bool RadioUiEngine::isOfflineProfile()
 /*!
  *
  */
+uint RadioUiEngine::lastTunedFrequency()
+{
+    uint frequency = DEFAULT_MIN_FREQUENCY;
+
+#ifdef BUILD_WIN32
+    QScopedPointer<QSettings> settings( new QSettings( "Nokia", "QtFmRadio" ) );
+    frequency = settings->value( "CurrentFreq", DEFAULT_MIN_FREQUENCY ).toUInt();
+    if ( frequency == 0 ) {
+        frequency = DEFAULT_MIN_FREQUENCY;
+    }
+#else
+    QScopedPointer<XQSettingsManager> settings( new XQSettingsManager() );
+    XQSettingsKey key( XQSettingsKey::TargetCentralRepository, RADIO_CENREP_UID, RADIO_CENREP_FREQUENCY_KEY );
+    frequency = settings->readItemValue( key, XQSettingsManager::TypeInt ).toUInt();
+#endif
+
+    return frequency;
+}
+
+/*!
+ *
+ */
 RadioUiEngine::RadioUiEngine( QObject* parent ) :
     QObject( parent ),
     d_ptr( new RadioUiEnginePrivate( this ) )
@@ -171,10 +195,19 @@ RadioUiEngine::~RadioUiEngine()
 /*!
  *
  */
-bool RadioUiEngine::startRadio()
+bool RadioUiEngine::isInitialized() const
+{
+    Q_D( const RadioUiEngine );
+    return !d->mEngineWrapper.isNull();
+}
+
+/*!
+ *
+ */
+bool RadioUiEngine::init()
 {
     Q_D( RadioUiEngine );
-    return d->startRadio();
+    return d->init();
 }
 
 /*!
@@ -189,7 +222,7 @@ bool RadioUiEngine::isFirstTimeStart()
 /*!
  * Returns the settings handler owned by the engine
  */
-RadioSettings& RadioUiEngine::settings()
+RadioSettingsIf& RadioUiEngine::settings()
 {
     Q_D( RadioUiEngine );
     return d->mEngineWrapper->settings();
@@ -198,7 +231,7 @@ RadioSettings& RadioUiEngine::settings()
 /*!
  * Returns the station model
  */
-RadioStationModel& RadioUiEngine::model()
+RadioStationModel& RadioUiEngine::stationModel()
 {
     Q_D( RadioUiEngine );
     return *d->mStationModel;
@@ -210,15 +243,11 @@ RadioStationModel& RadioUiEngine::model()
 RadioHistoryModel& RadioUiEngine::historyModel()
 {
     Q_D( RadioUiEngine );
-    if ( !d->mHistoryModel ) {
-        d->mHistoryModel = new RadioHistoryModel( *this );
-    }
-
     return *d->mHistoryModel;
 }
 
 /*!
- * Returns the stations list
+ * Creates a new filter model
  */
 RadioStationFilterModel* RadioUiEngine::createNewFilterModel( QObject* parent )
 {
@@ -226,24 +255,28 @@ RadioStationFilterModel* RadioUiEngine::createNewFilterModel( QObject* parent )
 }
 
 /*!
- *
+ * Creates a new carousel model
  */
-RadioScannerEngine* RadioUiEngine::createScannerEngine()
+RadioCarouselModel* RadioUiEngine::carouselModel()
 {
     Q_D( RadioUiEngine );
-    if ( d->mScannerEngine.isNull() ) {
-        d->mScannerEngine = new RadioScannerEngine( *d );
+    if ( !d->mCarouselModel ) {
+        d->mCarouselModel.reset( new RadioCarouselModel( *this, *d->mStationModel ) );
     }
-    return d->mScannerEngine;
+
+    return d->mCarouselModel.data();
 }
 
 /*!
- * Returns the stations list
+ *
  */
-RadioMonitorService& RadioUiEngine::monitor()
+RadioScannerEngine* RadioUiEngine::scannerEngine()
 {
-    Q_D( const RadioUiEngine );
-    return *d->mMonitorService;
+    Q_D( RadioUiEngine );
+    if ( !d->mScannerEngine ) {
+        d->mScannerEngine = new RadioScannerEngine( *d );
+    }
+    return d->mScannerEngine;
 }
 
 /*!
@@ -261,7 +294,10 @@ bool RadioUiEngine::isRadioOn() const
 bool RadioUiEngine::isScanning() const
 {
     Q_D( const RadioUiEngine );
-    return d->mScannerEngine != 0;
+    if ( d->mScannerEngine ) {
+        return d->mScannerEngine->isScanning();
+    }
+    return false;
 }
 
 /*!
@@ -337,6 +373,15 @@ uint RadioUiEngine::frequencyStepSize() const
 }
 
 /*!
+ * Sets the mute status
+ */
+void RadioUiEngine::setMute( bool muted )
+{
+    Q_D( RadioUiEngine );
+    d->mEngineWrapper->setMute( muted );
+}
+
+/*!
  *
  */
 QList<RadioStation> RadioUiEngine::stationsInRange( uint minFrequency, uint maxFrequency )
@@ -409,16 +454,35 @@ void RadioUiEngine::addRecognizedSong( const QString& artist, const QString& tit
 }
 
 /*!
+ *
+ */
+uint RadioUiEngine::skipStation( StationSkip::Mode mode, uint startFrequency )
+{
+    Q_D( RadioUiEngine );
+    return d->skip( mode, startFrequency );
+}
+
+/*!
+ *
+ */
+void RadioUiEngine::openMusicStore( const RadioHistoryItem& item, MusicStore store )
+{
+    Q_UNUSED( item );
+    Q_UNUSED( store );
+    //TODO: Integrate to music store
+}
+
+/*!
  * Public slot
  * Tunes to the given frequency
  */
-void RadioUiEngine::tuneFrequency( uint frequency, const int sender )
+void RadioUiEngine::tuneFrequency( uint frequency, const int reason )
 {
     Q_D( RadioUiEngine );
     if ( frequency != d->mStationModel->currentStation().frequency() && d->mEngineWrapper->isFrequencyValid( frequency ) ) {
         LOG_FORMAT( "RadioUiEngine::tuneFrequency, frequency: %d", frequency );
         d->cancelSeeking();
-        d->mEngineWrapper->tuneFrequency( frequency, sender );
+        d->mEngineWrapper->tuneFrequency( frequency, reason );
     }
 }
 
@@ -426,13 +490,13 @@ void RadioUiEngine::tuneFrequency( uint frequency, const int sender )
  * Public slot
  * Tunes to the given frequency after a delay
  */
-void RadioUiEngine::tuneWithDelay( uint frequency, const int sender )
+void RadioUiEngine::tuneWithDelay( uint frequency, const int reason )
 {
     Q_D( RadioUiEngine );
     if ( frequency != d->mStationModel->currentStation().frequency() &&  d->mEngineWrapper->isFrequencyValid( frequency ) ) {
         LOG_FORMAT( "RadioEngineWrapperPrivate::tuneWithDelay, frequency: %d", frequency );
         d->cancelSeeking();
-        d->mEngineWrapper->tuneWithDelay( frequency, sender );
+        d->mEngineWrapper->tuneWithDelay( frequency, reason );
     }
 }
 
@@ -471,7 +535,9 @@ void RadioUiEngine::setVolume( int volume )
 void RadioUiEngine::toggleMute()
 {
     Q_D( RadioUiEngine );
-    d->mEngineWrapper->toggleMute();
+    if ( !isScanning() ) {
+        d->mEngineWrapper->setMute( !d->mEngineWrapper->isMuted() );
+    }
 }
 
 /*!
@@ -488,45 +554,13 @@ void RadioUiEngine::toggleAudioRoute()
  * Public slot
  *
  */
-void RadioUiEngine::skipPrevious()
-{
-    Q_D( RadioUiEngine );    
-    d->skip( RadioUiEnginePrivate::Previous );
-}
-
-/*!
- * Public slot
- *
- */
-void RadioUiEngine::skipNext()
-{
-    Q_D( RadioUiEngine );
-    d->skip( RadioUiEnginePrivate::Next );
-}
-
-/*!
- * Public slot
- *
- */
-void RadioUiEngine::seekUp()
+void RadioUiEngine::seekStation( int seekDirection )
 {
     if ( isAntennaAttached() ) {
         Q_D( RadioUiEngine );
-        emitSeekingStarted( Seeking::Up );
-        d->mEngineWrapper->startSeeking( Seeking::Up, TuneReason::Seek );
-    }
-}
-
-/*!
- * Public slot
- *
- */
-void RadioUiEngine::seekDown()
-{
-    if ( isAntennaAttached() ) {
-        Q_D( RadioUiEngine );
-        emitSeekingStarted( Seeking::Down );
-        d->mEngineWrapper->startSeeking( Seeking::Down, TuneReason::Seek );
+        Seeking::Direction direction = static_cast<Seeking::Direction>( seekDirection );
+        emitSeekingStarted( direction );
+        d->mEngineWrapper->startSeeking( direction, TuneReason::Seek );
     }
 }
 
@@ -542,6 +576,7 @@ void RadioUiEngine::launchSongRecognition()
     arguments << KSongRecognitionAppParams;
 
     bool started = QProcess::startDetached( KSongRecognitionApp, arguments );
+    Q_UNUSED( started );
     LOG_ASSERT( started, LOG_FORMAT("RadioUiEngine::launchSongRecognition() failed to start %s", GETSTRING( KSongRecognitionApp ) ) );
 }
 
@@ -559,8 +594,6 @@ void RadioUiEngine::emitTunedToFrequency( uint frequency, int commandSender )
 void RadioUiEngine::emitSeekingStarted( Seeking::Direction direction )
 {
     emit seekingStarted( direction );
-    Q_D( RadioUiEngine );
-    d->mMonitorService->notifyRadioStatus( RadioStatus::Seeking );
 }
 
 /*!

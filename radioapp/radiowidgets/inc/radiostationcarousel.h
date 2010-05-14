@@ -26,15 +26,30 @@
 
 // User includes
 #include "radiowidgetsexport.h"
+#include "radio_global.h"
 
 // Forward declarations
 class RadioUiEngine;
+class RadioUiLoader;
 class RadioStation;
 class RadioStationItem;
 class RadioStationCarousel;
-class RadioStationModel;
+class RadioCarouselModel;
 class RadioFadingLabel;
 class QTimeLine;
+class HbLabel;
+
+namespace CarouselInfoText
+{
+    enum Type
+    {
+        None,
+        ConnectAntenna,
+        NoFavorites,
+        Seeking,
+        Scanning
+    };
+}
 
 // Class declaration
 class ScanningHelper : public QObject
@@ -76,6 +91,15 @@ class WIDGETS_DLL_EXPORT RadioStationCarousel : public HbGridView
 
 public:
 
+    enum ScrollFlag
+    {
+        Default         = 0,
+        NoAnim          = 1 << 0,
+        NoSignal        = 1 << 1,
+        UpdateItem      = 1 << 2
+    };
+    Q_DECLARE_FLAGS( ScrollMode, ScrollFlag )
+
     RadioStationCarousel( RadioUiEngine* uiEngine = 0 );
 
     void setFavoriteIcon( const HbIcon& favoriteIcon );
@@ -87,9 +111,11 @@ public:
     void setAutoScrollTime( const int time );
     int autoScrollTime() const;
 
-    void init( RadioUiEngine* uiEngine );
+    void init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngine );
 
-    void setStationModel( RadioStationModel* stationModel );
+    void setCarouselModel( RadioCarouselModel* carouselModel );
+
+    void setFrequency( uint frequency, int reason );
 
     RadioUiEngine* uiEngine();
 
@@ -99,31 +125,35 @@ public:
     bool isInScanningMode() const;
 
     void cleanRdsData();
+
+    void updateCurrentItem();
+
     void animateNewStation( const RadioStation& station );
-    void setItemVisibility( bool visible );
+
+    void setItemVisible( bool visible );
+
+    void setInfoText( CarouselInfoText::Type type );
+    void clearInfoText();
 
 signals:
 
-    void frequencyChanged( uint frequency, int commandSender );
+    void frequencyChanged( uint frequency, int reason );
     void scanAnimationFinished();
 
 public slots:
 
-    void setFrequency( uint frequency );
     void updateAntennaStatus( bool connected );
 
 private slots:
 
     void update( const RadioStation& station );
     void updateRadioText( const RadioStation& station );
-    void leftGesture( int speedPixelsPerSecond );
-    void rightGesture( int speedPixelsPerSecond );
     void insertFrequency( const QModelIndex& parent, int first, int last );
+    void prepareToRemoveFrequency( const QModelIndex& parent, int first, int last );
     void removeFrequency( const QModelIndex& parent, int first, int last );
     void updateFrequencies();
-    void updateLoopedPos();
-    void radioTextPlusCheckEnded();
-    void delayedScroll();
+    void timerFired();
+    void openContextMenu( HbAbstractViewItem* item, const QPointF& coords );
 
 #ifdef USE_DEBUGGING_CONTROLS
     void setRdsAvailable( bool available );
@@ -133,17 +163,31 @@ private:
 
 // from base class QGraphicsItem
 
-    void mouseMoveEvent( QGraphicsSceneMouseEvent* event );
-    void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
-    void resizeEvent( QGraphicsSceneResizeEvent* event );
+    void mousePressEvent( QGraphicsSceneMouseEvent* event );
+
+    void gestureEvent( QGestureEvent* event );
+
+// New functions
+
+    void initToLastTunedFrequency();
+
+    void updateClampingStyle();
+
+    void initCurrentStationItem();
 
     RadioStationItem* currentStationItem();
 
-    RadioStationModel* stationModel() const;
+    RadioCarouselModel* carouselModel() const;
 
-    void scrollToIndex( const QModelIndex& index, int time );
+    void scrollToIndex( const QModelIndex& index, ScrollMode mode = Default );
+
+    void updatePos( int offset );
+
+    void skip( StationSkip::Mode mode );
 
 private: // data
+
+    enum TimerMode { NoTimer, RtPlusCheck, InfoText };
 
     RadioUiEngine*          mUiEngine;
 
@@ -151,29 +195,32 @@ private: // data
 
     int                     mAutoScrollTime;
 
-    qreal                   mPreviousButtonPos;
-
-    bool                    mMovingLeft;
-
-    RadioStationItem*       mCurrentItem;
-
     QMap<uint,QModelIndex>  mModelIndexes;
 
     HbIcon                  mFavoriteIcon;
     HbIcon                  mNonFavoriteIcon;
 
-    QTimer*                 mRadioTextTimer;
+    QTimer*                 mGenericTimer;
+    TimerMode               mTimerMode;
 
     QString                 mRadioTextHolder;
-    
-    int                     mScrollPos;
 
     ScanningHelper*         mScanningHelper;
+
+    HbLabel*                mInfoText;
+
+    RadioStationItem*       mCurrentItem;
+
+    CarouselInfoText::Type  mInfoTextType;
+
+    int                     mPanStartPos;
 	
 #ifdef USE_DEBUGGING_CONTROLS
     RadioFadingLabel*       mRdsLabel;
 #endif
 
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( RadioStationCarousel::ScrollMode )
 
 #endif // RADIOSTATIONCAROUSEL_H

@@ -45,7 +45,7 @@ const int KOfflineProfileId = 5;
  */
 namespace RtPlus
 {
-    enum Tag { Title = 1, Artist = 4, Homepage = 39 };
+    enum Tag { Dummy = 0, Title = 1, Artist = 4, Homepage = 39 };
 }
 
 namespace Seeking
@@ -64,6 +64,17 @@ namespace Seeking
     };
 }
 
+namespace StationSkip
+{
+    enum Mode
+    {
+        Previous,
+        Next,
+        PreviousFavorite,
+        NextFavorite
+    };
+}
+
 namespace TuneReason
 {
     enum Reason
@@ -71,6 +82,8 @@ namespace TuneReason
         Unspecified,
         FrequencyStrip,
         StationCarousel,
+        StationsList,
+        Skip,
         Seek,
         StationScanInitialization,
         StationScan,

@@ -19,6 +19,7 @@
 #include <HbStyleLoader>
 #include <HbPushButton>
 #include <HbAnchorLayout>
+#include <HbMessageBox>
 
 // User includes
 #include "radiostationitem.h"
@@ -80,7 +81,6 @@ void RadioStationItem::updateChildItems()
         QPixmap background( QSize( 50, 50 ) );
         background.fill( Qt::transparent );
         mIconButton->setBackground( HbIcon( background ) );
-        mIconButton->setOrientation( Qt::Horizontal );
         mIconButton->setIcon( mCarousel.nonFavoriteIcon() );
         mIconButton->setMaximumSize( 50, 50 );
         connectAndTest( mIconButton, SIGNAL(clicked()), this, SLOT(toggleFavorite()));
@@ -148,7 +148,7 @@ void RadioStationItem::toggleFavorite()
 {
     RadioUiEngine* uiEngine = carousel()->uiEngine();
     if ( uiEngine ) {
-        uiEngine->model().setData( modelIndex(), mFrequency, RadioStationModel::ToggleFavoriteRole );
+        uiEngine->stationModel().setData( modelIndex(), mFrequency, RadioStationModel::ToggleFavoriteRole );
     }
 }
 
@@ -224,10 +224,23 @@ void RadioStationItem::cleanRdsData()
 /*!
  *
  */
+void RadioStationItem::handleLongPress( const QPointF& /*coords*/ )
+{
+    QString text = QString( "Selected frequency: %1" ).arg( mFrequency );
+//    HbMessageBox::information( text );
+}
+
+/*!
+ *
+ */
 void RadioStationItem::updateFavoriteIcon( bool isFavorite )
 {
     if ( !mCarousel.isInScanningMode() ) {
-        mIconButton->setIcon( isFavorite ? mCarousel.favoriteIcon() : mCarousel.nonFavoriteIcon() );
+        if ( isFavorite ) {
+            mIconButton->setIcon( mCarousel.favoriteIcon() );
+        } else {
+            mIconButton->setIcon( mCarousel.nonFavoriteIcon() );
+        }
     } else {
         mIconButton->setIcon( HbIcon( "" ) );
     }

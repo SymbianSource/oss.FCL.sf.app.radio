@@ -41,8 +41,6 @@ public:
 
     virtual void addScannedFrequency( uint frequency ) = 0;
 
-    virtual void removeLocalStations() = 0;
-
     virtual void setCurrentPsName( uint frequency, const QString& name ) = 0;
     virtual void setCurrentRadioText( uint frequency, const QString& radioText ) = 0;
     virtual void setCurrentRadioTextPlus( uint frequency, int rtClass, const QString& rtItem ) = 0;

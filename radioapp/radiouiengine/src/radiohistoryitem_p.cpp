@@ -15,6 +15,11 @@
 *
 */
 
+// System includes
+#include <QSqlRecord>
+#include <QVariant>
+
+// User includes
 #include "radiohistoryitem.h"
 #include "radiohistoryitem_p.h"
 
@@ -41,9 +46,25 @@ RadioHistoryItemPrivate::RadioHistoryItemPrivate( const QString& artist,
 void RadioHistoryItemPrivate::init( const QString& artist, const QString& title )
 {
     ref = 1;
+    mId = -1;
     mArtist = artist;
     mTitle = title;
     mFrequency = 0;
-    mFavorite = false;
-    mPlayCount = 1;
+    mTagged = false;
+    mFromRds = true;
+}
+
+/*!
+ *
+ */
+void RadioHistoryItemPrivate::initFromRecord( const QSqlRecord& record )
+{
+    mId = record.value( RadioHistoryValue::Id ).toInt();
+    mArtist = record.value( RadioHistoryValue::Artist ).toString();
+    mTitle = record.value( RadioHistoryValue::Title ).toString();
+    mFrequency = record.value( RadioHistoryValue::Frequency ).toUInt() * 1000;
+    mStation = record.value( RadioHistoryValue::Station ).toString();
+    mTagged = record.value( RadioHistoryValue::Tagged ).toBool();
+    mFromRds = record.value( RadioHistoryValue::FromRds ).toBool();
+    mTime = record.value( RadioHistoryValue::Time ).toDateTime();
 }

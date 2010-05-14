@@ -25,11 +25,8 @@
 #include <QSharedPointer>
 
 // Forward declarations
-class RadioUiEngine;
-class RadioMainWindow;
+class RadioWindow;
 class RadioStationModel;
-
-typedef QSharedPointer<RadioMainWindow> RadioMainWindowPtr;
 
 #ifdef BUILD_WIN32
     class Win32Window;
@@ -54,20 +51,14 @@ private slots:
 private: // data
 
 #ifdef BUILD_WIN32
-    QScopedPointer<Win32Window> mWin32Window;
+    QScopedPointer<Win32Window>     mWin32Window;
 #endif // BUILD_WIN32
 
     /**
      * Application main window
      * Own
      */
-    RadioMainWindowPtr  mMainWindow;
-
-    /**
-     * Radio engine
-     * Own
-     */
-    RadioUiEngine*      mUiEngine;
+    QScopedPointer<RadioWindow> mMainWindow;
 
 };
 

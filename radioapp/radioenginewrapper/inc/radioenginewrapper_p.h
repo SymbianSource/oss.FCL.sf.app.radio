@@ -31,6 +31,7 @@
 class CRadioEngineHandler;
 class RadioControlEventListener;
 class RadioRdsListener;
+class RadioSettingsIf;
 class RadioSettings;
 class RadioStationHandlerIf;
 class RadioEngineWrapperObserver;
@@ -68,7 +69,7 @@ public:
     /**
      * Returns the radio settings
      */
-    RadioSettings& settings();
+    RadioSettingsIf& settings();
 
     /**
     * Getter for CRadioEngineHandler instance.

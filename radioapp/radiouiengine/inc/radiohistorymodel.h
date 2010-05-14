@@ -29,6 +29,8 @@
 class RadioHistoryModelPrivate;
 class RadioUiEngine;
 class RadioStation;
+class QIcon;
+class RadioHistoryItem;
 
 class UI_ENGINE_DLL_EXPORT RadioHistoryModel : public QAbstractListModel
 {
@@ -37,10 +39,14 @@ class UI_ENGINE_DLL_EXPORT RadioHistoryModel : public QAbstractListModel
     Q_DISABLE_COPY( RadioHistoryModel )
 
     friend class RadioUiEngine;
+    friend class RadioUiEnginePrivate;
     friend class RadioStationModelPrivate;
-    friend class TestRadioUiEngine;
-    
+
+    friend class RadioHistoryView;  // TEMPORARY TEST CODE, REMOVE
+
 public:
+
+    ~RadioHistoryModel();
 
     enum HistoryRole
     {
@@ -50,15 +56,22 @@ public:
 
 // from base class QAbstractListModel
 
-    Qt::ItemFlags flags ( const QModelIndex& index ) const;
     int rowCount( const QModelIndex& parent = QModelIndex() ) const;
     QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const;
-    bool setData( const QModelIndex& index, const QVariant& value, int role = Qt::EditRole );
 
 // New functions
 
+    /*!
+     * Sets the icons to be used in the list
+     */
+    void setIcons( const QIcon& nonTaggedIcon, const QIcon& taggedIcon );
+
     bool isCurrentSongRecognized() const;
     void setShowDetails( bool showDetails );
+    void setShowTagged( bool showTagged );
+    void toggleTagging( const RadioHistoryItem& item, const int row );
+
+    RadioHistoryItem itemAtIndex( const QModelIndex& index ) const;
 
 signals:
 
@@ -68,23 +81,20 @@ signals:
 public slots:
 
     void resetCurrentSong();
-    void setFavorite();
     void removeAll();
 
 private:
 
     explicit RadioHistoryModel( RadioUiEngine& uiEngine );
 
-    ~RadioHistoryModel();
-
     void addItem( const QString& artist, const QString& title, const RadioStation& station );
 
     void clearRadioTextPlus();
     void addRadioTextPlus( int rtClass, const QString& rtItem, const RadioStation& station );
 
-    int findItem( const QString& artist, const QString& title, RadioHistoryItem& item );
+    void reportChangedData( int start, int end = -1 );
 
-    void updateItem( int index, const RadioHistoryItem& item, bool prepend = false );
+    void emitItemAdded();
 
 private: // data
 

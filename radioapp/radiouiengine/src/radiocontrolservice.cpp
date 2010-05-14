@@ -51,27 +51,27 @@ void RadioControlService::command( int commandId )
     switch ( commandId )
     {
         case RadioServiceCommand::Play:
-            mUiEngine.toggleMute();
+            mUiEngine.setMute( false );
             break;
 
         case RadioServiceCommand::Pause:
-            mUiEngine.toggleMute();
+            mUiEngine.setMute( true );
             break;
 
         case RadioServiceCommand::Previous:
-            mUiEngine.skipPrevious();
+            mUiEngine.skipStation( StationSkip::PreviousFavorite );
             break;
 
         case RadioServiceCommand::Next:
-            mUiEngine.skipNext();
+            mUiEngine.skipStation( StationSkip::NextFavorite );
             break;
 
         case RadioServiceCommand::SeekUp:
-            mUiEngine.seekUp();
+            mUiEngine.seekStation( Seeking::Up );
             break;
 
         case RadioServiceCommand::SeekDown:
-            mUiEngine.seekDown();
+            mUiEngine.seekStation( Seeking::Down );
             break;
 
         case RadioServiceCommand::Foreground:

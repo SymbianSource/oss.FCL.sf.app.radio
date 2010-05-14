@@ -14,6 +14,7 @@
 # Description: Example of home screen widget
 #
 
+CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = fmradiohswidgetplugin \
           fmradiohswidgetplugininstaller

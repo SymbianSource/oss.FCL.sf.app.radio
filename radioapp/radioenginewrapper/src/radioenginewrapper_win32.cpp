@@ -68,7 +68,7 @@ bool RadioEngineWrapper::isEngineConstructed()
 /*!
  * Returns the settings handler owned by the engine
  */
-RadioSettings& RadioEngineWrapper::settings()
+RadioSettingsIf& RadioEngineWrapper::settings()
 {
     Q_D( RadioEngineWrapper );
     return d->settings();
@@ -192,7 +192,7 @@ void RadioEngineWrapper::setVolume( int volume )
 /*!
  *
  */
-void RadioEngineWrapper::toggleMute()
+void RadioEngineWrapper::setMute( bool muted )
 {
 }
 

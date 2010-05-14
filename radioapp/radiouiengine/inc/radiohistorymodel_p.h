@@ -21,11 +21,21 @@
 // System includes
 #include <QList>
 #include <QString>
+#include <QScopedPointer>
+#include <QIcon>
+#include <QSqlQuery>
+
+// User includes
+#include "radiohistoryitem.h"
 
 // Forward declarations
 class RadioHistoryModel;
 class RadioUiEngine;
 class RadioHistoryItem;
+class QSqlDatabase;
+class RadioStation;
+class QStringList;
+class QSqlQueryModel;
 
 class RadioHistoryModelPrivate
 {
@@ -35,29 +45,64 @@ public:
 
     ~RadioHistoryModelPrivate();
 
+    bool connectToDatabase();
+
+    void addItem( const QString& artist, const QString& title, const RadioStation& station, bool fromRds = true );
+
+    int rowCount() const;
+    QVariant data( const int row, const int role ) const;
+
+    void removeAll();
+
+    enum ViewMode{ ShowAll, ShowTagged };
+    void setViewMode( ViewMode mode );
+
+    void toggleTagging( const RadioHistoryItem& item, const int row );
+
+    RadioHistoryItem itemAtIndex( const QModelIndex& index ) const;
+
+private:
+
+    void refreshModel();
+    QSqlQuery beginTransaction();
+    enum Operation{ NoOp, InsertRows, RemoveRows, ChangeData };
+    void commitTransaction( QSqlQuery& query, Operation operation, int start, int end = -1 );
+
 public: // data
 
     /**
      * Pointer to the public class
      * Not own.
      */
-    RadioHistoryModel*          q_ptr;
+    RadioHistoryModel*              q_ptr;
 
     /**
      * Reference to the ui engine
      */
-    RadioUiEngine&              mUiEngine;
+    RadioUiEngine&                  mUiEngine;
+
+    QScopedPointer<QSqlDatabase>    mDatabase;
+
+    QScopedPointer<QSqlQueryModel>  mQueryModel;
+
+    QString                         mRtItemHolder;
+    int                             mRtItemClass;
+
+    bool                            mTopItemIsPlaying;
+
+    bool                            mShowDetails;
 
     /**
-     * List of history items
+     * Non Tagged icon
      */
-    QList<RadioHistoryItem>     mItems;
+    QIcon                           mNonTaggedIcon;
 
-    QString                     mRtItemHolder;
+    /**
+     * Tagged icon
+     */
+    QIcon                           mTaggedIcon;
 
-    bool                        mTopItemIsPlaying;
-
-    bool                        mShowDetails;
+    ViewMode                        mViewMode;
 
 };
 

@@ -124,7 +124,7 @@ bool RadioEngineWrapperPrivate::isEngineConstructed()
 /*!
  * Returns the settings handler owned by the engine
  */
-RadioSettings& RadioEngineWrapperPrivate::settings()
+RadioSettingsIf& RadioEngineWrapperPrivate::settings()
 {
     if ( !mSettings ) {
         mSettings.reset( new RadioSettings() );

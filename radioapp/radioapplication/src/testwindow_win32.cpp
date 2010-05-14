@@ -54,12 +54,13 @@ struct Song
 };
 
 const Song KRecognizedSongs[] = {
-    { "Metallica", "One" },
-    { "Madonna", "Like a Virgin" },
-    { "Rammstein", "Der Meister" },
+    { "Red Hot Chili Peppers", "Under The Bridge" },
+    { "Queens Of The Stone Age", "No One Knows" },
+    { "The Presidents of the United States of America", "Dune Buggy" },
     { "System of a Down", "Aerials" },
-    { "Buckethead", "Jordan" },
-    { "Faith No More", "Epic" }
+    { "The White Stripes", "Seven Nation Army" },
+    { "Alice In Chains", "When The Sun Rose Again" },
+    { "Bullet For My Valentine", "Tears Don't Fall" }
 };
 const int KSongsCount = sizeof( KRecognizedSongs ) / sizeof( KRecognizedSongs[0] );
 

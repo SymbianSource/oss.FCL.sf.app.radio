@@ -37,6 +37,7 @@
 "../fmradiohswidgetplugin/qmakepluginstubs/fmradiohswidgetplugin.qtplugin"  - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.qtplugin"
 "../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.manifest"  - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.manifest"
 "../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.s60xml"       - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.xml"
+"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.css"       - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.css"
 ;"/epoc32/data/z/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.s60xml"       - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.xml"
 ;"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin.xml"       - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidgetplugin.xml"
 ;"../fmradiohswidgetplugin/resource/fmradiohswidgetplugin_icon.png"    - "!:\private\20022F35\import\widgetregistry\2002E6D6\fmradiohswidgetplugin_icon.png"

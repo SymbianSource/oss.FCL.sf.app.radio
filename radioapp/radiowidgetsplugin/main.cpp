@@ -21,7 +21,7 @@
 
 // User includes
 #include "radiostationsview.h"
-#include "radiotuningview.h"
+#include "radiomainview.h"
 #include "radiohistoryview.h"
 #include "radiostationcarousel.h"
 #include "radiofrequencystrip.h"
@@ -47,8 +47,8 @@ QObject* RadioWidgetsPlugin::createObject( const QString& type, const QString& n
 {
     QObject* object = 0;
 
-    if ( type == RadioTuningView::staticMetaObject.className() ) {
-        object = new RadioTuningView();
+    if ( type == RadioMainView::staticMetaObject.className() ) {
+        object = new RadioMainView();
     } else if ( type == RadioStationsView::staticMetaObject.className() ) {
         object = new RadioStationsView();
     } else if ( type == RadioHistoryView::staticMetaObject.className() ) {
@@ -76,7 +76,7 @@ QObject* RadioWidgetsPlugin::createObject( const QString& type, const QString& n
 QList<const QMetaObject *> RadioWidgetsPlugin::supportedObjects()
 {
     QList<const QMetaObject *> result;
-    result.append( &RadioTuningView::staticMetaObject );
+    result.append( &RadioMainView::staticMetaObject );
     result.append( &RadioStationsView::staticMetaObject );
     result.append( &RadioHistoryView::staticMetaObject );
     result.append( &RadioBannerLabel::staticMetaObject );

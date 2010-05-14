@@ -43,10 +43,6 @@ RadioScannerEngine::RadioScannerEngine( RadioUiEnginePrivate& uiEngine ) :
 RadioScannerEngine::~RadioScannerEngine()
 {
     cancel();
-    Q_D( RadioScannerEngine );
-    if ( d->mMutedByScanner ) {
-        d->mUiEngine.api().toggleMute();
-    }
     delete d_ptr;
 }
 
@@ -55,16 +51,28 @@ RadioScannerEngine::~RadioScannerEngine()
  */
 void RadioScannerEngine::startScanning()
 {
-    cancel();
     Q_D( RadioScannerEngine );
+    d->mUiEngine.cancelSeeking();
+
+    d->mIsScanning = true;
+
     if ( !d->mUiEngine.api().isMuted() ) {
-        d->mUiEngine.api().toggleMute();
+        d->mUiEngine.api().setMute( true );
         d->mMutedByScanner = true;
     }
 
-    d->mUiEngine.api().model().stationHandlerIf().removeLocalStations();
+    d->mUiEngine.api().emitSeekingStarted( Seeking::Up );
+
+    d->mUiEngine.api().stationModel().removeAll( RadioStationModel::RemoveLocalStations );
     d->mLastFoundFrequency = d->mUiEngine.api().minFrequency();
-    d->mUiEngine.wrapper().tuneFrequency( d->mLastFoundFrequency, TuneReason::StationScanInitialization );
+
+    if ( d->mUiEngine.wrapper().currentFrequency() == d->mLastFoundFrequency ) {
+        // Engine was already at the minimun frequency so start scanning
+        d->mUiEngine.wrapper().startSeeking( Seeking::Up, TuneReason::StationScan );
+    } else {
+        // Engine must be initialized to minimum frequency before scanning can start
+        d->mUiEngine.wrapper().tuneFrequency( d->mLastFoundFrequency, TuneReason::StationScanInitialization );
+    }
 }
 
 /*!
@@ -77,16 +85,27 @@ void RadioScannerEngine::continueScanning()
 }
 
 /*!
+ * Checks if the scanning is ongoing
+ */
+bool RadioScannerEngine::isScanning() const
+{
+    Q_D( const RadioScannerEngine );
+    return d->mIsScanning;
+}
+
+/*!
  * Cancels the scanning process
  */
 void RadioScannerEngine::cancel()
 {
     Q_D( RadioScannerEngine );
-    if ( d->mUiEngine.api().isScanning() ) {
+    if ( isScanning() ) {
+        d->mIsScanning = false;
         d->mUiEngine.cancelSeeking();
     }
+
     if ( d->mMutedByScanner ) {
-        d->mUiEngine.api().toggleMute();
+        d->mUiEngine.api().setMute( false );
         d->mMutedByScanner = false;
     }
 }

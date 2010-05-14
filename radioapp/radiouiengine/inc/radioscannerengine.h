@@ -60,6 +60,11 @@ public:
     void continueScanning();
 
     /*!
+     * Checks if the scanning is ongoing
+     */
+    bool isScanning() const;
+
+    /*!
      * Cancels the scanning process
      */
     void cancel();

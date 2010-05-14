@@ -29,11 +29,6 @@
 #include "radiostation.h"
 #include "radiostation_p.h"
 #include "radiohistorymodel.h"
-#ifndef BUILD_WIN32
-#   include "radiomonitorservice.h"
-#else
-#   include "radiomonitorservice_win32.h"
-#endif
 
 // Constants
 /**
@@ -102,9 +97,6 @@ void RadioStationModelPrivate::setCurrentStation( uint frequency )
     if ( oldStation && oldStation->isValid() ) {
         q->emitDataChanged( *oldStation );
     }
-
-    mUiEngine.api().monitor().notifyName( mCurrentStation->name().isEmpty() ? mCurrentStation->frequencyMhz()
-                                                                            : mCurrentStation->name() );
 }
 
 /*!
@@ -121,7 +113,6 @@ void RadioStationModelPrivate::setCurrentGenre( uint frequency, int genre )
     }
     station.setGenre( genre );
     q->saveStation( station );
-    mUiEngine.api().monitor().notifyGenre( mUiEngine.api().genreToString( genre, GenreTarget::HomeScreen ) );
 }
 
 /*!
@@ -193,21 +184,6 @@ void RadioStationModelPrivate::addScannedFrequency( uint frequency )
 
 /*!
  * \reimp
- * Removes all local stations that are not favorites
- */
-void RadioStationModelPrivate::removeLocalStations()
-{
-    Q_Q( RadioStationModel );
-    foreach( const RadioStation& station, mStations ) {
-        if ( station.isType( RadioStation::LocalStation ) && !station.isFavorite() ) {
-            q->removeStation( station );
-        }
-    }
-    q->reset();
-}
-
-/*!
- * \reimp
  * Sets the PS name to the currently tuned station
  */
 void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& name )
@@ -225,7 +201,6 @@ void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& 
         if ( name.compare( station.name() ) != 0 && !station.isRenamed() ) {
             station.setName( name );
             q->saveStation( station );
-            mUiEngine.api().monitor().notifyName( name );
         }
 
     } else {
@@ -284,7 +259,6 @@ void RadioStationModelPrivate::setCurrentRadioText( uint frequency, const QStrin
     station.setRadioText( radioText );
     q->saveStation( station );
     mUiEngine.api().historyModel().clearRadioTextPlus();
-    mUiEngine.api().monitor().notifyRadioText( radioText );
 }
 
 /*!
@@ -337,4 +311,18 @@ void RadioStationModelPrivate::doSaveStation( RadioStation& station, bool persis
         const bool success = mPresetStorage->savePreset( *station.data_ptr() );
         RADIO_ASSERT( success, "RadioStationModelPrivate::saveStation", "Failed to add station" );
     }
+}
+
+/*!
+ *
+ */
+QList<RadioStation> RadioStationModelPrivate::favorites() const
+{
+    QList<RadioStation> favoriteList;
+    foreach( const RadioStation& tempStation, mStations ) {
+        if ( tempStation.isFavorite() ) {
+            favoriteList.append( tempStation );
+        }
+    }
+    return favoriteList;
 }

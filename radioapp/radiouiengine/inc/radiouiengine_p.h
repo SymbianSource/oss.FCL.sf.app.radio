@@ -22,6 +22,8 @@
 #include <QScopedPointer>
 #include <QPointer>
 
+// User includes
+#include "radio_global.h"
 #include "radioenginewrapperobserver.h"
 
 // Forward declarations
@@ -29,6 +31,7 @@ class RadioUiEngine;
 class RadioEngineWrapper;
 class RadioStationModel;
 class RadioHistoryModel;
+class RadioCarouselModel;
 class RadioPresetStorage;
 class RadioControlService;
 class RadioMonitorService;
@@ -41,14 +44,12 @@ class RadioUiEnginePrivate : public RadioEngineWrapperObserver
 
 public:
 
-    enum TuneDirection{ Next, Previous };
-
     RadioUiEnginePrivate( RadioUiEngine* engine );
     virtual ~RadioUiEnginePrivate();
 
     RadioUiEngine& api();
 
-    bool startRadio();
+    bool init();
 
     void cancelSeeking();
 
@@ -71,9 +72,9 @@ private:
 // New functions
 
     /*!
-     * Tunes to next or previous favorite preset
+     * Tunes to next or previous station
      */
-    void skip( TuneDirection direction );
+    uint skip( StationSkip::Mode mode, uint startFrequency = 0 );
 
 private: // data
 
@@ -87,13 +88,17 @@ private: // data
 
     QScopedPointer<RadioPresetStorage>      mPresetStorage;
 
-    RadioStationModel*                      mStationModel;
+    QScopedPointer<RadioStationModel>       mStationModel;
 
-    RadioHistoryModel*                      mHistoryModel;
+    QScopedPointer<RadioHistoryModel>       mHistoryModel;
 
-    RadioControlService*                    mControlService;
+    QScopedPointer<RadioCarouselModel>      mCarouselModel;
 
-    RadioMonitorService*                    mMonitorService;
+#ifndef BUILD_WIN32
+    QScopedPointer<RadioControlService>     mControlService;
+#endif
+
+    QScopedPointer<RadioMonitorService>     mMonitorService;
 
     QPointer<RadioScannerEngine>            mScannerEngine;
 

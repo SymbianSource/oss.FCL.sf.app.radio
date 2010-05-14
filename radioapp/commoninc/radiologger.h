@@ -89,6 +89,9 @@ private:
 #include <QtGlobal>
 #include <QDebug>
 
+// Log marker that is printed in the beginnig of each line
+#define LOGMARKER "FMRadio:"
+
 // UI logs can be combined with engine logs by making the UI feed its log prints into
 // the engine logger. This requires that we initialize the radio engine utils right here
 // because the engine won't start up until much later. This is a bit ugly since the macros

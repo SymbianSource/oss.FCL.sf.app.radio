@@ -15,13 +15,22 @@
 *
 */
 
-// User includes
-#include "radioxmluiloader.h"
+#ifndef RADIOSETTINGSIF_H_
+#define RADIOSETTINGSIF_H_
 
-/*!
- *
- */
-RadioXmlUiLoader::RadioXmlUiLoader() :
-    HbDocumentLoader()
-{
-}
+// Class declaration
+class RadioSettingsIf
+    {
+public:
+
+    // First time start
+    virtual bool isFirstTimeStart() = 0;
+
+    // Favorites
+    virtual bool showFavorites() const = 0;
+    virtual void setShowFavorites( bool showFavorites ) = 0;
+    virtual bool toggleShowFavorites() = 0;
+
+    };
+
+#endif // RADIOSETTINGSIF_H_

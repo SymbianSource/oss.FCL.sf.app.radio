@@ -47,16 +47,13 @@ RADIOFLAGS += COMPILE_WITH_NEW_PRESET_UTILITY
 
 # Full logging flag that enables the full logging including also timestamps
 # Enabled by default in debug builds
-# CONFIG(debug, debug|release) : LOGGING_FLAGS += LOGGING_ENABLED
+ CONFIG(debug, debug|release) : LOGGING_FLAGS += LOGGING_ENABLED
 
 # Uncomment to enable full logging in release builds
 # LOGGING_FLAGS *= LOGGING_ENABLED
 
 # Timestamp logging flag that enables only timestamp logging
 # LOGGING_FLAGS += TIMESTAMP_LOGGING_ENABLED
-
-# Marker that is printed in the beginning of each log line
-## LOGGING_FLAGS += LOGMARKER=\\\"FMRadio:\\\"
 
 # Combines Ui and Engine logs by feeding UI traces to the engine logger
 LOGGING_FLAGS += COMBINE_WITH_ENGINE_LOGGER

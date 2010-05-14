@@ -23,44 +23,56 @@
 
 // User includes
 #include "radioservicedef.h"
+#include "radioenginewrapperobserver.h"
 
 // Forward declarations
-class RadioUiEngine;
+class RadioUiEnginePrivate;
+class RadioStation;
 
 class RadioMonitorService : public XQServiceProvider
+                          , public RadioEngineWrapperObserver
 {
     Q_OBJECT
 
 public:
 
-    RadioMonitorService( RadioUiEngine& engine );
+    RadioMonitorService( RadioUiEnginePrivate& engine );
     virtual ~RadioMonitorService();
 
-    void notifyFavoriteCount( const int favoriteCount );
-    void notifyAntennaStatus( bool connected );
-    void notifyRadioStatus( RadioStatus::Status radioStatus );
-    void notifyFrequency( const uint frequency );
-    void notifyName( const QString& name );
-    void notifyGenre( const QString& genre );
-    void notifyRadioText( const QString& radioText );
-    void notifyHomePage( const QString& homePage );
+    void init();
+
     void notifySong( const QString& song );
 
 public slots:
 
-    void requestNotifications();
-    void requestAllData();
+    void requestNotifications();    // Slot called by Qt Highway
+    void requestAllData();          // Slot called by Qt Highway
+
+private slots:
+
+    void notifyRadioStatus();
+    void notifyFavoriteCount();
+    void notifyStationChange( const RadioStation& station );
 
 private:
     
+// from base class RadioEngineWrapperObserver
+
+    void tunedToFrequency( uint frequency, int reason );
+
+// New functions
+
+    RadioStatus::Status determineRadioStatus() const;
     void notify( const QVariant& notification );
     void notifyList( const QVariantList& list );
     
 private: // data
 
-    RadioUiEngine&  mUiEngine;
+    RadioUiEnginePrivate&   mUiEngine;
+
+    QList<int>              mRequestIndexes;
     
-    QList<int>      mRequestIndexes;
+    RadioStatus::Status     mRadioStatus;
 
 };
 

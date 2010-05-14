@@ -29,6 +29,7 @@
 class RadioControlEventListener;
 class RadioRdsListener;
 class RadioSettings;
+class RadioSettingsIf;
 class RadioFrequencyScanningHandler;
 class RadioStationHandlerIf;
 class RadioEngineWrapperObserver;
@@ -70,7 +71,7 @@ public:
     /**
      * Returns the radio settings
      */
-    RadioSettings& settings();
+    RadioSettingsIf& settings();
 
     /**
      * Functions called from slots to tune to given frequency or preset

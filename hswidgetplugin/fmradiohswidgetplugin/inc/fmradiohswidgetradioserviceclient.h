@@ -32,7 +32,7 @@ const QString KRadioServiceControlInterfaceName = "IRadioControl";
 const QString KRadioServiceControlOperation = "command(int)";
 /**  Radio monitor interface name. */
 const QString KRadioServiceMonitorInterfaceName = "IRadioMonitor";
-/**  Radio monitor operation name. */
+/**  Radio monitor interface name. */
 const QString KRadioServiceMonitorOperation = "requestNotifications()";
 /**  Radio refresh operation name. */
 const QString KRadioServiceRefreshOperation = "requestAllData()";
@@ -69,6 +69,12 @@ public:
         InformationTypeDynamicPsName,
         InformationTypePty
     };
+    enum FmRadioVisibilty
+    {
+        DoNotChange,
+        ToForeground,
+        ToBackground
+    };
 
     void init();
 
@@ -77,36 +83,36 @@ signals:
     void radioStateChanged(QVariant value);
 
 public slots:
-    void doStartFmRadio(FmRadioStartupState startupState);
-    void doBringFmRadioToForeground(bool toForeground);
+    void doChangeFmRadioVisibility(FmRadioVisibilty visibility);
     void test();
     void doChangeFmRadioChannel(FmRadioChannelChangeCommand command);
     void doControlFmRadioAudio(FmRadioAudioControlCommand command);
     void handleFmRadioInformationChange(const QVariant& value);
-    void handleFmRadioControlRequestComplete(const QVariant& value);
-    void handleRequestError(int error);
-    void handleRequestError2(int error);
     void handleFmRadioStateChange(QVariant& value);
-    void startMonitoring();
+    void startMonitoring(FmRadioVisibilty visibility);
     void stopMonitoring();
 
 protected slots:
     void requestCompleted(const QVariant& value);
 
 private slots:
-    void handleOk(const QVariant &result);
+    //void handleOk(const QVariant &result);
     void handleError(int errorCode, const QString& errorMessage);
+    void handleRequestError(int error);
     
     void createControlServiceRequest();
     void createMonitorServiceRequest();
 
-    void doGetFmRadioInformation();
+    void doSendMonitorRequest(FmRadioVisibilty visibility);
+    void doSendControlRequest(QVariant &argument, FmRadioVisibilty visibility);
+    
+    void prepareRequestInfo(XQAiwRequest *request, FmRadioVisibilty visibility);
     
 private: // data
-    XQServiceRequest* mRadioInformationServiceRequest;
-    XQServiceRequest* mRadioControlServiceRequest;
-    
+    bool mRequestPending;
     XQApplicationManager mApplicationManager;
+    XQAiwRequest* mRadioMonitorRequest;
+    XQAiwRequest* mRadioControlRequest;
     
     bool                mDataInitialized;
 

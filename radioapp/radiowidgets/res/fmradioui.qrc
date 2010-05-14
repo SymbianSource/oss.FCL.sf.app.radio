@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RCC>
     <qresource>
-        <file>layout/tuningview.docml</file>
+        <file>layout/mainview.docml</file>
         <file>layout/stationsview.docml</file>
         <file>layout/historyview.docml</file>
         <file>layout/radiostationitem.css</file>
@@ -35,6 +35,8 @@
         <file>images/qtg_fr_lcd.svg</file>
         <file>images/qtg_fr_lcd_overlay.svg</file>
         <file>images/qtg_fr_tuner.svg</file>
+        <file>images/qtg_mono_tag.svg</file>
+        <file>images/pri_small_tag.svg</file>
     </qresource>
     
 </RCC>

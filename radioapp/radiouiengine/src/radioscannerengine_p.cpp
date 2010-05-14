@@ -15,6 +15,7 @@
 *
 */
 
+// User includes
 #include "radioscannerengine_p.h"
 #include "radioscannerengine.h"
 #include "radiouiengine_p.h"
@@ -28,20 +29,19 @@
  *
  * @param scanner
  * @param uiEngine
- * @return
  */
 RadioScannerEnginePrivate::RadioScannerEnginePrivate( RadioScannerEngine* scanner, RadioUiEnginePrivate& uiEngine ) :
     q_ptr( scanner ),
     mUiEngine( uiEngine ),
     mLastFoundFrequency( 0 ),
-    mMutedByScanner( false )
+    mMutedByScanner( false ),
+    mIsScanning( false )
 {
     mUiEngine.wrapper().addObserver( this );
 }
 
 /*!
  *
- * @return
  */
 RadioScannerEnginePrivate::~RadioScannerEnginePrivate()
 {
@@ -53,6 +53,10 @@ RadioScannerEnginePrivate::~RadioScannerEnginePrivate()
  */
 void RadioScannerEnginePrivate::tunedToFrequency( uint frequency, int reason )
 {
+    if ( !mIsScanning ) {
+        return;
+    }
+
     Q_Q( RadioScannerEngine );
     if ( reason == TuneReason::StationScanInitialization ) {
         mUiEngine.wrapper().startSeeking( Seeking::Up, TuneReason::StationScan );
@@ -69,7 +73,6 @@ void RadioScannerEnginePrivate::tunedToFrequency( uint frequency, int reason )
             q->emitStationFound( RadioStation() );
         }
     }
-
 }
 
 /*!
@@ -77,9 +80,10 @@ void RadioScannerEnginePrivate::tunedToFrequency( uint frequency, int reason )
  */
 void RadioScannerEnginePrivate::addFrequencyAndReport( const uint frequency )
 {
-    mUiEngine.api().model().stationHandlerIf().addScannedFrequency( frequency );
+    RadioStationModel& stationModel = mUiEngine.api().stationModel();
+    stationModel.stationHandlerIf().addScannedFrequency( frequency );
     RadioStation station;
-    mUiEngine.api().model().findFrequency( frequency, station );
+    stationModel.findFrequency( frequency, station );
     Q_Q( RadioScannerEngine );
     q->emitStationFound( station );
 }

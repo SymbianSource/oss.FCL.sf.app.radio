@@ -26,7 +26,7 @@
 
 // Forward declarations
 class RadioEngineWrapperPrivate;
-class RadioSettings;
+class RadioSettingsIf;
 class RadioStationHandlerIf;
 class RadioEngineWrapperObserver;
 
@@ -55,7 +55,7 @@ public:
     /**
      * Getters for things owned by the engine
      */
-    RadioSettings& settings();
+    RadioSettingsIf& settings();
 
     /**
      * Getters for region and other region dependent settings
@@ -85,7 +85,7 @@ public:
      * Audio update command functions for the engine
      */
     void setVolume( int volume );
-    void toggleMute();
+    void setMute( bool muted );
     void toggleAudioRoute();
 
     void startSeeking( Seeking::Direction direction, const int reason = TuneReason::Unspecified );

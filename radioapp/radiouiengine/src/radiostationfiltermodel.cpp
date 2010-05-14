@@ -30,7 +30,7 @@ RadioStationFilterModel::RadioStationFilterModel( RadioUiEngine& uiEngine, QObje
     mUiEngine( uiEngine ),
     mIsCyclic( false )
 {
-    setSourceModel( &mUiEngine.model() );
+    setSourceModel( &mUiEngine.stationModel() );
     setDynamicSortFilter( true );
 }
 
@@ -117,8 +117,8 @@ void RadioStationFilterModel::setCyclic( bool cyclic )
         for ( int i = 0; i < realCount; ++i ) {
             QModelIndex realIndex = QSortFilterProxyModel::index( i, 0 );
             QModelIndex shadowIndex = createIndex( i + realCount, 0, realIndex.internalPointer() );
-            const uint freq = realIndex.data( RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
-            LOG_FORMAT( "Adding shadow index %d for index %d. Freq: %u", shadowIndex.row(), realIndex.row(), freq );
+            //const uint freq = realIndex.data( RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
+//            LOG_FORMAT( "Adding shadow index %d for index %d. Freq: %u", shadowIndex.row(), realIndex.row(), freq );
             mShadowIndexes.insert( shadowIndex, realIndex );
         }
     }

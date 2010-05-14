@@ -18,7 +18,7 @@
 // System includes
 #include <QApplication>
 #include <QStringList>
-#include <QTime>
+#include <QDateTime>
 #ifndef BUILD_WIN32
 #   include <XQSettingsManager>
 #   include <XQPublishAndSubscribeSettingsKey>
@@ -31,6 +31,8 @@
 #include "radioenginewrapper.h"
 #include "radiostationmodel.h"
 #include "radiostationmodel_p.h"
+#include "radiohistorymodel.h"
+#include "radiocarouselmodel.h"
 #include "radiopresetstorage.h"
 #include "radiosettings.h"
 #include "radiostation.h"
@@ -49,12 +51,7 @@
  *
  */
 RadioUiEnginePrivate::RadioUiEnginePrivate( RadioUiEngine* engine ) :
-    q_ptr( engine ),
-    mEngineWrapper( 0 ),
-    mStationModel( 0 ),
-    mHistoryModel( 0 ),
-    mControlService( 0 ),
-    mMonitorService( 0 )
+    q_ptr( engine )
 {
 }
 
@@ -67,7 +64,8 @@ RadioUiEnginePrivate::~RadioUiEnginePrivate()
     XQSettingsManager settingsManager;
     XQPublishAndSubscribeUtils utils( settingsManager );
     XQPublishAndSubscribeSettingsKey radioStartupKey( KRadioPSUid, KRadioStartupKey );
-    utils.deleteProperty( radioStartupKey );
+    bool deleted = utils.deleteProperty( radioStartupKey );
+    LOG_ASSERT( deleted, LOG( "RadioUiEnginePrivate::~RadioUiEnginePrivate(). Failed to delete P&S key" ) );
 #endif
 }
 
@@ -83,26 +81,31 @@ RadioUiEngine& RadioUiEnginePrivate::api()
 /*!
  *
  */
-bool RadioUiEnginePrivate::startRadio()
+bool RadioUiEnginePrivate::init()
 {
 #ifndef BUILD_WIN32
-    mControlService = new RadioControlService( *q_ptr );
+    mControlService.reset( new RadioControlService( *q_ptr ) );
 #endif
-    mMonitorService = new RadioMonitorService( *q_ptr );
-    mStationModel = new RadioStationModel( *this );
+    mMonitorService.reset( new RadioMonitorService( *this ) );
+    mStationModel.reset( new RadioStationModel( *this ) );
     mEngineWrapper.reset( new RadioEngineWrapper( mStationModel->stationHandlerIf() ) );
     mEngineWrapper->addObserver( this );
     mPresetStorage.reset( new RadioPresetStorage() );
     mStationModel->initialize( mPresetStorage.data(), mEngineWrapper.data() );
+    mHistoryModel.reset( new RadioHistoryModel( *q_ptr ) );
 
 #ifndef BUILD_WIN32
     // Write the startup timestamp to P&S key for the homescreen widget
     XQSettingsManager settingsManager;
     XQPublishAndSubscribeUtils utils( settingsManager );
     XQPublishAndSubscribeSettingsKey radioStartupKey( KRadioPSUid, KRadioStartupKey );
-    utils.defineProperty( radioStartupKey, XQSettingsManager::TypeVariant );
-    settingsManager.writeItemValue( radioStartupKey, QVariant( QTime::currentTime() ) );   
+    bool defined = utils.defineProperty( radioStartupKey, XQSettingsManager::TypeInt );
+    if ( defined ) {
+        settingsManager.writeItemValue( radioStartupKey, (int)QDateTime::currentDateTime().toTime_t() );
+    }
 #endif
+
+    mMonitorService->init();
 
     return mEngineWrapper->isEngineConstructed();
 }
@@ -113,7 +116,6 @@ bool RadioUiEnginePrivate::startRadio()
 void RadioUiEnginePrivate::cancelSeeking()
 {
     mEngineWrapper->cancelSeeking();
-    mMonitorService->notifyRadioStatus( mEngineWrapper->isMuted() ? RadioStatus::Muted : RadioStatus::Playing );
 }
 
 /*!
@@ -131,7 +133,6 @@ void RadioUiEnginePrivate::tunedToFrequency( uint frequency, int reason )
 {
     Q_Q( RadioUiEngine );
     q->emitTunedToFrequency( frequency, reason );
-    mMonitorService->notifyRadioStatus( RadioStatus::Playing );
 }
 
 /*!
@@ -195,7 +196,6 @@ void RadioUiEnginePrivate::muteChanged( bool muted )
 {
     Q_Q( RadioUiEngine );
     q->emitMuteChanged( muted );
-    mMonitorService->notifyRadioStatus( muted ? RadioStatus::Muted : RadioStatus::Playing );
 }
 
 /*!
@@ -214,7 +214,6 @@ void RadioUiEnginePrivate::antennaStatusChanged( bool connected )
 {
     Q_Q( RadioUiEngine );
     q->emitAntennaStatusChanged( connected );
-    mMonitorService->notifyAntennaStatus( connected );
 }
 
 /*!
@@ -222,7 +221,7 @@ void RadioUiEnginePrivate::antennaStatusChanged( bool connected )
  */
 void RadioUiEnginePrivate::skipPrevious()
 {
-    skip( Previous );
+    skip( StationSkip::PreviousFavorite );
 }
 
 /*!
@@ -230,55 +229,23 @@ void RadioUiEnginePrivate::skipPrevious()
  */
 void RadioUiEnginePrivate::skipNext()
 {
-    skip( Next );
+    skip( StationSkip::NextFavorite );
 }
 
 /*!
- * Tunes to next or previous favorite preset
+ * Tunes to next or previous station
  */
-void RadioUiEnginePrivate::skip( RadioUiEnginePrivate::TuneDirection direction )
+uint RadioUiEnginePrivate::skip( StationSkip::Mode mode, uint startFrequency )
 {
-    LOG_FORMAT( "RadioUiEnginePrivate::skip: direction: %d", direction );
-
-    //TODO: Refactor to go through RadioStationModel
-    QList<uint> favorites;
-    const uint currentFreq = mStationModel->currentStation().frequency();
-
-    // Find all favorites
-    foreach( const RadioStation& station, mStationModel->list() ) {
-        if ( station.isFavorite() && station.frequency() != currentFreq ) {
-            favorites.append( station.frequency() );
-        }
+    LOG_FORMAT( "RadioUiEnginePrivate::skip: mode: %d", mode );
+    if ( startFrequency == 0 ) {
+        startFrequency = mEngineWrapper->currentFrequency();
     }
 
-    const int favoriteCount = favorites.count();
-    if ( favoriteCount == 0 ) {
-        return;
-    }
+    const uint newFrequency = mStationModel->findClosest( startFrequency, mode ).frequency();
 
-    // Find the previous and next favorite from current frequency
-    uint previous = 0;
-    uint next = 0;
-    foreach( uint favorite, favorites ) {
-        if ( favorite > currentFreq ) {
-            next = favorite;
-            break;
-        }
-        previous = favorite;
-    }
-
-    if ( direction == RadioUiEnginePrivate::Previous ) {
-        if ( previous == 0 ) {
-            previous = favorites.last();
-        }
-        LOG_FORMAT( "RadioUiEnginePrivate::skip. CurrentFreq: %u, tuning to: %u", currentFreq, previous );
-        mEngineWrapper->tuneFrequency( previous, TuneReason::Unspecified );
-    } else {
-        if ( next == 0 ) {
-            next = favorites.first();
-        }
-        LOG_FORMAT( "RadioUiEnginePrivate::skip. CurrentFreq: %u, tuning to: %u", currentFreq, next );
-        mEngineWrapper->tuneFrequency( next, TuneReason::Unspecified );
-    }    
+    LOG_FORMAT( "RadioUiEnginePrivate::skip. CurrentFreq: %u, tuning to: %u", startFrequency, newFrequency );
+    mEngineWrapper->tuneFrequency( newFrequency, TuneReason::Skip );
+    return newFrequency;
 }
 

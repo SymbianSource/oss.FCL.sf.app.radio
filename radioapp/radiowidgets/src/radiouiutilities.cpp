@@ -22,6 +22,7 @@
 #include "radiouiutilities.h"
 #include "radiofrequencystrip.h"
 #include "radiostationcarousel.h"
+#include "radiofrequencyscanner.h"
 #include "radiologger.h"
 
 // Constants
@@ -90,6 +91,18 @@ RadioStationCarousel* RadioUiUtilities::carousel()
 /*!
  *
  */
+bool RadioUiUtilities::isScannerAlive()
+{
+    RadioFrequencyScanner* scanner = instance().mScanner;
+    if ( scanner ) {
+        return scanner->isAlive();
+    }
+    return false;
+}
+
+/*!
+ *
+ */
 void RadioUiUtilities::setFrequencyStrip( RadioFrequencyStrip* frequencyStrip )
 {
     instance().mFrequencyStrip = frequencyStrip;
@@ -101,6 +114,14 @@ void RadioUiUtilities::setFrequencyStrip( RadioFrequencyStrip* frequencyStrip )
 void RadioUiUtilities::setCarousel( RadioStationCarousel* carousel )
 {
     instance().mCarousel = carousel;
+}
+
+/*!
+ *
+ */
+void RadioUiUtilities::setFrequencyScanner( RadioFrequencyScanner* scanner )
+{
+    instance().mScanner = scanner;
 }
 
 /*!

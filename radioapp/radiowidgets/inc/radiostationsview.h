@@ -27,15 +27,16 @@
 #include "radiowidgetsexport.h"
 
 // Forward declarations
-class RadioMainWindow;
+class RadioWindow;
 class RadioStationModel;
 class HbListView;
 class HbPushButton;
 class RadioBannerLabel;
 class HbAbstractViewItem;
-class RadioXmlUiLoader;
+class RadioUiLoader;
 class RadioStation;
 class RadioStationFilterModel;
+class RadioFrequencyScanner;
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioStationsView : public RadioViewBase
@@ -63,16 +64,20 @@ private slots:
     void updateCurrentStation();
     void deckButtonPressed();
     void startScanning();
+    void finishScanning();
     void updateControlVisibilities();
-    void rename();          //contextmenu
-    void toggleFavorite();  //contextmenu
-    void deleteStation();   //contextmenu
+    void clearList();
+    void rename();          // Called from context menu
+    void toggleFavorite();  // Called from context menu
+    void deleteStation();   // Called from context menu
+    void renameDone( HbAction* action );
 
 private:
 
 // from base class RadioViewBase
 
-    void init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow );
+    void init();
+    void userAccepted();
 
 // from base class QGraphicsWidget
 
@@ -84,24 +89,29 @@ private:
 
 private: //data
 
-    RadioStationModel*              mModel;
+    RadioStationModel*                      mModel;
 
-    RadioStationFilterModel*        mFilterModel;
+    RadioStationFilterModel*                mFilterModel;
 
-    HbAction*                       mScanStationsAction;
-    HbAction*                       mClearListAction;
+    HbAction*                               mScanStationsAction;
+    HbAction*                               mClearListAction;
 
-    HbListView*                     mStationsList;
+    HbListView*                             mStationsList;
 
-    RadioBannerLabel*               mHeadingBanner;
+    RadioBannerLabel*                       mHeadingBanner;
 
-    HbAction*                       mFavoritesButton;
-    HbAction*                       mLocalStationsButton;
+    HbAction*                               mFavoritesButton;
+    HbAction*                               mLocalStationsButton;
 
-    HbIcon                          mFavoriteIcon;
-    HbIcon                          mNowPlayingIcon;
+    HbIcon                                  mFavoriteIcon;
+    HbIcon                                  mNowPlayingIcon;
 
-    QScopedPointer<RadioStation>    mSelectedStation;
+    QScopedPointer<RadioStation>            mSelectedStation;
+
+    QScopedPointer<RadioFrequencyScanner>   mFrequencyScanner;
+
+    enum UserQuestion { NoQuestion, DeleteStation, StartScanning, ClearList };
+    UserQuestion                            mCurrentQuestion;
 
 };
 

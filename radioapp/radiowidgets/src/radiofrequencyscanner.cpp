@@ -30,8 +30,7 @@
 #include "radiofrequencystrip.h"
 #include "radiostationcarousel.h"
 #include "radiouiutilities.h"
-#include "radiotuningview.h"
-#include "radioxmluiloader.h"
+#include "radiomainview.h"
 
 // Constants
 const int KExtraRoomToMaxValue = 100000;
@@ -42,13 +41,13 @@ const int KExtraRoomToMaxValue = 100000;
 RadioFrequencyScanner::RadioFrequencyScanner( RadioUiEngine& uiEngine, QObject* parent ) :
     QObject( parent ),
     mUiEngine( uiEngine ),
-    mInTuningView( parent->metaObject()->className() == RadioTuningView::staticMetaObject.className() ),
-    mScannerEngine( mUiEngine.createScannerEngine() ),
-    mScanningProgressNote( new HbProgressDialog( HbProgressDialog::ProgressDialog ) ),
-    mChannelCount( 0 ),
+    mInMainView( parent->metaObject()->className() == RadioMainView::staticMetaObject.className() ),
+    mScannerEngine( mUiEngine.scannerEngine() ),
     mStripScrollTime( 0 ),
-    mCarouselScrollTime( 0 )
+    mCarouselScrollTime( 0 ),
+    mIsAlive( false )
 {
+    RadioUiUtilities::setFrequencyScanner( this );
 }
 
 /*!
@@ -56,35 +55,18 @@ RadioFrequencyScanner::RadioFrequencyScanner( RadioUiEngine& uiEngine, QObject* 
  */
 RadioFrequencyScanner::~RadioFrequencyScanner()
 {
-    restoreUiControls();
 }
 
 /*!
  *
  */
-void RadioFrequencyScanner::startScanning( RadioXmlUiLoader& uiLoader )
+void RadioFrequencyScanner::startScanning()
 {
-    mChannelCount = 0;
+    mIsAlive = true;
     RadioFrequencyStrip* frequencyStrip = RadioUiUtilities::frequencyStrip();
     RadioStationCarousel* carousel = RadioUiUtilities::carousel();
 
-    disconnect( &mUiEngine,         SIGNAL(tunedToFrequency(uint,int)),
-                frequencyStrip,     SLOT(setFrequency(uint,int)) );
-    disconnect( frequencyStrip,     SIGNAL(frequencyChanged(uint,int)),
-                &mUiEngine,         SLOT(tuneWithDelay(uint,int)) );
-    disconnect( carousel,           SIGNAL(frequencyChanged(uint,int)),
-                frequencyStrip,     SLOT(setFrequency(uint,int)) );
-    disconnect( frequencyStrip,     SIGNAL(frequencyChanged(uint,int)),
-                carousel,           SLOT(setFrequency(uint)) );
-
-    if ( mInTuningView ) {
-        bool ok = false;
-        uiLoader.load( DOCML::FILE_TUNINGVIEW, "scanning", &ok );
-
-        HbLabel* infoText = uiLoader.findWidget<HbLabel>( DOCML::TV_NAME_INFO_TEXT );
-        infoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
-        infoText->setTextWrapping( Hb::TextWordWrap );
-
+    if ( mInMainView ) {
         mStripScrollTime = frequencyStrip->autoScrollTime();
         mCarouselScrollTime = carousel->autoScrollTime();
 
@@ -95,15 +77,14 @@ void RadioFrequencyScanner::startScanning( RadioXmlUiLoader& uiLoader )
         connectAndTest( carousel,               SIGNAL(scanAnimationFinished()),
                         this,                   SLOT(continueScanning()) );
 
-        static_cast<RadioTuningView*>( parent() )->setScanningMode( true );
+        static_cast<RadioMainView*>( parent() )->setScanningMode( true );
         frequencyStrip->setScanningMode( true );
-        frequencyStrip->setFrequency( mUiEngine.minFrequency() );
-        frequencyStrip->setFrequency( mUiEngine.minFrequency() + 100 ); // scanning jamming
     } else {
+        carousel->setCarouselModel( NULL );
+
+        mScanningProgressNote.reset( new HbProgressDialog( HbProgressDialog::ProgressDialog ) ),
         mScanningProgressNote->setModal( true );
         mScanningProgressNote->setAutoClose( true );
-
-        carousel->setStationModel( NULL );
 
         // Add some extra to the maximum value to allow room for the station at the low band edge
         mScanningProgressNote->setRange( mUiEngine.minFrequency(), mUiEngine.maxFrequency() + KExtraRoomToMaxValue );
@@ -111,14 +92,31 @@ void RadioFrequencyScanner::startScanning( RadioXmlUiLoader& uiLoader )
         mScanningProgressNote->setText( hbTrId( "txt_rad_info_searching_local_stations_please_wait" ) );
         mScanningProgressNote->show();
 
-        connectAndTest( mScanningProgressNote,  SIGNAL(cancelled()),
-                        this,                   SLOT(scanAndSavePresetsCancelled()) );
+        connectAndTest( mScanningProgressNote.data(),   SIGNAL(cancelled()),
+                        this,                           SLOT(cancelScanning()) );
     }
 
     connectAndTest( mScannerEngine.data(),  SIGNAL(stationFound(RadioStation)),
-                    this,                   SLOT(updateScanAndSaveProgress(RadioStation)) );
+                    this,                   SLOT(updateScanProgress(RadioStation)) );
 
     QTimer::singleShot( 1000, this, SLOT(delayedStart()) );
+}
+
+/*!
+ *
+ */
+bool RadioFrequencyScanner::isAlive() const
+{
+    return mIsAlive;
+}
+
+/*!
+ * Public slot
+ *
+ */
+void RadioFrequencyScanner::cancelScanning()
+{
+    finishScanning();
 }
 
 /*!
@@ -134,19 +132,19 @@ void RadioFrequencyScanner::delayedStart()
  * Private slot
  *
  */
-void RadioFrequencyScanner::updateScanAndSaveProgress( const RadioStation& station )
+void RadioFrequencyScanner::updateScanProgress( const RadioStation& station )
 {
     if ( !station.isValid() ) {
-        scanAndSavePresetsFinished();
+        finishScanning();
         return;
     }
 
     const uint frequency = station.frequency();
     LOG_FORMAT( "RadioFrequencyScanner::updateScanAndSaveProgress frequency: %d", frequency );
 
-    if ( mInTuningView ) {
+    if ( mInMainView ) {
 
-        RadioUiUtilities::frequencyStrip()->setFrequency( frequency, TuneReason::Unspecified );
+        RadioUiUtilities::frequencyStrip()->setFrequency( frequency, TuneReason::StationScan );
         RadioUiUtilities::carousel()->animateNewStation( station );
 
     } else {
@@ -158,8 +156,6 @@ void RadioFrequencyScanner::updateScanAndSaveProgress( const RadioStation& stati
             mScanningProgressNote->setProgressValue( frequency );
         }
 
-        ++mChannelCount;
-//        mScanningProgressNote->setText( QString( TRANSLATE( KProgressTitleStationsFound ) ).arg( mChannelCount ) );
         mScannerEngine->continueScanning();
     }    
 }
@@ -177,77 +173,51 @@ void RadioFrequencyScanner::continueScanning()
  * Private slot
  *
  */
-void RadioFrequencyScanner::scanAndSavePresetsCancelled()
-{
-    mScannerEngine->cancel();
-    scanAndSavePresetsFinished();
-    mScanningProgressNote = 0;
-    mChannelCount = 0;
-}
-
-/*!
- * Private slot
- *
- */
 void RadioFrequencyScanner::restoreUiControls()
 {
-    RadioUiUtilities::frequencyStrip()->setScanningMode( false );
-    static_cast<RadioTuningView*>( parent() )->setScanningMode( false );
-    RadioUiUtilities::carousel()->setScanningMode( false );
-//    disconnect( RadioUiUtilities::carousel(),   SIGNAL(scrollingEnded()),
-//                this,                           SLOT(restoreUiControls()) );
+    if ( mInMainView ) {
+        RadioUiUtilities::frequencyStrip()->setScanningMode( false );
+        static_cast<RadioMainView*>( parent() )->setScanningMode( false );
+        RadioUiUtilities::carousel()->setScanningMode( false );
+    }
+
+    deleteLater();
 }
 
 /*!
  *
  */
-void RadioFrequencyScanner::scanAndSavePresetsFinished()
+void RadioFrequencyScanner::finishScanning()
 {
+    mScannerEngine->cancel();
+    RadioUiUtilities::setFrequencyScanner( NULL );
+    mIsAlive = false;
     RadioFrequencyStrip* frequencyStrip = RadioUiUtilities::frequencyStrip();
     RadioStationCarousel* carousel = RadioUiUtilities::carousel();
 
-    connectAndTest( &mUiEngine,         SIGNAL(tunedToFrequency(uint,int)),
-                    frequencyStrip,     SLOT(setFrequency(uint,int)) );
-    connectAndTest( frequencyStrip,     SIGNAL(frequencyChanged(uint,int)),
-                    &mUiEngine,         SLOT(tuneWithDelay(uint,int)), Qt::QueuedConnection );
-    connectAndTest( carousel,           SIGNAL(frequencyChanged(uint,int)),
-                    frequencyStrip,     SLOT(setFrequency(uint,int)) );
-    connectAndTest( frequencyStrip,     SIGNAL(frequencyChanged(uint,int)),
-                    carousel,           SLOT(setFrequency(uint)) );
-
-    if ( mInTuningView ) {
-        RadioStationModel& model = mUiEngine.model();
+    if ( mInMainView ) {
+        RadioStationModel& model = mUiEngine.stationModel();
 
         // Scroll the carousel and frequency strip through all of the scanned stations
         const int stationCount = model.rowCount();
         if ( stationCount > 1 ) {
-//            connectAndTest( carousel,       SIGNAL(scrollingEnded()),
-//                            this,           SLOT(restoreUiControls()) );
-
             frequencyStrip->setAutoScrollTime( 1000 );
             carousel->setAutoScrollTime( 1000 );
             const uint frequency = model.data( model.index( 0, 0 ), RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
-            frequencyStrip->setFrequency( frequency );
+            frequencyStrip->setFrequency( frequency, TuneReason::StationScan );
+            carousel->setFrequency( frequency, TuneReason::StationScan );
 
             frequencyStrip->setAutoScrollTime( mStripScrollTime );
             carousel->setAutoScrollTime( mCarouselScrollTime );
-        } else {
-            QTimer::singleShot( 100, this, SLOT(restoreUiControls()) );
         }
 
-        QTimer::singleShot( 1000, this, SLOT(deleteLater()) );
+        QTimer::singleShot( 100, this, SLOT(restoreUiControls()) );
 
     } else {
-        mScannerEngine->cancel();
-
         mScanningProgressNote->setProgressValue( mScanningProgressNote->maximum() );
-        mScanningProgressNote->deleteLater();
         deleteLater();
 
-        disconnect( mScanningProgressNote,  SIGNAL(cancelled()),
-                    this,                   SLOT(scanAndSavePresetsCancelled()) );
-
-        carousel->setStationModel( &mUiEngine.model() );
+        carousel->setCarouselModel( mUiEngine.carouselModel() );
     }
 
     disconnect( mScannerEngine.data(),  SIGNAL(stationFound(RadioStation)),

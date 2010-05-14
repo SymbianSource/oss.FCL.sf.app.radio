@@ -21,10 +21,18 @@ BLD_INF_RULES.prj_exports += \
 BLD_INF_RULES.prj_exports += \
 "rom/fmradiohswidgetplugin.iby  CORE_APP_LAYER_IBY_EXPORT_PATH(fmradiohswidgetplugin.iby)"
 
-#iby exports to installe
+#iby exports to install
 BLD_INF_RULES.prj_exports += \
 "rom/fmradiohswidgetplugininstaller.iby  CORE_APP_LAYER_IBY_EXPORT_PATH(fmradiohswidgetplugininstaller.iby)"
 
 #iby exports to language
 #BLD_INF_RULES.prj_exports += \
 #"rom/homescreenapp_resources.iby  LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(homescreenapp_resources.iby)"
+
+BLD_INF_RULES.prj_extensions += \
+$$LITERAL_HASH"ifdef MARM" \
+  " START EXTENSION app-services/buildstubsis" \
+    " OPTION SRCDIR rom" \
+    " OPTION SISNAME fmradiohswidgetplugin_stub" \
+  " END" \
+$$LITERAL_HASH"endif"

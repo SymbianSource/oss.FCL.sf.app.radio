@@ -23,7 +23,7 @@ DEFINES     += BUILD_UI_ENGINE_DLL
 win32:DESTDIR = ../bin
 
 # Wrapper does not depend on QtGui or Orbit
-QT          = core gui network
+QT          = core gui network sql
 CONFIG      -= hb
 CONFIG      += mobility
 MOBILITY    = systeminfo
@@ -61,6 +61,7 @@ HEADERS += radiostationfiltermodel.h
 HEADERS += radiouiengine.h
 HEADERS += radiohistoryitem.h
 HEADERS += radiohistorymodel.h
+HEADERS += radiocarouselmodel.h
 HEADERS += radioscannerengine.h
 HEADERS += radioservicedef.h
 HEADERS += radionotificationdata.h
@@ -72,6 +73,7 @@ win32:HEADERS += radiomonitorservice_win32.h
 INTERNAL_HEADERS += radiostation_p.h
 INTERNAL_HEADERS += radiohistoryitem_p.h
 INTERNAL_HEADERS += radiohistorymodel_p.h
+INTERNAL_HEADERS += radiocarouselmodel_p.h
 INTERNAL_HEADERS += radiouiengine_p.h
 INTERNAL_HEADERS += radiostationmodel_p.h
 INTERNAL_HEADERS += radioscannerengine_p.h
@@ -89,6 +91,8 @@ SOURCES += radiohistoryitem.cpp
 SOURCES += radiohistoryitem_p.cpp
 SOURCES += radiohistorymodel.cpp
 SOURCES += radiohistorymodel_p.cpp
+SOURCES += radiocarouselmodel.cpp
+SOURCES += radiocarouselmodel_p.cpp
 SOURCES += radioscannerengine.cpp
 SOURCES += radioscannerengine_p.cpp
 

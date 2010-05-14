@@ -54,8 +54,8 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
     // so the visibility of the items doesn't need to be modified.
     mItemPoolParent->setVisible( false );
 
-    connectAndTest( this,                   SIGNAL(scrollPositionChanged(QPointF)),
-                    this,                   SLOT(scrollPositionChanged(QPointF)));
+    connectAndTest( this,   SIGNAL(scrollPositionChanged(QPointF)),
+                    this,   SLOT(scrollPositionChanged(QPointF)));
 }
 
 /*!
@@ -233,14 +233,6 @@ void RadioStripBase::scrollPositionChanged( QPointF newPosition )
 {
     adjustItems();
     scrollPosChanged( newPosition );
-}
-
-/*!
- *
- */
-void RadioStripBase::scrollPosChanged( QPointF newPosition )
-{
-    Q_UNUSED( newPosition );
 }
 
 /*!

@@ -722,16 +722,6 @@
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_remove_station_from_favorites">
-    <comment>Dialog text displayed when user is about to remove a station from Favorite list in Stations view.</comment>        
-    <source>Remove station from favorites?</source>
-    <translation variants="no">Remove station from favorites?</translation>
-    <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_information">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Information</source>
@@ -1181,6 +1171,16 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
     <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
+    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_rad_list_fm_radio">
+    <comment>Text in a home screen widget information area. Displayed when no station is tuned.</comment>        
+    <source>FM Radio</source>
+    <translation variants="no">FM Radio</translation>
+    <extra-loc-layout_id>txt_rad_list_fm_radio</extra-loc-layout_id>    
+    <extra-loc-viewid>rad_05</extra-loc-viewid>
+    <extra-loc-positionid>list</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1974,6 +1974,16 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
+<message numerus="no" id="txt_rad_info_fm_radio">
+    <comment>Text displayed in main view station information area (in place of station name) during the FM radio startup when the station information is waited to be loaded on the screen.</comment>        
+    <source>FM Radio</source>
+    <translation variants="no">FM Radio</translation>
+    <extra-loc-layout_id>txt_rad_info_fm_radio</extra-loc-layout_id>    
+    <extra-loc-viewid>rad_01</extra-loc-viewid>
+    <extra-loc-positionid>info</extra-loc-positionid>
+    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_light_classical">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Light classical</source>
@@ -2061,6 +2071,16 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
+    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_rad_menu_search_from_other_store">
+    <comment>Item specific menu item. Allows the user to search the song/artist from some other music store than Ovi music store (usually some operator store). %1 can be any name, e.g. &quot;Vodafone music&quot;, &quot;Amazon&quot; etc.</comment>        
+    <source>Search from %1</source>
+    <translation variants="no">Search from %1</translation>
+    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>rad_01, rad_03</extra-loc-viewid>
+    <extra-loc-positionid>menu</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>

@@ -23,6 +23,7 @@
 #include <QMap>
 
 // User includes
+#include "radio_global.h"
 #include "radiouiengineexport.h"
 #include "radiostation.h"
 
@@ -106,15 +107,15 @@ public:
     bool findFrequency( uint frequency, RadioStation& station );
 
     /*!
-    * Function to check the number of favorite stations
-    */
-    int favoriteCount();
-
-    /*!
      * Functions to find stations by preset index
      */
     int findPresetIndex( int presetIndex );
     int findPresetIndex( int presetIndex, RadioStation& station );
+
+    /*!
+     * Finds the closest station from the given frequency
+     */
+    RadioStation findClosest( const uint frequency, StationSkip::Mode mode );
 
     /*!
      * Functions to remove stations
@@ -123,11 +124,22 @@ public:
     void removeByPresetIndex( int presetIndex );
     void removeStation( const RadioStation& station );
 
+    /**
+     * Removes all stations
+     */
+    enum RemoveMode{ RemoveAll, RemoveLocalStations, RemoveFavorites  };
+    void removeAll( RemoveMode mode = RemoveAll );
+
     /*!
      * Functions to add and save stations
      */
     void addStation( const RadioStation& station );
     void saveStation( RadioStation& station );
+
+    /*!
+     * Function to check the number of favorite stations
+     */
+    int favoriteCount();
 
     /*!
      * Convenience functions to change common settings
@@ -164,15 +176,6 @@ signals:
     void radioTextReceived( const RadioStation& station );
     void dynamicPsChanged( const RadioStation& station );
     void favoriteChanged( const RadioStation& station );
-    void stationRemoved( const RadioStation& station );
-    void stationAdded( const RadioStation& station );
-
-public slots:
-
-    /**
-     * Removes all stations
-     */
-    void removeAll();
 
 private slots:
 

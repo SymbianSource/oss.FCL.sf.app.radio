@@ -24,23 +24,86 @@
 
 // User includes
 #include "radiohistoryview.h"
-#include "radiomainwindow.h"
+#include "radiowindow.h"
 #include "radiologger.h"
-#include "radioxmluiloader.h"
+#include "radiouiloader.h"
 #include "radiouiengine.h"
-#include "radiostationfiltermodel.h"
 #include "radiohistorymodel.h"
+#include "radiohistoryitem.h"
+
+// BEGIN TEMPORARY TEST CODE CODE
+#include <QTimer>
+#include "radiostationmodel.h"
+
+struct Song
+{
+    const char* mArtist;
+    const char* mTitle;
+};
+const Song KRecognizedSongs[] = {
+    { "Red Hot Chili Peppers", "Under The Bridge" },
+    { "Queens Of The Stone Age", "No One Knows" },
+    { "The Presidents of the United States of America", "Dune Buggy" },
+    { "System of a Down", "Aerials" },
+    { "The White Stripes", "Seven Nation Army" },
+    { "Alice In Chains", "When The Sun Rose Again" },
+    { "Bullet For My Valentine", "Tears Don't Fall" }
+};
+const int KSongsCount = sizeof( KRecognizedSongs ) / sizeof( KRecognizedSongs[0] );
+// END TEMPORARY TEST CODE CODE
 
 /*!
  *
  */
 RadioHistoryView::RadioHistoryView() :
-    RadioViewBase(),
+    RadioViewBase( false ),
     mHistoryList( 0 ),
     mAllSongsButton( 0 ),
     mTaggedSongsButton( 0 ),
-    mFilterModel( 0 )
+    mSelectedItem( new RadioHistoryItem() ),
+    mCurrentRow( -1 ),
+    mSongIndex( 0 )
 {
+}
+
+/*!
+ *
+ */
+RadioHistoryView::~RadioHistoryView()
+{
+}
+
+/*!
+ *
+ */
+void RadioHistoryView::setNonTaggedIcon( const HbIcon& nonTaggedIcon )
+{
+    mNonTaggedIcon = nonTaggedIcon;
+    mNonTaggedIcon.setColor( Qt::white );
+}
+
+/*!
+ *
+ */
+HbIcon RadioHistoryView::nonTaggedIcon() const
+{
+    return mNonTaggedIcon;
+}
+
+/*!
+ *
+ */
+void RadioHistoryView::setTaggedIcon( const HbIcon& taggedIcon )
+{
+    mTaggedIcon = taggedIcon;
+}
+
+/*!
+ *
+ */
+HbIcon RadioHistoryView::taggedIcon() const
+{
+    return mTaggedIcon;
 }
 
 /*!
@@ -55,9 +118,8 @@ void RadioHistoryView::deckButtonPressed()
         loadSection( DOCML::FILE_HISTORYVIEW, DOCML::HV_SECTION_HISTORY_MODE );
     }
 
-    const bool showFavorites = mTaggedSongsButton->isChecked();
-//    mFilterModel->setTypeFilter( showFavorites ? RadioStation::Favorite
-//                                               : RadioStation::LocalStation );
+    const bool showTagged = mTaggedSongsButton->isChecked();
+    historyModel().setShowTagged( showTagged );
 
     updateVisibilities();
 }
@@ -68,12 +130,9 @@ void RadioHistoryView::deckButtonPressed()
  */
 void RadioHistoryView::clearList()
 {
-    const bool answer = HbMessageBox::question( hbTrId( "txt_rad_info_clear_recently_played_songs_list" ) );
-
-    if ( answer ) {
-        mMainWindow->uiEngine().historyModel().removeAll();
-        updateVisibilities();
-    }
+    const bool showingTagged = mTaggedSongsButton->isChecked();
+    askQuestion( hbTrId( showingTagged ? "txt_rad_info_clear_tagged_songs_list" :
+                                         "txt_rad_info_clear_recently_played_songs_list" ) );
 }
 
 /*!
@@ -90,47 +149,120 @@ void RadioHistoryView::updateVisibilities()
  * Private slot
  *
  */
-void RadioHistoryView::listItemClicked( const QModelIndex& index )
+void RadioHistoryView::showContextMenu( const QModelIndex& index )
 {
-    showContextMenu( index );
+    *mSelectedItem = historyModel().itemAtIndex( index );
+    mCurrentRow = index.row();
+
+    HbMenu* menu = mUiLoader->findObject<HbMenu>( DOCML::HV_NAME_CONTEXT_MENU );
+
+    if ( HbAction* tagAction = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_CONTEXT_TAG ) ) {
+        if ( mSelectedItem->isTagged() ) {
+            tagAction->setText( hbTrId( "txt_rad_menu_remove_tag" ) );
+        } else {
+            tagAction->setText( hbTrId( "txt_rad_menu_tag_song" ) );
+        }
+    }
+
+    if ( HbAction* searchAction = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_CONTEXT_SEARCH ) ) {
+        //TODO: Check if "search from other store" should be available
+        searchAction->setVisible( false );
+    }
+
+    HbAbstractViewItem* item =  mHistoryList->itemByIndex( index );
+    QPointF coords = item->pos();
+    coords.setY( mHistoryList->contentWidget()->pos().y() + coords.y() );
+    menu->setPreferredPos( QPointF( size().width() / 2 - menu->size().width() / 2, coords.y() + menu->size().height() / 2 ) );
+
+    menu->show();
 }
 
 /*!
  * Private slot
  *
  */
-void RadioHistoryView::listItemLongPressed( HbAbstractViewItem* item, const QPointF& coords )
+void RadioHistoryView::toggleTagging()
 {
-    Q_UNUSED( coords );
-    showContextMenu( item->modelIndex() );
+    historyModel().toggleTagging( *mSelectedItem, mCurrentRow );
+    mSelectedItem->reset();
+    mCurrentRow = -1;
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioHistoryView::openOviStore()
+{
+    QString msg = "To be implemented: Open ovi store. Artist: %1, Title: %2";
+    HbMessageBox::information( msg.arg( mSelectedItem->artist() ).arg( mSelectedItem->title() ) );
+    mMainWindow->uiEngine().openMusicStore( *mSelectedItem );
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioHistoryView::openOtherStore()
+{
+    QString msg = "To be implemented: Open other store. Artist: %1, Title: %2";
+    HbMessageBox::information( msg.arg( mSelectedItem->artist() ).arg( mSelectedItem->title() ) );
+    mMainWindow->uiEngine().openMusicStore( *mSelectedItem, RadioUiEngine::OtherStore );
+}
+
+/*!
+ * Private slot
+ * TEMPORARY TEST CODE
+ */
+void RadioHistoryView::addSongs()
+{
+    for ( int i = 0; i < KSongsCount; ++i ) {
+        QTimer::singleShot( 1000 + i * 1500, this, SLOT(addOneSong()) );
+    }
+}
+
+/*!
+ * Private slot
+ * TEMPORARY TEST CODE
+ */
+void RadioHistoryView::addOneSong()
+{
+    Song song = KRecognizedSongs[mSongIndex++];
+    mSongIndex %= KSongsCount;
+
+    RadioStation station = mMainWindow->uiEngine().stationModel().currentStation();
+    mMainWindow->uiEngine().historyModel().addItem( song.mArtist, song.mTitle, station );
 }
 
 /*!
  * \reimp
  *
  */
-void RadioHistoryView::init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow )
+void RadioHistoryView::init()
 {
     LOG_METHOD;
-    mUiLoader.reset( uiLoader );
-    mMainWindow = mainWindow;
+    mInitialized = true;
 
     RadioHistoryModel* historyModel = &mMainWindow->uiEngine().historyModel();
     historyModel->setShowDetails( mOrientation == Qt::Horizontal );
 
+    if ( !mNonTaggedIcon.isNull() && !mTaggedIcon.isNull() ) {
+        historyModel->setIcons( mNonTaggedIcon.qicon(), mTaggedIcon.qicon() );
+    }
+
     mHistoryList = mUiLoader->findObject<HbListView>( DOCML::HV_NAME_HISTORY_LIST );
     mHistoryList->setScrollingStyle( HbListView::PanOrFlick );
-    mFilterModel = mMainWindow->uiEngine().createNewFilterModel( this );
-    mFilterModel->setSourceModel( historyModel );
-    mHistoryList->setModel( mFilterModel );
+    mHistoryList->setModel( historyModel );
     mHistoryList->setSelectionMode( HbListView::NoSelection );
     mHistoryList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
-    mAllSongsButton     = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_ALL_SONGS_BUTTON );
-    mTaggedSongsButton    = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_TAGGED_SONGS_BUTTON );
+    mAllSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_ALL_SONGS_BUTTON );
+    mTaggedSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_TAGGED_SONGS_BUTTON );
 
-    HbAction* clearListAction = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_CLEAR_LIST_ACTION );
-    connectAndTest( clearListAction, SIGNAL(triggered()), this, SLOT(clearList()) );
+    if ( HbAction* clearListAction = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_CLEAR_LIST_ACTION ) ) {
+        connectAndTest( clearListAction,    SIGNAL(triggered()),
+                        this,               SLOT(clearList()) );
+    }
 
     connectAndTest( mTaggedSongsButton,     SIGNAL(triggered() ),
                     this,                   SLOT(deckButtonPressed() ) );
@@ -138,9 +270,20 @@ void RadioHistoryView::init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWi
                     this,                   SLOT(deckButtonPressed() ) );
     connectAndTest( historyModel,           SIGNAL(itemAdded() ),
                     this,                   SLOT(updateVisibilities() ) );
+
+    loadSection( DOCML::FILE_HISTORYVIEW, DOCML::HV_SECTION_HISTORY_MODE );
     updateVisibilities();
     
+    connectCommonMenuItem( MenuItem::UseLoudspeaker );
+
     initBackAction();
+
+    // BEGIN TEMPORARY TEST CODE
+    if ( HbAction* addSongsAction = mUiLoader->findObject<HbAction>( "hv:add_songs_action" ) ) {
+        connectAndTest( addSongsAction,     SIGNAL(triggered()),
+                        this,               SLOT(addSongs()) );
+    }
+    // END TEMPORARY TEST CODE
 }
 
 /*!
@@ -157,13 +300,16 @@ void RadioHistoryView::setOrientation()
  * \reimp
  *
  */
-void RadioHistoryView::showContextMenu( const QModelIndex& index )
+void RadioHistoryView::userAccepted()
 {
-    QModelIndex sourceIndex = mFilterModel->mapToSource( index );
+    mMainWindow->uiEngine().historyModel().removeAll();
+    updateVisibilities();
+}
 
-    HbMenu* menu = new HbMenu();
-    HbAction* action = menu->addAction( "Set favorite" );
-    menu->exec();
-
-//    RadioHistoryItem item = mFilterModel->data( index, )
+/*!
+ *
+ */
+RadioHistoryModel& RadioHistoryView::historyModel() const
+{
+    return *static_cast<RadioHistoryModel*>( mHistoryList->model() );
 }

@@ -18,6 +18,10 @@
 #ifndef RADIOHISTORYVIEW_H
 #define RADIOHISTORYVIEW_H
 
+// System includes
+#include <HbIcon>
+#include <QScopedPointer>
+
 // User includes
 #include "radioviewbase.h"
 #include "radiowidgetsexport.h"
@@ -26,43 +30,63 @@
 class RadioXmlUiLoader;
 class HbListView;
 class HbAction;
-class RadioStationFilterModel;
 class HbAbstractViewItem;
+class RadioHistoryModel;
+class RadioHistoryItem;
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioHistoryView : public RadioViewBase
 {
     Q_OBJECT
+    Q_PROPERTY(HbIcon nonTaggedIcon READ nonTaggedIcon WRITE setNonTaggedIcon)
+    Q_PROPERTY(HbIcon taggedIcon READ taggedIcon WRITE setTaggedIcon)
 
 public:
 
-    explicit RadioHistoryView();
+    RadioHistoryView();
+    ~RadioHistoryView();
+
+    void setNonTaggedIcon( const HbIcon& nonTaggedIcon );
+    HbIcon nonTaggedIcon() const;
+
+    void setTaggedIcon( const HbIcon& taggedIcon );
+    HbIcon taggedIcon() const;
 
 private slots:
 
     void deckButtonPressed();
     void clearList();
     void updateVisibilities();
-    void listItemClicked( const QModelIndex& index );
-    void listItemLongPressed( HbAbstractViewItem* item, const QPointF& coords );
+    void showContextMenu( const QModelIndex& index );
+    void toggleTagging();
+    void openOviStore();
+    void openOtherStore();
+    void addSongs();            // Temporary test code
+    void addOneSong();          // Temporary test code
 
 private:
 
 // from base class RadioViewBase
 
-    void init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow );
+    void init();
     void setOrientation();
+    void userAccepted();
 
 // New functions
 
-    void showContextMenu( const QModelIndex& index );
+    RadioHistoryModel& historyModel() const;
 
 private: //data
 
-    HbListView*                 mHistoryList;
-    HbAction*                   mAllSongsButton;
-    HbAction*                   mTaggedSongsButton;
-    RadioStationFilterModel*    mFilterModel;
+    HbListView*                         mHistoryList;
+    HbAction*                           mAllSongsButton;
+    HbAction*                           mTaggedSongsButton;
+    QScopedPointer<RadioHistoryItem>    mSelectedItem;
+    int                                 mCurrentRow;
+    HbIcon                              mNonTaggedIcon;
+    HbIcon                              mTaggedIcon;
+
+    int                                 mSongIndex; // Temporary test variable
 
 };
 

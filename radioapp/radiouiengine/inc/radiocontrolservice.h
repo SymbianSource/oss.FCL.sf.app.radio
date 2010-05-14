@@ -38,7 +38,7 @@ class RadioControlService : public XQServiceProvider
 public:
 
     RadioControlService( RadioUiEngine& engine );
-    ~RadioControlService();
+    virtual ~RadioControlService();
 
 
 public slots:

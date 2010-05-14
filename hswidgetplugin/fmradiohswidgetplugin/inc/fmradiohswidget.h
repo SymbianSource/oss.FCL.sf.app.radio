@@ -18,9 +18,6 @@
 #ifndef FMRADIOHSWIDGET_H
 #define FMRADIOHSWIDGET_H
 
-// Defines
-#define DOCML_WIDGET ":/gfx/resource/fmradiohswidget.docml"
-
 // System includes
 #include <HbWidget>
 
@@ -30,10 +27,16 @@
 // Forward declarations
 class HbLabel;
 class HbPushButton;
+class HbMarqueeItem;
 class XQSettingsManager;
 class XQSettingsKey;
 class FmRadioHsWidgetProcessHandler;
 class FmRadioHsWidgetProfileReader;
+class QGraphicsLinearLayout;
+
+// Defines
+const QString KDocml = ":/ui/resource/fmradiohswidget.docml";
+const QString KCss = ":/ui/resource/fmradiohswidgetplugin.css";
 
 // Constants
 /**  Key for radio information hash. */
@@ -48,6 +51,10 @@ const QString KRadioInformationRt = "rt";
 const QString KRadioInformationDynamicPsName = "dynamicPsName";
 /**  Key for radio information hash. */
 const QString KRadioInformationPty = "pty";
+/**  Key for radio information hash. */
+const QString KRadioInformationHomePage = "homePage";
+/**  Key for radio information hash. */
+const QString KRadioInformationSong = "song";
 /**  Text to display in widget. */
 const QString KFmRadioText = "FM Radio";
 /**  Information text to connect headset. */
@@ -56,27 +63,35 @@ const QString KConnectHeadsetText = "Connect wired headset.";
 const QString KMhzText = "Mhz";
 /**  DOCML object name for mainLayout */
 const QString KDocmlObjectNameMainLayout = "mainLayout";
-/**  DOCML object name for  */
+/**  DOCML object name for radioIconPushButton */
 const QString KDocmlObjectNameRadioIconPushButton = "radioIconPushButton";
-/**  DOCML object name for  */
+/**  DOCML object name for verticalSeparatorLabel */
+const QString KDocmlObjectNameVerticalSeparatorLabel = "verticalSeparatorLabel";
+/**  DOCML object name for controlAreaLayout */
+const QString KDocmlObjectNameControlAreaLayout = "controlAreaLayout";
+/**  DOCML object name for previousPushButton */
 const QString KDocmlObjectNamePreviousPushButton = "previousPushButton";
-/**  DOCML object name for  */
+/**  DOCML object name for verticalButtonSeparatorLabel1 */
+const QString KDocmlObjectNameVerticalButtonSeparatorLabel1 = "verticalButtonSeparatorLabel1";
+/**  DOCML object name for playPushButton */
 const QString KDocmlObjectNamePlayPushButton = "playPushButton";
-/**  DOCML object name for  */
+/**  DOCML object name for verticalButtonSeparatorLabel2 */
+const QString KDocmlObjectNameVerticalButtonSeparatorLabel2 = "verticalButtonSeparatorLabel2";
+/**  DOCML object name for nextPushButton */
 const QString KDocmlObjectNameNextPushButton = "nextPushButton";
-/**  DOCML object name for  */
+/**  DOCML object name for twoRowsLayout */
 const QString KDocmlObjectNameTwoRowsLayout = "twoRowsLayout";
-/**  DOCML object name for  */
+/**  DOCML object name for oneRowLayout */
 const QString KDocmlObjectNameOneRowLayout = "oneRowLayout";
-/**  DOCML object name for  */
+/**  DOCML object name for animationLayout */
 const QString KDocmlObjectNameAnimationLayout = "animationLayout";
-/**  DOCML object name for  */
+/**  DOCML object name for firstRowLabel */
 const QString KDocmlObjectNameFirstRowLabel = "firstRowLabel";
-/**  DOCML object name for  */
+/**  DOCML object name for secondRowLabel */
 const QString KDocmlObjectNameSecondRowLabel = "secondRowLabel";
-/**  DOCML object name for  */
+/**  DOCML object name for lonelyRowLabel */
 const QString KDocmlObjectNameLonelyRowLabel = "lonelyRowLabel";
-/**  DOCML object name for  */
+/**  DOCML object name for animationIcon */
 const QString KDocmlObjectNameAnimationIcon = "animationIcon";
 
 class FmRadioHsWidget : public HbWidget
@@ -105,10 +120,8 @@ public:
         Running,
         ControllingAudio,
         NotControllingAudio,
-        AutoScanning,
-        ConnectType1Headset,
-        ConnectType2Headset,
-        ConnectType3Headset
+        Seeking,
+        AntennaNotConnected
     };
 
     // enum for information area layout states
@@ -130,6 +143,22 @@ public:
         ChannelsEnabledStop
     };
 
+    // enum for control button states
+    enum PlayButtonState
+    {
+        PlayDisabled,
+        PlayEnabled,
+        StopDisabled,
+        StopEnabled
+    };
+    
+    enum ControlButtonPosition
+    {
+        Left,
+        Center,
+        Right
+    };
+
 public slots:
     //void onInitialize(); // Can be used in future to get on intialize event.
     void onShow();
@@ -139,7 +168,7 @@ public slots:
     bool eventFilter(QObject *target, QEvent *event);
     
 private slots:
-    void load(QString docml);
+    void load(const QString docml);
     
     void mute();
     void unMute();
@@ -147,6 +176,7 @@ private slots:
     void nextChannel();
     void radioToForeground();
     void radioToBackground();
+    bool openUrl(QUrl url);
 
     void handleRadioInformationChange(int notificationId, QVariant value);
     bool updateRadioInformation(const QString informationType, QString information);
@@ -156,30 +186,43 @@ private slots:
     
     void changeInformationAreaLayout(InformationAreaLayout layout);
     void changeControlButtonState(ControlButtonState buttonState);
+    void changePlayButtonState(PlayButtonState buttonState);
+    void changeChannelButtonsEnabledState(bool enabled);
+    void changeControlButtonFrameBackground(bool enabled, ControlButtonPosition position,
+        HbPushButton *button);
     
 private:
     // Data
     Q_DISABLE_COPY(FmRadioHsWidget)
     
     HbPushButton *mRadioPushButton;
+    HbLabel *mVerticalSeparatorLabel;
     HbPushButton *mPreviousPushButton;
+    HbLabel *mVerticalButtonSeparatorLabel1;
     HbPushButton *mPlayPushButton;
+    HbLabel *mVerticalButtonSeparatorLabel2;
     HbPushButton *mNextPushButton;
     QGraphicsWidget *mInformationAreaOneRowLayout;
     QGraphicsWidget *mInformationAreaTwoRowsLayout;
     QGraphicsWidget *mInformationAreaAnimationLayout;
     HbLabel *mInformationFirstRowLabel; // This should be maybe a HbLineEdit for displaying and receiving click on url's.
+    //HbMarqueeItem *mInformationFirstRowMarquee;
     HbLabel *mInformationSecondRowLabel;// HbLineEdit may also support marquee/scrolling.
+    //HbMarqueeItem *mInformationSecondRowMarquee;
     HbLabel *mInformationLonelyRowLabel;
-    HbLabel *mAnimatioIcon;
+    //HbMarqueeItem *mInformationLonelyRowMarquee;
+    HbLabel *mAnimationIcon;
     
-    FmRadioState mFmRadioState; 
+    FmRadioState mFmRadioState;
+    PlayButtonState mPlayButtonState;
+    bool mIsFavoriteChannels;
 
     QHash<QString, QString> mRadioInformation;  // Stores the radio information
     QString mRadioInformationFirstRow;
     QString mRadioInformationSecondRow;
 
     FmRadioHsWidgetProcessHandler *mProcessHandler; // For launching the FM Radio application
+    FmRadioHsWidgetProfileReader *mProfileMonitor;
     
     FmRadioHsWidgetRadioServiceClient *mRadioServiceClient; // For communicating with the FM Radio through Qt Highway
     

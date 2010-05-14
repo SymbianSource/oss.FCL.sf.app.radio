@@ -39,6 +39,9 @@ RadioHistoryModel::RadioHistoryModel( RadioUiEngine& uiEngine ) :
                     this,       SLOT(resetCurrentSong()) );
     connectAndTest( &uiEngine,  SIGNAL(seekingStarted(int)),
                     this,       SLOT(resetCurrentSong()) );
+
+    Q_D( RadioHistoryModel );
+    d->connectToDatabase();
 }
 
 /*!
@@ -47,18 +50,7 @@ RadioHistoryModel::RadioHistoryModel( RadioUiEngine& uiEngine ) :
 RadioHistoryModel::~RadioHistoryModel()
 {
     Q_D( RadioHistoryModel );
-    d->mItems.clear();
     delete d_ptr;
-}
-
-/*!
- * \reimp
- */
-Qt::ItemFlags RadioHistoryModel::flags ( const QModelIndex& index ) const
-{
-    Qt::ItemFlags flags = QAbstractListModel::flags( index );
-    flags |= Qt::ItemIsEditable;
-    return flags;
 }
 
 /*!
@@ -68,7 +60,7 @@ int RadioHistoryModel::rowCount( const QModelIndex& parent ) const
 {
     Q_UNUSED( parent );
     Q_D( const RadioHistoryModel );
-    return d->mItems.count();
+    return d->rowCount();
 }
 
 /*!
@@ -81,43 +73,7 @@ QVariant RadioHistoryModel::data( const QModelIndex& index, int role ) const
     }
 
     Q_D( const RadioHistoryModel );
-    if ( role == Qt::DisplayRole ) {
-        RadioHistoryItem item = d->mItems.at( index.row() );
-
-        QStringList list;
-        if ( d->mShowDetails ) {
-            list.append( item.artist() + " - " + item.title() );
-            list.append( item.time() + " " + item.station() + " " /*+ RadioUiEngine::parseFrequency( item.frequency() ) */ );
-        } else {
-            list.append( item.artist() );
-            list.append( item.title() );
-        }
-
-        return list;
-    }
-
-    return QVariant();
-}
-
-/*!
- * \reimp
- */
-bool RadioHistoryModel::setData( const QModelIndex& index, const QVariant& value, int role )
-{
-    Q_UNUSED( value );
-    if ( !index.isValid() ) {
-        return false;
-    }
-
-    if ( role == RadioHistoryModel::SetFavoriteRole ) {
-        Q_D( RadioHistoryModel );
-        RadioHistoryItem item = d->mItems.at( index.row() );
-        item.setFavorite();
-        updateItem( index.row(), item );
-        return true;
-    }
-
-    return false;
+    return d->data( index.row(), role );
 }
 
 /*!
@@ -133,26 +89,20 @@ void RadioHistoryModel::resetCurrentSong()
 /*!
  * Public slot
  */
-void RadioHistoryModel::setFavorite()
-{
-    Q_D( RadioHistoryModel );
-    RadioHistoryItem item = d->mItems.first();
-    item.setFavorite();
-    updateItem( 0, item );
-}
-
-/*!
- * Public slot
- */
 void RadioHistoryModel::removeAll()
 {
     Q_D( RadioHistoryModel );
+    d->removeAll();
+}
 
-    beginRemoveRows( QModelIndex(), 0, rowCount() - 1 );
-
-    d->mItems.clear();
-
-    endRemoveRows();
+/*!
+ * Sets the icons to be used in the list
+ */
+void RadioHistoryModel::setIcons( const QIcon& nonTaggedIcon, const QIcon& taggedIcon )
+{
+    Q_D( RadioHistoryModel );
+    d->mNonTaggedIcon = nonTaggedIcon;
+    d->mTaggedIcon = taggedIcon;
 }
 
 /*!
@@ -177,31 +127,37 @@ void RadioHistoryModel::setShowDetails( bool showDetails )
 /*!
  *
  */
+void RadioHistoryModel::setShowTagged( bool showTagged )
+{
+    Q_D( RadioHistoryModel );
+    d->setViewMode( showTagged ? RadioHistoryModelPrivate::ShowTagged : RadioHistoryModelPrivate::ShowAll );
+}
+
+/*!
+ *
+ */
+void RadioHistoryModel::toggleTagging( const RadioHistoryItem& item, const int row )
+{
+    Q_D( RadioHistoryModel );
+    d->toggleTagging( item, row );
+}
+
+/*!
+ *
+ */
+RadioHistoryItem RadioHistoryModel::itemAtIndex( const QModelIndex& index ) const
+{
+    Q_D( const RadioHistoryModel );
+    return d->itemAtIndex( index );
+}
+
+/*!
+ *
+ */
 void RadioHistoryModel::addItem( const QString& artist, const QString& title, const RadioStation& station )
 {
     Q_D( RadioHistoryModel );
-
-    RadioHistoryItem item;
-    const int itemIndex = findItem( artist, title, item );
-    if ( itemIndex != -1 ) {
-        item.increasePlayCount();
-        updateItem( itemIndex, item, true );
-    } else {
-        item.setArtist( artist );
-        item.setTitle( title );
-        item.setStation( station.name() );
-        item.setFrequency( station.frequency() );
-        item.setCurrentTime();
-
-        beginInsertRows( QModelIndex(), 0, 0 );
-
-        d->mItems.prepend( item );
-
-        endInsertRows();
-    }
-
-    d->mTopItemIsPlaying = true;
-    emit itemAdded();
+    d->addItem( artist, title, station );
 }
 
 /*!
@@ -219,17 +175,31 @@ void RadioHistoryModel::clearRadioTextPlus()
  */
 void RadioHistoryModel::addRadioTextPlus( int rtClass, const QString& rtItem, const RadioStation& station )
 {
-    if ( rtClass == RtPlus::Artist || rtClass == RtPlus::Title ) {
+    if ( rtClass == RtPlus::Dummy || rtClass == RtPlus::Artist || rtClass == RtPlus::Title ) {
         Q_D( RadioHistoryModel );
-        if ( d->mRtItemHolder.isEmpty() ) {
+        if ( d->mRtItemClass == -1 ) {
+            d->mRtItemClass = rtClass;
             d->mRtItemHolder = rtItem;
         } else {
-            if ( rtClass == RtPlus::Title ) {
+            // Received: Artist - Title
+            if ( d->mRtItemClass == RtPlus::Artist && rtClass == RtPlus::Title ) {
                 addItem( d->mRtItemHolder, rtItem, station );
-            } else {
+
+            // Received: Title - Artist
+            } else if ( rtClass == RtPlus::Artist && d->mRtItemClass == RtPlus::Title ) {
                 addItem( rtItem, d->mRtItemHolder, station );
+
+            // Received: Dummy - Title
+            } else if ( d->mRtItemClass == RtPlus::Dummy && rtClass == RtPlus::Title ) {
+                addItem( "", rtItem, station );
+
+            // Received: Title - Dummy
+            } else if ( rtClass == RtPlus::Dummy && d->mRtItemClass == RtPlus::Title ) {
+                addItem( "", d->mRtItemHolder, station );
             }
+
             d->mRtItemHolder = "";
+            d->mRtItemClass = -1;
         }
     }
 }
@@ -237,33 +207,20 @@ void RadioHistoryModel::addRadioTextPlus( int rtClass, const QString& rtItem, co
 /*!
  *
  */
-int RadioHistoryModel::findItem( const QString& artist, const QString& title, RadioHistoryItem& item )
+void RadioHistoryModel::reportChangedData( int start, int end )
 {
-    Q_D( RadioHistoryModel );
-    const int itemCount = d->mItems.count();
-    for ( int i = 0; i < itemCount; ++i ) {
-        RadioHistoryItem existingItem = d->mItems.at( i );
-        if ( existingItem.artist().compare( artist ) == 0
-             && existingItem.title().compare( title ) == 0 ) {
-            item = existingItem;
-            return i;
-        }
+    if ( end == -1 ) {
+        end = start;
     }
-
-    return -1;
+    const QModelIndex startIndex = index( start, 0, QModelIndex() );
+    const QModelIndex endIndex = index( end, 0, QModelIndex() );
+    emit dataChanged( startIndex, endIndex );
 }
 
 /*!
  *
  */
-void RadioHistoryModel::updateItem( int index, const RadioHistoryItem& item, bool prepend )
+void RadioHistoryModel::emitItemAdded()
 {
-    Q_D( RadioHistoryModel );
-    d->mItems.removeAt( index );
-
-    if ( prepend ) {
-        d->mItems.prepend( item );
-    } else {
-        d->mItems.insert( index, item );
-    }
+    emit itemAdded();
 }

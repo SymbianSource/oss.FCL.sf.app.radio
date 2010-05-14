@@ -31,6 +31,7 @@ HEADERS     += radiowrapperexport.h
 HEADERS     += radio_global.h
 HEADERS     += radiologger.h
 HEADERS     += radioenginewrapper.h
+HEADERS     += radiosettingsif.h
 HEADERS     += radiosettings.h
 HEADERS     += radiostationhandlerif.h
 HEADERS     += radioenginewrapperobserver.h

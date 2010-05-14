@@ -24,6 +24,25 @@
 
 // User includes
 
+// Forward declarations
+class QSqlRecord;
+
+// Constants
+namespace RadioHistoryValue
+{
+    enum Name
+    {
+        Id,
+        Artist,
+        Title,
+        Station,
+        Frequency,
+        Tagged,
+        FromRds,
+        Time
+    };
+}
+
 class RadioHistoryItemPrivate
 {
 public:
@@ -33,6 +52,8 @@ public:
 
     void init( const QString& artist, const QString& title );
 
+    void initFromRecord( const QSqlRecord& record );
+
 public: // data
 
     /**
@@ -41,6 +62,8 @@ public: // data
      * This is because convenience functions like qAtomicAssign() expect it to be named "ref"
      */
     QAtomicInt      ref;
+
+    int             mId;
 
     QString         mArtist;
 
@@ -52,9 +75,9 @@ public: // data
 
     uint            mFrequency;
 
-    int             mPlayCount;
+    bool            mTagged;
 
-    bool            mFavorite;
+    bool            mFromRds;
 
 };
 

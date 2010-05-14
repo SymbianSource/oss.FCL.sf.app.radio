@@ -19,11 +19,12 @@
 #include <HbAction>
 #include <HbEffect>
 #include <QCoreApplication>
+#include <HbMessageBox>
 
 #include "radioviewbase.h"
-#include "radiomainwindow.h"
+#include "radiowindow.h"
 #include "radiostationmodel.h"
-#include "radioxmluiloader.h"
+#include "radiouiloader.h"
 #include "radiouiengine.h"
 #include "radiologger.h"
 
@@ -34,6 +35,7 @@ RadioViewBase::RadioViewBase( bool transient ) :
     HbView( 0 ),
     mMainWindow( 0 ),
     mUiLoader( 0 ),
+    mInitialized( false ),
     mTransientView( transient ),
     mUseLoudspeakerAction( 0 ),
     mOrientation( Qt::Vertical )
@@ -53,11 +55,18 @@ RadioViewBase::~RadioViewBase()
 /*!
  *
  */
-void RadioViewBase::init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow )
+void RadioViewBase::setMembers( RadioUiLoader* uiLoader, RadioWindow* mainWindow )
 {
-    // Default implementation does nothing
-    Q_UNUSED( uiLoader );
-    Q_UNUSED( mainWindow );
+    mUiLoader.reset( uiLoader );
+    mMainWindow = mainWindow;
+}
+
+/*!
+ *
+ */
+bool RadioViewBase::isInitialized() const
+{
+    return mInitialized;
 }
 
 /*!
@@ -97,7 +106,7 @@ void RadioViewBase::updateAudioRouting( bool loudspeaker )
  */
 void RadioViewBase::activatePreviousView()
 {
-    mMainWindow->activateTuningView();
+    mMainWindow->activateMainView();
 }
 
 /*!
@@ -110,6 +119,18 @@ void RadioViewBase::quit()
 }
 
 /*!
+ * Private slot
+ * TODO: Refactor this awkwardness once Orbit figures out a better way
+ */
+void RadioViewBase::handleUserAnswer( HbAction* answer )
+{
+    HbMessageBox* dlg = static_cast<HbMessageBox*>( sender() );
+    if( dlg->actions().first() == answer ) {
+        userAccepted();
+    }
+}
+
+/*!
  *
  */
 void RadioViewBase::initBackAction()
@@ -117,7 +138,7 @@ void RadioViewBase::initBackAction()
     // The default back button activates the tuning view
     HbAction* backAction = new HbAction( Hb::BackNaviAction, this );
     connectAndTest( backAction,     SIGNAL(triggered()),
-                    mMainWindow,    SLOT(activateTuningView()) );
+                    mMainWindow,    SLOT(activateMainView()) );
     setNavigationAction( backAction );    
 }
 
@@ -167,7 +188,8 @@ void RadioViewBase::connectViewChangeMenuItem( QString name, const char* slot )
  */
 void RadioViewBase::loadSection( const QString& docml, const QString& section )
 {
-    bool ok = false;
+    LOG_FORMAT( "RadioViewBase::loadSection: Docml: %s, section: %s", GETSTRING( docml ), GETSTRING( section ) );
+    bool ok = false;    
     mUiLoader->load( docml, section, &ok );
     LOG_ASSERT( ok, LOG_FORMAT( "Loading of section %s failed!", GETSTRING( section ) ) );
 }
@@ -175,7 +197,23 @@ void RadioViewBase::loadSection( const QString& docml, const QString& section )
 /*!
  *
  */
+void RadioViewBase::askQuestion( const QString& question )
+{
+    HbMessageBox::question( question, this, SLOT(handleUserAnswer(HbAction*)) );
+}
+
+/*!
+ *
+ */
 void RadioViewBase::setOrientation()
+{
+    // Default implementation does nothing
+}
+
+/*!
+ *
+ */
+void RadioViewBase::userAccepted()
 {
     // Default implementation does nothing
 }

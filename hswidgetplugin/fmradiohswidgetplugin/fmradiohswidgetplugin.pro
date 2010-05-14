@@ -74,7 +74,7 @@ win32: {
     DESTDIR = $$PWD/../../../../../bin/$${SUBDIRPART}/$${PLUGIN_SUBDIR}
 
     manifest.path = $${DESTDIR}
-    manifest.files = ./resource/*.manifest ./resource/*.xml #./resource/*.png
+    manifest.files = ./resource/*.manifest ./resource/*.xml ./resource/*.css #./resource/*.png
     
     INSTALLS += manifest    
     

@@ -97,7 +97,7 @@ bool RadioEngineWrapperPrivate::isEngineConstructed()
 /*!
  * Returns the settings handler owned by the engine
  */
-RadioSettings& RadioEngineWrapperPrivate::settings()
+RadioSettingsIf& RadioEngineWrapperPrivate::settings()
 {
     if ( !mSettings ) {
         mSettings.reset( new RadioSettings() );
@@ -218,24 +218,17 @@ void RadioEngineWrapperPrivate::AntennaEventL( TBool aAntennaAttached, TInt aErr
  */
 void RadioEngineWrapperPrivate::AudioRoutingEventL( TInt aAudioDestination, TInt aError )
 {
-    //TODO: Check how this event differs from AudioRoutingChangedL
     Q_UNUSED( aAudioDestination )
     Q_UNUSED( aError )
-//    Q_Q( RadioEngineWrapper );
-//    q->audioRouteChanged( aAudioDestination == RadioEngine::ERadioSpeaker );
 }
 
 /*!
  * \reimp
  */
-void RadioEngineWrapperPrivate::SeekingEventL( TInt aSeekingState, TInt DEBUGVAR( aError ) )
+void RadioEngineWrapperPrivate::SeekingEventL( TInt aSeekingState, TInt aError )
 {
-    Q_UNUSED( aSeekingState )
-//    LOG_FORMAT( "RadioEngineWrapperPrivate::SeekingEventL, aSeekingState: %d, Error: %d", aSeekingState, aError );
-//    if ( aSeekingState != RadioEngine::ERadioNotSeeking ) {
-//        // We only set the flag here. It is reset in the FrequencyEventL
-//        mIsSeeking = true;
-//    }
+    Q_UNUSED( aSeekingState );
+    Q_UNUSED( aError );
 }
 
 /*!

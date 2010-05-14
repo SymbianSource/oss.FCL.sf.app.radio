@@ -15,60 +15,60 @@
 *
 */
 
-#ifndef _TUNINGVIEW_H_
-#define _TUNINGVIEW_H_
+#ifndef RADIOMAINVIEW_H
+#define RADIOMAINVIEW_H
 
 // System includes
+#include <QScopedPointer>
 
 // User includes
 #include "radioviewbase.h"
 #include "radiowidgetsexport.h"
 
 // Forward declarations
-class RadioMainWindow;
+class RadioWindow;
 class RadioStationModel;
 class HbPushButton;
-class RadioXmlUiLoader;
+class RadioUiLoader;
 class RadioFrequencyScanner;
 class RadioStationCarousel;
+class RadioFrequencyStrip;
 
 // Class declaration
-class WIDGETS_DLL_EXPORT RadioTuningView : public RadioViewBase
+class WIDGETS_DLL_EXPORT RadioMainView : public RadioViewBase
     {
     Q_OBJECT
 
 public:
 
-    explicit RadioTuningView();
+    explicit RadioMainView();
+    ~RadioMainView();
 
     void setScanningMode( bool scanning );
 
 private slots:
 
-    void toggleFavorite();
-    void startScanning();
-    void scanningFinished();
+    void setFrequencyFromWidget( uint frequency, int reason );
+    void setFrequencyFromEngine( uint frequency, int reason );
+    void skip( int skipMode );
+    void toggleScanning();
     void seekingStarted();
-    void seekingFinished();
-    void updateAntennaStatus( bool connected );
     void updateAudioRoute( bool loudspeaker );
-    void buttonPressed();
-    void removeInfoText();
 
 private:
 
 // from base class RadioViewBase
 
-    void init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow );
+    void init();
     void setOrientation();
-
-// New functions
+    void userAccepted();
 
 private: // data
 
-    RadioFrequencyScanner*        mFrequencyScanner;
-    RadioStationCarousel*         mCarousel;
+    QScopedPointer<RadioFrequencyScanner>   mFrequencyScanner;
+    RadioStationCarousel*                   mCarousel;
+    RadioFrequencyStrip*                    mFrequencyStrip;
 
     };
 
-#endif // _TUNINGVIEW_H_
+#endif // RADIOMAINVIEW_H

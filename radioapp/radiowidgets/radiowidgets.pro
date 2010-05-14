@@ -33,11 +33,11 @@ DEPENDPATH  += $$INCLUDEPATH src
 
 # Input
 HEADERS     += radiowidgetsexport.h
-HEADERS     += radiomainwindow.h
+HEADERS     += radiowindow.h
 HEADERS     += radiouiutilities.h
 HEADERS     += radioviewbase.h
-HEADERS     += radioxmluiloader.h
-HEADERS     += radiotuningview.h
+HEADERS     += radiouiloader.h
+HEADERS     += radiomainview.h
 HEADERS     += radiostripbase.h
 HEADERS     += radiofrequencystrip.h
 HEADERS     += radiofrequencyitem.h
@@ -49,11 +49,11 @@ HEADERS     += radiostationcarousel.h
 HEADERS     += radiostationitem.h
 HEADERS     += radiohistoryview.h
 
-SOURCES     += radiomainwindow.cpp
+SOURCES     += radiowindow.cpp
 SOURCES     += radiouiutilities.cpp
 SOURCES     += radioviewbase.cpp
-SOURCES     += radioxmluiloader.cpp
-SOURCES     += radiotuningview.cpp
+SOURCES     += radiouiloader.cpp
+SOURCES     += radiomainview.cpp
 SOURCES     += radiostripbase.cpp
 SOURCES     += radiofrequencystrip.cpp
 SOURCES     += radiofrequencyitem.cpp

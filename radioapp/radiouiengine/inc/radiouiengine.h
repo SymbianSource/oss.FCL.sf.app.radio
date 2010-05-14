@@ -30,9 +30,11 @@
 // Forward declarations
 class RadioUiEnginePrivate;
 class RadioStationModel;
-class RadioSettings;
+class RadioSettingsIf;
 class RadioStation;
 class RadioHistoryModel;
+class RadioHistoryItem;
+class RadioCarouselModel;
 class RadioStationFilterModel;
 class RadioScannerEngine;
 class RadioMonitorService;
@@ -53,26 +55,34 @@ class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
     Q_DECLARE_PRIVATE_D( d_ptr, RadioUiEngine )
     Q_DISABLE_COPY( RadioUiEngine )
 
+    friend class RadioScannerEngine;
+
 public:
 
+    /**
+     * Static functions that are used before the ui engine is created
+     */
     static bool isOfflineProfile();
+    static uint lastTunedFrequency();
 
     RadioUiEngine( QObject* parent = 0 );
     ~RadioUiEngine();
 
-    bool startRadio();
+    bool isInitialized() const;
+
+    bool init();
 
     bool isFirstTimeStart();
 
     /**
      * Getters for things owned by the engine
      */
-    RadioSettings& settings();
-    RadioStationModel& model();
+    RadioSettingsIf& settings();
+    RadioStationModel& stationModel();
     RadioHistoryModel& historyModel();
     RadioStationFilterModel* createNewFilterModel( QObject* parent = 0 );
-    RadioScannerEngine* createScannerEngine();
-    RadioMonitorService& monitor();
+    RadioCarouselModel* carouselModel();
+    RadioScannerEngine* scannerEngine();
 
     bool isRadioOn() const;
     bool isScanning() const;
@@ -86,6 +96,8 @@ public:
     uint maxFrequency() const;
     uint frequencyStepSize() const;
 
+    void setMute( bool muted );
+
     QList<RadioStation> stationsInRange( uint minFrequency, uint maxFrequency );
 
     QString genreToString( int genre, GenreTarget::Target target );
@@ -93,6 +105,11 @@ public:
     bool isSongRecognitionAppAvailable();
 
     void addRecognizedSong( const QString& artist, const QString& title, const RadioStation& station );
+
+    uint skipStation( StationSkip::Mode mode, uint startFrequency = 0 );
+
+    enum MusicStore{ OviStore, OtherStore };
+    void openMusicStore( const RadioHistoryItem& item, MusicStore store = OviStore );
 
 signals:
 
@@ -113,8 +130,8 @@ public slots:
     /**
      * Slots to tune to given frequency or preset
      */
-    void tuneFrequency( uint frequency, const int sender = TuneReason::Unspecified );
-    void tuneWithDelay( uint frequency, const int sender = TuneReason::Unspecified );
+    void tuneFrequency( uint frequency, const int reason = TuneReason::Unspecified );
+    void tuneWithDelay( uint frequency, const int reason = TuneReason::Unspecified );
     void tunePreset( int presetIndex );
 
     /*!
@@ -124,11 +141,7 @@ public slots:
     void toggleMute();
     void toggleAudioRoute();
 
-    void skipPrevious();
-    void skipNext();
-
-    void seekUp();
-    void seekDown();
+    void seekStation( int seekDirection );
 
     void launchSongRecognition();
 

@@ -42,38 +42,7 @@ class RadioScannerEnginePrivate : public RadioEngineWrapperObserver
 public:
 
     RadioScannerEnginePrivate( RadioScannerEngine* scanner, RadioUiEnginePrivate& uiEngine );
-    ~RadioScannerEnginePrivate();
-
-// New functions
-
-    /*!
-     * Starts the scanning from minimum frequency
-     */
-    void startScanning();
-
-    /*!
-     * Continues the scanning upwards from current frequency
-     */
-    void continueScanning();
-
-    /*!
-     * Cancels the scanning process
-     */
-    void cancel();
-
-    /*!
-     * Adds a new station that was found
-     * @param frequency Frequency of the found station
-     */
-    void addScannedFrequency( const uint frequency );
-
-signals:
-
-    void stationFound( const RadioStation& station );
-
-private slots:
-
-    void delayedStart();
+    virtual ~RadioScannerEnginePrivate();
 
 private:
 
@@ -102,6 +71,8 @@ private: // data
     uint                    mLastFoundFrequency;
 
     bool                    mMutedByScanner;
+
+    bool                    mIsScanning;
 
     };
 

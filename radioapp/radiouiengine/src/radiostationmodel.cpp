@@ -26,11 +26,6 @@
 #include "radiouiengine_p.h"
 #include "radiostation.h"
 #include "radiostation_p.h"
-#ifndef BUILD_WIN32
-#   include "radiomonitorservice.h"
-#else
-#   include "radiomonitorservice_win32.h"
-#endif
 #include "radiologger.h"
 
 /*!
@@ -185,12 +180,11 @@ void RadioStationModel::initialize( RadioPresetStorage* storage, RadioEngineWrap
 
         RadioStationIf* preset = static_cast<RadioStationIf*>( station.data_ptr() );
         if ( d->mPresetStorage->readPreset( index, *preset ) ) {
-            RADIO_ASSERT( station.isValid(), "RadioStationModelPrivate::initialize", "Invalid station" );
-			// TODO: Remove this if when new Preset utility is taken into use
-            if ( station.frequency() != 87500000 )
-                {
+            if ( station.isValid() ) {
                 d->mStations.insert( station.frequency(), station );
-                }
+            } else {
+                LOG( "RadioStationModelPrivate::initialize: Invalid station!" );
+            }
         }
 
 #ifdef COMPILE_WITH_NEW_PRESET_UTILITY
@@ -260,21 +254,6 @@ bool RadioStationModel::findFrequency( uint frequency, RadioStation& station )
 }
 
 /*!
- * Finds number of favorite stations
- */
-int RadioStationModel::favoriteCount()
-{
-    Q_D( const RadioStationModel );
-    int count = 0;
-    foreach( const RadioStation& tempStation, d->mStations ) {
-        if ( tempStation.isFavorite() ) {
-            ++count;
-        }
-    }
-    return count;
-}
-
-/*!
  * Finds a station by preset index
  */
 int RadioStationModel::findPresetIndex( int presetIndex )
@@ -302,6 +281,42 @@ int RadioStationModel::findPresetIndex( int presetIndex, RadioStation& station )
         station = d->mStations.values().at( index );
     }
     return index;
+}
+
+/*!
+ * Finds the closest station from the given frequency
+ */
+RadioStation RadioStationModel::findClosest( const uint frequency, StationSkip::Mode mode )
+{
+    Q_D( RadioStationModel );
+    const bool findFavorite = mode == StationSkip::PreviousFavorite || mode == StationSkip::NextFavorite;
+    const bool findNext = mode == StationSkip::Next || mode == StationSkip::NextFavorite;
+    QList<RadioStation> list = findFavorite ? d->favorites() : d->mStations.values();
+
+    // Find the previous and next station from current frequency
+    RadioStation previous;
+    RadioStation next;
+    foreach( const RadioStation& station, list ) {
+        const uint testFreq = station.frequency();
+        if ( testFreq == frequency ) {
+            continue;
+        }
+
+        if ( testFreq > frequency ) {
+            next = station;
+            break;
+        }
+        previous = station;
+    }
+
+    // Check if we need to loop around
+    if ( findNext && !next.isValid() ) {
+        next = list.first();
+    } else if ( !findNext && !previous.isValid() ) {
+        previous = list.last();
+    }
+
+    return findNext ? next : previous;
 }
 
 /*!
@@ -352,17 +367,55 @@ void RadioStationModel::removeStation( const RadioStation& station )
         d->mPresetStorage->deletePreset( tempStation.presetIndex() );
         d->mStations.remove( frequency );
 
-        endRemoveRows();
-
         d->mCurrentStation = NULL;
         d->setCurrentStation( d->mWrapper->currentFrequency() );
 
-        emit stationRemoved( tempStation );
+        endRemoveRows();
+    }
+}
 
-        if ( tempStation.isFavorite() ) {
-            d->mUiEngine.api().monitor().notifyFavoriteCount( favoriteCount() );
+/*!
+ * Public slot
+ * Removes all stations
+ */
+void RadioStationModel::removeAll( RemoveMode mode )
+{
+    Q_D( RadioStationModel );
+    if ( d->mStations.count() == 0 ) {
+        return;
+    }
+
+    if ( mode == RemoveAll ) {
+        beginRemoveRows( QModelIndex(), 0, rowCount() - 1 );
+
+        // Preset utility deletes all presets with index -1
+        bool success = d->mPresetStorage->deletePreset( -1 );
+        Q_UNUSED( success );
+        RADIO_ASSERT( success, "FMRadio", "Failed to remove station" );
+
+        d->mStations.clear();
+        d->mCurrentStation = NULL;
+        d->setCurrentStation( d->mWrapper->currentFrequency() );
+
+        endRemoveRows();
+    } else {
+        foreach( const RadioStation& station, d->mStations ) {
+
+            if ( mode == RemoveLocalStations ) {
+                if ( station.isType( RadioStation::LocalStation ) && !station.isFavorite() ) {
+                    removeStation( station );
+                }
+            } else {
+                if ( station.isFavorite() ) {
+                    RadioStation newStation( station );
+                    newStation.setFavorite( false );
+                    saveStation( newStation );
+                }
+            }
         }
     }
+
+    reset(); // TODO: Remove. this is a workaround to HbGridView update problem
 }
 
 /*!
@@ -384,7 +437,6 @@ void RadioStationModel::addStation( const RadioStation& station )
     const int count = rowCount();
     if ( count > 1 ) {
         Stations::const_iterator iter = d->mStations.upperBound( newStation.frequency() );
-        uint iterFreq = iter.key();
         if ( d->mStations.contains( iter.key() ) ) {
             row = d->mStations.keys().indexOf( iter.key() );
         } else {
@@ -399,8 +451,6 @@ void RadioStationModel::addStation( const RadioStation& station )
 
 //    emit layoutAboutToBeChanged();
     beginInsertRows( QModelIndex(), row, row );
-    // We must add the station here because saveStation() will only update an existing station
-//    d->mStations.insert( newStation.frequency(), newStation );
 
     d->doSaveStation( newStation );
 
@@ -409,7 +459,6 @@ void RadioStationModel::addStation( const RadioStation& station )
     endInsertRows();
 
 //    emit layoutChanged();
-    emit stationAdded( station );
 }
 
 /*!
@@ -429,9 +478,19 @@ void RadioStationModel::saveStation( RadioStation& station )
     } else if ( station.isValid() && stationHasChanged && d->mStations.contains( station.frequency() )) {
 
         d->doSaveStation( station, changeFlags.testFlag( RadioStation::PersistentDataChanged ) );
+        d->setCurrentStation( d->mWrapper->currentFrequency() );
 
         emitChangeSignals( station, changeFlags );
     }
+}
+
+/*!
+ * Finds number of favorite stations
+ */
+int RadioStationModel::favoriteCount()
+{
+    Q_D( const RadioStationModel );
+    return d->favorites().count();
 }
 
 /*!
@@ -468,11 +527,7 @@ void RadioStationModel::setFavoriteByFrequency( uint frequency, bool favorite )
             // Emit the signals only after adding the preset and reinitializing the current station
             // because the UI will probably query the current station in its slots that get called.
             addStation( newStation );
-            d->setCurrentStation( frequency );
         }
-
-        Q_D( RadioStationModel );
-        d->mUiEngine.api().monitor().notifyFavoriteCount( favoriteCount() );
     }
 }
 
@@ -486,9 +541,6 @@ void RadioStationModel::setFavoriteByPreset( int presetIndex, bool favorite )
     if ( findPresetIndex( presetIndex, station ) != RadioStation::NotFound ) {
         station.setFavorite( favorite );
         saveStation( station );
-
-        Q_D( RadioStationModel );
-        d->mUiEngine.api().monitor().notifyFavoriteCount( favoriteCount() );
     }
 }
 
@@ -502,8 +554,6 @@ void RadioStationModel::renameStation( int presetIndex, const QString& name )
     if ( findPresetIndex( presetIndex, station ) != RadioStation::NotFound ) {
         station.setUserDefinedName( name );
         saveStation( station );
-        Q_D( RadioStationModel );
-        d->mUiEngine.api().monitor().notifyName( name );
     }
 }
 
@@ -517,9 +567,6 @@ void RadioStationModel::setFavorites( const QModelIndexList& favorites )
         RADIO_ASSERT( station.isValid() , "RadioStationModel::setFavorites", "invalid RadioStation");
         setFavoriteByPreset( station.presetIndex(), true );
     }
-
-    Q_D( RadioStationModel );
-    d->mUiEngine.api().monitor().notifyFavoriteCount( favoriteCount() );
 }
 
 /*!
@@ -578,41 +625,6 @@ QModelIndex RadioStationModel::modelIndexFromFrequency( uint frequency )
 }
 
 /*!
- * Public slot
- * Removes all stations
- */
-void RadioStationModel::removeAll()
-{
-    Q_D( RadioStationModel );
-	
-    if ( d->mStations.count() == 0 ) {
-        return;
-    }
-
-    QList<RadioStation> tempStations = d->mStations.values();
-
-    beginRemoveRows( QModelIndex(), 0, rowCount() - 1 );
-
-    // Preset utility deletes all presets with index -1
-    bool success = d->mPresetStorage->deletePreset( -1 );
-    RADIO_ASSERT( success, "FMRadio", "Failed to remove station" );
-
-    d->mStations.clear();
-    d->mCurrentStation = NULL;
-    d->setCurrentStation( d->mWrapper->currentFrequency() );
-
-    endRemoveRows();
-
-    foreach( RadioStation station, tempStations ) {
-        emit stationRemoved( station );
-    }
-
-    reset(); // TODO: Remove. this is a workaround to HbGridView update problem
-
-    d->mUiEngine.api().monitor().notifyFavoriteCount( favoriteCount() );
-}
-
-/*!
  * Private slot
  * Timer timeout slot to indicate that the dynamic PS check has ended
  */
@@ -626,7 +638,6 @@ void RadioStationModel::dynamicPsCheckEnded()
         d->mCurrentStation->setName( d->mCurrentStation->dynamicPsText() );
         d->mCurrentStation->setDynamicPsText( "" );
         saveStation( *d->mCurrentStation );
-        d->mUiEngine.api().monitor().notifyName( d->mCurrentStation->name() );
     }
 }
 

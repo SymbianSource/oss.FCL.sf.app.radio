@@ -19,7 +19,17 @@
 #include <HbPushButton>
 #include <HbLabel>
 #include <HbDocumentLoader>
+#include <HbFrameDrawer>
+#include <HbFrameItem>
+#include <HbIcon>
+#include <HbIconAnimationManager>
+#include <HbIconAnimationDefinition>
+#include <HbColorScheme>
+#include <HbMarqueeItem>
+#include <HbStyleLoader>
 #include <QGraphicsLinearLayout>
+#include <QGraphicsItem>
+#include <QDesktopServices>
 
 // User includes
 #include "fmradiohswidget.h"
@@ -52,22 +62,25 @@ FmRadioHsWidget::FmRadioHsWidget(QGraphicsItem* parent, Qt::WindowFlags flags)
       mInformationFirstRowLabel(0),
       mInformationSecondRowLabel(0),
       mFmRadioState(Undefined),
+      mPlayButtonState(PlayEnabled),
+      mIsFavoriteChannels(false),
       mRadioInformation(QHash<QString, QString>()),
-      mRadioInformationFirstRow(0),
-      mRadioInformationSecondRow(0),
       mProcessHandler(0),
+      mProfileMonitor(new FmRadioHsWidgetProfileReader(this)),
       mRadioServiceClient(new FmRadioHsWidgetRadioServiceClient(this))
 {
     connect(mRadioServiceClient, SIGNAL(radioInformationChanged(int, QVariant)), this,
         SLOT(handleRadioInformationChange(int, QVariant)));
     connect(mRadioServiceClient, SIGNAL(radioStateChanged(QVariant)), this,
         SLOT(handleRadioStateChange(QVariant)));
+    connect(mProfileMonitor, SIGNAL(radioRunning(QVariant)), this,
+        SLOT(handleRadioStateChange(QVariant)));
     
-    load(DOCML_WIDGET);
+    load(KDocml);
     
-    handleRadioStateChange(QVariant(NotRunning));
+    handleRadioStateChange(mProfileMonitor->radioStatus());
 
-    mRadioServiceClient->init();
+    //mRadioServiceClient->init();
 }
 
 /*!
@@ -94,88 +107,195 @@ void FmRadioHsWidget::onHide()
 /*!
     Loads docml files.
 */
-void FmRadioHsWidget::load(QString DOCML)
+void FmRadioHsWidget::load(const QString docml)
 {
     bool loaded = false;
 
     HbDocumentLoader *documentLoader = new HbDocumentLoader();
     documentLoader->reset();
-    documentLoader->load(DOCML, &loaded);
+    documentLoader->load(docml, &loaded);
 
     if (loaded) {
-        HbWidget *widget = qobject_cast<HbWidget*> (documentLoader->findWidget(QString(KDocmlObjectNameMainLayout)));
+        HbWidget *widget = qobject_cast<HbWidget*> (documentLoader->findWidget(
+            KDocmlObjectNameMainLayout));
+
+        HbFrameItem *frameItem = NULL;
+
         if (widget) {
             //HbWidget *view = qobject_cast<HbWidget*> (widget);
             QGraphicsLinearLayout *mWidgetLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
+
+            HbFrameDrawer *drawer = new HbFrameDrawer("qtg_fr_hswidget_normal",
+                HbFrameDrawer::NinePieces);
+            frameItem = new HbFrameItem(drawer, widget);
+            frameItem->setPreferredSize(widget->preferredSize());
+
             mWidgetLayout->addItem(widget);
             setLayout(mWidgetLayout);
         }
 
-        mRadioPushButton = qobject_cast<HbPushButton *> (documentLoader->findObject(QString(KDocmlObjectNameRadioIconPushButton)));
+        mRadioPushButton = qobject_cast<HbPushButton*> (documentLoader->findWidget(
+            KDocmlObjectNameRadioIconPushButton));
         if (mRadioPushButton) {
-            // Invalid icon for the mRadioPushButton to make it look not like a button.
-            mRadioPushButton->setBackground(HbIcon(" "));
-            mRadioPushButton->setIcon(HbIcon("qtg_large_radio"));
+            if (frameItem) {
+                frameItem->stackBefore(mRadioPushButton);
+            }
+            mRadioPushButton->setBackground(HbIcon("qtg_large_radio"));
+            mRadioPushButton->icon().setSize(mRadioPushButton->preferredSize());
             QObject::connect(mRadioPushButton, SIGNAL(clicked()), this, SLOT(radioToForeground()));
         }
 
-        mPreviousPushButton = qobject_cast<HbPushButton *> (documentLoader->findObject(QString(
-            KDocmlObjectNamePreviousPushButton)));
+        mVerticalSeparatorLabel = qobject_cast<HbLabel*> (documentLoader->findWidget(
+            KDocmlObjectNameVerticalSeparatorLabel));
+        if (mVerticalSeparatorLabel) {
+            mVerticalSeparatorLabel->setIcon(HbIcon("qtg_graf_divider_v_thin"));
+        }
+        
+        HbWidget *controlAreaLayoutWidget = qobject_cast<HbWidget*> (documentLoader->findWidget(
+            KDocmlObjectNameControlAreaLayout));
+        if (controlAreaLayoutWidget) {
+        }
+
+        mPreviousPushButton = qobject_cast<HbPushButton *> (documentLoader->findWidget(
+            KDocmlObjectNamePreviousPushButton));
         if (mPreviousPushButton) {
-            mPreviousPushButton->setIcon(HbIcon("qtg_mono_previous"));
-            QObject::connect(mPreviousPushButton, SIGNAL(clicked()), this, SLOT(previousChannel()));
+            changeControlButtonFrameBackground(false, Left, mPreviousPushButton);
+/*
+            HbFrameDrawer *previousButtonFrameDrawer = new HbFrameDrawer("qtg_fr_hsbutton_disabled",
+                  HbFrameDrawer::ThreePiecesHorizontal);
+            previousButtonFrameDrawer->setFileNameSuffixList(QStringList() << "_l" << "_c" << "_cr");
+            mPreviousPushButton->setFrameBackground(previousButtonFrameDrawer);
+*/            QObject::connect(mPreviousPushButton, SIGNAL(clicked()), this, SLOT(previousChannel()));
         }
 
-        mPlayPushButton = qobject_cast<HbPushButton *> (documentLoader->findObject(QString(
-            KDocmlObjectNamePlayPushButton)));
+        mPlayPushButton = qobject_cast<HbPushButton *> (documentLoader->findWidget(
+            KDocmlObjectNamePlayPushButton));
         if (mPlayPushButton) {
-            QObject::connect(mPlayPushButton, SIGNAL(clicked()), this, SLOT(radioToBackground()));
+            changeControlButtonFrameBackground(false, Center, mPlayPushButton);
+/*            HbFrameDrawer *playButtonFrameDrawer = new HbFrameDrawer("qtg_fr_hsbutton_disabled",
+                  HbFrameDrawer::ThreePiecesHorizontal);
+            playButtonFrameDrawer->setFileNameSuffixList(QStringList() << "_cl" << "_c" << "_cr");
+            mPlayPushButton->setFrameBackground(playButtonFrameDrawer);
+*/            QObject::connect(mPlayPushButton, SIGNAL(clicked()), this, SLOT(radioToBackground()));
         }
 
-        mNextPushButton = qobject_cast<HbPushButton *> (documentLoader->findObject(QString(
-            KDocmlObjectNameNextPushButton)));
+        mNextPushButton = qobject_cast<HbPushButton *> (documentLoader->findWidget(
+            KDocmlObjectNameNextPushButton));
         if (mNextPushButton) {
-            mNextPushButton->setIcon(HbIcon("qtg_mono_next"));
-            QObject::connect(mNextPushButton, SIGNAL(clicked()), this, SLOT(nextChannel()));
+            changeControlButtonFrameBackground(false, Right, mNextPushButton);
+/*            HbFrameDrawer *nextButtonFrameDrawer = new HbFrameDrawer("qtg_fr_hsbutton_disabled",
+                  HbFrameDrawer::ThreePiecesHorizontal);
+            nextButtonFrameDrawer->setFileNameSuffixList(QStringList() << "_cl" << "_c" << "_r");
+            mNextPushButton->setFrameBackground(nextButtonFrameDrawer);
+*/            QObject::connect(mNextPushButton, SIGNAL(clicked()), this, SLOT(nextChannel()));
         }
+        
+        //bool b = QFile::exists(KCss);
+        bool a = HbStyleLoader::registerFilePath(KCss);
 
         mInformationAreaTwoRowsLayout = qobject_cast<QGraphicsWidget *> (
-            documentLoader->findObject(QString(KDocmlObjectNameTwoRowsLayout)));
+            documentLoader->findObject(KDocmlObjectNameTwoRowsLayout));
         if (mInformationAreaTwoRowsLayout) {
+            /*
+            QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical, mInformationAreaTwoRowsLayout);
+            mInformationFirstRowMarquee = new HbMarqueeItem();
+            HbStyle::setItemName(mInformationFirstRowMarquee, "marquee1");
+            mInformationFirstRowMarquee->setObjectName("marquee1");
+            mInformationFirstRowMarquee->setText(
+                "Long text");
+            mInformationFirstRowMarquee->setLoopCount(-1);
+            mInformationFirstRowMarquee->startAnimation();
+            HbFontSpec fs(HbFontSpec::Secondary);
+            mInformationFirstRowMarquee->setFontSpec(fs);
+            mInformationFirstRowMarquee->setTextColor(HbColorScheme::color("qtc_hs_list_item_title"));
+            mInformationFirstRowMarquee->setPreferredSize(layout->preferredSize());
+            layout->addItem(mInformationFirstRowMarquee);
+         
+            mInformationSecondRowMarquee = new HbMarqueeItem();
+            mInformationSecondRowMarquee->setObjectName("marquee2");
+            mInformationSecondRowMarquee->setText(
+                "Long text to test marquee, Long text to test marquee");
+            mInformationSecondRowMarquee->setLoopCount(-1);
+            mInformationSecondRowMarquee->startAnimation();
+            mInformationSecondRowMarquee->setFontSpec(fs);
+            mInformationSecondRowMarquee->setTextColor(HbColorScheme::color("qtc_hs_list_item_title"));
+            mInformationSecondRowMarquee->setPreferredSize(layout->preferredSize());
+            layout->addItem(mInformationSecondRowMarquee);
+            */
         }
 
         mInformationAreaOneRowLayout = qobject_cast<QGraphicsWidget *> (documentLoader->findObject(
-            QString(KDocmlObjectNameOneRowLayout)));
+            KDocmlObjectNameOneRowLayout));
         if (mInformationAreaOneRowLayout) {
+            /*
+            QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical, mInformationAreaOneRowLayout);
+            mInformationLonelyRowMarquee = new HbMarqueeItem();
+            mInformationLonelyRowMarquee->setObjectName("marquee3");
+            HbStyle::setItemName(mInformationLonelyRowMarquee, "marquee3");
+            mInformationLonelyRowMarquee->setText(
+                "Long text");
+            mInformationLonelyRowMarquee->setLoopCount(-1);
+            mInformationLonelyRowMarquee->startAnimation();
+            HbFontSpec fs(HbFontSpec::Secondary);
+            mInformationLonelyRowMarquee->setFontSpec(fs);
+            mInformationLonelyRowMarquee->setTextColor(HbColorScheme::color("qtc_hs_list_item_title"));
+            mInformationLonelyRowMarquee->setPreferredSize(layout->preferredSize());
+            layout->addItem(mInformationLonelyRowMarquee);
+            */
         }
 
         mInformationAreaAnimationLayout = qobject_cast<QGraphicsWidget *> (
             documentLoader->findObject(QString(KDocmlObjectNameAnimationLayout)));
         if (mInformationAreaAnimationLayout) {
         }
-
-        mInformationFirstRowLabel = qobject_cast<HbLabel *> (documentLoader->findObject(QString(
-            KDocmlObjectNameFirstRowLabel)));
+        
+        mInformationFirstRowLabel = qobject_cast<HbLabel *> (documentLoader->findWidget(
+            KDocmlObjectNameFirstRowLabel));
         if (mInformationFirstRowLabel) {
-            mInformationFirstRowLabel->setTextColor("qtc_hs_list_item_title");
+            mInformationFirstRowLabel->setTextColor(HbColorScheme::color("qtc_hs_list_item_title"));
         }
 
-        mInformationSecondRowLabel = qobject_cast<HbLabel *> (documentLoader->findObject(QString(
-            KDocmlObjectNameSecondRowLabel)));
+        mInformationSecondRowLabel = qobject_cast<HbLabel *> (documentLoader->findWidget(
+            KDocmlObjectNameSecondRowLabel));
         if (mInformationSecondRowLabel) {
-            mInformationSecondRowLabel->setTextColor("qtc_hs_list_item_content");
+            mInformationSecondRowLabel->setTextColor(HbColorScheme::color("qtc_hs_list_item_content"));
         }
 
-        mInformationLonelyRowLabel = qobject_cast<HbLabel *> (documentLoader->findObject(QString(
-            KDocmlObjectNameLonelyRowLabel)));
+        mInformationLonelyRowLabel = qobject_cast<HbLabel *> (documentLoader->findWidget(
+            KDocmlObjectNameLonelyRowLabel));
         if (mInformationLonelyRowLabel) {
-            mInformationLonelyRowLabel->setTextColor("qtc_hs_list_item_title");
+            mInformationLonelyRowLabel->setTextColor(HbColorScheme::color("qtc_hs_list_item_content"));
         }
 
-        mAnimatioIcon = qobject_cast<HbLabel *> (documentLoader->findObject(
-            QString()));
-        if (mAnimatioIcon) {
-            mAnimatioIcon->setIcon(HbIcon("qtg_anim_loading_0"));
+        mAnimationIcon = qobject_cast<HbLabel *> (documentLoader->findWidget(
+            KDocmlObjectNameAnimationIcon));
+        if (mAnimationIcon) {
+            // Use animation manager to define the frame-by-frame animation.
+            HbIconAnimationManager *animationManager = HbIconAnimationManager::global();
+
+            // Create animation definition.
+            HbIconAnimationDefinition animationDefinition;
+            QList<HbIconAnimationDefinition::AnimationFrame> animationFrameList;
+
+            HbIconAnimationDefinition::AnimationFrame animationFrame;
+            QString animationFrameIconName;
+            QString animationFrameIconNamePrefix = "qtg_anim_loading_";
+            for (int i = 1; i < 11; i++) {
+                animationFrame.duration = 100;
+                animationFrameIconName.clear();
+                animationFrameIconName.append(animationFrameIconNamePrefix);
+                animationFrameIconName.append(animationFrameIconName.number(i));
+                animationFrame.iconName = animationFrameIconName;
+                animationFrameList.append(animationFrame);
+            }
+            animationDefinition.setPlayMode(HbIconAnimationDefinition::Loop);
+            animationDefinition.setFrameList(animationFrameList);
+            animationManager->addDefinition("animation", animationDefinition);
+
+            // Construct an icon using the animation definition.
+            HbIcon icon("animation");
+            
+            mAnimationIcon->setIcon(icon);
         }
 
     }
@@ -221,7 +341,7 @@ bool FmRadioHsWidget::eventFilter(QObject */*target*/, QEvent */*event*/)
 void FmRadioHsWidget::mute()
 {
     mRadioServiceClient->doControlFmRadioAudio(FmRadioHsWidgetRadioServiceClient::Mute);
-    handleRadioStateChange(QVariant(NotControllingAudio));
+    //handleRadioStateChange(QVariant(NotControllingAudio));
 }
 
 /*!
@@ -230,7 +350,7 @@ void FmRadioHsWidget::mute()
 void FmRadioHsWidget::unMute()
 {
     mRadioServiceClient->doControlFmRadioAudio(FmRadioHsWidgetRadioServiceClient::Unmute);
-    handleRadioStateChange(QVariant(ControllingAudio));
+    //handleRadioStateChange(QVariant(ControllingAudio));
 }
 
 /*!
@@ -239,7 +359,6 @@ void FmRadioHsWidget::unMute()
 void FmRadioHsWidget::previousChannel()
 {
     mRadioServiceClient->doChangeFmRadioChannel(FmRadioHsWidgetRadioServiceClient::PreviousFavouriteChannel);
-    clearRadioInformation();
 }
 
 /*!
@@ -248,7 +367,6 @@ void FmRadioHsWidget::previousChannel()
 void FmRadioHsWidget::nextChannel()
 {
     mRadioServiceClient->doChangeFmRadioChannel(FmRadioHsWidgetRadioServiceClient::NextFavouriteChannel);
-    clearRadioInformation();
 }
 
 /*!
@@ -257,10 +375,13 @@ void FmRadioHsWidget::nextChannel()
 void FmRadioHsWidget::radioToForeground()
 {
     if (mFmRadioState == NotRunning) {
-        mRadioServiceClient->startMonitoring();
-        handleRadioStateChange(QVariant(Running));
+        handleRadioStateChange(QVariant(Starting));
+        mRadioServiceClient->startMonitoring(FmRadioHsWidgetRadioServiceClient::ToForeground);
     }
-    mRadioServiceClient->doBringFmRadioToForeground(true);
+    else {
+        mRadioServiceClient->doChangeFmRadioVisibility(
+            FmRadioHsWidgetRadioServiceClient::ToForeground);
+    }
 }
 
 /*!
@@ -269,11 +390,27 @@ void FmRadioHsWidget::radioToForeground()
 void FmRadioHsWidget::radioToBackground()
 {
     if (mFmRadioState == NotRunning) {
-        mRadioServiceClient->startMonitoring();
-        handleRadioStateChange(QVariant(Running));
+        handleRadioStateChange(QVariant(Starting));
+        mRadioServiceClient->startMonitoring(FmRadioHsWidgetRadioServiceClient::ToBackground);
+    }
+    else if (mFmRadioState == Starting) {
+        
+    }
+    else {
+        mRadioServiceClient->doChangeFmRadioVisibility(
+            FmRadioHsWidgetRadioServiceClient::ToBackground);
     }
 }
 
+/*!
+ Opening of url to the browser.
+ 
+ /param url Url to be opened.
+ */
+bool FmRadioHsWidget::openUrl(QUrl url)
+{
+    return QDesktopServices::openUrl(url);
+}
 
 /*!
  Handles changes in FM Radio information.
@@ -284,46 +421,106 @@ void FmRadioHsWidget::radioToBackground()
 void FmRadioHsWidget::handleRadioInformationChange(
     int notificationId, QVariant value)
 {
+    if (!value.isValid()) {
+        return;
+    }
     switch ( notificationId ) {
 
         case RadioServiceNotification::FavoriteCount:
+            if (value.canConvert(QVariant::Int)) {
+                int favoriteCount = value.toInt();
+                mIsFavoriteChannels = favoriteCount > 0 ? true : false;
+                changeChannelButtonsEnabledState(mIsFavoriteChannels);
+            }
+            break;
+
+        case RadioServiceNotification::RadioStatus:
+            if (value.canConvert(QVariant::Int)) {
+                int status = value.toInt();
+                switch (status) {
+                case RadioStatus::Playing:
+                    handleRadioStateChange(QVariant(ControllingAudio));
+                    break;
+                case RadioStatus::Muted:
+                    handleRadioStateChange(QVariant(NotControllingAudio));
+                    break;
+                case RadioStatus::Seeking:
+                    handleRadioStateChange(QVariant(Seeking));
+                    break;
+                case RadioStatus::NoAntenna:
+                    handleRadioStateChange(QVariant(AntennaNotConnected));
+                    break;                    
+                default:
+                    break;
+                }
+            }
             break;
 
         case RadioServiceNotification::Frequency:
-        {
-            const uint frequency = value.toUInt();
-            QString freqString;
-            freqString.sprintf( "%.1f", qreal( frequency ) / KFrequencyMultiplier );
-            if (updateRadioInformation( KRadioInformationFrequency, freqString )) {
-                radioInformationChanged();
+            if (value.canConvert(QVariant::UInt)) {
+                const uint frequency = value.toUInt();
+                QString freqString;
+                freqString.sprintf("%.1f", qreal(frequency) / KFrequencyMultiplier);
+                bool frequencyCleared = false;
+                if (mRadioInformation.contains(KRadioInformationFrequency)
+                    && mRadioInformation[KRadioInformationFrequency].compare(freqString) != 0) {
+                    clearRadioInformation();
+                    frequencyCleared = true;
+                }
+                bool frequencyUpdated = updateRadioInformation(KRadioInformationFrequency, freqString);
+                if (frequencyCleared || frequencyUpdated) {
+                    radioInformationChanged();
+                }
             }
-        }
         break;
 
         case RadioServiceNotification::Name:
-            if (updateRadioInformation( KRadioInformationStationName, value.toString() )) {
-                radioInformationChanged();
+            if (value.canConvert(QVariant::String)) {
+                if (updateRadioInformation(KRadioInformationStationName, value.toString())) {
+                    radioInformationChanged();
+                }
             }
         break;
+
+        case RadioServiceNotification::Genre:
+            if (value.canConvert(QVariant::String)) {
+                if (updateRadioInformation(KRadioInformationPty, value.toString())) {
+                    radioInformationChanged();
+                }
+            }
+        break;
+
+        case RadioServiceNotification::RadioText:
+            if (value.canConvert(QVariant::String)) {
+                if (updateRadioInformation(KRadioInformationRt, value.toString())) {
+                    radioInformationChanged();
+                }
+            }
+        break;
+
+        case RadioServiceNotification::HomePage:
+            if (value.canConvert(QVariant::String)) {
+                if (updateRadioInformation(KRadioInformationHomePage, value.toString())) {
+                    radioInformationChanged();
+                }
+            }
+        break;
+        
+        case RadioServiceNotification::Song:
+            if (value.canConvert(QVariant::String)) {
+                if (updateRadioInformation(KRadioInformationSong, value.toString())) {
+                    radioInformationChanged();
+                }
+            }
+        break;
+
 
 /*    case FmRadioHsWidgetRadioServiceClient::InformationTypeCallSign:
         if (updateRadioInformation(KRadioInformationCallSign, informationText)) {
 
         }
         break;
-    case FmRadioHsWidgetRadioServiceClient::InformationTypeFrequency:
-        if (updateRadioInformation(KRadioInformationFrequency,
-            informationText)) {
-
-        }
-        break;
-        */
-        case RadioServiceNotification::RadioText:
-            if (updateRadioInformation( KRadioInformationRt, value.toString() )) {
-                radioInformationChanged();
-            }
-        break;
-
+*/
 /*    case FmRadioHsWidgetRadioServiceClient::InformationTypeDynamicPsName:
         if (updateRadioInformation(KRadioInformationDynamicPsName,
             informationText)) {
@@ -331,18 +528,7 @@ void FmRadioHsWidget::handleRadioInformationChange(
         }
         break;
         */
-        case RadioServiceNotification::Genre:
-            if (updateRadioInformation( KRadioInformationPty, value.toString() )) {
-                radioInformationChanged();
-            }
-        break;
-
-        case RadioServiceNotification::HomePage:
-        break;
-
-        case RadioServiceNotification::Song:
-        break;
-
+        
     default:
         break;
     }
@@ -356,27 +542,34 @@ void FmRadioHsWidget::handleRadioInformationChange(
  
  /return bool If information is updated, return true. Return false otherwise.
  */
-bool FmRadioHsWidget::updateRadioInformation(const QString informationType,
-    QString information)
+bool FmRadioHsWidget::updateRadioInformation(const QString informationType, QString information)
 {
-    if (!information.isEmpty()) {
-        // Check if new information differs from the old one 
-        if (!(mRadioInformation[informationType].compare(information) == 0)) {
-            // Update the information
-            mRadioInformation[informationType] = information;
-            // Return true to indicate change
+    // If hash contains this type
+    if (mRadioInformation.contains(informationType)) {
+        // If new information is empty
+        if (information.isEmpty()) {
+            // Remove it from the hash
+            mRadioInformation.remove(informationType);
+            // Return true to indicate the change
             return true;
         }
-    } else {
-        // Information is empty, lets remove it from the hash
-        int removeCount = mRadioInformation.remove(informationType);
-        // If some key or keys were removed
-        if (removeCount > 0) {
-            // Return true to indicate change
+        // If new information differs from the old one
+        if (mRadioInformation[informationType].compare(information) != 0) {
+            // Update the information
+            mRadioInformation[informationType] = information;
+            // And return true to indicate the change
+            return true;
+        }
+    } else { // Hash do not contain the information
+        // If new information is not empty
+        if (!information.isEmpty()) {
+            // Add it to the hash
+            mRadioInformation[informationType] = information;
+            // Return true to indicate the change
             return true;
         }
     }
-    // Return false because nothing changed
+    // Return false to indicate that nothing changed
     return false;
 }
 
@@ -463,42 +656,86 @@ void FmRadioHsWidget::handleRadioStateChange(QVariant value)
         break;
     case NotRunning:
         mFmRadioState = NotRunning;
-        //mRadioServiceClient->stopMonitoring();
-        changeControlButtonState(ChannelsDisabledPlay);
-        mInformationFirstRowLabel->setPlainText(KFmRadioText);
+        mRadioServiceClient->stopMonitoring();
+        //changeControlButtonState(ChannelsDisabledPlay);
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(unMute()));
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(mute()));
+        QObject::connect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(radioToBackground()));
+        changePlayButtonState(PlayEnabled);
+        mIsFavoriteChannels = false;
+        changeChannelButtonsEnabledState(false);
+        mInformationFirstRowLabel->setPlainText("");
         mInformationSecondRowLabel->setPlainText("");
         mInformationLonelyRowLabel->setPlainText(KFmRadioText);
         changeInformationAreaLayout(OneRow);
         break;
     case Starting:
         mFmRadioState = Starting;
-        changeControlButtonState(ChannelsDisabledStop);
+        //changeControlButtonState(ChannelsDisabledStop);
+        changePlayButtonState(StopDisabled);
+        // TODO: What should the stop button do? Should it close the radio?
+        changeChannelButtonsEnabledState(false);
         changeInformationAreaLayout(Animation);
         break;
     case Running:
         mFmRadioState = Running;
-        changeControlButtonState(ChannelsEnabledStop);
+        mRadioServiceClient->startMonitoring(FmRadioHsWidgetRadioServiceClient::DoNotChange);
+        //changeControlButtonState(ChannelsEnabledStop);
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(radioToBackground()));
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(unMute()));
+        QObject::connect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(mute()));
+        changePlayButtonState(StopEnabled);
+        changeChannelButtonsEnabledState(mIsFavoriteChannels);
         changeInformationAreaLayout(OneRow);
         break;
     case ControllingAudio:
-        // TODO: Implement
-        changeControlButtonState(ChannelsEnabledStop);
+        mFmRadioState = ControllingAudio;
+        //changeControlButtonState(ChannelsEnabledStop);
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(radioToBackground()));
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(unMute()));
+        QObject::connect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(mute()));
+        changePlayButtonState(StopEnabled);
+        changeChannelButtonsEnabledState(mIsFavoriteChannels);
+        radioInformationChanged();
         break;
     case NotControllingAudio:
-        // TODO: Implement
-        changeControlButtonState(ChannelsEnabledPlay);
+        mFmRadioState = NotControllingAudio;
+        //changeControlButtonState(ChannelsEnabledPlay);
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(radioToBackground()));
+        QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(mute()));
+        QObject::connect(mPlayPushButton, SIGNAL(clicked()), this,
+            SLOT(unMute()));
+        changePlayButtonState(PlayEnabled);
+        changeChannelButtonsEnabledState(mIsFavoriteChannels);
+        radioInformationChanged();
         break;
-    case AutoScanning:
-        // TODO: Implement
+    case Seeking:
+        mFmRadioState = Seeking;
+        //changeControlButtonState(AllDisabledStop);
+        changePlayButtonState(StopDisabled);
+        changeChannelButtonsEnabledState(false);
+        changeInformationAreaLayout(Animation);
         break;
-    case ConnectType1Headset:
-        // TODO: Implement
-        break;
-    case ConnectType2Headset:
-        // TODO: Implement
-        break;
-    case ConnectType3Headset:
-        // TODO: Implement
+    case AntennaNotConnected:
+        mFmRadioState = AntennaNotConnected;
+        //changeControlButtonState(AllDisabledPlay);
+        changePlayButtonState(StopDisabled);
+        changeChannelButtonsEnabledState(false);
+        mInformationFirstRowLabel->setPlainText("");
+        mInformationSecondRowLabel->setPlainText("");
+        mInformationLonelyRowLabel->setPlainText(KConnectHeadsetText);
+        changeInformationAreaLayout(OneRow);
         break;
     default:
         break;
@@ -515,17 +752,17 @@ void FmRadioHsWidget::changeInformationAreaLayout(InformationAreaLayout layout)
     switch (layout) {
     case OneRow:
         mInformationAreaOneRowLayout->show();
-        mInformationAreaTwoRowsLayout->hide();
+        ((QGraphicsWidget*) mInformationAreaTwoRowsLayout)->hide();
         mInformationAreaAnimationLayout->hide();
         break;
     case TwoRows:
         mInformationAreaOneRowLayout->hide();
-        mInformationAreaTwoRowsLayout->show();
+        ((QGraphicsWidget*) mInformationAreaTwoRowsLayout)->show();
         mInformationAreaAnimationLayout->hide();
         break;
     case Animation:
         mInformationAreaOneRowLayout->hide();
-        mInformationAreaTwoRowsLayout->hide();
+        ((QGraphicsWidget*) mInformationAreaTwoRowsLayout)->hide();
         mInformationAreaAnimationLayout->show();
         break;
     default:
@@ -543,21 +780,21 @@ void FmRadioHsWidget::changeControlButtonState(ControlButtonState buttonState)
     QString iconName;
     switch (buttonState) {
     case AllDisabledPlay:
-        mPreviousPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(false, Left, mPreviousPushButton);
         iconName.append("qtg_mono_play");
         mPlayPushButton->setIcon(HbIcon(iconName));
-        mPlayPushButton->setEnabled(false);
-        mNextPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(false, Center, mPlayPushButton);
+        changeControlButtonFrameBackground(false, Right, mNextPushButton);
         break;
     case AllDisabledStop:
-        mPreviousPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(false, Left, mPreviousPushButton);
         iconName.append("qtg_mono_stop");
         mPlayPushButton->setIcon(HbIcon(iconName));
-        mPlayPushButton->setEnabled(false);
-        mNextPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(false, Center, mPlayPushButton);
+        changeControlButtonFrameBackground(false, Right, mNextPushButton);
         break;
     case ChannelsDisabledPlay:
-        mPreviousPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(false, Left, mPreviousPushButton);
         QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
             SLOT(unMute()));
         QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
@@ -566,18 +803,18 @@ void FmRadioHsWidget::changeControlButtonState(ControlButtonState buttonState)
             SLOT(radioToBackground()));
         iconName.append("qtg_mono_play");
         mPlayPushButton->setIcon(HbIcon(iconName));
-        mPlayPushButton->setEnabled(true);
-        mNextPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(true, Center, mPlayPushButton);
+        changeControlButtonFrameBackground(false, Right, mNextPushButton);
         break;
     case ChannelsDisabledStop:
-        mPreviousPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(false, Left, mPreviousPushButton);
         iconName.append("qtg_mono_stop");
         mPlayPushButton->setIcon(HbIcon(iconName));
-        mPlayPushButton->setEnabled(true);
-        mNextPushButton->setEnabled(false);
+        changeControlButtonFrameBackground(true, Center, mPlayPushButton);
+        changeControlButtonFrameBackground(false, Right, mNextPushButton);
         break;
     case ChannelsEnabledPlay:
-        mPreviousPushButton->setEnabled(true);
+        changeControlButtonFrameBackground(true, Left, mPreviousPushButton);
         QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
             SLOT(radioToBackground()));
         QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
@@ -586,11 +823,11 @@ void FmRadioHsWidget::changeControlButtonState(ControlButtonState buttonState)
             SLOT(unMute()));
         iconName.append("qtg_mono_play");
         mPlayPushButton->setIcon(HbIcon(iconName));
-        mPlayPushButton->setEnabled(true);
-        mNextPushButton->setEnabled(true);
+        changeControlButtonFrameBackground(true, Center, mPlayPushButton);
+        changeControlButtonFrameBackground(true, Right, mNextPushButton);
         break;
     case ChannelsEnabledStop:
-        mPreviousPushButton->setEnabled(true);
+        changeControlButtonFrameBackground(true, Left, mPreviousPushButton);
         QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
             SLOT(radioToBackground()));
         QObject::disconnect(mPlayPushButton, SIGNAL(clicked()), this,
@@ -599,10 +836,90 @@ void FmRadioHsWidget::changeControlButtonState(ControlButtonState buttonState)
             SLOT(mute()));
         iconName.append("qtg_mono_stop");
         mPlayPushButton->setIcon(HbIcon(iconName));
-        mPlayPushButton->setEnabled(true);
-        mNextPushButton->setEnabled(true);
+        changeControlButtonFrameBackground(true, Center, mPlayPushButton);
+        changeControlButtonFrameBackground(true, Right, mNextPushButton);
         break;
     default:
         break;
     }
+}
+
+/*!
+ Changes enabled state of channel buttons.
+ 
+ */
+void FmRadioHsWidget::changePlayButtonState(PlayButtonState buttonState)
+{
+    QString iconName;
+    bool enabled = false;
+    switch (buttonState) {
+    case PlayDisabled:
+        iconName.append("qtg_mono_play");
+        mPlayPushButton->setIcon(HbIcon(iconName));
+        enabled = false;
+        break;
+    case PlayEnabled:
+        iconName.append("qtg_mono_play");
+        mPlayPushButton->setIcon(HbIcon(iconName));
+        enabled = true;
+        break;
+    case StopDisabled:
+        iconName.append("qtg_mono_stop");
+        mPlayPushButton->setIcon(HbIcon(iconName));
+        enabled = false;
+        break;
+    case StopEnabled:
+        iconName.append("qtg_mono_stop");
+        mPlayPushButton->setIcon(HbIcon(iconName));
+        enabled = true;
+        break;
+    default:
+        break;
+    }
+    changeControlButtonFrameBackground(enabled, Center, mPlayPushButton);
+}
+
+/*!
+ Changes enabled state of channel buttons.
+ 
+ */
+void FmRadioHsWidget::changeChannelButtonsEnabledState(bool enabled)
+{
+    changeControlButtonFrameBackground(enabled, Left, mPreviousPushButton);
+    changeControlButtonFrameBackground(enabled, Right, mNextPushButton);
+}
+
+/*!
+ Changes background of control button.
+ 
+ /param enabled Is button enabled or disabled.
+ /param position Position of the control button in button group.
+ /param button The button to change the background.
+ */
+void FmRadioHsWidget::changeControlButtonFrameBackground(bool enabled,
+    ControlButtonPosition position, HbPushButton *button)
+{
+    QString frameGraphicsName("qtg_fr_hsbutton_");
+    if (enabled) {
+        frameGraphicsName.append("normal");
+    } else {
+        frameGraphicsName.append("disabled");
+    }
+    HbFrameDrawer *frameDrawer = new HbFrameDrawer(frameGraphicsName,
+        HbFrameDrawer::ThreePiecesHorizontal);
+    switch (position) {
+    case Left:
+        frameDrawer->setFileNameSuffixList(QStringList() << "_l" << "_c" << "_cr");
+        break;
+    case Center:
+        frameDrawer->setFileNameSuffixList(QStringList() << "_cl" << "_c" << "_cr");
+        break;
+    case Right:
+        frameDrawer->setFileNameSuffixList(QStringList() << "_cl" << "_c" << "_r");
+        break;
+    default:
+        break;
+    }
+    button->setFrameBackground(frameDrawer);
+    button->setEnabled(enabled);
 }

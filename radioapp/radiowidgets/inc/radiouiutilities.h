@@ -24,6 +24,7 @@
 // Forward declarations
 class RadioFrequencyStrip;
 class RadioStationCarousel;
+class RadioFrequencyScanner;
 
 struct EffectInfo
 {
@@ -51,9 +52,11 @@ public:
 
     static RadioFrequencyStrip* frequencyStrip();
     static RadioStationCarousel* carousel();
+    static bool isScannerAlive();
 
     static void setFrequencyStrip( RadioFrequencyStrip* frequencyStrip );
     static void setCarousel( RadioStationCarousel* carousel );
+    static void setFrequencyScanner( RadioFrequencyScanner* scanner );
 
 private:
 
@@ -64,9 +67,11 @@ private:
 
 private: // data
 
-    QPointer<RadioFrequencyStrip> mFrequencyStrip;
+    QPointer<RadioFrequencyStrip>   mFrequencyStrip;
 
-    QPointer<RadioStationCarousel> mCarousel;
+    QPointer<RadioStationCarousel>  mCarousel;
+
+    QPointer<RadioFrequencyScanner> mScanner;
 
 };
 

@@ -36,7 +36,7 @@ class RadioFrequencyItem;
 class RadioStation;
 class HbPushButton;
 class QTimer;
-
+class QModelIndex;
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioFrequencyStrip : public RadioStripBase
@@ -49,7 +49,7 @@ class WIDGETS_DLL_EXPORT RadioFrequencyStrip : public RadioStripBase
 
 public:
 
-    RadioFrequencyStrip( RadioUiEngine* engine = 0 );
+    RadioFrequencyStrip();
 
     void setLeftButtonIcon( const HbIcon& leftButtonIcon );
     HbIcon leftButtonIcon() const;
@@ -57,34 +57,32 @@ public:
     void setRightButtonIcon( const HbIcon& rightButtonIcon );
     HbIcon rightButtonIcon() const;
 
-    uint frequency( bool* favorite = 0 ) const;
+    void init( RadioUiEngine* engine );
 
-    void connectLeftButton( const char* signal, QObject* receiver, const char* slot );
-    void connectRightButton( const char* signal, QObject* receiver, const char* slot );
-
-
+    void setFrequency( const uint frequency, int reason = 0 );
+    uint frequency() const;
 
 public slots:
 
-    void favoriteChanged( const RadioStation& station );
-    void stationAdded( const RadioStation& station );
-    void stationRemoved( const RadioStation& station );
-    void setFrequency( const uint frequency, int reason = 0 );
+    void updateFavorite( const RadioStation& station );
     void setScanningMode( bool isScanning );
 
 signals:
 
-    void frequencyChanged( uint frequency, int sender ); // sender is always CommandSender::RadioFrequencyStrip
-    void frequencyIsFavorite( bool favorite );
-    void swipedLeft();
-    void swipedRight();
+    void frequencyChanged( uint frequency, int reason ); // reason is always CommandSender::RadioFrequencyStrip
+    void skipRequested( int skipMode );
+    void seekRequested( int seekDirection );
 
 private slots:
 
-    void leftGesture( int speedPixelsPerSecond );
-    void rightGesture( int speedPixelsPerSecond );
-    void panGesture( const QPointF& point );
+    void updateStation( const QModelIndex& parent, int first, int last );
+    void initEmptyItems();
+    void handleLeftButton();
+    void handleLongLeftButton();
+    void handleRightButton();
+    void handleLongRightButton();
     void toggleButtons();
+    void checkIllegalPos();
 
 private:
 
@@ -104,8 +102,7 @@ private:
 
     void mousePressEvent( QGraphicsSceneMouseEvent* event );
     void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
-
-//    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    void gestureEvent( QGestureEvent* event );
 
 // New functions
 
@@ -113,7 +110,7 @@ private:
 
     void initSelector();
 
-    void initItems();
+    void initPositions();
 
     void initButtons();
 
@@ -121,37 +118,33 @@ private:
 
     void updateFavorites( RadioFrequencyItem* item );
 
+    void updateItems();
+
     QPixmap drawPixmap( uint frequency, QList<RadioStation> stations, RadioFrequencyItem* item );
 
     void emitFrequencyChanged( uint frequency );
 
-    void emitFavoriteSelected( bool favoriteSelected );
-
     int selectorPos() const;
 
     void scrollToFrequency( uint frequency, int time = 0 );
+
+    void hideButtons();
+    void showButtons();
 
 private: // data
 
     class FrequencyPos
     {
     public:
-        explicit FrequencyPos( int pos, bool favorite, bool localStation, RadioFrequencyItem* item ) :
+        explicit FrequencyPos( int pos, RadioFrequencyItem* item ) :
             mPosition( pos ),
-            mFavorite( favorite ),
-            mLocalStation( localStation ),
             mItem( item ) {}
-
 
         FrequencyPos() :
             mPosition( 0 ),
-            mFavorite( false ),
-            mLocalStation( false ),
             mItem( 0 ) {}
 
         int                     mPosition;
-        bool                    mFavorite;
-        bool                    mLocalStation;
         RadioFrequencyItem*     mItem;
 
     };
@@ -175,8 +168,6 @@ private: // data
     qreal                       mSelectorPos;
 
     QList<RadioFrequencyItem*>  mFrequencyItems;
-
-    bool                        mFavoriteSelected;
 
     /**
      * Container to help map a frequency to strip position and additional information about the frequency.
@@ -202,8 +193,9 @@ private: // data
     HbPushButton*               mRightButton;
 
     QTimer*                     mButtonTimer;
+    bool                        mButtonsVisible;
 
-    bool                        mIsPanGesture;
+    bool                        mUserIsScrolling;
 
     QColor                      mForegroundColor;
 

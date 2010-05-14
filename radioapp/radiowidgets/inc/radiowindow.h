@@ -15,14 +15,13 @@
 *
 */
 
-#ifndef _RADIOMAINWINDOW_H_
-#define _RADIOMAINWINDOW_H_
+#ifndef _RADIOWINDOW_H_
+#define _RADIOWINDOW_H_
 
 // System includes
 #include <HbMainWindow>
 #include <HbEffect>
 #include <QPointer>
-
 #include <QScopedPointer>
 
 // User includes
@@ -42,25 +41,21 @@ typedef QScopedPointer<HbVolumeSliderPopup> VolumeSliderPtr;
  */
 typedef QPointer<RadioViewBase> ViewPtr;
 
-typedef QSharedPointer<HbView> DummyViewPtr;
-
 // Class declaration
-class WIDGETS_DLL_EXPORT RadioMainWindow : public HbMainWindow
+class WIDGETS_DLL_EXPORT RadioWindow : public HbMainWindow
 {
     Q_OBJECT
-    Q_DISABLE_COPY( RadioMainWindow )
+    Q_DISABLE_COPY( RadioWindow )
 
 public:
 
-    RadioMainWindow( QWidget *parent = 0 );
+    RadioWindow( QWidget *parent = 0 );
 
-    ~RadioMainWindow();
-
-    bool isOfflineUsageAllowed();
+    ~RadioWindow();
 
     void showErrorMessage( const QString& text );
 
-    void init( RadioUiEngine* uiEngine );
+    void init();
 
     RadioUiEngine& uiEngine();
 
@@ -68,7 +63,7 @@ public:
 
 public slots:
 
-    void activateTuningView();
+    void activateMainView();
 
     void activateStationsView();
 
@@ -76,6 +71,7 @@ public slots:
 
 private slots:
 
+    void initView();
     void updateOrientation( Qt::Orientation orientation );
     void showVolumeLevel( int volume );
     void updateAntennaStatus( bool connected );
@@ -86,41 +82,39 @@ private:
 
     void activateView( ViewPtr& aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags = Hb::ViewSwitchDefault );
 
-    DummyViewPtr prepareToShowDialog();
-    void dialogShown( DummyViewPtr pointer );
-
 private: // data
 
     /*!
      * Pointer to the UI engine
+     * Own
      */
-    RadioUiEngine*  mUiEngine;
+    QScopedPointer<RadioUiEngine>   mUiEngine;
 
     /**
      * Tuning view.
      * Own.
      */
-    ViewPtr         mTuningView;
+    ViewPtr                         mMainView;
 
     /**
      * Stations view
      * Own.
      */
-    ViewPtr         mStationsView;
+    ViewPtr                         mStationsView;
 
     /**
      * Play history view
      * Own.
      */
-    ViewPtr         mHistoryView;
+    ViewPtr                         mHistoryView;
 
     /**
      * Pointer to the volume slider
      * Own.
      */
-    VolumeSliderPtr mVolSlider;
+    VolumeSliderPtr                 mVolSlider;
 
 };
 
 
-#endif // _RADIOMAINWINDOW_H_
+#endif // _RADIOWINDOW_H_

@@ -58,7 +58,6 @@ private:
     bool containsPresetIndex( int presetIndex );
     void startDynamicPsCheck();
     void addScannedFrequency( uint frequency );
-    void removeLocalStations();
     void setCurrentPsName( uint frequency, const QString& name );
     void setCurrentRadioText( uint frequency, const QString& radioText );
     void setCurrentRadioTextPlus( uint frequency, int rtClass, const QString& rtItem );
@@ -72,6 +71,8 @@ private:
 // New functions
 
     void doSaveStation( RadioStation& station, bool persistentSave = true );
+
+    QList<RadioStation> favorites() const;
 
 private: // data
 

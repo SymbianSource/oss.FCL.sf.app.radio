@@ -16,15 +16,18 @@
 */
 
 // System includes
-#include <QTranslator>
-#include <QLocale>
-#include <QFile>
+#include <HbTranslator>
 
 // User includes
 #include "radioapplication.h"
 #include "radiologger.h"
 
-static const QString TRANSLATIONS_PATH_FORMAT = "%1:/resource/qt/translations/";
+// Constants
+#ifdef BUILD_WIN32
+    const char* TRANSLATIONS_FOLDER = "";
+#else
+    const char* TRANSLATIONS_FOLDER = "/resource/qt/translations/";
+#endif // BUILD_WIN32
 
 /*!
  * Runs the application
@@ -35,23 +38,11 @@ int main( int argc, char* argv[] )
 
     LOG_TIMESTAMP( "Tesla started" );
 
-#ifdef BUILD_WIN32
-    QString path = ".";
-    QString localizedRadio = "fmradio_en_US.qm";
-#else
-    const QString localizedRadio = "fmradio_" + QLocale::system().name();
-    QString path = QString( TRANSLATIONS_PATH_FORMAT ).arg( "C" );
-    if ( !QFile::exists( path + localizedRadio ) ) {
-        path = QString( TRANSLATIONS_PATH_FORMAT ).arg( "Z" );
-    }
-#endif // BUILD_WIN32
-    
-    QTranslator translator;
-    translator.load( localizedRadio, path );
-   
     RadioApplication app( argc, argv );
-    app.installTranslator( &translator );
-    int returnValue = app.exec();
+
+    HbTranslator translator( TRANSLATIONS_FOLDER, "fmradio" ); // TODO: Rename exe to fmradio.exe to get rid of this
+
+    const int returnValue = app.exec();
 
     UNINSTALL_MESSAGE_HANDLER // Uninstalls the file tracer
 

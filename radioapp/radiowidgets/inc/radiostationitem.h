@@ -49,6 +49,7 @@ public:
     void update( const RadioStation* station = 0 );
     void setFrequency( uint frequency );
     void cleanRdsData();
+    void handleLongPress( const QPointF& coords );
 
 private slots:
 

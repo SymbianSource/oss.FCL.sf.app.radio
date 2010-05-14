@@ -17,20 +17,25 @@
 
 // System includes
 #include <ProfileEngineSDKCRKeys.h>
-
-// User includes
-#include "fmradiohswidgetprofilereader.h"
 #include "xqsettingsmanager.h"
 #include "xqsettingskey.h"
 #include "xqpublishandsubscribeutils.h"
+#include <QDateTime>
+
+// User includes
+#include "fmradiohswidgetprofilereader.h"
+#include "fmradiohswidget.h"
+#include "radioservicedef.h"
 
 /*!
  Constructor
  */
 FmRadioHsWidgetProfileReader::FmRadioHsWidgetProfileReader(QObject *parent) :
     QObject(parent),
-    mSettingsManager(new XQSettingsManager(this))
+    mSettingsManager(new XQSettingsManager(this)),
+    mRadioStatus(-1)
 {
+/*
     // Monitors devices profile.
     XQSettingsKey profileKey(XQSettingsKey::TargetCentralRepository,
         KCRUidProfileEngine.iUid, KProEngActiveProfile);
@@ -41,6 +46,12 @@ FmRadioHsWidgetProfileReader::FmRadioHsWidgetProfileReader(QObject *parent) :
         SLOT(itemDeleted(XQSettingsKey)));
     connect(mSettingsManager, SIGNAL(valueChanged(XQSettingsKey, QVariant)),
         this, SLOT(handleChanges(XQSettingsKey, QVariant)));
+*/
+    startMonitoringRadioRunningStatus();
+    bool d = connect(mSettingsManager, SIGNAL(itemDeleted(XQSettingsKey)), this,
+        SLOT(itemDeleted(XQSettingsKey)));
+    bool h = connect(mSettingsManager, SIGNAL(valueChanged(XQSettingsKey, QVariant)),
+        this, SLOT(handleRadioRunningChanges(XQSettingsKey, QVariant)));
 }
 
 /*!
@@ -58,8 +69,13 @@ FmRadioHsWidgetProfileReader::~FmRadioHsWidgetProfileReader()
  */
 void FmRadioHsWidgetProfileReader::itemDeleted(const XQSettingsKey& key)
 {
+/*
     if (key.uid() == KCRUidProfileEngine.iUid && key.key()
         == KProEngActiveProfile) {
+    }
+*/
+    if (key.uid() == KRadioPSUid && key.key() == KRadioStartupKey) {
+        startMonitoringRadioRunningStatus();
     }
 }
 
@@ -70,14 +86,16 @@ void FmRadioHsWidgetProfileReader::itemDeleted(const XQSettingsKey& key)
  \param key Changed key.
  \param value Value of changed key.
  */
+/*
 void FmRadioHsWidgetProfileReader::handleChanges(const XQSettingsKey& key,
     const QVariant& value)
-{
+{ 
     if (key.uid() == KCRUidProfileEngine.iUid && key.key()
         == KProEngActiveProfile) {
         currentProfileStatus(value);
     }
 }
+*/
 
 /*!
  Handling changes in profile information.
@@ -92,3 +110,59 @@ void FmRadioHsWidgetProfileReader::currentProfileStatus(QVariant value)
     }
 }
 
+/*!
+ Notifications from settings manager are handled and routed to appropriate
+ private slots.
+
+ \param key Changed key.
+ \param value Value of changed key.
+ */
+void FmRadioHsWidgetProfileReader::handleRadioRunningChanges(const XQSettingsKey& key,
+    const QVariant& value)
+{
+    if (key.uid() == KRadioPSUid && key.key()
+        == KRadioStartupKey) {
+        currentRadioRunningStatus(value);
+    }
+}
+
+/*!
+ Handling changes in profile information.
+ 
+ \param value Originally information is of int type. Valid values after
+ conversion are described by KProEngActiveProfile in ProfileEngineSDKCRKeys.h.
+ */
+void FmRadioHsWidgetProfileReader::currentRadioRunningStatus(QVariant value)
+{
+    if (value.isValid()) {
+        if (value.canConvert(QVariant::Int)) {
+            mRadioStatus = value.toInt();
+            QVariant state(FmRadioHsWidget::Running);
+            emit radioRunning(state);
+        }
+    } else {
+        mRadioStatus = -1;
+        QVariant state(FmRadioHsWidget::NotRunning);
+        emit radioRunning(state);
+    }
+}
+
+QVariant FmRadioHsWidgetProfileReader::radioStatus()
+{
+    QVariant state;
+    if (mRadioStatus != -1) {
+        state = QVariant(FmRadioHsWidget::Running);
+        return state;
+    } else {
+        state = QVariant(FmRadioHsWidget::NotRunning);
+        return state;
+    }
+}
+
+void FmRadioHsWidgetProfileReader::startMonitoringRadioRunningStatus()
+{
+    XQSettingsKey radioRunningKey(XQSettingsKey::TargetPublishAndSubscribe, KRadioPSUid,
+        KRadioStartupKey);
+    bool a = mSettingsManager->startMonitoring(radioRunningKey);
+    currentRadioRunningStatus(mSettingsManager->readItemValue(radioRunningKey));
+}

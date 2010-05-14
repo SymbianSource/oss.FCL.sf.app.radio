@@ -74,6 +74,32 @@ RadioHistoryItem& RadioHistoryItem::operator=( const RadioHistoryItem& other )
 /*!
  *
  */
+bool RadioHistoryItem::isValid() const
+{
+    return id() != 0 && !title().isEmpty();
+}
+
+/*!
+ *
+ */
+void RadioHistoryItem::reset()
+{
+    decrementReferenceCount();
+    mData = shared_null();
+    mData->ref.ref();
+}
+
+/*!
+ *
+ */
+int RadioHistoryItem::id() const
+{
+    return mData->mId;
+}
+
+/*!
+ *
+ */
 QString RadioHistoryItem::artist() const
 {
     return mData->mArtist;
@@ -168,37 +194,17 @@ void RadioHistoryItem::setCurrentTime()
 /*!
  *
  */
-bool RadioHistoryItem::isFavorite() const
+bool RadioHistoryItem::isTagged() const
 {
-    return mData->mFavorite;
+    return mData->mTagged;
 }
 
 /*!
  *
  */
-void RadioHistoryItem::setFavorite()
+bool RadioHistoryItem::isRecognizedByRds() const
 {
-    if ( !mData->mFavorite ) {
-        detach();
-        mData->mFavorite = true;
-    }
-}
-
-/*!
- *
- */
-void RadioHistoryItem::increasePlayCount()
-{
-    detach();
-    ++mData->mPlayCount;
-}
-
-/*!
- *
- */
-int RadioHistoryItem::playCount() const
-{
-    return mData->mPlayCount;
+    return mData->mFromRds;
 }
 
 /**

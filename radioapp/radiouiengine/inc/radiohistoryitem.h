@@ -47,6 +47,11 @@ public:
 
     RadioHistoryItem& operator=( const RadioHistoryItem& other );
 
+    bool isValid() const;
+    void reset();
+
+    int id() const;
+
     QString artist() const;
     void setArtist( const QString& artist );
 
@@ -62,11 +67,9 @@ public:
     QString time() const;
     void setCurrentTime();
 
-    bool isFavorite() const;
-    void setFavorite();
+    bool isTagged() const;
 
-    void increasePlayCount();
-    int playCount() const;
+    bool isRecognizedByRds() const;
 
 private:
 

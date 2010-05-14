@@ -15,18 +15,20 @@
 *
 */
 
+// System includes
 #include <HbInstance>
 #include <HbAction>
-#include <HbMessageBox>
+#include <HbDeviceMessageBox>
 #include <HbVolumeSliderPopup>
 
-#include "radiomainwindow.h"
-#include "radiotuningview.h"
+// User includes
+#include "radiowindow.h"
+#include "radiomainview.h"
 #include "radiostationsview.h"
 #include "radiouiengine.h"
 #include "radiostationmodel.h"
 #include "radiologger.h"
-#include "radioxmluiloader.h"
+#include "radiouiloader.h"
 
 // Constants
 
@@ -38,16 +40,16 @@ const int KVolumeSliderDelay = 5000;
 /*!
  *
  */
-RadioMainWindow::RadioMainWindow( QWidget* parent ) :
+RadioWindow::RadioWindow( QWidget* parent ) :
     HbMainWindow( parent ),
-    mUiEngine( 0 )
+    mUiEngine( new RadioUiEngine( this ) )
 {
 }
 
 /*!
  *
  */
-RadioMainWindow::~RadioMainWindow()
+RadioWindow::~RadioWindow()
 {
     // Destructor needs to be defined. See explanation from RadioEngineWrapperPrivate destructor.
 }
@@ -55,64 +57,29 @@ RadioMainWindow::~RadioMainWindow()
 /*!
  *
  */
-bool RadioMainWindow::isOfflineUsageAllowed()
+void RadioWindow::showErrorMessage( const QString& text )
 {
-    DummyViewPtr dummyView = prepareToShowDialog();
-
-    HbMessageBox box( HbMessageBox::MessageTypeQuestion );
-    box.setText( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ) );
+    HbDeviceMessageBox box( text, HbMessageBox::MessageTypeWarning );
     box.setTimeout( HbPopup::NoTimeout );
     box.setDismissPolicy( HbPopup::NoDismiss );
-
-    HbAction* primaryAction = new HbAction( hbTrId( "txt_common_button_yes" ) );
-    box.setPrimaryAction( primaryAction );
-    HbAction* secondaryAction = new HbAction( hbTrId( "txt_common_button_no" ) );
-    box.setSecondaryAction( secondaryAction );
-
-    const bool answer = box.exec() == box.primaryAction();
-
-    dialogShown( dummyView );
-
-    return answer;
+    box.exec();
 }
 
 /*!
  *
  */
-void RadioMainWindow::showErrorMessage( const QString& text )
+void RadioWindow::init()
 {
-    DummyViewPtr dummyView = prepareToShowDialog();
+    connectAndTest( this, SIGNAL(viewReady()),
+                    this, SLOT(initView()) );
 
-    HbMessageBox::warning( text );
-
-    dialogShown( dummyView );
+    activateMainView();
 }
 
 /*!
  *
  */
-void RadioMainWindow::init( RadioUiEngine* uiEngine )
-{
-    LOG_METHOD;
-    mUiEngine = uiEngine;
-
-    // MainWindow is the one that always listens for orientation changes and then delegates
-    // the updates to the views
-    connectAndTest( hbInstance->allMainWindows().first(),   SIGNAL(orientationChanged(Qt::Orientation)),
-                    this,                                   SLOT(updateOrientation(Qt::Orientation)) );
-
-    connectAndTest( mUiEngine,  SIGNAL(volumeChanged(int)),
-                    this,       SLOT(showVolumeLevel(int)) );
-    connectAndTest( mUiEngine,  SIGNAL(antennaStatusChanged(bool)),
-                    this,       SLOT(updateAntennaStatus(bool)) );
-
-    activateTuningView();
-}
-
-/*!
- *
- */
-RadioUiEngine& RadioMainWindow::uiEngine()
+RadioUiEngine& RadioWindow::uiEngine()
 {
     return *mUiEngine;
 }
@@ -120,7 +87,7 @@ RadioUiEngine& RadioMainWindow::uiEngine()
 /*!
  * Returns the XML layout section that corresponds to the view orientation
  */
-QString RadioMainWindow::orientationSection()
+QString RadioWindow::orientationSection()
 {
     return orientation() == Qt::Vertical ? DOCML::SECTION_PORTRAIT : DOCML::SECTION_LANDSCAPE;
 }
@@ -128,15 +95,15 @@ QString RadioMainWindow::orientationSection()
 /*!
  *
  */
-void RadioMainWindow::activateTuningView()
+void RadioWindow::activateMainView()
 {
-    activateView( mTuningView, DOCML::FILE_TUNINGVIEW, Hb::ViewSwitchUseBackAnim );
+    activateView( mMainView, DOCML::FILE_MAINVIEW, Hb::ViewSwitchUseBackAnim );
 }
 
 /*!
  *
  */
-void RadioMainWindow::activateStationsView()
+void RadioWindow::activateStationsView()
 {
     activateView( mStationsView, DOCML::FILE_STATIONSVIEW );
 }
@@ -144,7 +111,7 @@ void RadioMainWindow::activateStationsView()
 /*!
  *
  */
-void RadioMainWindow::activateHistoryView()
+void RadioWindow::activateHistoryView()
 {
     activateView( mHistoryView, DOCML::FILE_HISTORYVIEW );
 }
@@ -153,10 +120,41 @@ void RadioMainWindow::activateHistoryView()
  * Private slot
  *
  */
-void RadioMainWindow::updateOrientation( Qt::Orientation orientation )
+void RadioWindow::initView()
+{
+    if ( !mUiEngine->isInitialized() ) {
+        // Start the engine
+        if ( !mUiEngine->init() ) {
+            showErrorMessage( hbTrId( "txt_fmradio_info_fm_radio_could_not_be_started" ) );
+            qApp->quit();
+            return;
+        }
+
+        // MainWindow is the one that always listens for orientation changes and then delegates
+        // the updates to the views
+        connectAndTest( this,               SIGNAL(orientationChanged(Qt::Orientation)),
+                        this,               SLOT(updateOrientation(Qt::Orientation)) );
+
+        connectAndTest( mUiEngine.data(),   SIGNAL(volumeChanged(int)),
+                        this,               SLOT(showVolumeLevel(int)) );
+        connectAndTest( mUiEngine.data(),   SIGNAL(antennaStatusChanged(bool)),
+                        this,               SLOT(updateAntennaStatus(bool)) );
+    }
+
+    RadioViewBase* view = static_cast<RadioViewBase*>( currentView() );
+    if ( !view->isInitialized() ) {
+        view->init();
+    }
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioWindow::updateOrientation( Qt::Orientation orientation )
 {
     HbView* view = currentView();
-    RADIO_ASSERT( view, "RadioMainWindow::updateOrientation", "Current view not found!" );
+    RADIO_ASSERT( view, "RadioWindow::updateOrientation", "Current view not found!" );
     if ( view ) {
         static_cast<RadioViewBase*>( view )->updateOrientation( orientation );
     }
@@ -166,7 +164,7 @@ void RadioMainWindow::updateOrientation( Qt::Orientation orientation )
  * Private slot
  *
  */
-void RadioMainWindow::showVolumeLevel( int volume )
+void RadioWindow::showVolumeLevel( int volume )
 {
     if ( !mVolSlider ) {
         mVolSlider.reset( new HbVolumeSliderPopup() );
@@ -174,7 +172,7 @@ void RadioMainWindow::showVolumeLevel( int volume )
         mVolSlider->setSingleStep( 1 );
         mVolSlider->setTimeout( KVolumeSliderDelay );
         connectAndTest( mVolSlider.data(),  SIGNAL(valueChanged(int)),
-                        mUiEngine,          SLOT(setVolume(int)) );
+                        mUiEngine.data(),   SLOT(setVolume(int)) );
     }
 
     mVolSlider->setValue( volume );
@@ -186,18 +184,17 @@ void RadioMainWindow::showVolumeLevel( int volume )
  * Private slot
  *
  */
-void RadioMainWindow::updateAntennaStatus( bool connected )
+void RadioWindow::updateAntennaStatus( bool connected )
 {
     if ( !connected ) {
-        HbMessageBox infoBox( hbTrId( "txt_rad_dpophead_connect_wired_headset" ) );
-        infoBox.exec();
+        HbMessageBox::information( hbTrId( "txt_rad_dpophead_connect_wired_headset" ) );
     }
 }
 
 /*!
  *
  */
-void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags )
+void RadioWindow::activateView( ViewPtr& aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags )
 {
     LOG_METHOD;
     if ( aMember && aMember == currentView() ) {
@@ -214,7 +211,7 @@ void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile, 
     if ( !aMember ) {
         viewCreated = true;
 
-        RadioXmlUiLoader* uiLoader = new RadioXmlUiLoader();
+        RadioUiLoader* uiLoader = new RadioUiLoader();
         bool ok = false;
 
         // View takes ownership of the ui loader when it is created inside the load function
@@ -236,7 +233,7 @@ void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile, 
             }
         }
 
-        aMember->init( uiLoader, this );
+        aMember->setMembers( uiLoader, this );
 
         addView( aMember );
     }
@@ -244,29 +241,4 @@ void RadioMainWindow::activateView( ViewPtr& aMember, const QString& docmlFile, 
     aMember->updateOrientation( orientation(), viewCreated );
 
     setCurrentView( aMember, true, flags );
-}
-
-/*!
- *
- */
-DummyViewPtr RadioMainWindow::prepareToShowDialog()
-{
-    // To be able to draw a dialog on screen we need a HbMainWindow instance and a HbView to get a graphics scene
-    // so we create a dummy view and set it active
-    DummyViewPtr dummyView( new HbView() );
-    addView( dummyView.data() );
-    setCurrentView( dummyView.data() );
-    show();
-    return dummyView;
-}
-
-/*!
- *
- */
-void RadioMainWindow::dialogShown( DummyViewPtr pointer )
-{
-    // Clean up the dummy view
-    hide();
-    removeView( pointer.data() );
-    pointer.clear();
 }

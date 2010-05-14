@@ -26,9 +26,9 @@
 // User includes
 
 // Forward declarations
-class RadioMainWindow;
+class RadioWindow;
 class RadioStationModel;
-class RadioXmlUiLoader;
+class RadioUiLoader;
 class HbAction;
 
 // Constants
@@ -51,7 +51,11 @@ public:
 
     virtual ~RadioViewBase();
 
-    virtual void init( RadioXmlUiLoader* uiLoader, RadioMainWindow* mainWindow );
+    void setMembers( RadioUiLoader* uiLoader, RadioWindow* mainWindow );
+
+    virtual void init() = 0;
+
+    bool isInitialized() const;
 
     bool isTransient() const;
 
@@ -62,6 +66,10 @@ protected slots:
     void updateAudioRouting( bool loudspeaker );
     void activatePreviousView();
     void quit();
+
+private slots:
+
+    void handleUserAnswer( HbAction* answer );   // Needed by HbMessageBox inconvenience API
 
 protected:
 
@@ -77,9 +85,12 @@ protected:
 
     void loadSection( const QString& docml, const QString& section );
 
+    void askQuestion( const QString& question );
+
 private:
 
     virtual void setOrientation();
+    virtual void userAccepted();
 
 protected: // data
 
@@ -87,13 +98,15 @@ protected: // data
      * Pointer to the main window.
      * Not own.
      */
-    RadioMainWindow*                    mMainWindow;
+    RadioWindow*                        mMainWindow;
 
     /**
      * Pointer to the XML UI (DocML) loader
      * Own.
      */
-    QScopedPointer<RadioXmlUiLoader>    mUiLoader;
+    QScopedPointer<RadioUiLoader>       mUiLoader;
+
+    bool                                mInitialized;
 
     /**
      * Flag indicating whether or not the view is transient

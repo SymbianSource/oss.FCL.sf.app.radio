@@ -49,7 +49,7 @@ RadioSettings::~RadioSettings()
 }
 
 /*!
- *
+ * \reimp
  */
 bool RadioSettings::isFirstTimeStart()
 {
@@ -58,7 +58,7 @@ bool RadioSettings::isFirstTimeStart()
 }
 
 /*!
- *
+ * \reimp
  */
 bool RadioSettings::showFavorites() const
 {
@@ -67,7 +67,7 @@ bool RadioSettings::showFavorites() const
 }
 
 /*!
- *
+ * \reimp
  */
 void RadioSettings::setShowFavorites( bool showFavorites )
 {
@@ -78,7 +78,7 @@ void RadioSettings::setShowFavorites( bool showFavorites )
 }
 
 /*!
- *
+ * \reimp
  */
 bool RadioSettings::toggleShowFavorites()
 {

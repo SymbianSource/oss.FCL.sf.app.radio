@@ -49,7 +49,7 @@ public:
 
 protected:
 
-    RadioStripBase( QGraphicsItem* parent );
+    RadioStripBase( QGraphicsItem* parent = 0 );
 
 // from base class QGraphicsWidget
 
@@ -71,7 +71,7 @@ private:
     virtual void updateItemPrimitive( QGraphicsItem* itemToUpdate, int itemIndex ) = 0;
     virtual QGraphicsItem* createItemPrimitive( QGraphicsItem *parent ) = 0;
 
-    virtual void scrollPosChanged( QPointF newPosition );
+    virtual void scrollPosChanged( QPointF newPosition ) = 0;
 
     void moveAllItemsToPool();
 
