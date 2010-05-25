@@ -19,6 +19,7 @@
 // INCLUDE FILES
 
 #include <AknUtils.h>
+#include <AknsConstants.h>
 #include <alf/alfenv.h>
 #include <alf/alfimagevisual.h>
 #include <alf/alfevent.h>
@@ -213,24 +214,24 @@ void CFMRadioLogo::CreateImageVisualsL()
             AknLayoutScalable_Apps::area_fmrd2_visual_pane_g1( KLAFVarietyBackgroundImagePortrait ).LayoutLine() );
 
     // image for portrait
-    iPortraitImage = TAlfImage( KAknsIIDNone,
-                                       bitmapLayout.Rect().Size(),
-                                       EAspectRatioPreserved,
-                                       iBackgroundBitmapFileName,
-                                       EMbmFmradioQgn_menu_radio,
-                                       EMbmFmradioQgn_menu_radio_mask );
+    iPortraitImage = TAlfImage( KAknsIIDQgnIndiRadioDefault,
+                                   bitmapLayout.Rect().Size(),
+                                   EAspectRatioPreserved,
+                                   iBackgroundBitmapFileName,
+                                   EMbmFmradioQgn_indi_radio_default,
+                                   EMbmFmradioQgn_indi_radio_default_mask );
 
     // image for landscape
     bitmapLayout.LayoutRect(
             temp,
             AknLayoutScalable_Apps::area_fmrd2_visual_pane_g1( KLAFVarietyBackgroundImageLandscape ).LayoutLine() );    
 
-    iLandscapeImage = TAlfImage( KAknsIIDNone,
-                                 bitmapLayout.Rect().Size(),
-                                 EAspectRatioPreserved,
-                                 iBackgroundBitmapFileName,
-                                 EMbmFmradioQgn_menu_radio,
-                                 EMbmFmradioQgn_menu_radio_mask );
+    iLandscapeImage = TAlfImage( KAknsIIDQgnIndiRadioDefault,
+                                     bitmapLayout.Rect().Size(),
+                                     EAspectRatioPreserved,
+                                     iBackgroundBitmapFileName,
+                                     EMbmFmradioQgn_indi_radio_default,
+                                     EMbmFmradioQgn_indi_radio_default_mask );
     
     iImageVisual->SetImage( iPortraitImage );
     iImageVisual->SetSecondaryImage( iLandscapeImage );

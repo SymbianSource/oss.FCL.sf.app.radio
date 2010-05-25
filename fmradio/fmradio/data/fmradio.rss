@@ -25,7 +25,7 @@ NAME FMRD // 4 letter ID
 //
 #include <bldvariant.hrh>
 #include <data_caging_paths_strings.hrh>
-
+#include <aknsconstants.hrh>
 #include <e32keys.h>
 #include <eikon.rh>
 #include <eikon.rsg>
@@ -75,7 +75,7 @@ RESOURCE LOCALISABLE_APP_INFO r_fmradio_localisable_app_info
 #endif
         };
     }
-	
+
 // ---------------------------------------------------------------------------
 //    r_fmradio_setting_frequency_editor
 //    Editor for setting frequency of a channel.
@@ -84,7 +84,7 @@ RESOURCE LOCALISABLE_APP_INFO r_fmradio_localisable_app_info
 RESOURCE FMRADIO_FREQUENCY_EDITOR r_fmradio_setting_frequency_editor
     {
     }
-    	
+
 // ---------------------------------------------------------------------------
 //    r_fmradio_manual_tuning_query
 //    Manual tuning query resources
@@ -111,6 +111,90 @@ RESOURCE DIALOG r_fmradio_manual_tuning_query
         };
     }
 
+RESOURCE AVKON_BUTTON_STATE_EXTENSION  r_fmradio_toolbar_prev_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbRadioPrevious;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION  r_fmradio_toolbar_next_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbRadioNext;
+    }
+    
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_rename_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbRename;
+    }
+    
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_save_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbRadioStationSave;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_delete_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiCam4TbDelete;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_mshop_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiRadioTbMshop;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_ihfon_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbIhfOn;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_ihfoff_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbIhfOff;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_web_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiRadioTbGotoweb;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_stations_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiRadioTbList;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_ovi_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnMenuOviMusic;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_manual_tuning_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiRadioTbManualtune;
+    }
+    
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_scan_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbRadioScan;
+    }
+
+RESOURCE AVKON_BUTTON_STATE_EXTENSION r_fmradio_toolbar_save_all_button_state_extension
+    {
+    bmbSkinIdMajor = EAknsMajorGeneric; 
+    bmbSkinIdMinor = EAknsMinorGenericQgnIndiTbRadioStationSaveAll;
+    }
+
 // ---------------------------------------------------------------------------
 // r_fmradio_main_view_toolbar
 // ---------------------------------------------------------------------------
@@ -134,6 +218,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_radio_previous; 
                         bmpmask = EMbmFmradioQgn_indi_tb_radio_previous_mask;
+                        extension = r_fmradio_toolbar_prev_button_state_extension;
                         }
                     };
                 };
@@ -163,6 +248,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpmask = EMbmFmradioQgn_indi_tb_rename;
                                         bmpid = EMbmFmradioQgn_indi_tb_rename_mask; 
+                                        extension = r_fmradio_toolbar_rename_button_state_extension;
                                         }
                                     };
                                 };
@@ -183,6 +269,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpid = EMbmFmradioQgn_indi_tb_radio_station_save; 
                                         bmpmask = EMbmFmradioQgn_indi_tb_radio_station_save_mask;
+                                        extension = r_fmradio_toolbar_save_button_state_extension;
                                         }
                                     };
                                 };
@@ -203,6 +290,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpmask = EMbmFmradioQgn_indi_cam4_tb_delete_mask;
                                         bmpid = EMbmFmradioQgn_indi_cam4_tb_delete; 
+                                        extension = r_fmradio_toolbar_delete_button_state_extension;
                                         }
                                     };
                                 };
@@ -222,6 +310,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpmask = EMbmFmradioQgn_indi_radio_tb_mshop;
                                         bmpid = EMbmFmradioQgn_indi_radio_tb_mshop_mask;
+                                        extension = r_fmradio_toolbar_mshop_button_state_extension;
                                         }
                                     };
                                 };
@@ -242,6 +331,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpid = EMbmFmradioQgn_indi_tb_ihf_on;
                                         bmpmask = EMbmFmradioQgn_indi_tb_ihf_on_mask;
+                                        extension = r_fmradio_toolbar_ihfon_button_state_extension;
                                         },
                                     AVKON_BUTTON_STATE
                                         {
@@ -250,6 +340,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpid = EMbmFmradioQgn_indi_tb_ihf_off; 
                                         bmpmask = EMbmFmradioQgn_indi_tb_ihf_off_mask;
+                                        extension = r_fmradio_toolbar_ihfoff_button_state_extension;
                                         }
                                     };
                                 };
@@ -270,6 +361,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpmask = EMbmFmradioQgn_indi_radio_tb_gotoweb;
                                         bmpid = EMbmFmradioQgn_indi_radio_tb_gotoweb_mask; 
+                                        extension = r_fmradio_toolbar_web_button_state_extension;
                                         }
                                     };
                                 };
@@ -290,6 +382,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         bmpfile = KFMRadioBitmapFile;
                                         bmpid = EMbmFmradioQgn_indi_radio_tb_list; 
                                         bmpmask = EMbmFmradioQgn_indi_radio_tb_list_mask;
+                                        extension = r_fmradio_toolbar_stations_button_state_extension;
                                         }
                                     };
                                 };
@@ -308,8 +401,9 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                                         txt = qtn_tbextension_ovi_music;
                                         helptxt = qtn_fmradio_tooltip_nokia_music_store;
                                         bmpfile = KFMRadioBitmapFile;
-                                        bmpid = EMbmFmradioQgn_menu_music;
-                                        bmpmask = EMbmFmradioQgn_menu_music_mask; 
+                                        bmpid = EMbmFmradioQgn_indi_tb_ovi_music;
+                                        bmpmask = EMbmFmradioQgn_indi_tb_ovi_music_mask;
+                                        extension = r_fmradio_toolbar_ovi_button_state_extension;
                                         }
                                     };
                                 };
@@ -331,6 +425,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_main_view_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_radio_next; 
                         bmpmask = EMbmFmradioQgn_indi_tb_radio_next_mask;
+                        extension = r_fmradio_toolbar_next_button_state_extension;
                         }
                     };
                 };
@@ -576,24 +671,24 @@ RESOURCE MENU_PANE r_fmradio_main_options_menu
 //----------------------------------------------------
 //
 RESOURCE MENU_PANE r_fmradio_options_af_sub_menu
-	{
-	items =
-		{
-		MENU_ITEM
-			{
-			command = EFMRadioCmdEnableRdsAfSearch;
-			txt = qtn_fmradio_options_on;
-			flags = EEikMenuItemRadioStart;
-			},
-		MENU_ITEM
-			{
-			command = EFMRadioCmdDisableRdsAfSearch;
-			txt = qtn_fmradio_options_off;
-			flags = EEikMenuItemRadioEnd;
-			}
-		};
-	}
-	
+    {
+    items =
+        {
+        MENU_ITEM
+            {
+            command = EFMRadioCmdEnableRdsAfSearch;
+            txt = qtn_fmradio_options_on;
+            flags = EEikMenuItemRadioStart;
+            },
+        MENU_ITEM
+            {
+            command = EFMRadioCmdDisableRdsAfSearch;
+            txt = qtn_fmradio_options_off;
+            flags = EEikMenuItemRadioEnd;
+            }
+        };
+    }
+
 //----------------------------------------------------
 // Resource     : r_fmradio_ch_list_options_menu
 // Description  : Channel list options menu items.
@@ -638,6 +733,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_channel_list_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_radio_tb_manualtune; 
                         bmpmask = EMbmFmradioQgn_indi_radio_tb_manualtune_mask;
+                        extension = r_fmradio_toolbar_manual_tuning_button_state_extension;
                         }
                     };
                 };
@@ -656,6 +752,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_channel_list_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_radio_scan; 
                         bmpmask = EMbmFmradioQgn_indi_tb_radio_scan_mask;
+                        extension = r_fmradio_toolbar_scan_button_state_extension;
                         }
                     };
                 };
@@ -674,6 +771,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_channel_list_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_ihf_on;
                         bmpmask = EMbmFmradioQgn_indi_tb_ihf_on_mask;
+                        extension = r_fmradio_toolbar_ihfon_button_state_extension;
                         },
                     AVKON_BUTTON_STATE
                         {
@@ -681,10 +779,11 @@ RESOURCE AVKON_TOOLBAR r_fmradio_channel_list_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_ihf_off; 
                         bmpmask = EMbmFmradioQgn_indi_tb_ihf_off_mask;
+                        extension = r_fmradio_toolbar_ihfoff_button_state_extension;
                         }
                     };
                 };
-            }           
+            }
         };
     }
 
@@ -713,13 +812,13 @@ RESOURCE AVKON_LIST_QUERY r_fmradio_listquery_save_all_replace_append
 
 
 RESOURCE ARRAY r_fmradio_listquery_save_all_replace_append_items
-	{
-	  items =
-	  {
-	    LBUF {txt = qtn_fmradio_list_query_replace_all; },
-	    LBUF {txt = qtn_fmradio_list_query_append; }
-	  };
-	}	
+    {
+    items =
+        {
+        LBUF {txt = qtn_fmradio_list_query_replace_all; },
+        LBUF {txt = qtn_fmradio_list_query_append; }
+        };
+    }
 
 RESOURCE AVKON_LIST_QUERY r_fmradio_listquery_save_all_replace_append_list_almost_full
     {
@@ -739,7 +838,7 @@ RESOURCE AVKON_LIST_QUERY r_fmradio_listquery_save_all_replace_append_list_almos
                 };
             }
         };
-    }	
+    }
 
 RESOURCE ARRAY r_fmradio_listquery_save_all_replace_append_items_list_almost_full
     {
@@ -748,7 +847,7 @@ RESOURCE ARRAY r_fmradio_listquery_save_all_replace_append_items_list_almost_ful
         LBUF {txt = qtn_fmradio_list_query_all_fits; },
         LBUF {txt = qtn_fmradio_list_query_replace_all; }
         };
-    }	
+    }
 
 RESOURCE DIALOG r_fmradio_rename_query
 {
@@ -805,53 +904,53 @@ RESOURCE AVKON_LIST_QUERY r_fmradio_select_region_query
 //----------------------------------------------------
 // Resource     : r_fmradio_activate_in_offline_query
 // Description  : A dialog shown when starting FM Radio 
-//  			  and off-line mode is active.
+//                and off-line mode is active.
 //----------------------------------------------------
 //
 RESOURCE DIALOG r_fmradio_activate_in_offline_query
-	{
-	flags = EGeneralQueryFlags;
-	buttons = R_AVKON_SOFTKEYS_YES_NO;
-	items = 
-		{ 
-		DLG_LINE 
-			{ 
-			type = EAknCtQuery; 
-			id = EGeneralQuery; 
-			control = AVKON_CONFIRMATION_QUERY 
-				{ 
-				layout = EConfirmationQueryLayout;
-				label = qtn_fmradio_query_offline_activate;
-				}; 
-			}
-		};
-	}
+    {
+    flags = EGeneralQueryFlags;
+    buttons = R_AVKON_SOFTKEYS_YES_NO;
+    items = 
+        { 
+        DLG_LINE 
+            { 
+            type = EAknCtQuery; 
+            id = EGeneralQuery; 
+            control = AVKON_CONFIRMATION_QUERY 
+                { 
+                layout = EConfirmationQueryLayout;
+                label = qtn_fmradio_query_offline_activate;
+                }; 
+            }
+        };
+    }
 
 //----------------------------------------------------
 // Resource     : r_fmradio_continue_in_offline_query
 // Description  : A dialog shown when coming to 
-//				  foreground and off-line mode has been
-//    			  activated in background.
+//                foreground and off-line mode has been
+//                activated in background.
 //----------------------------------------------------
 //
 RESOURCE DIALOG r_fmradio_continue_in_offline_query
-	{
-	flags = EGeneralQueryFlags;
-	buttons = R_AVKON_SOFTKEYS_YES_NO;
-	items = 
-		{ 
-		DLG_LINE 
-			{ 
-			type = EAknCtQuery; 
-			id = EGeneralQuery; 
-			control = AVKON_CONFIRMATION_QUERY 
-				{ 
-				layout = EConfirmationQueryLayout;
-				label = qtn_fmradio_query_offline_use;
-				}; 
-			}
-		};
-	}
+    {
+    flags = EGeneralQueryFlags;
+    buttons = R_AVKON_SOFTKEYS_YES_NO;
+    items = 
+        { 
+        DLG_LINE 
+            { 
+            type = EAknCtQuery; 
+            id = EGeneralQuery; 
+            control = AVKON_CONFIRMATION_QUERY 
+                { 
+                layout = EConfirmationQueryLayout;
+                label = qtn_fmradio_query_offline_use;
+                }; 
+            }
+        };
+    }
 
 //----------------------------------------------------
 // Resource     : r_fmradio_save_ch_confirmation_query
@@ -911,25 +1010,25 @@ RESOURCE DIALOG r_fmradio_erase_ch_confirmation_query
 }
 
 RESOURCE DIALOG r_fmradio_connect_headset_note
-	{
+    {
     flags = EAknDialogGenericQueryFlags;
     buttons = r_fmradio_softkeys_exit;
     items =
-    	{
+        {
         DLG_LINE
-        	{
+            {
             type = EAknCtQuery;
             id = EConfirmationLayout;
             control = AVKON_CONFIRMATION_QUERY 
-            	{ 
+                { 
                 layout = EConfirmationQueryLayout;
                 bmpfile = KFMRadioBitmapFile;
                 bmpid = EMbmFmradioQgn_note_radio_jackmini;
                 bmpmask = EMbmFmradioQgn_note_radio_jackmini_mask;
-            	};
-        	}
-    	};
-	}
+                };
+            }
+        };
+    }
 
 //----------------------------------------------------
 // Resource     : r_fmradio_query_save_current
@@ -1190,8 +1289,8 @@ RESOURCE TBUF r_qtn_fmradio_tuning { buf = qtn_fmradio_scanning; }
 //----------------------------------------------------
 // Resource     : r_qtn_fmradio_use_long_tap
 // Description  : Text for the information note that 
-//				  will be shown when the channels haven't been saved 
-//				  and tryed to change channel.
+//                will be shown when the channels haven't been saved 
+//                and tryed to change channel.
 //----------------------------------------------------
 //
 RESOURCE TBUF r_qtn_fmradio_use_long_tap { buf = qtn_fmradio_use_long_tap; }
@@ -1199,8 +1298,8 @@ RESOURCE TBUF r_qtn_fmradio_use_long_tap { buf = qtn_fmradio_use_long_tap; }
 //----------------------------------------------------
 // Resource     : r_qtn_fmradio_list_query_list_full
 // Description  : If the amount of added stations is about to exceed 
-//					the limit, a List query is displayed with a prompt 
-//      			text Station list full:
+//                  the limit, a List query is displayed with a prompt 
+//                  text Station list full:
 //----------------------------------------------------
 //
 RESOURCE TBUF r_qtn_fmradio_list_query_list_full { buf = qtn_fmradio_list_query_list_full; }
@@ -1327,13 +1426,13 @@ RESOURCE CBA r_fmradio_softkeys_empty_stop
 // ---------------------------------------------------------------------------
 //
 RESOURCE CBA r_fmradio_softkeys_empty_cancel
-	{
-	buttons=
-		{
-		    CBA_BUTTON { txt = text_softkey_empty; },
-		    CBA_BUTTON { id = EAknSoftkeyCancel; txt = text_softkey_cancel; }
-		};
-	}
+    {
+    buttons=
+        {
+            CBA_BUTTON { txt = text_softkey_empty; },
+            CBA_BUTTON { id = EAknSoftkeyCancel; txt = text_softkey_cancel; }
+        };
+    }
 
 // Search Stations view
 
@@ -1404,6 +1503,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_search_stations_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_radio_station_save_all;
                         bmpmask = EMbmFmradioQgn_indi_tb_radio_station_save_all_mask;
+                        extension = r_fmradio_toolbar_save_all_button_state_extension;
                         }
                     };
                 };
@@ -1422,6 +1522,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_search_stations_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_radio_scan; 
                         bmpmask = EMbmFmradioQgn_indi_tb_radio_scan_mask;
+                        extension = r_fmradio_toolbar_scan_button_state_extension;
                         }
                     };
                 };
@@ -1440,6 +1541,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_search_stations_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_ihf_on; 
                         bmpmask = EMbmFmradioQgn_indi_tb_ihf_on_mask;
+                        extension = r_fmradio_toolbar_ihfon_button_state_extension;
                         },
                     AVKON_BUTTON_STATE
                         {
@@ -1447,6 +1549,7 @@ RESOURCE AVKON_TOOLBAR r_fmradio_search_stations_toolbar
                         bmpfile = KFMRadioBitmapFile;
                         bmpid = EMbmFmradioQgn_indi_tb_ihf_off; 
                         bmpmask = EMbmFmradioQgn_indi_tb_ihf_off_mask;
+                        extension = r_fmradio_toolbar_ihfoff_button_state_extension;
                         }
                     };
                 };
@@ -1462,24 +1565,24 @@ RESOURCE AVKON_TOOLBAR r_fmradio_search_stations_toolbar
 //----------------------------------------------------
 //
 RESOURCE DIALOG r_fmradio_search_stations_wait_note
-	{
+    {
     flags = EAknWaitNoteFlags;
     buttons = r_fmradio_softkeys_empty_stop;
     items =
-    	{
-	    DLG_LINE
-	        {
+        {
+        DLG_LINE
+            {
             type = EAknCtNote;
             id = EGeneralNote;
             control = AVKON_NOTE
-            	{ 
-	            layout = EWaitLayout;
-	            singular_label = qtn_fmradio_wait_note_scanning;
-	            animation = R_QGN_GRAF_WAIT_BAR_ANIM;
-            	};
-	        }
-    	};
-	}
+                { 
+                layout = EWaitLayout;
+                singular_label = qtn_fmradio_wait_note_scanning;
+                animation = R_QGN_GRAF_WAIT_BAR_ANIM;
+                };
+            }
+        };
+    }
 
 // -----------------------------------------------------------------------------
 //   
@@ -1539,24 +1642,24 @@ RESOURCE MENU_PANE r_fmradio_scan_stations_ctx_menu_save
 //----------------------------------------------------
 //
 RESOURCE DIALOG r_fmradio_search_stations_wait_cancel_note
-	{
+    {
     flags = EAknWaitNoteFlags;
     buttons = r_fmradio_softkeys_empty_cancel;
     items =
-    	{
-	    DLG_LINE
-	        {
+        {
+        DLG_LINE
+            {
             type = EAknCtNote;
             id = EGeneralNote;
             control = AVKON_NOTE
-            	{ 
-	            layout = EWaitLayout;
-	            singular_label = qtn_fmradio_wait_note_scanning;
-	            animation = R_QGN_GRAF_WAIT_BAR_ANIM;
-            	};
-	        }
-    	};
-	}
+                { 
+                layout = EWaitLayout;
+                singular_label = qtn_fmradio_wait_note_scanning;
+                animation = R_QGN_GRAF_WAIT_BAR_ANIM;
+                };
+            }
+        };
+    }
 // ---------------------------------------------------------------------------
 // r_fmradio_wait_anim_tuning
 // Tuning animation.

@@ -17,9 +17,9 @@
 #include "fmradiovariant.hrh" // include first for variation
 #include <AccessoryServer.h>
 #include <AccessoryConnection.h>
-#include <AccPolGenericid.h>
+#include <AccPolGenericID.h>
 #include <AccPolGenericIDArray.h>
-#include <AccPolGenericIDDefinitions.h>
+#include <AccPolGenericIdDefinitions.h>
 
 #include "fmradioaccessoryconnection.h"
 #include "fmradioheadseteventobserver.h"

@@ -659,12 +659,25 @@ void CFMRadioAppUi::SaveChannelL( TInt aIndex )
 
     if ( continueWithSave )
         {
+        CFMRadioRdsReceiverBase& receiver = iRadioEngine->RdsReceiver();
         CFMRadioRdsReceiverBase::TFMRadioProgrammeSeviceType type = 
-            iRadioEngine->RdsReceiver().ProgrammeServiceNameType();
+                receiver.ProgrammeServiceNameType();
         const TDesC& channelName = type == CFMRadioRdsReceiverBase::EFMRadioPSNameStatic ?
-                iRadioEngine->RdsReceiver().ProgrammeService() : KNullDesC;
-
-        AddChannelToListL( channelName, iRadioEngine->GetTunedFrequency() );
+                receiver.ProgrammeService() : KNullDesC;
+        
+        CFMRadioPreset* preset = CFMRadioPreset::NewL();
+        CleanupStack::PushL( preset );
+        preset->SetPresetNameL( channelName );
+        preset->SetPresetFrequency( iRadioEngine->GetTunedFrequency() );
+                
+        const TDesC& webUrl = receiver.RtPlusProgramUrl();
+        if ( webUrl.Length() )
+            {
+            preset->SetPresetUrlL( webUrl );
+            }        
+        iChannels.AppendL( preset );
+        CleanupStack::Pop( preset ); 
+        
         UpdateChannelsL( EStoreAllToRepository, 0, 0 );
         
         iMainView->SetStationChangeType( EFMRadioStationChangeNone );

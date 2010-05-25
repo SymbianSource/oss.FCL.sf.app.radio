@@ -98,12 +98,6 @@ private:
     RBuf iSavedStationFormatNoName;
     RBuf iFrequencyFormat;
     
-    RBuf iSavedStationFormatMenu;
-    RBuf iSavedStationFormatNoNameMenu;
-    RBuf iFrequencyFormatMenu;
-    RBuf iNowPlayingText;
-    RBuf iLastPlayedText;
-    
     TUint iTbPreviousState;
     TUint iTbMuteUnmuteState;
     TUint iTbNextState;

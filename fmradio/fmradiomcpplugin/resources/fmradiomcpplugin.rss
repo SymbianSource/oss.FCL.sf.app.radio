@@ -42,8 +42,4 @@ RESOURCE TBUF r_qtn_fmradio_widget_tuning { buf = qtn_fmradio_widget_tuning; }
 RESOURCE TBUF r_qtn_fmradio_widget_station_saved { buf = qtn_fmradio_widget_station_saved; }
 RESOURCE TBUF r_qtn_fmradio_widget_station_saved_freq { buf = qtn_fmradio_widget_station_saved_freq; }
 RESOURCE TBUF r_qtn_fmradio_widget_notsaved_frequency { buf = qtn_fmradio_widget_notsaved_frequency; }
-RESOURCE TBUF r_qtn_fmradio_suite_last_played { buf = qtn_fmradio_suite_last_played; }
-RESOURCE TBUF r_qtn_fmradio_suite_now_playing { buf = qtn_fmradio_suite_now_playing; }
-RESOURCE TBUF r_qtn_fmradio_suite_playing_saved_with_name { buf = qtn_fmradio_suite_playing_saved_with_name; }
-RESOURCE TBUF r_qtn_fmradio_suite_playing_saved_without_name { buf = qtn_fmradio_suite_playing_saved_without_name; }
-RESOURCE TBUF r_qtn_fmradio_suite_playing_not_saved { buf = qtn_fmradio_suite_playing_not_saved; }
+

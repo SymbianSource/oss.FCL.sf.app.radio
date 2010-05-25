@@ -34,4 +34,5 @@
 -c8,8 qgn_indi_radio_tb_mshop.svg
 -c8,8 qgn_indi_radio_tb_gotoweb.svg
 -c8,8 qgn_note_radio_jackmini.svg
--c8,8 qgn_menu_music.svg
+-c8,8 qgn_indi_tb_ovi_music.svg
+

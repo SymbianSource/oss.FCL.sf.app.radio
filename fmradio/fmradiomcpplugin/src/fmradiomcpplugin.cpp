@@ -24,7 +24,7 @@
 #include <ecom/implementationproxy.h>
 #include <liwvariant.h>
 #include <StringLoader.h>
-#include <aknsconstants.hrh>
+#include <AknsConstants.h>
 #include <AknsItemID.h>
 #include <fmradiomcpplugin.rsg>
 #include <fmradio.mbg>
@@ -38,7 +38,6 @@
 #include "debug.h"
 #include "fmradiomcpplugin.h"
 #include "fmradiomcpplugin.hrh"
-#include "AknsConstants.h"
 
 _LIT( KFMRadioMifFileName, "fmradio.mif" );
 _LIT( KFMRadioMifDir, "\\resource\\apps\\" );
@@ -76,16 +75,11 @@ CFMRadioMCPPlugin::~CFMRadioMCPPlugin()
         }
 
     delete iEngine;
-    iNowPlayingText.Close();
-    iLastPlayedText.Close();
     iAntennaNotConnectedText.Close();
     iTuningText.Close();
     iSavedStationFormat.Close();
     iSavedStationFormatNoName.Close();
     iFrequencyFormat.Close();
-    iSavedStationFormatMenu.Close();
-    iSavedStationFormatNoNameMenu.Close();
-    iFrequencyFormatMenu.Close();
     
     iMifFileName.Close();
     }
@@ -102,18 +96,11 @@ void CFMRadioMCPPlugin::ConstructL()
     
     CCoeEnv* coeEnv = CCoeEnv::Static();
 
-    iNowPlayingText.Assign( StringLoader::LoadL( R_QTN_FMRADIO_SUITE_NOW_PLAYING, coeEnv ) );
-    iLastPlayedText.Assign( StringLoader::LoadL( R_QTN_FMRADIO_SUITE_LAST_PLAYED, coeEnv ) );
-    
     iAntennaNotConnectedText.Assign( StringLoader::LoadL( R_QTN_FMRADIO_WIDGET_CON_HEADSET, coeEnv ) );
     iTuningText.Assign( StringLoader::LoadL( R_QTN_FMRADIO_WIDGET_TUNING, coeEnv ) );
     iSavedStationFormat.Assign( StringLoader::LoadL( R_QTN_FMRADIO_WIDGET_STATION_SAVED, coeEnv ) );
     iSavedStationFormatNoName.Assign( StringLoader::LoadL( R_QTN_FMRADIO_WIDGET_STATION_SAVED_FREQ, coeEnv ) );
     iFrequencyFormat.Assign( StringLoader::LoadL( R_QTN_FMRADIO_WIDGET_NOTSAVED_FREQUENCY, coeEnv ) );
-    
-    iSavedStationFormatMenu.Assign( StringLoader::LoadL( R_QTN_FMRADIO_SUITE_PLAYING_SAVED_WITH_NAME, coeEnv ) );
-    iSavedStationFormatNoNameMenu.Assign( StringLoader::LoadL( R_QTN_FMRADIO_SUITE_PLAYING_SAVED_WITHOUT_NAME, coeEnv ) );
-    iFrequencyFormatMenu.Assign( StringLoader::LoadL( R_QTN_FMRADIO_SUITE_PLAYING_NOT_SAVED, coeEnv ) );
     
     // Release the resource file, because we don't want to keep file handle open.
     // That would prevent updating the binary with SIS. 
@@ -219,21 +206,14 @@ void CFMRadioMCPPlugin::ActivateL()
     iObserver->BecameActiveL( this );
     
     iObserver->PublishTextL( this, EMusicWidgetDefaultText, KNullDesC );
-
-    iObserver->PublishImageL( this, EMusicMenuMusicInfoImage1,
-                    KAknsIIDQgnIndiRadioDefault, 
-                    iMifFileName, 
-                    EMbmFmradioQgn_indi_radio_default, 
-                    EMbmFmradioQgn_indi_radio_default_mask);
-
+    
     iObserver->PublishImageL( this, EMusicWidgetImage1,
-                    KAknsIIDNone,
+                    KAknsIIDQgnIndiRadioDefault,
                     iMifFileName,
-                    EMbmFmradioQgn_menu_radio,
-                    EMbmFmradioQgn_menu_radio_mask );
+                    EMbmFmradioQgn_indi_radio_default,
+                    EMbmFmradioQgn_indi_radio_default_mask );
 
     InstallFMRadioCommandActionL( KFMRadioCommandValueStartNowPlaying, EMusicWidgetTrigger1 );
-    InstallFMRadioCommandActionL( KFMRadioCommandValueStartNowPlaying, EMusicMenuMusicInfoTrigger );
     HandleChannelChangeL( iEngine->Channel() );
     }
 
@@ -483,30 +463,6 @@ void CFMRadioMCPPlugin::UpdateMusicWidgetTextL( TBool aForceApplicationClosing )
                 FTRACE(FPrint(_L(" *** S60 FMRadio -- CFMRadioMCPPlugin::UpdateMusicWidgetTextL - Publishing Music Widget saved station: \"%S\""), &name ));
                 iObserver->PublishTextL( this, EMusicWidgetText1, name );
                 CleanupStack::PopAndDestroy(); // name
-
-                // For Music Suite
-                // Preserve space for the channel name, format string and maximum index number
-                name.CreateL( iEngine->ChannelName().Length() + 
-                              iSavedStationFormatMenu.Length() + 
-                              KDefaultRealWidth + 
-                              rightToLeftCharWidth );
-                name.CleanupClosePushL();
-                StringLoader::Format( name, iSavedStationFormatMenu, KErrNotFound, iEngine->Channel() + 1 );
-                
-                tempName = name.AllocL();
-                StringLoader::Format( name, *tempName, KErrNotFound, iEngine->ChannelName() );
-                delete tempName;
-                tempName = NULL;
-                
-                if ( rightToLeftCharWidth )
-                    {
-                    //E.g. 1. Name -> Name .1
-                    name.Insert( 0, KRightToLeftMark );
-                    }
-                
-                FTRACE(FPrint(_L(" *** S60 FMRadio -- CFMRadioMCPPlugin::UpdateMusicWidgetTextL - Publishing Music Suite saved station: \"%S\""), &name ));
-                iObserver->PublishTextL( this, EMusicMenuMusicInfoLine2, name );
-                CleanupStack::PopAndDestroy(); // name
                 }
             else
                 {
@@ -536,38 +492,13 @@ void CFMRadioMCPPlugin::UpdateMusicWidgetTextL( TBool aForceApplicationClosing )
 
                 FTRACE(FPrint(_L(" *** S60 FMRadio -- CFMRadioMCPPlugin::UpdateMusicWidgetTextL - Publishing Music Widget saved station with frequency: \"%S\""), &formattedFrequency ));
                 iObserver->PublishTextL( this, EMusicWidgetText1, formattedFrequency );
-                CleanupStack::PopAndDestroy(); // formattedFrequency
-                
-                // For Music Suite
-                formattedFrequency.CreateL( iSavedStationFormatNoNameMenu.Length() + 
-                                            frequencyString->Length() + 
-                                            KDefaultRealWidth + 
-                                            rightToLeftCharWidth );
-                formattedFrequency.CleanupClosePushL();
-                StringLoader::Format( formattedFrequency, iSavedStationFormatNoNameMenu, KErrNotFound, iEngine->Channel() + 1 );
-                
-                tempFrequency = formattedFrequency.AllocL();
-                StringLoader::Format( formattedFrequency, *tempFrequency, KErrNotFound, *frequencyString );
-                delete tempFrequency;
-                tempFrequency = NULL;
-                
-                AknTextUtils::LanguageSpecificNumberConversion( formattedFrequency );
-                if ( rightToLeftCharWidth )
-                    {
-                    //E.g. 1. Name -> Name .1
-                    formattedFrequency.Insert( 0, KRightToLeftMark );
-                    }
-
-                FTRACE(FPrint(_L(" *** S60 FMRadio -- CFMRadioMCPPlugin::UpdateMusicWidgetTextL - Publishing Music Suite saved station with frequency: \"%S\""), &formattedFrequency ));
-                iObserver->PublishTextL( this, EMusicMenuMusicInfoLine2, formattedFrequency );
-                CleanupStack::PopAndDestroy( 2, frequencyString ); // formattedFrequency, frequencyString
+                CleanupStack::PopAndDestroy( 2 ); // formattedFrequency, frequencyString
                 }
             }
         else if ( iEngine->RDSProgramService().Length() > 0 )
             {
             FTRACE(FPrint(_L(" *** S60 FMRadio -- CFMRadioMCPPlugin::UpdateMusicWidgetTextL - Publishing HS PS name: \"%S\""), &iEngine->RDSProgramService() ));
             iObserver->PublishTextL( this, EMusicWidgetText1, iEngine->RDSProgramService() );
-            iObserver->PublishTextL( this, EMusicMenuMusicInfoLine2, iEngine->RDSProgramService() );
             }
         else
             {
@@ -595,41 +526,13 @@ void CFMRadioMCPPlugin::UpdateMusicWidgetTextL( TBool aForceApplicationClosing )
                 
                 FTRACE(FPrint(_L(" *** S60 FMRadio -- CFMRadioMCPPlugin::UpdateMusicWidgetTextL - Publishing Music Widget frequency: \"%S\""), &formattedFrequency ));
                 iObserver->PublishTextL( this, EMusicWidgetText1, formattedFrequency );
-                CleanupStack::PopAndDestroy(); // formattedFrequency
-                
-                // For Music Suite
-                // Preserve space for the format string and maximum index number
-                formattedFrequency.CreateL( iFrequencyFormatMenu.Length() + 
-                                            frequencyString->Length() + 
-                                            rightToLeftCharWidth );
-                formattedFrequency.CleanupClosePushL();
-                StringLoader::Format( formattedFrequency, iFrequencyFormatMenu, KErrNotFound, *frequencyString );
-                AknTextUtils::LanguageSpecificNumberConversion( formattedFrequency );
-               
-                if ( rightToLeftCharWidth )
-                    {
-                    //E.g. 1. Name -> Name .1
-                    formattedFrequency.Insert( 0, KRightToLeftMark );
-                    }
-                
-                FTRACE(FPrint(_L(" *** S60 FMRadio -- CFMRadioMCPPlugin::UpdateMusicWidgetTextL - Publishing Music Suite frequency: \"%S\""), &formattedFrequency ));
-                iObserver->PublishTextL( this, EMusicMenuMusicInfoLine2, formattedFrequency );
-                CleanupStack::PopAndDestroy( 2, frequencyString ); // formattedFrequency, frequencyString
+                CleanupStack::PopAndDestroy( 2 ); // formattedFrequency,frequencyString
                 }
             else
                 {
                 // Publish empty text instead of 0.00 MHz
                 iObserver->PublishTextL( this, EMusicWidgetText1, KNullDesC );
-                iObserver->PublishTextL( this, EMusicMenuMusicInfoLine2, KNullDesC );
                 }
-            }
-        if( iEngine->PowerState() == EFMRadioPSRadioPowerOn && !aForceApplicationClosing )
-            {
-            iObserver->PublishTextL( this, EMusicMenuMusicInfoLine1, iNowPlayingText );
-            }
-        else
-            {
-            iObserver->PublishTextL( this, EMusicMenuMusicInfoLine1, iLastPlayedText );
             }
         }
     }
