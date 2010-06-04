@@ -1,0 +1,63 @@
+RadioStationItem {
+	layout: default
+}
+
+RadioStationItem::favorite_button {
+	max-width: 6un;
+	max-height: 6un;
+	top: -var(hb-param-margin-gene-top);
+	left: -var(hb-param-margin-gene-left)
+}
+
+RadioStationItem::genre_label {
+	pref-height: 6un;
+	top: -var(hb-param-margin-gene-top);
+	right: 8un;
+	left: -var(hb-param-margin-gene-left);
+}
+
+RadioFadingLabel#genre_label::text {
+    text-align: center;
+    color: lightgray;
+    font-variant: secondary;
+}
+
+RadioStationItem::name_label {
+	pref-height: 5un;
+	left: -var(hb-param-margin-gene-left);
+	top: -var(hb-param-margin-gene-top);
+	right: var(hb-param-margin-gene-right)
+}
+
+RadioFadingLabel#name_label::text {
+    text-align: center;
+    color: white;
+    font-variant: primary;
+}
+
+RadioStationItem::rt_label {
+	pref-height: 21un;
+	left: -var(hb-param-margin-gene-left);
+	top: -var(hb-param-margin-gene-top);
+	right: var(hb-param-margin-gene-right);
+}
+
+RadioFadingLabel#rt_label::text {
+    text-align: center;
+    color: white;
+    font-variant: secondary;
+}
+
+RadioStationItem::url_label {
+	pref-height: 5un;
+	left: -var(hb-param-margin-gene-left);
+	top: -var(hb-param-margin-gene-top);
+	right: var(hb-param-margin-gene-right);
+	bottom: var(hb-param-margin-gene-bottom);
+}
+
+RadioFadingLabel#url_label::text {
+    text-align: center;
+    color: white;
+    font-variant: secondary;
+}

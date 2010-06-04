@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<service>
+  <name>com.nokia.services.Radio</name>
+  <filepath>No path</filepath>
+  <description>Radio services</description>
+  <interface>
+     <name>IRadioControl</name>
+     <version>1.0</version>
+     <description>Interface to control radio playback</description>
+   </interface>
+  <interface>
+     <name>IRadioMonitor</name>
+     <version>1.0</version>
+     <description>Interface to monitor radio status changes</description>
+   </interface>
+</service>

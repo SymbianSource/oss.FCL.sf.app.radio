@@ -1,0 +1,23 @@
+HbMarqueeItem#marquee1::text {
+    text-height: var(hb-param-text-height-tiny);
+    font-variant: secondary;
+    color: qtc_hs_list_item_title;
+    text-align: center center;
+    text-wrap-mode: no-wrap;
+}
+
+HbMarqueeItem#marquee2::text {
+    text-height: var(hb-param-text-height-tiny);
+    font-variant: secondary;
+    color: qtc_hs_list_item_content;
+    text-align: center center;
+    text-wrap-mode: no-wrap;
+}
+
+HbMarqueeItem#marquee3::text {
+    text-height: var(hb-param-text-height-tiny);
+    font-variant: secondary;
+    color: red;
+    text-align: center center;
+    text-wrap-mode: no-wrap;
+}

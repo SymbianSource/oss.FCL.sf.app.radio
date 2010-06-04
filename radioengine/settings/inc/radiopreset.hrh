@@ -1,0 +1,33 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:
+*
+*/
+
+#ifndef RADIOPRESET_HRH
+#define RADIOPRESET_HRH
+
+#define KVRDefaultPresetFolder 0
+
+/**
+ * Preset types.
+ */
+enum TRadioPresetType
+    {
+    ERadioPresetItemEmpty = 0,                       /**< The preset item is empty, i.e. not initialized yet. */
+    ERadioPresetItemRadioContentEnabled = 1,         /**< The preset item has radio frequency. */
+    ERadioPresetItemVisualRadioContentEnabled = 2    /**< The preset item has visual content enabled. */
+    };
+
+#endif // RADIOPRESET_HRH

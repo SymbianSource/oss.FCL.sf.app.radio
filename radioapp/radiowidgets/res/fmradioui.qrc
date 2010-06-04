@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RCC>
+    <qresource>
+        <file>layout/mainview.docml</file>
+        <file>layout/stationsview.docml</file>
+        <file>layout/historyview.docml</file>
+        <file>layout/radiostationitem.css</file>
+        <file>layout/radiostationitem.widgetml</file>
+    </qresource>
+
+    <qresource>
+        <file>effects/blink_in_out_in.fxml</file>
+        <file>effects/fade_out.fxml</file>
+        <file>effects/fade_in.fxml</file>
+        <file>effects/slide_to_left.fxml</file>
+        <file>effects/slide_from_left.fxml</file>
+        <file>effects/slide_to_right.fxml</file>
+        <file>effects/slide_from_right.fxml</file>
+    </qresource>
+    
+    <qresource>
+        <file>images/stripbackground.png</file>
+        <file>images/setfavoriteicon.png</file>
+        <file>images/nowplayingicon.png</file>
+        <file>images/qtg_mono_previous.svg</file>
+        <file>images/qtg_mono_next.svg</file>
+        <file>images/qtg_mono_radio_stations.svg</file>
+        <file>images/qtg_mono_station_scan.svg</file>        
+        <file>images/qtg_mono_speaker.svg</file>
+        <file>images/qtg_mono_speaker_off.svg</file>        
+        <file>images/pri_small_shazam.svg</file>
+        <file>images/qtg_mono_play_history.svg</file>
+        <file>images/pri_small_star.svg</file>
+        <file>images/pri_small_star_inactive.svg</file>
+        <file>images/qtg_fr_lcd.svg</file>
+        <file>images/qtg_fr_lcd_overlay.svg</file>
+        <file>images/qtg_fr_tuner.svg</file>
+        <file>images/qtg_mono_tag.svg</file>
+        <file>images/pri_small_tag.svg</file>
+    </qresource>
+    
+</RCC>
