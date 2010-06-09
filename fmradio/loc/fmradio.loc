@@ -375,9 +375,10 @@
 // d: %N is the station memory location and %U is the frequency.
 // d: Memory location number max value is 100.
 // d: Frequency is shown with one or two decimals, max length 6 characters.
+// d: there should be two spaces between %N. and %U. "%N.  %U MHz" 
 // l: area_fmrd2_info_pane_t1
 //
-#define qtn_fmradio_mem_location_freq    "%N. %U MHz"
+#define qtn_fmradio_mem_location_freq    "%N.  %U MHz"
 
 // d: String shown on the main pane.
 // d: %N is the station memory location and %U is station name.

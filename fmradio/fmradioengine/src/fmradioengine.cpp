@@ -21,9 +21,7 @@
 #include <AccMonitor.h>
 #include <bautils.h>
 #include <coemain.h>
-#include <ctsydomainpskeys.h>
 #include <data_caging_path_literals.hrh>
-#include <e32property.h>
 
 #include "fmradioengine.h"
 #include "fmradioenginestatechangecallback.h"
@@ -56,14 +54,12 @@ const TInt KFMRadioNumberOfVolumeSteps = 20;
 CRadioEngine::CRadioEngine(
     MRadioEngineStateChangeCallback& aCallback)
     :
-    iAutoResume(EFalse),
-    iCurrentRadioState(EStateRadioOff),
-    iCallback(aCallback),
-    iTempFrequency(KDefaultRadioFrequency),
-    iTunePresetRequested(EFalse),
-    iInitializeRadioRequestExists(EFalse),
-    ilineConstructed( EFalse ),
-    iHFOptionActivated ( EFalse )
+    iCurrentRadioState( EStateRadioOff ),
+    iCallback( aCallback ),
+    iTempFrequency( KDefaultRadioFrequency ),
+    iTunePresetRequested( EFalse ),
+    iInitializeRadioRequestExists( EFalse ),
+    iTunerControl( EStateRadioTunerControlUninitialized )
     {
     }
 
@@ -75,9 +71,7 @@ CRadioEngine::CRadioEngine(
 void CRadioEngine::ConstructL()
     {
     FTRACE(FPrint(_L("CRadioEngine::ConstructL()")));
-    
-    TRAP_IGNORE( ConnectLineL() );
-    
+        
     InitializeResourceLoadingL(); 
 
     iRadioSettings = new ( ELeave ) TRadioSettings;
@@ -98,6 +92,7 @@ void CRadioEngine::ConstructL()
 
     // Get a tuner utility
     iFmTunerUtility = &iRadioUtility->RadioFmTunerUtilityL( *this );
+    iFmTunerUtility->EnableTunerInOfflineMode( ETrue );
     
     // Get a player utility
     iPlayerUtility = &iRadioUtility->RadioPlayerUtilityL( *this );
@@ -134,16 +129,9 @@ void CRadioEngine::ConstructL()
     iTopFrequency = 0;
     iBottomFrequency = 0;
 
-    TInt callState = KErrUnknown;
-    RMobileCall::TMobileCallStatus linestatus;
-   	iLine.GetMobileLineStatus( linestatus );
-    RProperty::Get(KPSUidCtsyCallInformation, KCTsyCallState, callState);
-                
-    // check status from line
-    if ( linestatus != RMobileCall::EStatusIdle &&
-         linestatus != RMobileCall::EStatusUnknown )
+    if ( iSystemEventDetector->IsCallActive() )
         {
-        // Pre-empted due to phone call, start Call State Observer
+        // Pre-empted due to phone call
         iInCall = ETrue;
         }
     // accessory observer
@@ -173,39 +161,6 @@ void CRadioEngine::ConstructL()
 
     FTRACE(FPrint(_L("CRadioEngine::ConstructL() End ")));
     }
-    
-// ----------------------------------------------------
-// CRadioEngine::ConnectLineL
-// Connects etel server
-// ----------------------------------------------------
-//
-void CRadioEngine::ConnectLineL()
-	{
-	User::LeaveIfError( iTelServer.Connect() );
-
-	iTelServer.GetTsyName( 0, iTsyName );
-
-	User::LeaveIfError( iTelServer.LoadPhoneModule( iTsyName ) );
-	TInt numberOfPhones( 0 );
-	User::LeaveIfError( iTelServer.EnumeratePhones( numberOfPhones ) );
-
-	RTelServer::TPhoneInfo phoneInfo;
-
-	// Only possible thing to do is leave. We definately need phone.
-	User::LeaveIfError( iTelServer.GetPhoneInfo( 0, phoneInfo ) );
-	    
-	// Only possible thing to do is leave. We definately need phone.
-	User::LeaveIfError( iPhone.Open( iTelServer, phoneInfo.iName ));
-	
-
-	RPhone::TLineInfo lineInfo;
-	
-	User::LeaveIfError( iPhone.GetLineInfo( 0, lineInfo ) );
-	
-	User::LeaveIfError( iLine.Open( iPhone, lineInfo.iName ) );
-	
-	ilineConstructed = ETrue;
-	}
 
 // ----------------------------------------------------
 // CRadioEngine::NewL
@@ -284,14 +239,6 @@ EXPORT_C CRadioEngine::~CRadioEngine()
         {
         CCoeEnv::Static()->DeleteResourceFile( iFMRadioEngineResourceOffset );
         }
-         
-	if ( ilineConstructed )
-		{	        
-		iLine.Close();
-	    iPhone.Close();
-	    iTelServer.UnloadPhoneModule( iTsyName );    
-	    iTelServer.Close();
-	    }
     }
 
 // ----------------------------------------------------
@@ -398,7 +345,7 @@ EXPORT_C void CRadioEngine::Tune( TInt aFrequency, TRadioMode aRadioMode )
     iTempFrequency = aFrequency;
 
     iRadioSettings->SetRadioMode( aRadioMode );
-    if ( iTunerControl && iRadioSettings->IsHeadsetConnected() )
+    if ( iTunerControl == EStateRadioTunerControlOn && iRadioSettings->IsHeadsetConnected() )
         {
         iFmTunerUtility->SetFrequency( aFrequency );
         }
@@ -1023,45 +970,44 @@ void CRadioEngine::HeadsetAccessoryDisconnectedCallbackL()
 // CRadioEngine::MrftoRequestTunerControlComplete
 // ----------------------------------------------------
 //
-void CRadioEngine::MrftoRequestTunerControlComplete(
-    TInt aError )
+void CRadioEngine::MrftoRequestTunerControlComplete( TInt aError )
     {
     FTRACE(FPrint(_L("CRadioEngine::MrftoRequestTunerControlComplete() - Error = %d"), aError));
 
     if ( aError == KErrNone )
         {
-        iTunerControl = ETrue;
+        iTunerControl = EStateRadioTunerControlOn;
         // Headset must be connected
         iRadioSettings->SetHeadsetConnected();
         iFmTunerUtility->GetCapabilities( iTunerCaps );
-
         if( iTunerCaps.iTunerFunctions & TFmTunerCapabilities::ETunerRdsSupport )
-	        {
-	        TRAP_IGNORE( iRdsReceiver->InitL( *iRadioUtility, iPubSub ) )
-	        }
+            {
+            TRAP_IGNORE( iRdsReceiver->InitL( *iRadioUtility, iPubSub ) )
+            }
         
-		TFmRadioFrequencyRange japanFreqRange = EFmRangeJapan;
-		
-		if ( TunerFrequencyRangeForRegionId( RegionId() ) == japanFreqRange )
-			{
-			// region is Japan so we need to change the freq range from the default
-			iFmTunerUtility->SetFrequencyRange( japanFreqRange );		
-			}
-		else
-			{
-			// allready on correct freq range
-			HandleCallback(MRadioEngineStateChangeCallback::EFMRadioEventTunerReady, KErrNone );
-			}		        
+        TFmRadioFrequencyRange japanFreqRange = EFmRangeJapan;
+        if ( TunerFrequencyRangeForRegionId( RegionId() ) == japanFreqRange )
+            {
+            // region is Japan so we need to change the freq range from the default
+            iFmTunerUtility->SetFrequencyRange( japanFreqRange );
+            }
+        else
+            {
+            // allready on correct freq range
+            HandleCallback( MRadioEngineStateChangeCallback::EFMRadioEventTunerReady, KErrNone );
+            }
+        
         }
     else if ( aError == KFmRadioErrAntennaNotConnected )
         {
         FTRACE(FPrint(_L("CRadioEngine::MrftoRequestTunerControlComplete() - KFmRadioErrAntennaNotConnected")));
+        iTunerControl = EStateRadioTunerControlOff;
         iRadioSettings->SetHeadsetDisconnected();
         HandleCallback(MRadioEngineStateChangeCallback::EFMRadioEventHeadsetDisconnected, KErrNone );
         }
     else if ( aError == KErrAlreadyExists )
         {
-        iTunerControl = ETrue;
+        iTunerControl = EStateRadioTunerControlOn;
         // Headset must be connected
         iRadioSettings->SetHeadsetConnected();
         iFmTunerUtility->GetCapabilities( iTunerCaps );
@@ -1072,17 +1018,17 @@ void CRadioEngine::MrftoRequestTunerControlComplete(
         }
     else if ( aError == KFmRadioErrFmTransmitterActive )
         {
-        iTunerControl = EFalse;
+        iTunerControl = EStateRadioTunerControlOff;
         HandleCallback( MRadioEngineStateChangeCallback::EFMRadioEventFMTransmitterOn, KErrNone );
         }
     else if ( aError == KFmRadioErrOfflineMode )
         {
-        iTunerControl = EFalse;
+        iTunerControl = EStateRadioTunerControlOff;
         HandleCallback( MRadioEngineStateChangeCallback::EFMRadioEventFlightModeEnabled, KErrNone );
         }
     else
         {
-        //pass
+        iTunerControl = EStateRadioTunerControlOff;
         }
     }
 
@@ -1091,14 +1037,13 @@ void CRadioEngine::MrftoRequestTunerControlComplete(
 //
 // ----------------------------------------------------
 //
-void CRadioEngine::MrftoSetFrequencyRangeComplete(
-    TInt aError )
+void CRadioEngine::MrftoSetFrequencyRangeComplete( TInt aError )
     {
     if ( aError == KErrNone )
-    	{
-    	HandleCallback( MRadioEngineStateChangeCallback::EFMRadioEventTunerReady, KErrNone );
-    	}
-    	  	
+        {
+        HandleCallback( MRadioEngineStateChangeCallback::EFMRadioEventTunerReady, KErrNone );
+        }
+        
     FTRACE(FPrint(_L("CRadioEngine::MrftoSetFrequencyRangeComplete() - error = %d"), aError));
     }
 
@@ -1106,11 +1051,9 @@ void CRadioEngine::MrftoSetFrequencyRangeComplete(
 // CRadioEngine::MrftoSetFrequencyComplete
 // ----------------------------------------------------
 //
-void CRadioEngine::MrftoSetFrequencyComplete(
-    TInt aError )
+void CRadioEngine::MrftoSetFrequencyComplete( TInt aError )
     {
     FTRACE(FPrint(_L("CRadioEngine::MrftoSetFrequencyComplete() - aError = %d"), aError));
-
 
     if ( !aError )
         {
@@ -1136,7 +1079,6 @@ void CRadioEngine::MrftoSetFrequencyComplete(
         FTRACE(FPrint(_L("CRadioEngine::MrftoSetFrequencyComplete() - Sending event to UI")));
         HandleCallback( MRadioEngineStateChangeCallback::EFMRadioEventTune, aError );
         }
-
     }
 
 // ----------------------------------------------------
@@ -1200,7 +1142,7 @@ void CRadioEngine::MrftoFmTransmitterStatusChange(
     if ( aActive )
         {
         // loses tuner control
-        iTunerControl = EFalse;
+        iTunerControl = EStateRadioTunerControlOff;
         }
     }
 
@@ -1216,7 +1158,7 @@ void CRadioEngine::MrftoAntennaStatusChange(
     FTRACE(FPrint(_L("CRadioEngine::MrftoAntennaStatusChange() - Antenna Status = %d"), aAttached));
     if ( aAttached )
         {
-        if ( !iTunerControl )
+        if ( iTunerControl == EStateRadioTunerControlOff )
             {
             iFmTunerUtility->RequestTunerControl();
             }
@@ -1238,18 +1180,17 @@ void CRadioEngine::MrftoAntennaStatusChange(
 // Called when offline mode status changes
 // ----------------------------------------------------
 //
-void CRadioEngine::MrftoOfflineModeStatusChange(
-    TBool aOfflineMode )
+void CRadioEngine::MrftoOfflineModeStatusChange( TBool aOfflineMode )
     {
     FTRACE(FPrint(_L("CRadioEngine::MrftoOfflineModeStatusChange() - Offline Mode = %d"), aOfflineMode));
 
-    if( aOfflineMode )
+    if ( aOfflineMode )
         {
         HandleFlightModeEnabled();
         }
     else
         {
-        if ( !iTunerControl )
+        if ( iTunerControl == EStateRadioTunerControlOff )
             {
             iFmTunerUtility->RequestTunerControl();
             }
@@ -1361,25 +1302,10 @@ void CRadioEngine::MrpoStateChange(
                     ( aError == KErrNotReady ) ||
                     ( aError == KErrInUse ) )
                 {
-                TInt callState = KErrUnknown;
-                
-                RMobileCall::TMobileCallStatus linestatus;
-                
-                if ( ilineConstructed )
-					{
-                	iLine.GetMobileLineStatus( linestatus );
-                	}
-                FTRACE(FPrint(_L("CRadioEngine::MrpoStateChange() linestatus = %d"), linestatus));
-                
-                TInt err = RProperty::Get(KPSUidCtsyCallInformation, KCTsyCallState, callState);
-                FTRACE(FPrint(_L("CRadioEngine::MrpoStateChange() callState = %d"), callState));
-                                
-                // check status from line
-                if ( linestatus != RMobileCall::EStatusIdle &&
-                     linestatus != RMobileCall::EStatusUnknown ||
-                     iSystemEventDetector->IsCallActive() )
+                // check call status
+                if ( iSystemEventDetector->IsCallActive() )
                     {
-                    FTRACE(FPrint(_L("CRadioEngine::MrpoStateChange() EFMRadioEventCallStarted")  ) );
+                    FTRACE(FPrint(_L("CRadioEngine::MrpoStateChange() EFMRadioEventCallStarted") ) );
                     iInCall = ETrue;
                     ret = MRadioEngineStateChangeCallback::EFMRadioEventCallStarted;
                     }
@@ -1504,13 +1430,14 @@ void CRadioEngine::NetworkIdChanged()
 // -----------------------------------------------------------------------------
 //
 void CRadioEngine::AudioResourcesAvailableL()
-	{
-	FTRACE( FPrint( _L("CRadioEngine::AudioResourcesAvailableL()" ) ) );
-	if ( iPubSub && !iInCall && iTunerControl ) // if iPubSub exists, then the ConstructL has been successfully completed
-		{
-	    HandleCallback(MRadioEngineStateChangeCallback::EFMRadioEventAudioResourceAvailable, KErrNone );
-		}
-	}
+    {
+    FTRACE( FPrint( _L("CRadioEngine::AudioResourcesAvailableL()" ) ) );
+    // if iPubSub exists, then the ConstructL has been successfully completed
+    if ( iPubSub && !iInCall && iTunerControl == EStateRadioTunerControlOn ) 
+        {
+        HandleCallback(MRadioEngineStateChangeCallback::EFMRadioEventAudioResourceAvailable, KErrNone );
+        }
+    }
 
 // -----------------------------------------------------------------------------
 // CRadioEngine::AudioAutoResumeForbiddenL
@@ -1532,11 +1459,11 @@ void CRadioEngine::AudioAutoResumeForbiddenL()
 // -----------------------------------------------------------------------------
 //
 void CRadioEngine::CallActivatedCallbackL()
-	{
-	FTRACE( FPrint( _L("CRadioEngine::CallActivatedCallbackL()" ) ) );
-	// no implementation needed, CRadioEngine::MrpoStateChange handles call startup		
-	}
-	
+    {
+    FTRACE( FPrint( _L("CRadioEngine::CallActivatedCallbackL()" ) ) );
+    iInCall = ETrue;
+    }
+
 // -----------------------------------------------------------------------------
 // CRadioEngine::CallDeactivatedCallbackL
 // This callback notifies when call becomes deactive.
@@ -1827,11 +1754,14 @@ EXPORT_C void CRadioEngine::SetRegionIdL( TInt aRegionId ) const
 // ----------------------------------------------------
 //
 EXPORT_C void CRadioEngine::RequestTunerControl() const
-	{
-	// Before first RequestTunerControl() call it is ok to enable offline mode without checking capabilities 
-    iFmTunerUtility->EnableTunerInOfflineMode( ETrue );
-    iFmTunerUtility->RequestTunerControl();	
-	}
+    {
+    FTRACE( FPrint( _L("CRadioEngine::RequestTunerControl()")) );
+    if ( iTunerControl == EStateRadioTunerControlUninitialized )
+        {
+        // first request for tuner control.
+        iFmTunerUtility->RequestTunerControl();
+        }
+    }
 
 // ----------------------------------------------------
 // CRadioEngine::DecimalCount

@@ -27,7 +27,6 @@
 #include <RadioPlayerUtility.h>
 #include <RadioPresetUtility.h>
 #include <RadioFmPresetUtility.h>
-#include <etelmm.h>
 
 #include "fmradiosystemeventdetectorobserver.h"
 #include "fmradionetworkchangeobserver.h"
@@ -757,26 +756,29 @@ private:
     void ConstructL();
     
     /**
-    * ConnectLineL
-    */
-    void ConnectLineL();
-
-    /**
      * Updates the frequency into settings and P&S
      * 
      * @param aFrequency The frequency to be set
      */
     void StoreAndPublishFrequency( TInt aFrequency );
     
-private:
-
-   //the internal radio engine states
-   enum TRadioEngineState
-       {
+    // internal radio engine states
+    enum TRadioEngineState
+        {
         EStateRadioOff,
         EStateRadioOn,
         };
-
+    
+    // internal state of the tuner control
+    enum TRadioTunerControlState
+        {
+        EStateRadioTunerControlUninitialized,
+        EStateRadioTunerControlOn,
+        EStateRadioTunerControlOff
+        };
+    
+private:
+   
     // The Radio Utility
     CRadioUtility* iRadioUtility; // own
     // The Tuner Utility
@@ -801,8 +803,6 @@ private:
     CCentralRepositoryHandler* iCentralRepositoryHandler; // own
     // Used to provide async behavior in some callbacks
     CRadioStateHandler *iStateHandler;
-    // flag to indicate if auto resume is supported
-    TBool iAutoResume;
     // flag to indicate if a call is in progress
     TBool iInCall;
     // pointer to TRadioSettings
@@ -818,7 +818,7 @@ private:
     // Indicates a request to initialized the radio is pending
     TBool iInitializeRadioRequestExists;
     // Indicates if the tuner control has been granted.
-    TBool iTunerControl;
+    TRadioTunerControlState iTunerControl;
     // High and low frequency of the current band.
     TInt iBottomFrequency;
     TInt iTopFrequency;
@@ -826,30 +826,18 @@ private:
     TBool iFrequencySetByRdsAf;
     //Listens changes in network availability
     CFMRadioSystemEventDetector* iSystemEventDetector;
-   	// for fmradio engine resource file
+    // for fmradio engine resource file
     TInt iFMRadioEngineResourceOffset;
     //Listens changes in network ID and country code 
     CFMRadioMobileNetworkInfoListener* iNetworkInfoListener;
     //P&S interaction interface for FMRadio actions.
-	CFMRadioPubSub* iPubSub;
+    CFMRadioPubSub* iPubSub;
     // accessory observer
     CFMRadioAccessoryConnection* iHeadsetObserver;
-    // tel server session
-    RTelServer iTelServer;
-    // phone
-    RMobilePhone iPhone;
-	// line
-	RMobileLine iLine;
-	// tsy name
-	TFileName iTsyName;
-    // conrrectly constructer
-    TBool ilineConstructed;
     // for storing station name for method GetPresetNameL
-   	TStationName iStationName;
+    TStationName iStationName;
     // Local cache for tuning state so that it doesn't get published before should
-   	TFMRadioPSTuningState iTuningState;
-    // If last time audio is set to IHF with no headset connected.
-    TBool iHFOptionActivated;
+    TFMRadioPSTuningState iTuningState;
     };
 
 #endif  //FMRADIOENGINE_H

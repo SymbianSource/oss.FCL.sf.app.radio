@@ -281,44 +281,45 @@ void CFMRadioChannelListContainer::UpdateChannelListContentL( TInt aIndex,
 // ----------------------------------------------------
 //
 void CFMRadioChannelListContainer::RemoveChannelL( TInt aIndex )
-	{
-	if ( iChannelItemArray->Count() > 0 )
-		{
-		TInt presetIndex = iRadioEngine.GetPresetIndex();
-		
-		iChannelItemArray->Delete( aIndex );
-		iChannelList->HandleItemRemovalL();
-		iChannelList->UpdateScrollBarsL();
-		iChannelList->DrawDeferred();
-							
-		if ( iChannelItemArray->Count() > 0 )
-			{
-			ReIndexAllL();
-			
-			if ( presetIndex > aIndex )			    
-			    {
-			    // update engine settings also
-			    iRadioEngine.SetCurrentPresetIndex( presetIndex - 1 );
+    {
+    if ( iChannelItemArray->Count() > 0 )
+        {
+        TInt presetIndex = iRadioEngine.GetPresetIndex();
+        
+        iChannelItemArray->Delete( aIndex );
+        iChannelList->HandleItemRemovalL();
+        iChannelList->UpdateScrollBarsL();
+
+        if ( iChannelItemArray->Count() > 0 )
+            {
+            ReIndexAllL();
+            
+            if ( presetIndex > aIndex )			    
+                {
+                // update engine settings also
+                iRadioEngine.SetCurrentPresetIndex( presetIndex - 1 );
                 UpdateItemIconL( presetIndex - 1, KNowPlayingIconIndexChList );
                 }
-			else if ( presetIndex == aIndex  )
+            else if ( presetIndex == aIndex  )
                 {
                 iRadioEngine.TunePresetL( 0 );	
                 UpdateItemIconL( 0, KNowPlayingIconIndexChList );
                 }
-			else
-			    {
-			    // NOP
-			    }               
+            else
+                {
+                // NOP
+                }               
             iChannelList->SetCurrentItemIndex( 0 );
-			}
-		else
-		    {
-		    // The last item was deleted, tune to current frequency, out of preset mode
-		    iRadioEngine.Tune( iRadioEngine.GetTunedFrequency(), CRadioEngine::ERadioTunerMode );
-		    }
-		}
-	}
+            
+            }
+        else
+            {
+            // The last item was deleted, tune to current frequency, out of preset mode
+            iRadioEngine.Tune( iRadioEngine.GetTunedFrequency(), CRadioEngine::ERadioTunerMode );
+            }
+        iChannelList->DrawDeferred();
+        }
+    }
 
 // ----------------------------------------------------
 // CFMRadioChannelListContainer::AddChannel
@@ -578,60 +579,82 @@ CCoeControl* CFMRadioChannelListContainer::ComponentControl( TInt aIndex ) const
 // ---------------------------------------------------------
 //
 TKeyResponse CFMRadioChannelListContainer::OfferKeyEventL( const TKeyEvent& aKeyEvent,
-														   TEventCode aType )
-	{
-	TKeyResponse response = EKeyWasNotConsumed;
+                                                           TEventCode aType )
+    {
+    TKeyResponse response = EKeyWasNotConsumed;
 
     switch ( aKeyEvent.iCode )
         {
-        case EKeyOK:
+        case EKeyBackspace:
             {
-            // msk, used to accept move action
+            if ( iChannelList->IsHighlightEnabled() && !iMoveAction )
+                {
+                iChannelView->HandleCommandL( EFMRadioCmdErase );
+                return EKeyWasConsumed;
+                }
+            break;
+            }
+        case EKeyOK: // accept both
+        case EKeyEnter:
+            {
+            // used to accept move action
             if ( iMoveAction )
                 {
                 iChannelView->MoveActionDoneL();
                 return EKeyWasConsumed;
                 }
+            else if ( iChannelList->IsHighlightEnabled() ) // change to main view
+                {
+                if ( iChannelView->CurrentlyPlayingChannel() ==
+                        CurrentlySelectedChannel() )
+                    {
+                    CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
+                    appUi->ActivateLocalViewL( KFMRadioMainViewId );
+                    return EKeyWasConsumed;
+                    }
+                }
             break;
             }
         case EKeyLeftArrow:
         case EKeyRightArrow:
-        	{
+            {
             return EKeyWasNotConsumed;
-        	}
+            }
         case EKeyUpArrow:
-        	if ( iMoveAction )	
-        		{
+            if ( iMoveAction )	
+                {
                 iKeyMoveActivated = ETrue;
-        		MoveUpL();
-	            }
-        	else
-        		{
-        		response = iChannelList->OfferKeyEventL(aKeyEvent, aType);
-	            if (response == EKeyWasConsumed)
-	                {
-	                ReportEventL( MCoeControlObserver::EEventRequestFocus );
-	                }
-        		}
-        	return response;
+                MoveUpL();
+                response = EKeyWasConsumed;
+                }
+            else
+                {
+                response = iChannelList->OfferKeyEventL(aKeyEvent, aType);
+                if (response == EKeyWasConsumed)
+                    {
+                    ReportEventL( MCoeControlObserver::EEventRequestFocus );
+                    }
+                }
+            return response;
         case EKeyDownArrow:
-        	if ( iMoveAction )	
-        		{
+            if ( iMoveAction )	
+                {
                 iKeyMoveActivated = ETrue;
-        		MoveDownL();
-	            }
-        	else
-        		{
-        		response = iChannelList->OfferKeyEventL(aKeyEvent, aType);
-	            if (response == EKeyWasConsumed)
-	                {
-	                ReportEventL( MCoeControlObserver::EEventRequestFocus );
-	                }
-        		}
+                MoveDownL();
+                response = EKeyWasConsumed;
+                }
+            else
+                {
+                response = iChannelList->OfferKeyEventL(aKeyEvent, aType);
+                if (response == EKeyWasConsumed)
+                    {
+                    ReportEventL( MCoeControlObserver::EEventRequestFocus );
+                    }
+                }
             return response;
         default:
-			switch ( aKeyEvent.iScanCode ) //we need to use the scan code, because we need to process the event wrt the keyUp and keyDown action
-				{
+            switch ( aKeyEvent.iScanCode ) //we need to use the scan code, because we need to process the event wrt the keyUp and keyDown action
+                {
                 case EKeyboardKey1: // Timed key
                 case EKeyboardKey2: // Normal keys
                 case EKeyboardKey3:
@@ -642,12 +665,12 @@ TKeyResponse CFMRadioChannelListContainer::OfferKeyEventL( const TKeyEvent& aKey
                 case EKeyboardKey8:
                 case EKeyboardKey9:
                 case EKeyboardKey0:
-					return EKeyWasNotConsumed;
-				default:
-					break;
-				}
+                    return EKeyWasNotConsumed;
+                default:
+                    break;
+                }
             break;
-		}
+        }
     return iChannelList->OfferKeyEventL(aKeyEvent, aType);
     }
 

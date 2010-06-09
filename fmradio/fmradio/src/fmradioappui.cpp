@@ -1927,6 +1927,11 @@ void CFMRadioAppUi::HandleFlightModeDisabledCallback()
         {
         TRAP_IGNORE( iLocalContinueOfflineQuery->DismissQueryL() );
         }
+    // Close activate offline query
+    if ( iLocalActivateOfflineQuery && iLocalActivateOfflineQuery->IsVisible() )
+        {
+        TRAP_IGNORE( iLocalActivateOfflineQuery->DismissQueryL() );
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -1969,7 +1974,7 @@ void CFMRadioAppUi::HandleStartupForegroundEventL()
     TFMRadioRegionSetting region = HandleRegionsAtStartUpL();
     iRadioEngine->SetRegionIdL( region );
     HandlePendingViewActivationL();
-    RequestTunerControl();
+    iRadioEngine->RequestTunerControl();
     }
 
 // ---------------------------------------------------------------------------
@@ -2223,17 +2228,6 @@ void CFMRadioAppUi::GlobalConfirmationQueryDismissedL(TInt aSoftKey)
     }
 
 // ---------------------------------------------------------------------------
-// CFMRadioAppUi::RequestTunerControl
-// request tuner control from engine
-// ---------------------------------------------------------------------------
-//    
-void CFMRadioAppUi::RequestTunerControl() const
-    {
-    FTRACE( FPrint( _L("CFMRadioAppUi::RequestTunerControl()")) );
-    iRadioEngine->RequestTunerControl();
-    }
-
-// ---------------------------------------------------------------------------
 // CFMRadioAppUi::NumberOfChannelsStored
 // return number of channels saved to the presets
 // ---------------------------------------------------------------------------
@@ -2354,11 +2348,11 @@ void CFMRadioAppUi::ShowConnectHeadsetDialogL()
         TInt ret = iConnectHeadsetQuery->ExecuteLD( R_FMRADIO_CONNECT_HEADSET_NOTE, *noteTxt );
             
         CleanupStack::PopAndDestroy( noteTxt );
-        
+        FTRACE( FPrint( _L("CFMRadioAppUi::ShowConnectHeadsetDialogL() return value from dialog: %d"), ret ) );
         if ( iConnectHeadsetQuery )
             {
             iConnectHeadsetQuery = NULL;
-            if ( ret == EAknSoftkeyExit )
+            if ( ret == EAknSoftkeyExit || ret == EAknSoftkeyOk )
                 {
                 TApaTask task( iCoeEnv->WsSession() );
                 task.SetWgId( iCoeEnv->RootWin().Identifier() );

@@ -550,11 +550,6 @@ class CFMRadioAppUi : public CAknViewAppUi,
         TFMRadioRegionSetting HandleRegionsAtStartUpL();
         
         /**
-        * Request tuner control from engine
-        */
-        void RequestTunerControl() const;
-
-        /**
         * Is offline profile activated when radio audio was disabled.
         * @return ETrue, if offline profile activated when radio 
         * audio was disabled. EFalse otherwise.

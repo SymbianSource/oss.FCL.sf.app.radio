@@ -696,42 +696,60 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
 // ----------------------------------------------------------------------------
 //
 TBool CFMRadioAlfVisualizer::OfferEventL( const TAlfEvent& aEvent )
-	{		
+    {
+    TBool keyHandled = EFalse;
+    
     if ( aEvent.IsKeyEvent() && AknLayoutUtils::PenEnabled() )
         {
         const TKeyEvent& kEvent = aEvent.KeyEvent();
-        if ( kEvent.iScanCode  == EStdKeyRightArrow ||
-            kEvent.iScanCode == EStdKeyLeftArrow ||
-            kEvent.iScanCode == EStdKeyUpArrow ||
-            kEvent.iScanCode == EStdKeyDownArrow )
+        
+        if ( kEvent.iCode == EKeyEnter || kEvent.iCode == EKeyOK )
             {
-            iKeyScanCode = kEvent.iScanCode;
-
-            if ( aEvent.Code() == EEventKeyUp )
+            iAppUi->ActivateLocalViewL( KFMRadioChannelListViewId );
+            keyHandled = ETrue;
+            }
+        
+        switch ( kEvent.iScanCode )
+            {
+            case EStdKeyRightArrow: // check arrow keys
+            case EStdKeyLeftArrow:
+            case EStdKeyUpArrow:
+            case EStdKeyDownArrow:
                 {
-                iLongPressTimer->Cancel();
-                if ( !iLongKeyTriggered )
+                iKeyScanCode = kEvent.iScanCode;
+    
+                if ( aEvent.Code() == EEventKeyUp )
                     {
-                    TriggerCommandL();
+                    iLongPressTimer->Cancel();
+                    if ( !iLongKeyTriggered )
+                        {
+                        TriggerCommandL();
+                        }
                     }
-                }
                 else if ( aEvent.Code() == EEventKeyDown )
-                {
-                iLongKeyTriggered = EFalse;
-                // Start the long key press timer
-                iLongPressTimer->Cancel();
-                iLongPressTimer->Start( KFMRadioRockerLongPressDelay, 
-                                        0, 
-                                        TCallBack( CFMRadioAlfVisualizer::StaticLongPressCallBack, this ) );
+                    {
+                    iLongKeyTriggered = EFalse;
+                    // Start the long key press timer
+                    iLongPressTimer->Cancel();
+                    iLongPressTimer->Start( KFMRadioRockerLongPressDelay, 
+                                            0, 
+                                            TCallBack( CFMRadioAlfVisualizer::StaticLongPressCallBack, this ) );
+                    
+                    }
+                keyHandled = ETrue;
+                break;
                 }
-            return ETrue;
+            default:
+                {
+                break;
+                }
             }
         }
     if ( aEvent.IsPointerEvent() )
         {
         return CGestureControl::OfferEventL( aEvent );
         }
-    return EFalse;
+    return keyHandled;
     }
 
 // ---------------------------------------------------------------------------
@@ -1070,14 +1088,13 @@ void CFMRadioAlfVisualizer::Translate( CAlfTextVisual* aTextVisual, const TAlfTi
 void CFMRadioAlfVisualizer::TriggerCommandL()
     {
     TVwsViewId viewId( KNullUid, KNullUid );
-    CAknViewAppUi* appUi = static_cast<CAknViewAppUi*>( CCoeEnv::Static()->AppUi() );
-    TInt err = appUi->GetActiveViewId( viewId );
+    TInt err = iAppUi->GetActiveViewId( viewId );
     RProcess process;
     TSecureId id = process.SecureId();
 
     if ( !err && viewId.iAppUid.iUid == id.iId )
         {
-        CAknView* view = appUi->View( viewId.iViewUid );
+        CAknView* view = iAppUi->View( viewId.iViewUid );
         if ( view )
             {
             // command to be generated

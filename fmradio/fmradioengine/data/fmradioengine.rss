@@ -39,21 +39,21 @@ RESOURCE RSS_SIGNATURE { }
 
 
 STRUCT RADIO_REGION
-	{
-	WORD id;
-	WORD stepsize;
-	LONG minfrequency;
-	LONG maxfrequency;
-	WORD decimalcount;
-	LTEXT countrycodes[] = {""};
-	LTEXT regionname;
-	LTEXT regionsettingname;
-	}
+    {
+    WORD id;
+    WORD stepsize;
+    LONG minfrequency;
+    LONG maxfrequency;
+    WORD decimalcount;
+    LTEXT countrycodes[] = {""};
+    LTEXT regionname;
+    LTEXT regionsettingname;
+    }
 
 STRUCT RADIO_REGION_ARRAY
-	{
-	LLINK regions[];
-	}
+    {
+    LLINK regions[];
+    }
 
 // ---------------------------------------------------------
 //
@@ -63,14 +63,14 @@ STRUCT RADIO_REGION_ARRAY
 // ---------------------------------------------------------
 //
 RESOURCE RADIO_REGION_ARRAY r_radio_regions_all
-	{
-	regions = 
-		{
-		r_radio_region_japan,
-		r_radio_region_america,
-		r_radio_region_default
-		};
-	}
+    {
+    regions = 
+        {
+        r_radio_region_america,
+        r_radio_region_japan,
+        r_radio_region_default
+        };
+    }
 
 // ---------------------------------------------------------
 //
@@ -80,14 +80,14 @@ RESOURCE RADIO_REGION_ARRAY r_radio_regions_all
 // ---------------------------------------------------------
 //
 RESOURCE RADIO_REGION_ARRAY r_radio_regions_without_japan
-	{
-	regions = 
-		{		
-		r_radio_region_america,
-		r_radio_region_default
-		};
-	}
-	
+    {
+    regions = 
+        {		
+        r_radio_region_america,
+        r_radio_region_default
+        };
+    }
+    
 // ---------------------------------------------------------
 //
 //    r_radio_region_japan
@@ -97,19 +97,19 @@ RESOURCE RADIO_REGION_ARRAY r_radio_regions_without_japan
 // ---------------------------------------------------------
 //
 RESOURCE RADIO_REGION r_radio_region_japan
-	{
-	id = EFMRadioRegionJapan;
-	stepsize = 100;
-	minfrequency = 76000;
-	maxfrequency = 90000;
-	decimalcount = 1;
-	countrycodes = 
-		{
-		"440",
-		"441"
-		};
-	regionname = qtn_fmradio_reg_japan;
-	}
+    {
+    id = EFMRadioRegionJapan;
+    stepsize = 100;
+    minfrequency = 76000;
+    maxfrequency = 90000;
+    decimalcount = 1;
+    countrycodes = 
+        {
+        "440",
+        "441"
+        };
+    regionname = qtn_fmradio_reg_japan;
+    }
 
 // ---------------------------------------------------------
 //
@@ -120,56 +120,56 @@ RESOURCE RADIO_REGION r_radio_region_japan
 // ---------------------------------------------------------
 //
 RESOURCE RADIO_REGION r_radio_region_america
-	{
-	id = EFMRadioRegionAmerica;
-	stepsize = 200;
-	minfrequency = 88100;
-	maxfrequency = 107900;
-	decimalcount = 1;
-	countrycodes = 
-		{
-		"302",  // Canada
-		"310",  // USA
-		"311",  // USA
-		"312",  // USA
-		"313",  // USA
-		"314",  // USA
-		"315",  // USA
-		"316",  // USA
-		"332",  // USA
-		"334",  // Mexico
-		"338",  // Jamaica
-		"342",  // Barbados
-		"344",  // Antigua and Barbuda
-		"352",  // Grenada
-		"360",  // Saint Vincent and the Grenadines
-		"364",  // Bahamas
-		"366",  // Common Wealth of Dominica
-		"370",  // Dominican Republic
-		"372",  // Haiti
-		"374",  // Trinidad and Tobago
-		"368",  // Cuba
-		"702",  // Belize
-		"704",  // Guatemala
-		"706",  // El Salvador
-		"708",  // Honduras
-		"710",  // Nicaragua
-		"712",  // Costa Rica
-		"714",  // Panama
-		"716",  // Peru
-		"724",  // Brazil
-		"730",  // Chile
-		"732",  // Colombia
-		"734",  // Venezuela
-		"736",  // Bolivia
-		"738",  // Guyana
-		"740",  // Ecuador
-		"744",  // Paraguay
-		"746",  // Suriname
-		"748"   // Uruguay
-		};
-	regionname = qtn_fmradio_reg_america;
-	}
+    {
+    id = EFMRadioRegionAmerica;
+    stepsize = 200;
+    minfrequency = 88100;
+    maxfrequency = 107900;
+    decimalcount = 1;
+    countrycodes = 
+        {
+        "302",  // Canada
+        "310",  // USA
+        "311",  // USA
+        "312",  // USA
+        "313",  // USA
+        "314",  // USA
+        "315",  // USA
+        "316",  // USA
+        "332",  // USA
+        "334",  // Mexico
+        "338",  // Jamaica
+        "342",  // Barbados
+        "344",  // Antigua and Barbuda
+        "352",  // Grenada
+        "360",  // Saint Vincent and the Grenadines
+        "364",  // Bahamas
+        "366",  // Common Wealth of Dominica
+        "370",  // Dominican Republic
+        "372",  // Haiti
+        "374",  // Trinidad and Tobago
+        "368",  // Cuba
+        "702",  // Belize
+        "704",  // Guatemala
+        "706",  // El Salvador
+        "708",  // Honduras
+        "710",  // Nicaragua
+        "712",  // Costa Rica
+        "714",  // Panama
+        "716",  // Peru
+        "724",  // Brazil
+        "730",  // Chile
+        "732",  // Colombia
+        "734",  // Venezuela
+        "736",  // Bolivia
+        "738",  // Guyana
+        "740",  // Ecuador
+        "744",  // Paraguay
+        "746",  // Suriname
+        "748"   // Uruguay
+        };
+    regionname = qtn_fmradio_reg_america;
+    }
 
 // ---------------------------------------------------------
 //
@@ -179,11 +179,11 @@ RESOURCE RADIO_REGION r_radio_region_america
 // ---------------------------------------------------------
 //
 RESOURCE RADIO_REGION r_radio_region_default
-	{
-	id = EFMRadioRegionDefault;
-	stepsize = 50;
-	minfrequency = 87500;
-	maxfrequency = 108000;
-	decimalcount = 2;
-	regionname = qtn_fmradio_reg_other;
-	}
+    {
+    id = EFMRadioRegionDefault;
+    stepsize = 50;
+    minfrequency = 87500;
+    maxfrequency = 108000;
+    decimalcount = 2;
+    regionname = qtn_fmradio_reg_other;
+    }

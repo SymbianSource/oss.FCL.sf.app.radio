@@ -204,6 +204,15 @@ class CFMRadioChannelListView : public CAknView,
          */
         void StopSeekL();
         
+        /**
+        * Interprets view's menu,softkey and other commands and acts 
+        * accordingly by calling the appropriate command handler 
+        * function for further action.
+        * @since 2.6
+        * @param aCommand the command to process
+        */
+        void HandleCommandL( TInt aCommand );
+        
      private: // Functions from base classes
         /**
         * Activate the channel list view
@@ -215,14 +224,6 @@ class CFMRadioChannelListView : public CAknView,
         * @since 2.6
         */
         void DoDeactivate();
-        /**
-        * Interprets view's menu,softkey and other commands and acts 
-        * accordingly by calling the appropriate command handler 
-        * function for further action.
-        * @since 2.6
-        * @param aCommand the command to process
-        */
-        void HandleCommandL( TInt aCommand );
         /**
         * From MCoeControlObserver, control event observing. In this case,
         * the user selection from the list is reported by container class
