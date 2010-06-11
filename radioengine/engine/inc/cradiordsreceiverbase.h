@@ -28,7 +28,6 @@
 
 // Forward declarations
 class CRadioUtility;
-class CRadioPubSub;
 
 // Class declaration
 NONSHARABLE_CLASS( CRadioRdsReceiverBase ) : public CBase
@@ -131,12 +130,6 @@ protected: // data
      * The radio settings
      */
     MRadioEngineSettings&               iSettings;
-
-    /**
-     * Publish&Subscribe object. Can be NULL.
-     * Not own.
-     */
-    CRadioPubSub*                       iPubSub;
 
 private: // data
 

@@ -43,7 +43,7 @@ NONSHARABLE_CLASS( CRadioSettings ) : public CBase
 
 public:
 
-    IMPORT_C static CRadioSettings* NewL( CCoeEnv* aCoeEnv = NULL );
+    IMPORT_C static CRadioSettings* NewL();
 
     IMPORT_C virtual ~CRadioSettings();
 
@@ -72,13 +72,6 @@ public:
      * @return  The implemented setter interface for radio settings.
      */
     virtual MRadioSettingsSetter& RadioSetter() const = 0;
-
-    /**
-     * Returns the repository manager.
-     *
-     * @return  The repository manager.
-     */
-    virtual CRadioRepositoryManager& Repository() const = 0;
 
     /**
      * Resolves the most recently updated location for a file.

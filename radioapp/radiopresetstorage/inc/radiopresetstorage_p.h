@@ -19,28 +19,14 @@
 #define RADIOPRESETSTORAGE_P_H_
 
 // System includes
-#ifndef COMPILE_WITH_NEW_PRESET_UTILITY
-#   include <RadioPresetUtility.h>
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
-
 #include <QScopedPointer>
-#include <e32std.h>
 
 // User includes
 
 // Forward declarations
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
-    class CPresetUtility;
-    typedef QScopedPointer<CPresetUtility> PresetUtilityPtr;
-#else
-    class CRadioFmPresetUtility;
-    typedef QScopedPointer<CRadioFmPresetUtility> PresetUtilityPtr;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
+class CPresetUtility;
 
 class RadioPresetStoragePrivate
-#ifndef COMPILE_WITH_NEW_PRESET_UTILITY
-                                : public MRadioPresetObserver
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 {
 public:
 
@@ -49,14 +35,9 @@ public:
 
     bool init();
 
-#ifndef COMPILE_WITH_NEW_PRESET_UTILITY
-private:
-    void MrpeoPresetChanged( TPresetChangeEvent /*aChange*/, TInt /*aIndex*/ ) {}
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
-
 public: // data
 
-    PresetUtilityPtr   mPresetUtility;
+    QScopedPointer<CPresetUtility>  mPresetUtility;
 
 };
 

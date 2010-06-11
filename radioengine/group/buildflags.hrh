@@ -19,8 +19,5 @@
 #ifndef BUILDFLAGS_HRH_
 #define BUILDFLAGS_HRH_
 
-#ifdef __WINS__
-//#   define __FEATURE_RDS_SIMULATOR
-#endif
 
 #endif // BUILDFLAGS_HRH_

@@ -24,27 +24,24 @@
 
 // User includes
 #include "cradioenginelogger.h"
-#include "radiointernalpskeys.h"
 #include "radiointernalcrkeys.h"
 #include "cradioaudiorouter.h"
-#include "cradiopubsub.h"
 #include "cradioengineimp.h"
 #include "mradioengineobserver.h"
-#include "mradioscanobserver.h"
 #include "cradioregion.h"
 #include "cradiosettings.h"
 #include "mradioenginesettings.h"
 #include "mradiosettingssetter.h"
-#include "cradiorepositorymanager.h"
 #include "cradiordsreceiver.h"
 #include "cradiosystemeventcollector.h"
 #include "cradionetworkinfolistener.h"
 #include "radioengine.hrh"
+#include "cradioenginelogger.h"
 
-#include "../../group/buildflags.hrh"
-#ifdef __FEATURE_RDS_SIMULATOR
-#   include "t_cradiordsreceiversimulator.h"
-#endif
+// This has to be the last include.
+#ifdef STUB_CONSTELLATION
+#   include <RadioStubManager.h>
+#endif //STUB_CONSTELLATION
 
 // Constants
 
@@ -88,6 +85,7 @@ CRadioEngineImp::CRadioEngineImp( CRadioAudioRouter* aAudioRouter )
     , iAntennaAttached( ETrue )
     , iFreqEventReason( RadioEngine::ERadioFrequencyEventReasonUnknown )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -115,12 +113,7 @@ void CRadioEngineImp::ConstructL()
                                 RadioEngine::ERadioHeadset : RadioEngine::ERadioSpeaker;
     User::LeaveIfError( iSettings->RadioSetter().SetAudioRoute( route ) );
 
-#ifdef __FEATURE_RDS_SIMULATOR
-    iRdsReceiver = CRadioRdsReceiverSimulator::NewL( iSettings->EngineSettings() );
-#else
     iRdsReceiver = CRadioRdsReceiver::NewL( iSettings->EngineSettings() );
-#endif
-
     iNetworkInfoListener = CRadioNetworkInfoListener::NewL( iSettings->RadioSetter(), NULL );
 
     iRdsReceiver->AddObserverL( this );
@@ -135,7 +128,7 @@ void CRadioEngineImp::ConstructL()
 //
 CRadioEngineImp::~CRadioEngineImp()
     {
-    LOG( "CRadioEngineImp::~CRadioEngineImp -- Start" );
+    LEVEL3( LOG_METHOD_AUTO );
 
     delete iNetworkInfoListener;
 
@@ -171,15 +164,12 @@ CRadioEngineImp::~CRadioEngineImp()
         }
     delete iSystemEventCollector;
 
-    delete iPubSub;
-
     if ( iSettings )
         {
         iSettings->RadioSetter().SetObserver( NULL );
         }
     delete iSettings;
 
-    LOG( "CRadioEngineImp::~CRadioEngineImp -- End" );
     }
 
 // ---------------------------------------------------------------------------
@@ -188,6 +178,7 @@ CRadioEngineImp::~CRadioEngineImp()
 //
 void CRadioEngineImp::SetSystemEventCollector( CRadioSystemEventCollector* aCollector )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iSystemEventCollector = aCollector;
     }
 
@@ -197,6 +188,7 @@ void CRadioEngineImp::SetSystemEventCollector( CRadioSystemEventCollector* aColl
 //
 void CRadioEngineImp::SetRadioSettings( CRadioSettings* aSettings )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iSettings = aSettings;
     iSettings->RadioSetter().SetObserver( this );
     }
@@ -205,17 +197,9 @@ void CRadioEngineImp::SetRadioSettings( CRadioSettings* aSettings )
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineImp::SetRadioPubSub( CRadioPubSub* aPubSub )
-    {
-    iPubSub = aPubSub;
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
 CRadioAudioRouter& CRadioEngineImp::AudioRouter() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iAudioRouter;
     }
 
@@ -225,6 +209,7 @@ CRadioAudioRouter& CRadioEngineImp::AudioRouter() const
 //
 CRadioSystemEventCollector& CRadioEngineImp::SystemEventCollector() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iSystemEventCollector;
     }
 
@@ -234,16 +219,8 @@ CRadioSystemEventCollector& CRadioEngineImp::SystemEventCollector() const
 //
 CRadioSettings& CRadioEngineImp::Settings() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iSettings;
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
-CRadioPubSub* CRadioEngineImp::PubSub() const
-    {
-    return iPubSub;
     }
 
 // ---------------------------------------------------------------------------
@@ -252,6 +229,7 @@ CRadioPubSub* CRadioEngineImp::PubSub() const
 //
 TRadioRegion CRadioEngineImp::DetermineRegion()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TRadioRegion region = ERadioRegionNone;
 
     MRadioEngineSettings& engineSettings = iSettings->EngineSettings();
@@ -289,14 +267,12 @@ TRadioRegion CRadioEngineImp::DetermineRegion()
 // the radio is not functional
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineImp::InitRadioL( TInt aRegionId, CRadioPubSub* aPubSub )
+void CRadioEngineImp::InitRadioL( TInt aRegionId )
     {
     LOG_METHOD_AUTO;
-    LOG_FORMAT( "CRadioEngineImp::InitRadioL: Region: %d", aRegionId );
+    LOG_FORMAT( "Region: %d", aRegionId );
 
     iRadioInitializationState = ERadioNotInitialized;
-
-    iPubSub = aPubSub;
 
     iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonUnknown;
     if ( iSettings->EngineSettings().RegionId() != aRegionId )
@@ -335,6 +311,7 @@ void CRadioEngineImp::InitRadioL( TInt aRegionId, CRadioPubSub* aPubSub )
 //
 TBool CRadioEngineImp::RadioInitialized() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iRadioInitializationState == ERadioTunerControlGranted;
     }
 
@@ -344,7 +321,8 @@ TBool CRadioEngineImp::RadioInitialized() const
 //
 void CRadioEngineImp::EnableAudio( TBool aEnable, TBool aDelay )
     {
-    LOG_FORMAT( "CRadioEngineImp::EnableAudio( %d )", aEnable );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aEnable %d ", aEnable );
     iRadioEnabled = aEnable;
     if ( aDelay )
         {
@@ -376,6 +354,7 @@ void CRadioEngineImp::EnableAudio( TBool aEnable, TBool aDelay )
 //
 TBool CRadioEngineImp::RadioAudioEnabled() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iRadioEnabled;
     }
 
@@ -385,7 +364,8 @@ TBool CRadioEngineImp::RadioAudioEnabled() const
 //
 void CRadioEngineImp::SetAudioOverride( TBool aOverride )
     {
-    LOG_FORMAT( "CRadioEngineImp::SetAudioOverride( %d )", aOverride );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aOverride %d ", aOverride ) );
     iOverrideAudioResources = aOverride;
     }
 
@@ -395,7 +375,7 @@ void CRadioEngineImp::SetAudioOverride( TBool aOverride )
 //
 void CRadioEngineImp::AddObserverL( MRadioEngineObserver* aObserver )
     {
-    LOG( "CRadioEngineImp::AddObserver" );
+    LEVEL3( LOG_METHOD_AUTO );
     TInt index = iObservers.FindInAddressOrder( aObserver );
     if ( index == KErrNotFound )
         {
@@ -409,7 +389,7 @@ void CRadioEngineImp::AddObserverL( MRadioEngineObserver* aObserver )
 //
 void CRadioEngineImp::RemoveObserver( MRadioEngineObserver* aObserver )
     {
-    LOG( "CRadioEngineImp::RemoveObserver" );
+    LEVEL3( LOG_METHOD_AUTO );
     TInt index = iObservers.FindInAddressOrder( aObserver );
 
     if ( index >= 0 )
@@ -424,6 +404,7 @@ void CRadioEngineImp::RemoveObserver( MRadioEngineObserver* aObserver )
 //
 TFmRadioFrequencyRange CRadioEngineImp::TunerFrequencyRangeForRegionId( TInt aRegionId ) const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TFmRadioFrequencyRange result = EFmRangeEuroAmerica;
     switch ( aRegionId )
         {
@@ -454,7 +435,8 @@ TFmRadioFrequencyRange CRadioEngineImp::TunerFrequencyRangeForRegionId( TInt aRe
 
 void CRadioEngineImp::SetAudioMode( TInt aAudioMode )
     {
-    LOG_FORMAT( "CRadioEngineImp::SetAudioMode: aAudioMode: %d", aAudioMode );
+    LEVEL3( LOG_METHOD_AUTO );
+    LOG_FORMAT( "aAudioMode: %d", aAudioMode );
     TInt err = KErrNone;
     if ( !RadioInitialized() )
         {
@@ -478,7 +460,8 @@ void CRadioEngineImp::SetAudioMode( TInt aAudioMode )
 //
 void CRadioEngineImp::SwitchPower( TBool aPowerOn )
     {
-    LOG_FORMAT( "CRadioEngineImp::SwitchPower( %d )", aPowerOn );
+    LEVEL3( LOG_METHOD_AUTO );
+    LOG_FORMAT( "aPowerOn %d", aPowerOn );
     if ( RadioInitialized() )
         {
         if ( !aPowerOn || OkToPlay( iSettings->EngineSettings().TunedFrequency() ) )
@@ -519,7 +502,7 @@ void CRadioEngineImp::SwitchPower( TBool aPowerOn )
 //
 TInt CRadioEngineImp::StaticPowerOnCallback( TAny* aSelfPtr )
     {
-    LOG( "CRadioEngineImp::StaticPowerOnCallback" );
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioEngineImp* self = reinterpret_cast<CRadioEngineImp*>( aSelfPtr );
 
     if ( self )
@@ -541,7 +524,7 @@ TInt CRadioEngineImp::StaticPowerOnCallback( TAny* aSelfPtr )
 //
 TInt CRadioEngineImp::StaticPowerOffCallback( TAny* aSelfPtr )
     {
-    LOG( "CRadioEngineImp::StaticPowerOffCallback" );
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioEngineImp* self = reinterpret_cast<CRadioEngineImp*>( aSelfPtr );
 
     if ( self )
@@ -573,17 +556,8 @@ void CRadioEngineImp::PowerOn()
         iPlayerUtility->SetVolumeRamp( TTimeIntervalMicroSeconds( MAKE_TINT64( 0, KRadioMillion ) ) );
         iPlayerUtility->SetVolume( TunerVolumeForUiVolume( iSettings->EngineSettings().Volume() ) );
 
-        // If we are about to start scanning, mute the radio and set minimum frequency
-        if ( iScanObserver )
-            {
-            iPlayerUtility->Mute( ETrue );
-            iTunerUtility->SetFrequency( iSettings->EngineSettings().MinFrequency() );
-            }
-        else
-            {
-            iPlayerUtility->Mute( iSettings->EngineSettings().IsVolMuted() );
-            iTunerUtility->SetFrequency( iSettings->EngineSettings().TunedFrequency() );
-            }
+        iPlayerUtility->Mute( iSettings->EngineSettings().IsVolMuted() );
+        iTunerUtility->SetFrequency( iSettings->EngineSettings().TunedFrequency() );
         iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonImplicit;
 
         TRAP_IGNORE( iAudioRouter->SetAudioRouteL(
@@ -603,7 +577,7 @@ void CRadioEngineImp::PowerOn()
 //
 void CRadioEngineImp::PowerOff()
     {
-    LOG( "CRadioEngineImp::PowerOff" );
+    LOG_METHOD_AUTO;
 
     if ( iSettings->EngineSettings().IsPowerOn() )
         {
@@ -624,6 +598,7 @@ void CRadioEngineImp::PowerOff()
 //
 TBool CRadioEngineImp::OkToPlay( TUint32 aFrequency ) const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TBool audioResourcesAvailable = iSystemEventCollector->IsAudioResourcesAvailable();
     TBool okToPlay = iAntennaAttached &&
                      !iFmTransmitterActive &&
@@ -635,7 +610,7 @@ TBool CRadioEngineImp::OkToPlay( TUint32 aFrequency ) const
                      IsFrequencyValid( aFrequency );
 #endif //COMPILE_IN_IVALO
 
-    LOG_FORMAT( "CRadioEngineImp::OkToPlay, returning %d ", okToPlay );
+    LEVEL2( LOG_FORMAT( "returning okToPlay %d ", okToPlay ) );
     return okToPlay;
     }
 
@@ -645,6 +620,7 @@ TBool CRadioEngineImp::OkToPlay( TUint32 aFrequency ) const
 //
 TBool CRadioEngineImp::IsFrequencyValid( TUint32 aFrequency ) const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TBool ret( EFalse );
     if ( !aFrequency )
         {
@@ -658,95 +634,80 @@ TBool CRadioEngineImp::IsFrequencyValid( TUint32 aFrequency ) const
     }
 
 // ---------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------
+//
+void CRadioEngineImp::SetManualSeekMode( TBool aManualSeekActive )
+    {
+    iManualSeekMode = aManualSeekActive;
+    if ( iManualSeekMode )
+        {
+        CancelSeek();
+        iRdsReceiver->StopReceiver();
+        }
+    else
+        {
+        iRdsReceiver->StartReceiver();
+        TInt frequency = 0;
+        iTunerUtility->GetFrequency( frequency );
+        HandleFrequencyEvent( frequency );
+        }
+    }
+
+// ---------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------
+//
+TBool CRadioEngineImp::IsInManualSeekMode() const
+    {
+    return iManualSeekMode;
+    }
+
+// ---------------------------------------------------------------------------
 // Radio tuning
 // ---------------------------------------------------------------------------
 //
 void CRadioEngineImp::SetFrequency( TUint32 aFrequency, RadioEngine::TRadioFrequencyEventReason aReason )
     {
-    LOG_METHOD_AUTO;
-    LOG_FORMAT( "CRadioEngineImp::SetFrequency, freq: %u, Initialized: %d, Enabled: %d",
-            aFrequency, RadioInitialized(), iRadioEnabled );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL2( LOG_FORMAT( "freq: %u, Initialized: %d, Enabled: %d",
+            aFrequency, RadioInitialized(), iRadioEnabled ) );
 
-    iFrequencySetByRdsAf = EFalse;
     iFreqEventReason = aReason;
-
-    TInt frequency = 0;
-    if ( iTunerUtility )
+    if ( iManualSeekMode )
         {
-        iTunerUtility->GetFrequency( frequency );
-        }
-    CancelSeek();
-
-    if ( aFrequency == frequency ) //radio has already the frequency to be set.
-        {
-        LOG( "CRadioEngineImp::SetFrequency: Already at the requested frequency" );
-        HandleFrequencyEvent( aFrequency );
+        iTunerUtility->SetFrequency( aFrequency );
         }
     else
         {
-        iRadioTimer->Cancel();
-        if ( RadioInitialized() && iRadioEnabled && OkToPlay( aFrequency ) )
+        iFrequencySetByRdsAf = EFalse;
+
+        TInt frequency = 0;
+        if ( iTunerUtility )
             {
-            LOG( "CRadioEngineImp::SetFrequency: Tuning to frequency" );
-            iTunerUtility->SetFrequency( aFrequency );
+            iTunerUtility->GetFrequency( frequency );
             }
-        else
+        CancelSeek();
+
+        if ( aFrequency == frequency ) //radio has already the frequency to be set.
             {
+            LOG( "CRadioEngineImp::SetFrequency: Already at the requested frequency" );
             HandleFrequencyEvent( aFrequency );
             }
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// Radio tuning
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::SetFrequencyFast( TUint32 aFrequency,
-                                        RadioEngine::TRadioFrequencyEventReason /*aReason*/ )
-{
-    if ( iSeekingState != RadioEngine::ERadioNotSeeking )
-    {
-        iSeekingState = RadioEngine::ERadioNotSeeking;
-        iTunerUtility->CancelStationSeek();
-    }
-    iTunerUtility->SetFrequency( aFrequency );
-    iSettings->RadioSetter().SetTunedFrequency( aFrequency );
-}
-
-// ---------------------------------------------------------------------------
-// Frequency stepping
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::StepToFrequency( RadioEngine::TRadioTuneDirection aDirection )
-    {
-    LOG( "CRadioEngineImp::StepToFrequency" );
-
-    TUint32 freq = iSettings->EngineSettings().TunedFrequency();
-    RadioEngine::TRadioFrequencyEventReason reason( RadioEngine::ERadioFrequencyEventReasonUnknown );
-    if ( aDirection == RadioEngine::ERadioUp )
-        {
-        freq = freq + iSettings->EngineSettings().FrequencyStepSize();
-        reason = RadioEngine::ERadioFrequencyEventReasonUp;
-        }
-    else
-        {
-        freq = freq - iSettings->EngineSettings().FrequencyStepSize();
-        reason = RadioEngine::ERadioFrequencyEventReasonDown;
-        }
-
-    // Check overflow or underflow
-    if ( IsFrequencyValid( freq ) )
-        {
-        if ( aDirection == RadioEngine::ERadioUp )
-            {
-            freq = iSettings->EngineSettings().MinFrequency();
-            }
         else
             {
-            freq = iSettings->EngineSettings().MaxFrequency();
+            iRadioTimer->Cancel();
+            if ( RadioInitialized() && iRadioEnabled && OkToPlay( aFrequency ) )
+                {
+                LOG( "CRadioEngineImp::SetFrequency: Tuning to frequency" );
+                iTunerUtility->SetFrequency( aFrequency );
+                }
+            else
+                {
+                HandleFrequencyEvent( aFrequency );
+                }
             }
         }
-    SetFrequency( freq, reason );
     }
 
 // ---------------------------------------------------------------------------
@@ -755,7 +716,8 @@ void CRadioEngineImp::StepToFrequency( RadioEngine::TRadioTuneDirection aDirecti
 //
 void CRadioEngineImp::Seek( RadioEngine::TRadioTuneDirection aDirection )
     {
-    LOG_FORMAT( "CRadioEngineImp::Seek-- Start direction:%d",aDirection );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aDirection: %d",aDirection );
 
     iFrequencySetByRdsAf = EFalse;
 
@@ -798,7 +760,6 @@ void CRadioEngineImp::Seek( RadioEngine::TRadioTuneDirection aDirection )
     else
         {
         NotifyRadioEvent( ERadioEventSeeking, KErrGeneral );
-        StopScan( KErrGeneral );
         }
     }
 
@@ -808,22 +769,16 @@ void CRadioEngineImp::Seek( RadioEngine::TRadioTuneDirection aDirection )
 //
 void CRadioEngineImp::CancelSeek()
     {
-    LOG_FORMAT( "CRadioEngineImp::CancelSeek -- seeking state was:%d", iSeekingState );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "seeking state was:%d", iSeekingState );
 
-    if ( !iScanObserver )
+    if ( iSeekingState != RadioEngine::ERadioNotSeeking )
         {
-        if ( iSeekingState != RadioEngine::ERadioNotSeeking )
-            {
-            iSeekingState = RadioEngine::ERadioNotSeeking;
-            iTunerUtility->CancelStationSeek();
-            iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonImplicit;
-            NotifyRadioEvent( ERadioEventSeeking, KErrCancel );
-            NotifyRadioEvent( ERadioEventFrequency, KErrNone ); // Notify the observers even if the frequency remains the same.
-            }
-        }
-    else
-        {
-        StopScan( KErrCancel );
+        iSeekingState = RadioEngine::ERadioNotSeeking;
+        iTunerUtility->CancelStationSeek();
+        iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonImplicit;
+        NotifyRadioEvent( ERadioEventSeeking, KErrCancel );
+        NotifyRadioEvent( ERadioEventFrequency, KErrNone ); // Notify the observers even if the frequency remains the same.
         }
     }
 
@@ -833,70 +788,8 @@ void CRadioEngineImp::CancelSeek()
 //
 RadioEngine::TRadioSeeking CRadioEngineImp::Seeking() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iSeekingState;
-    }
-
-// ---------------------------------------------------------------------------
-// Starts scanning all available stations from the minimum frequency
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::StartScan( MRadioScanObserver& aObserver )
-    {
-    LOG( "CRadioEngineImp::StartScan" );
-
-    const TUint32 minFrequency = iSettings->EngineSettings().MinFrequency();
-    if ( !iScanObserver && iRadioEnabled && RadioInitialized() && OkToPlay( minFrequency ) )
-        {
-        CancelSeek();
-        iScanObserver = &aObserver;
-        iPreviousMuteState = iSettings->EngineSettings().IsVolMuted();
-        iPreviousScannedFrequency = 0;
-        iPlayerUtility->Mute( ETrue );
-        iTunerUtility->SetFrequency( minFrequency );
-        Seek( RadioEngine::ERadioUp );
-        }
-    else
-        {
-        TInt error = iScanObserver ? KErrAlreadyExists : KErrNotReady;
-        TRAP_IGNORE( aObserver.ScanCompletedEventL( error ) )
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// Stops any scans currently in progress.
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::StopScan( TInt aError )
-    {
-    LOG_FORMAT( "CRadioEngineImp::StopScan, error: %d", aError );
-    if ( iScanObserver )
-        {
-        if ( iSeekingState != RadioEngine::ERadioNotSeeking )
-            {
-            iSeekingState = RadioEngine::ERadioNotSeeking;
-            if ( RadioInitialized() )
-                {
-                iTunerUtility->CancelStationSeek();
-                }
-            }
-
-        iPreviousScannedFrequency = 0;
-        MRadioScanObserver& observer = *iScanObserver;
-        iScanObserver = NULL;
-        NotifyRadioScanEvent( ERadioEventScanCompleted, observer, aError );
-
-        if ( !OkToPlay( iSettings->EngineSettings().MinFrequency() ) )
-            {
-            // Try to reset the frequency as sometimes extra frequency event occurs after seeking
-            iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonImplicit;
-            iTunerUtility->SetFrequency( iSettings->EngineSettings().TunedFrequency() );
-            }
-
-        if ( iPlayerUtility && OkToPlay( iSettings->EngineSettings().TunedFrequency() ) )
-            {
-            iPlayerUtility->Mute( iPreviousMuteState );
-            }
-        }
     }
 
 // ---------------------------------------------------------------------------
@@ -905,12 +798,13 @@ void CRadioEngineImp::StopScan( TInt aError )
 //
 void CRadioEngineImp::AdjustVolume( RadioEngine::TRadioVolumeSetDirection aDirection )
     {
-    LOG_FORMAT( "CRadioEngineImp::AdjustVolume( %d )", aDirection );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aDirection: %d ", aDirection );
 
     if ( iSettings->EngineSettings().IsPowerOn() )
         {
         TInt volume = iSettings->EngineSettings().Volume();
-        LOG_FORMAT( "CRadioEngineImp::AdjustVolume volume = ( %d )", volume );
+        LOG_FORMAT( "volume = ( %d )", volume );
 
         if ( aDirection == RadioEngine::ERadioDecVolume )
             {
@@ -931,7 +825,7 @@ void CRadioEngineImp::AdjustVolume( RadioEngine::TRadioVolumeSetDirection aDirec
             }
         else
             {
-            LOG( "CRadioEngineImp::AdjustVolume - Unhandled case" );
+            LOG( "Unhandled case" );
             }
         SetVolume( volume );
         }
@@ -943,11 +837,12 @@ void CRadioEngineImp::AdjustVolume( RadioEngine::TRadioVolumeSetDirection aDirec
 //
 void CRadioEngineImp::SetVolume( TInt aVolume )
     {
-    LOG_FORMAT( "CRadioEngineImp::SetVolume vol: %d", aVolume );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aVolume: %d", aVolume );
 
     if ( iSettings->EngineSettings().IsPowerOn() && RadioInitialized() )
         {
-        LOG( "CRadioEngineImp::SetVolume: Setting volume to player utility" );
+        LOG( "Setting volume to player utility" );
 
         if ( aVolume == 0 )
             {
@@ -972,7 +867,7 @@ void CRadioEngineImp::SetVolume( TInt aVolume )
 // Set radio audio muted/unmuted
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineImp::SetVolumeMuted( TBool aMuteState )
+void CRadioEngineImp::SetVolumeMuted( TBool aMuteState, TBool aUpdateSettings )
     {
     LOG_METHOD_AUTO;
     LOG_FORMAT( "MuteState = %d", aMuteState );
@@ -983,14 +878,13 @@ void CRadioEngineImp::SetVolumeMuted( TBool aMuteState )
         if ( RadioInitialized() )
             {
             err = iPlayerUtility->Mute( aMuteState );
-            iSettings->RadioSetter().SetVolMuted( aMuteState );
-            NotifyRadioEvent( ERadioEventMute, err );
             }
-        else
+
+        if ( aUpdateSettings )
             {
             err = iSettings->RadioSetter().SetVolMuted( aMuteState );
-            NotifyRadioEvent( ERadioEventMute, err );
             }
+        NotifyRadioEvent( ERadioEventMute, err );
         }
     }
 
@@ -1000,7 +894,8 @@ void CRadioEngineImp::SetVolumeMuted( TBool aMuteState )
 //
 TBool CRadioEngineImp::IsAntennaAttached()
     {
-    LOG_FORMAT( "CRadioEngineImp::IsAntennaAttached, returning %d", iAntennaAttached );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "returning iAntennaAttached: %d", iAntennaAttached ) );
     return iAntennaAttached;
     }
 
@@ -1010,7 +905,8 @@ TBool CRadioEngineImp::IsAntennaAttached()
 //
 TBool CRadioEngineImp::IsFmTransmitterActive() const
     {
-    LOG_FORMAT( "CRadioEngineImp::IsFmTransmitterActive, returning %d", iFmTransmitterActive );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "returning iFmTransmitterActive: %d", iFmTransmitterActive ) );
     return iFmTransmitterActive;
     }
 
@@ -1020,6 +916,7 @@ TBool CRadioEngineImp::IsFmTransmitterActive() const
 //
 void CRadioEngineImp::SetAntennaAttached( TBool aAntennaAttached )
     {
+    LOG_METHOD_AUTO;
 #ifdef __WINS__
     MrftoAntennaStatusChange( aAntennaAttached );
 #endif
@@ -1034,6 +931,7 @@ void CRadioEngineImp::SetAntennaAttached( TBool aAntennaAttached )
 //
 TInt CRadioEngineImp::MaxVolumeLevel() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TInt maxLevel = 0;
 
 #if defined __WINS__
@@ -1059,6 +957,7 @@ TInt CRadioEngineImp::MaxVolumeLevel() const
 //
 TBool CRadioEngineImp::FrequencySetByRdsAf() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iFrequencySetByRdsAf;
     }
 
@@ -1068,6 +967,7 @@ TBool CRadioEngineImp::FrequencySetByRdsAf() const
 //
 MRadioRdsReceiver& CRadioEngineImp::RdsReceiver()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iRdsReceiver;
     }
 
@@ -1077,6 +977,7 @@ MRadioRdsReceiver& CRadioEngineImp::RdsReceiver()
 //
 TInt CRadioEngineImp::TunerVolumeForUiVolume( TInt aUiVolume )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TInt vol = aUiVolume * KRadioVolumeStepsDivider;
 
     return vol;
@@ -1088,6 +989,7 @@ TInt CRadioEngineImp::TunerVolumeForUiVolume( TInt aUiVolume )
 //
 void CRadioEngineImp::NotifyRadioEvent( TInt aRadioEvent, TInt aErrorCode )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TRAP_IGNORE( DoNotifyRadioEventL( aRadioEvent, aErrorCode ) )
     }
 
@@ -1098,6 +1000,7 @@ void CRadioEngineImp::NotifyRadioEvent( TInt aRadioEvent, TInt aErrorCode )
 //
 void CRadioEngineImp::DoNotifyRadioEventL( TInt aRadioEvent, TInt aErrorCode )
     {
+    LOG_METHOD_AUTO;
     TInt count = iObservers.Count();
 
     for ( TInt i = 0; i<count; i++)
@@ -1124,10 +1027,7 @@ void CRadioEngineImp::DoNotifyRadioEventL( TInt aRadioEvent, TInt aErrorCode )
                 }
             case ERadioEventMute:
                 {
-                if ( !iScanObserver )
-                    {
-                    observer->MuteEventL( iSettings->EngineSettings().IsVolMuted(), aErrorCode );
-                    }
+                observer->MuteEventL( iSettings->EngineSettings().IsVolMuted(), aErrorCode );
                 break;
                 }
             case ERadioEventAudioMode:
@@ -1169,52 +1069,13 @@ void CRadioEngineImp::DoNotifyRadioEventL( TInt aRadioEvent, TInt aErrorCode )
     }
 
 // ---------------------------------------------------------------------------
-// Notifies the observer of a radio scan event.
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::NotifyRadioScanEvent( TRadioScanEvent aEvent,
-                                            MRadioScanObserver& aObserver,
-                                            TInt aError  )
-    {
-    TRAP_IGNORE( DoNotifyRadioScanEventL( aEvent, aObserver, aError ) )
-    }
-
-// ---------------------------------------------------------------------------
-// Notifies the observer of a radio scan event.
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::DoNotifyRadioScanEventL( TRadioScanEvent aEvent,
-                                               MRadioScanObserver& aObserver,
-                                               TInt aError )
-    {
-    LOG_FORMAT( "CRadioEngineImp::DoNotifyRadioScanEventL, aEvent: %d, aError: %d", aEvent, aError );
-
-    if ( aEvent == ERadioEventFrequencyScanned )
-        {
-        if ( aError == KErrNone )
-            {
-            aObserver.ScanFrequencyEventL( iPreviousScannedFrequency );
-            }
-        }
-    else if ( aEvent == ERadioEventScanCompleted )
-        {
-        // KFmRadioErrTuning error means that no channels can be found anymore
-        if ( aError == KFmRadioErrTuning )
-            {
-            aError = KErrNotFound;
-            }
-
-        aObserver.ScanCompletedEventL( aError );
-        }
-    }
-
-// ---------------------------------------------------------------------------
 // Handles some system events
 // ---------------------------------------------------------------------------
 //
 void CRadioEngineImp::HandleSystemEventL( TRadioSystemEventType aEventType )
     {
-    LOG_FORMAT( "CRadioEngineImp::HandleSystemEventL, aEventType = %d", aEventType );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aEventType = %d", aEventType );
 
     switch ( aEventType )
         {
@@ -1245,7 +1106,6 @@ void CRadioEngineImp::HandleSystemEventL( TRadioSystemEventType aEventType )
 
         case ERadioCallActivated:
             {
-            StopScan( KErrGeneral );
             CancelSeek();
             }
             break;
@@ -1260,6 +1120,8 @@ void CRadioEngineImp::HandleSystemEventL( TRadioSystemEventType aEventType )
             {
             // Explicitly set the audio routing to headset. Because system
             // forces the routing to headset anyway, and without our knowledge.
+            MRadioSettingsSetter& setter = iSettings->RadioSetter();
+            setter.SetAudioRoute( RadioEngine::ERadioHeadset );
             iAudioRouter->SetAudioRouteL( RadioEngine::ERadioHeadset );
             }
             break;
@@ -1268,6 +1130,8 @@ void CRadioEngineImp::HandleSystemEventL( TRadioSystemEventType aEventType )
             {
             // Explicitly set the audio routing to speaker. Because system
             // forces the routing to speaker anyway, if radio stays on.
+            MRadioSettingsSetter& setter = iSettings->RadioSetter();
+            setter.SetAudioRoute( RadioEngine::ERadioSpeaker );
             iAudioRouter->SetAudioRouteL( RadioEngine::ERadioSpeaker );
             }
             break;
@@ -1284,7 +1148,8 @@ void CRadioEngineImp::HandleSystemEventL( TRadioSystemEventType aEventType )
 //
 void CRadioEngineImp::MrftoRequestTunerControlComplete( TInt aError )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoRequestTunerControlComplete( %d )", aError );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aError: %d", aError );
 
     if ( aError == KErrNone || aError == KErrAlreadyExists ) // Tuner activated now or was already active
         {
@@ -1319,13 +1184,9 @@ void CRadioEngineImp::MrftoRequestTunerControlComplete( TInt aError )
                                 TFmTunerCapabilities::ETunerAvailableInOfflineMode );
         iTunerUtility->EnableTunerInOfflineMode( offlineAvailable );
 
-        TBool rdsSupported = EFalse;
-        TRAP_IGNORE( CRadioRepositoryManager::GetRepositoryValueL( KRadioCRUid, KRadioCRRdsSupport,
-                                                                   rdsSupported ) )
-        if ( tunerCaps.iTunerFunctions & TFmTunerCapabilities::ETunerRdsSupport &&
-                rdsSupported )
+        if ( tunerCaps.iTunerFunctions & TFmTunerCapabilities::ETunerRdsSupport )
             {
-            TRAP_IGNORE( iRdsReceiver->InitL( *iRadioUtility, iPubSub ) )
+            TRAP_IGNORE( iRdsReceiver->InitL( *iRadioUtility ) )
             }
 
         iTunerUtility->SetFrequencyRange( TunerFrequencyRangeForRegionId(
@@ -1342,7 +1203,8 @@ void CRadioEngineImp::MrftoRequestTunerControlComplete( TInt aError )
 //
 void CRadioEngineImp::MrftoSetFrequencyRangeComplete( TInt aError )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoSetFrequencyRangeComplete( %d )", aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d", aError ) );
     if ( aError )
         {
         NotifyRadioEvent( ERadioEventRegion, aError );
@@ -1355,9 +1217,10 @@ void CRadioEngineImp::MrftoSetFrequencyRangeComplete( TInt aError )
 //
 void CRadioEngineImp::MrftoSetFrequencyComplete( TInt aError )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoSetFrequencyComplete: Err: %d", aError );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aError: %d", aError );
 
-    if ( aError )
+    if ( aError && !iManualSeekMode )
         {
         if ( aError == KErrNotReady )
             {
@@ -1373,7 +1236,8 @@ void CRadioEngineImp::MrftoSetFrequencyComplete( TInt aError )
 //
 void CRadioEngineImp::MrftoStationSeekComplete( TInt aError, TInt aFrequency )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoStationSeekComplete() -- aError = %d, aFrequency = %d", aError, aFrequency );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aError = %d, aFrequency = %d", aError, aFrequency );
     // Seeking has ended, error code tells if it was successful
 
     if ( aError == KFmRadioErrAntennaNotConnected )
@@ -1387,7 +1251,9 @@ void CRadioEngineImp::MrftoStationSeekComplete( TInt aError, TInt aFrequency )
 
     iSeekingState = RadioEngine::ERadioNotSeeking;
 
-    NotifyRadioEvent( ERadioEventSeeking, aError );
+    if ( aFrequency == 0 ) {
+        NotifyRadioEvent( ERadioEventFrequency, aError );
+    }
 
 //    if ( aError != KErrNone )
 //        {
@@ -1402,32 +1268,6 @@ void CRadioEngineImp::MrftoStationSeekComplete( TInt aError, TInt aFrequency )
 //            NotifyRadioEvent( ERadioEventFrequency, KErrNone );
 //            }
 //        }
-
-    if ( iScanObserver )
-        {
-        if ( aError != KErrNone )
-            {
-            StopScan( aError );
-            }
-        else
-            {
-            if ( aFrequency > iSettings->EngineSettings().MinFrequency() && aFrequency > iPreviousScannedFrequency )
-                {
-                iPreviousScannedFrequency = aFrequency;
-                NotifyRadioScanEvent( ERadioEventFrequencyScanned, *iScanObserver, KErrNone );
-                Seek( RadioEngine::ERadioUp ); // Continue scanning.
-                }
-            else
-                {
-                if ( aFrequency == iSettings->EngineSettings().MinFrequency() )
-                    {
-                    iPreviousScannedFrequency = aFrequency;
-                    NotifyRadioScanEvent( ERadioEventFrequencyScanned, *iScanObserver, KErrNone );
-                    }
-                StopScan( aError );
-                }
-            }
-        }
     }
 
 // ---------------------------------------------------------------------------
@@ -1436,7 +1276,8 @@ void CRadioEngineImp::MrftoStationSeekComplete( TInt aError, TInt aFrequency )
 //
 void CRadioEngineImp::MrftoFmTransmitterStatusChange( TBool aActive )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoFmTransmitterStatusChange( %d )", aActive );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aActive: %d", aActive );
     iFmTransmitterActive = aActive;
 
     if ( !iFmTransmitterActive )
@@ -1453,18 +1294,17 @@ void CRadioEngineImp::MrftoFmTransmitterStatusChange( TBool aActive )
 //
 void CRadioEngineImp::MrftoAntennaStatusChange( TBool aAttached )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoAntennaStatusChange( %d )", aAttached );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aAttached: %d", aAttached );
     iAntennaAttached = aAttached;
     if ( iAntennaAttached )
         {
         SwitchPower( ETrue );
         NotifyRadioEvent( ERadioEventAntenna );
-        iPubSub->PublishAntennaState( ERadioPSRadioAntennaAttached );
         }
     else
         {
         NotifyRadioEvent( ERadioEventAntenna, KErrDisconnected );
-        iPubSub->PublishAntennaState( ERadioPSRadioAntennaDetached );
         }
     }
 
@@ -1473,18 +1313,20 @@ void CRadioEngineImp::MrftoAntennaStatusChange( TBool aAttached )
 // ---------------------------------------------------------------------------
 
 //
-void CRadioEngineImp::MrftoOfflineModeStatusChange( TBool DEBUGVAR( aOfflineMode ) )
+void CRadioEngineImp::MrftoOfflineModeStatusChange( TBool DEBUGVAR3( aOfflineMode ) )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoOfflineModeStatusChange( %d )", aOfflineMode );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aOfflineMode: %d", aOfflineMode ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineImp::MrftoFrequencyRangeChange( TFmRadioFrequencyRange DEBUGVAR( aBand ) )
+void CRadioEngineImp::MrftoFrequencyRangeChange( TFmRadioFrequencyRange DEBUGVAR3( aBand ) )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoFrequencyRangeChange( %d )", aBand );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aBand: %d", aBand ) );
     if ( RadioInitialized() )
         {
         iTunerUtility->SetFrequency( iSettings->EngineSettings().TunedFrequency() );
@@ -1499,13 +1341,13 @@ void CRadioEngineImp::MrftoFrequencyRangeChange( TFmRadioFrequencyRange DEBUGVAR
 //
 void CRadioEngineImp::MrftoFrequencyChange( TInt aNewFrequency )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoFrequencyChange aNewFrequency = %u", aNewFrequency );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aNewFrequency = %u", aNewFrequency ) );
 
     // There may be frequency changed events when radio is not initialized ( because
     // of SetFrequency or Seek returns with KErrNotReady ).
-    if ( RadioInitialized() )
+    if ( !iManualSeekMode && RadioInitialized() )
         {
-      
         HandleFrequencyEvent( aNewFrequency );
         }
     }
@@ -1516,7 +1358,8 @@ void CRadioEngineImp::MrftoFrequencyChange( TInt aNewFrequency )
 //
 void CRadioEngineImp::MrftoForcedMonoChange( TBool aForcedMono )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrftoForcedMonoChange -- aForcedMono = %d", aForcedMono );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aForcedMono = %d", aForcedMono ) );
 
     iSettings->RadioSetter().SetOutputMode( aForcedMono ? RadioEngine::ERadioMono : RadioEngine::ERadioStereo );
     NotifyRadioEvent( ERadioEventAudioMode );
@@ -1528,6 +1371,7 @@ void CRadioEngineImp::MrftoForcedMonoChange( TBool aForcedMono )
 //
 void CRadioEngineImp::MrftoSquelchChange( TBool /*aSquelch*/ )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -1536,7 +1380,8 @@ void CRadioEngineImp::MrftoSquelchChange( TBool /*aSquelch*/ )
 //
 void CRadioEngineImp::MrpoStateChange( TPlayerState aState, TInt aError )
     {
-    LOG_FORMAT( "CRadioEngineImp::MrpoStateChange() -- aState = %d, aError = %d", aState, aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aState = %d, aError = %d", aState, aError ) );
 
     if ( aError == KFmRadioErrAntennaNotConnected )
         {
@@ -1551,8 +1396,8 @@ void CRadioEngineImp::MrpoStateChange( TPlayerState aState, TInt aError )
 //
 void CRadioEngineImp::MrpoVolumeChange( TInt aVolume )
     {
-    aVolume = aVolume / KRadioVolumeStepsDivider;
-    LOG_FORMAT( "CRadioEngineImp::MrpoVolumeChange() --  volume = %d", aVolume );
+    LEVEL3( LOG_METHOD_AUTO );
+	aVolume = aVolume / KRadioVolumeStepsDivider;
     if ( aVolume != iSettings->EngineSettings().Volume() )
         {
         iSettings->RadioSetter().SetVolume( aVolume );
@@ -1566,8 +1411,9 @@ void CRadioEngineImp::MrpoVolumeChange( TInt aVolume )
 //
 void CRadioEngineImp::MrpoMuteChange( TBool aMute )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TBool muted = iSettings->EngineSettings().IsVolMuted();
-    if ( !iScanObserver && !aMute != !muted )
+    if ( !aMute != !muted )
         {
         iSettings->RadioSetter().SetVolMuted( aMute );
         NotifyRadioEvent( ERadioEventMute );
@@ -1580,6 +1426,7 @@ void CRadioEngineImp::MrpoMuteChange( TBool aMute )
 //
 void CRadioEngineImp::MrpoBalanceChange( TInt /*aLeftPercentage*/, TInt /*aRightPercentage*/ )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -1588,7 +1435,8 @@ void CRadioEngineImp::MrpoBalanceChange( TInt /*aLeftPercentage*/, TInt /*aRight
 //
 void CRadioEngineImp::RdsAfSearchSettingChangedL( TBool aEnabled )
     {
-    LOG_FORMAT( "CRadioEngineImp::RdsAfSearchSettingChangedL( %d )", aEnabled );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aEnabled: %d", aEnabled ) );
     iRdsReceiver->SetAutomaticSwitchingL( aEnabled );
     }
 
@@ -1596,9 +1444,11 @@ void CRadioEngineImp::RdsAfSearchSettingChangedL( TBool aEnabled )
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineImp::RegionSettingChangedL( TInt DEBUGVAR( aRegion ) )
+//TODO: Check if this can be removed. Radio doesn't currently support changing regions on the fly
+void CRadioEngineImp::RegionSettingChangedL( TInt DEBUGVAR3( aRegion ) )
     {
-    LOG_FORMAT( "CRadioEngineImp::RegionSettingChangedL( %d )", aRegion );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aRegion: %d", aRegion ) );
 
     if ( RadioInitialized() )
         {
@@ -1614,7 +1464,7 @@ void CRadioEngineImp::RegionSettingChangedL( TInt DEBUGVAR( aRegion ) )
 //
 void CRadioEngineImp::RdsAfSearchBegin()
     {
-    LOG( "CRadioEngineImp::RdsAfSearchBegin()" );
+    LEVEL3( LOG_METHOD_AUTO );
     iFrequencySetByRdsAf = ETrue;
     }
 
@@ -1622,9 +1472,10 @@ void CRadioEngineImp::RdsAfSearchBegin()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineImp::RdsAfSearchEnd( TUint32 DEBUGVAR( aFrequency ), TInt aError )
+void CRadioEngineImp::RdsAfSearchEnd( TUint32 DEBUGVAR3( aFrequency ), TInt aError )
     {
-    LOG_FORMAT( "CRadioEngineImp::RdsAfSearchEnd( %d, %d )", aFrequency, aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aFrequency: %d, aError: %d )", aFrequency, aError ) );
     if ( aError != KErrNone )
         {
         iFrequencySetByRdsAf = EFalse;
@@ -1637,11 +1488,12 @@ void CRadioEngineImp::RdsAfSearchEnd( TUint32 DEBUGVAR( aFrequency ), TInt aErro
 //
 TRadioRegion CRadioEngineImp::RegionFromMobileNetwork() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TRadioRegion region = ERadioRegionNone;
 
     // Choose the frequency range according to country code
     MRadioEngineSettings& engineSettings = iSettings->EngineSettings();
-    const TDesC& countryCode = engineSettings.CountryCode();
+    TPtrC countryCode = engineSettings.CountryCode();
     const TInt regionCount = engineSettings.CountRegions();
     TBool matchFound = EFalse;
     for ( TInt i = 0; i < regionCount && !matchFound; ++i )
@@ -1670,6 +1522,7 @@ TRadioRegion CRadioEngineImp::RegionFromMobileNetwork() const
 //
 TRadioRegion CRadioEngineImp::RegionFromTimezone() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TRadioRegion region = ERadioRegionNone;
     TRAP_IGNORE( region = DoRegionFromTimezoneL() );
     return region;
@@ -1694,7 +1547,7 @@ TRadioRegion CRadioEngineImp::DoRegionFromTimezoneL() const
     const TUint8 cityId = city->GroupId();
     delete city;
     city = NULL;
-    LOG_FORMAT( "CRadioEngineHandler::CurrentTimeZoneToRegionL group id: %d", cityId );
+    LOG_FORMAT( "group id: %d", cityId );
 
     TRadioRegion region = ERadioRegionNone;
     const TInt cityGroupCount = cityGroups->Count();
@@ -1711,7 +1564,7 @@ TRadioRegion CRadioEngineImp::DoRegionFromTimezoneL() const
     CleanupStack::PopAndDestroy( cityGroups );
     CleanupStack::PopAndDestroy( timezoneLocalizer );
 
-    LOG_ASSERT( found, LOG_FORMAT( "CRadioEngine::DoMapCurrentTimeZoneToRegionL. City not found: %d", cityId ) );
+    LOG_ASSERT( found, LOG_FORMAT( "City not found: %d", cityId ) );
 
     return region;
     }
@@ -1722,7 +1575,8 @@ TRadioRegion CRadioEngineImp::DoRegionFromTimezoneL() const
 //
 void CRadioEngineImp::HandleAudioRoutingEvent( RadioEngine::TRadioAudioRoute aDestination )
     {
-    LOG_FORMAT( "CRadioEngineImp::HandleAudioRoutingL( %d )", aDestination );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aDestination: %d", aDestination );
 
     // Make modifications to volume ONLY if new audio source state
     // differs from settings. If they don't differ, this state
@@ -1766,7 +1620,8 @@ void CRadioEngineImp::HandleAudioRoutingEvent( RadioEngine::TRadioAudioRoute aDe
 //
 void CRadioEngineImp::HandlePowerEvent( TBool aPowerOn, TInt aErrorCode )
     {
-    LOG_FORMAT( "CRadioEngineImp::HandlePowerEvent( %d, %d )", aPowerOn, aErrorCode );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aPowerOn: %d, aErrorCode: %d )", aPowerOn, aErrorCode );
 
     const TBool powerState = iSettings->EngineSettings().IsPowerOn();
     if ( !powerState != !aPowerOn )
@@ -1785,7 +1640,6 @@ void CRadioEngineImp::HandlePowerEvent( TBool aPowerOn, TInt aErrorCode )
 
     if ( !iSettings->EngineSettings().IsPowerOn() )
         {
-        StopScan( aErrorCode );
         CancelSeek();
         }
 
@@ -1810,7 +1664,8 @@ void CRadioEngineImp::HandlePowerEvent( TBool aPowerOn, TInt aErrorCode )
 //
 void CRadioEngineImp::HandleFrequencyEvent( TUint32 aFrequency, TInt aErrorCode )
     {
-    LOG_FORMAT( "CRadioEngineImp::HandleFrequencyEvent( %d, %d )", aFrequency, aErrorCode );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aFrequency:  %d, aErrorCode: %d )", aFrequency, aErrorCode );
 
     if ( iSettings->EngineSettings().TunedFrequency() != aFrequency )
         {
@@ -1857,6 +1712,7 @@ void CRadioEngineImp::HandleFrequencyEvent( TUint32 aFrequency, TInt aErrorCode 
 //
 TBool CRadioEngineImp::IsAudioRoutingPossible() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TBool headsetConnected = EFalse;
     TRAP_IGNORE( ( headsetConnected = iSystemEventCollector->IsHeadsetConnectedL() ) )
 

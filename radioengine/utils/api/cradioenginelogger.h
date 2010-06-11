@@ -32,7 +32,43 @@
     #define LOGGING_ENABLED
 #endif
 
+#define LOGGING_LEVEL 1
+
+/**
+ * Logging level macro definitions
+ * Level 1 - No level macro needed. The trace is shown when logging is on.
+ * Level 2 - Wrap log line with LEVEL2 macro. Traces of level 1 and 2 are shown.
+ * Level 3 - Wrap log line with LEVEL3 macro. Traces of level 1, 2 and 3 are shown.
+ */
+#if LOGGING_LEVEL == 2
+#   define LEVEL2( expr ) expr
+#   define LEVEL3( expr )
+#elif LOGGING_LEVEL == 3
+#   define LEVEL2( expr ) expr
+#   define LEVEL3( expr ) expr
+#else
+#   define LEVEL2( expr )
+#   define LEVEL3( expr )
+#endif
+
 #ifdef LOGGING_ENABLED
+
+/**
+ * Debug var macros for all logging levels
+ */
+#if LOGGING_LEVEL == 2
+#   define DEBUGVAR( var ) var
+#   define DEBUGVAR2( var ) var
+#   define DEBUGVAR3( var )
+#elif LOGGING_LEVEL == 3
+#   define DEBUGVAR( var ) var
+#   define DEBUGVAR2( var ) var
+#   define DEBUGVAR3( var ) var
+#else
+#   define DEBUGVAR( var ) var
+#   define DEBUGVAR2( var )
+#   define DEBUGVAR3( var )
+#endif
 
 /**
  * Log file path.
@@ -131,8 +167,6 @@ const TInt KLogBufferLength = 512;
  *  @endcode
  */
 #define LOG_ASSERT( expr, stmt ) do { if ( !( expr )) { stmt; } }while( 0 )
-
-#define DEBUGVAR( var ) var
 
 /**
  * Writes a formatted string to log. Accepts variable number of parameters
@@ -249,7 +283,6 @@ const TInt KLogBufferLength = 512;
 //#define LOG3( x1, x2, x3 ) do{CRadioEngineLogger::Logger()->AddIndent().Add( x1 ).Add( x2 ).Add( x3 ).Commit();}while( 0 )
 //#define LOG4( x1, x2, x3, x4 ) do{CRadioEngineLogger::Logger()->AddIndent().Add( x1 ).Add( x2 ).Add( x3 ).Add( x4 ).Commit();}while( 0 )
 //#define LOG5( x1, x2, x3, x4, x5 ) do{CRadioEngineLogger::Logger()->AddIndent().Add( x1 ).Add( x2 ).Add( x3 ).Add( x4 ).Add( x5 ).Commit();}while( 0 )
-
 
 // ===========================================================================
 // ===========================================================================
@@ -425,6 +458,8 @@ private: // data
 #define LOG_FORMAT( fmt,args...)
 #define LOG_ASSERT( expr, stmt )
 #define DEBUGVAR( var )
+#define DEBUGVAR2( var )
+#define DEBUGVAR3( var )
 
 #define LOG_CURRENT_TIME()
 #define LOG_TIME( x )

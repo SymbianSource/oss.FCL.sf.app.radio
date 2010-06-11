@@ -17,24 +17,28 @@
 include(../buildflags.pri)
 
 TEMPLATE    = lib
-TARGET      = radiowidgets
+TARGET      = fmradiowidgets
 CONFIG      += dll hb
+CONFIG      += mobility
+MOBILITY    = systeminfo
 DEFINES     += BUILD_WIDGETS_DLL
+
+symbian:TARGET.UID3 = 0x2002FF4C
 
 INCLUDEPATH += inc
 INCLUDEPATH += ../radiouiengine/inc
-INCLUDEPATH += ../commoninc
+INCLUDEPATH += ../../common
 
-LIBS        += -lradiouiengine
+LIBS        += -lfmradiouiengine
 
-LOGGING_ENABLED:LIBS += -lradioenginewrapper
+LOGGING_ENABLED:LIBS += -lfmradioenginewrapper
 
 DEPENDPATH  += $$INCLUDEPATH src
 
 # Input
 HEADERS     += radiowidgetsexport.h
 HEADERS     += radiowindow.h
-HEADERS     += radiouiutilities.h
+HEADERS     += radioutil.h
 HEADERS     += radioviewbase.h
 HEADERS     += radiouiloader.h
 HEADERS     += radiomainview.h
@@ -42,15 +46,15 @@ HEADERS     += radiostripbase.h
 HEADERS     += radiofrequencystrip.h
 HEADERS     += radiofrequencyitem.h
 HEADERS     += radiostationsview.h
-HEADERS     += radiobannerlabel.h
 HEADERS     += radiofrequencyscanner.h
 HEADERS     += radiofadinglabel.h
 HEADERS     += radiostationcarousel.h
-HEADERS     += radiostationitem.h
+HEADERS     += radiocarouselitem.h
+HEADERS     += radiocarouselanimator.h
 HEADERS     += radiohistoryview.h
 
 SOURCES     += radiowindow.cpp
-SOURCES     += radiouiutilities.cpp
+SOURCES     += radioutil.cpp
 SOURCES     += radioviewbase.cpp
 SOURCES     += radiouiloader.cpp
 SOURCES     += radiomainview.cpp
@@ -58,11 +62,11 @@ SOURCES     += radiostripbase.cpp
 SOURCES     += radiofrequencystrip.cpp
 SOURCES     += radiofrequencyitem.cpp
 SOURCES     += radiostationsview.cpp
-SOURCES     += radiobannerlabel.cpp
 SOURCES     += radiofrequencyscanner.cpp
 SOURCES     += radiofadinglabel.cpp
 SOURCES     += radiostationcarousel.cpp
-SOURCES     += radiostationitem.cpp
+SOURCES     += radiocarouselitem.cpp
+SOURCES     += radiocarouselanimator.cpp
 SOURCES     += radiohistoryview.cpp
 
 RESOURCES   += res/fmradioui.qrc

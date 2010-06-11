@@ -165,13 +165,6 @@ public:
     virtual TInt DecimalCount() const = 0;
 
     /**
-     * Retrieves the RDS alternate frequency search setting
-     *
-     * @return ETrue if AF search is enabled, otherwise EFalse
-     */
-    virtual TBool RdsAfSearchEnabled() const = 0;
-
-    /**
      * Retrieves the default region's ID.
      *
      * @return  The region's ID.
@@ -182,11 +175,6 @@ public:
      *
      */
     virtual TPtrC NetworkId() const = 0;
-
-    /**
-     *
-     */
-    virtual TPtrC SubscriberId() const = 0;
 
     /**
      *

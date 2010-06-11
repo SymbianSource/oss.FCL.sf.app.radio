@@ -71,7 +71,7 @@ void RadioControlEventListener::SetChannelL( TInt DEBUGVAR( aChannelId ) )
 void RadioControlEventListener::SeekL( RadioEngine::TRadioTuneDirection aDirection )
 {
     LOG_FORMAT( "RadioControlEventListener::SeekL: Direction: %d", aDirection );
-    mEngine.startSeeking( aDirection == RadioEngine::ERadioDown ? Seeking::Down : Seeking::Up );
+    mEngine.startSeeking( aDirection == RadioEngine::ERadioDown ? Seek::Down : Seek::Up );
 }
 
 /*!
@@ -169,7 +169,7 @@ void RadioControlEventListener::FastForwardL( TBool aDownPressed )
 {
     if( aDownPressed )
     {
-        mEngine.startSeeking( Seeking::Up );
+        mEngine.startSeeking( Seek::Up );
     }
 }
 
@@ -189,7 +189,7 @@ void RadioControlEventListener::BackwardL( TBool aDownPressed )
 void RadioControlEventListener::RewindL( TBool aDownPressed )
 {
     if( aDownPressed ) {
-        mEngine.startSeeking( Seeking::Down );
+        mEngine.startSeeking( Seek::Down );
     }
 }
 
@@ -215,7 +215,7 @@ void RadioControlEventListener::ChannelDownL( TBool DEBUGVAR( aDownPressed ) )
 void RadioControlEventListener::VolumeUpL( TBool aDownPressed )
 {
     if ( aDownPressed ) {
-        mEngine.RadioEnginehandler().IncreaseVolume();
+        RUN_NOTIFY_LOOP( mEngine.observers(), increaseVolume() );
     }
 }
 
@@ -225,7 +225,7 @@ void RadioControlEventListener::VolumeUpL( TBool aDownPressed )
 void RadioControlEventListener::VolumeDownL( TBool aDownPressed )
 {
     if ( aDownPressed ) {
-        mEngine.RadioEnginehandler().DecreaseVolume();
+        RUN_NOTIFY_LOOP( mEngine.observers(), decreaseVolume() );
     }
 }
 

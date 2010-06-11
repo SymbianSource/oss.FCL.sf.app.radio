@@ -46,6 +46,7 @@ private:
 // from base class RadioSettingsIf
 
     bool isFirstTimeStart();
+    void setFirstTimeStartPerformed( bool firstTimeStartPerformed );
     bool showFavorites() const;
     void setShowFavorites( bool showFavorites );
     bool toggleShowFavorites();

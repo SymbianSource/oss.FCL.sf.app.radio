@@ -35,7 +35,6 @@ RadioViewBase::RadioViewBase( bool transient ) :
     HbView( 0 ),
     mMainWindow( 0 ),
     mUiLoader( 0 ),
-    mInitialized( false ),
     mTransientView( transient ),
     mUseLoudspeakerAction( 0 ),
     mOrientation( Qt::Vertical )
@@ -55,10 +54,19 @@ RadioViewBase::~RadioViewBase()
 /*!
  *
  */
-void RadioViewBase::setMembers( RadioUiLoader* uiLoader, RadioWindow* mainWindow )
+void RadioViewBase::setMembers( RadioWindow* mainWindow, RadioUiLoader* uiLoader )
 {
-    mUiLoader.reset( uiLoader );
     mMainWindow = mainWindow;
+    mUiLoader.reset( uiLoader );
+}
+
+/*!
+ *
+ */
+void RadioViewBase::initialize( QSharedPointer<RadioUiEngine> uiEngine )
+{
+    mUiEngine = uiEngine;
+    init();
 }
 
 /*!
@@ -66,7 +74,7 @@ void RadioViewBase::setMembers( RadioUiLoader* uiLoader, RadioWindow* mainWindow
  */
 bool RadioViewBase::isInitialized() const
 {
-    return mInitialized;
+    return mUiEngine;
 }
 
 /*!
@@ -86,6 +94,14 @@ void RadioViewBase::updateOrientation( Qt::Orientation orientation, bool forceUp
         mOrientation = orientation;
         setOrientation();
     }
+}
+
+/*!
+ *
+ */
+void RadioViewBase::bringToForeground()
+{
+    mMainWindow->raise();
 }
 
 /*!
@@ -120,7 +136,6 @@ void RadioViewBase::quit()
 
 /*!
  * Private slot
- * TODO: Refactor this awkwardness once Orbit figures out a better way
  */
 void RadioViewBase::handleUserAnswer( HbAction* answer )
 {
@@ -137,9 +152,9 @@ void RadioViewBase::initBackAction()
 {
     // The default back button activates the tuning view
     HbAction* backAction = new HbAction( Hb::BackNaviAction, this );
-    connectAndTest( backAction,     SIGNAL(triggered()),
+    Radio::connect( backAction,     SIGNAL(triggered()),
                     mMainWindow,    SLOT(activateMainView()) );
-    setNavigationAction( backAction );    
+    setNavigationAction( backAction );
 }
 
 /*!
@@ -147,14 +162,19 @@ void RadioViewBase::initBackAction()
  */
 void RadioViewBase::connectCommonMenuItem( int menuItem )
 {
-    RadioUiEngine* engine = &mMainWindow->uiEngine();
     switch ( menuItem ) {
         case MenuItem::UseLoudspeaker:
             mUseLoudspeakerAction = mUiLoader->findObject<HbAction>( DOCML::NAME_LOUDSPEAKER_ACTION );
             if ( mUseLoudspeakerAction ) {
-                connectAndTest( mUseLoudspeakerAction, SIGNAL(triggered()), engine, SLOT(toggleAudioRoute()) );
-                updateAudioRouting( engine->isUsingLoudspeaker() );
-                connectAndTest( engine, SIGNAL(audioRouteChanged(bool)), this, SLOT(updateAudioRouting(bool)) );
+                Radio::connect( mUseLoudspeakerAction, SIGNAL(triggered()), mUiEngine.data(), SLOT(toggleAudioRoute()) );
+                updateAudioRouting( mUiEngine->isUsingLoudspeaker() );
+                Radio::connect( mUiEngine.data(), SIGNAL(audioRouteChanged(bool)), this, SLOT(updateAudioRouting(bool)) );
+            }
+            break;
+
+        case MenuItem::Exit:
+            if ( HbAction* exitAction = mUiLoader->findObject<HbAction>( DOCML::NAME_EXIT_ACTION ) ) {
+                Radio::connect( exitAction, SIGNAL(triggered()), this, SLOT(quit()) );
             }
             break;
 
@@ -166,10 +186,10 @@ void RadioViewBase::connectCommonMenuItem( int menuItem )
 /*!
  *
  */
-void RadioViewBase::connectXmlElement( const char* name, const char* signal, QObject* receiver, const char* slot )
+void RadioViewBase::connectXmlElement( const QString& name, const char* signal, QObject* receiver, const char* slot )
 {
     if ( QObject* action = mUiLoader->findObject<QObject>( name ) ) {
-        connectAndTest( action, signal, receiver, slot );
+        Radio::connect( action, signal, receiver, slot );
     }
 }
 
@@ -179,7 +199,7 @@ void RadioViewBase::connectXmlElement( const char* name, const char* signal, QOb
 void RadioViewBase::connectViewChangeMenuItem( QString name, const char* slot )
 {
     if ( QObject* action = mUiLoader->findObject<QObject>( name ) ) {
-        connectAndTest( action, SIGNAL(triggered()), mMainWindow, slot );
+        Radio::connect( action, SIGNAL(triggered()), mMainWindow, slot );
     }
 }
 
@@ -189,7 +209,7 @@ void RadioViewBase::connectViewChangeMenuItem( QString name, const char* slot )
 void RadioViewBase::loadSection( const QString& docml, const QString& section )
 {
     LOG_FORMAT( "RadioViewBase::loadSection: Docml: %s, section: %s", GETSTRING( docml ), GETSTRING( section ) );
-    bool ok = false;    
+    bool ok = false;
     mUiLoader->load( docml, section, &ok );
     LOG_ASSERT( ok, LOG_FORMAT( "Loading of section %s failed!", GETSTRING( section ) ) );
 }

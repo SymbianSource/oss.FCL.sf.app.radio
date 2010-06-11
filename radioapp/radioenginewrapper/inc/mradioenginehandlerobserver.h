@@ -22,13 +22,11 @@
 #include "mradioengineobserver.h"
 #include "mradioaudioroutingobserver.h"
 #include "mradiosystemeventobserver.h"
-#include "mradiorepositoryentityobserver.h"
 
 // Class declaration
 NONSHARABLE_CLASS( MRadioEngineHandlerObserver ) : public MRadioEngineObserver
                                                  , public MRadioAudioRoutingObserver
                                                  , public MRadioSystemEventObserver
-                                                 , public MRadioRepositoryEntityObserver
 {
 public:
 

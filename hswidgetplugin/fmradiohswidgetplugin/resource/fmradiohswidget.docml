@@ -1,125 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument version="1.0">
     <widget name="mainLayout" type="HbWidget">
-        <widget name="radioIconPushButton" type="HbPushButton">
-            <icon iconName="qtg_large_radio" name="background"/>
+        <widget name="controlButtons" type="HbWidget">
+            <widget name="powerToggleButton" type="HbPushButton">
+                <bool name="checkable" value="TRUE"/>
+                <string name="text"/>
+            </widget>
+            <widget name="previousPushButton" type="HbPushButton">
+                <icon iconName="qtg_mono_previous" name="icon"/>
+                <string name="text"/>
+            </widget>
+            <widget name="nextPushButton" type="HbPushButton">
+                <icon iconName="qtg_mono_next" name="icon"/>
+                <string name="text"/>
+            </widget>
+            <real name="z" value="0"/>
             <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
-            <sizehint height="11un" type="PREFERRED" width="11un"/>
-            <contentsmargins bottom="expr((17un - 11un) / 2)" left="var(hb-param-margin-gene-middle-horizontal)" right="var(hb-param-margin-gene-middle-horizontal)" top="expr((17un - 11un) / 2)"/>
-            <string name="text"/>
-            <bool name="stretched" value="FALSE"/>
+            <sizehint height="8un" type="PREFERRED" width="32un"/>
+            <sizehint height="8un" type="MINIMUM" width="32un"/>
+            <layout orientation="Horizontal" spacing="0un" type="linear">
+                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+                <linearitem itemname="powerToggleButton"/>
+                <linearitem itemname="previousPushButton"/>
+                <linearitem itemname="nextPushButton"/>
+            </layout>
         </widget>
-        <widget name="rightSideLayout" type="HbWidget">
-            <widget name="informationAreaLayout" type="HbWidget">
+        <widget name="tunerStackedLayout" type="HbWidget">
+            <widget name="tunerInformationStackedLayout" type="HbWidget">
+                <widget name="lonelyRowLabel" type="HbLabel">
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    <sizehint type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
+                    <string name="plainText"/>
+                    <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-tiny)"/>
+                </widget>
                 <widget name="twoRowsLayout" type="HbWidget">
                     <widget name="firstRowLabel" type="HbLabel">
                         <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                        <sizehint height="3un" type="PREFERRED" width="32.5un"/>
+                        <real name="z" value="1"/>
+                        <sizehint type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
+                        <string name="plainText"/>
+                        <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-tiny)"/>
                     </widget>
                     <widget name="secondRowLabel" type="HbLabel">
                         <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                        <sizehint height="3un" type="PREFERRED" width="32.5un"/>
+                        <real name="z" value="2"/>
+                        <sizehint type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
+                        <string name="plainText"/>
+                        <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-tiny)"/>
                     </widget>
-                    <real name="z" value="0"/>
-                    <sizehint height="expr(var(hb-param-margin-gene-middle-vertical) + (var(hb-param-text-height-tiny) * 2))" type="PREFERRED" width="31.5un"/>
-                    <bool name="visible" value="FALSE"/>
+                    <real name="z" value="3"/>
+                    <sizehint height="expr(10un - 2 * 1.5un  )" type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
                     <layout orientation="Vertical" spacing="var(hb-param-margin-gene-middle-vertical)" type="linear">
                         <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                        <linearitem itemname="firstRowLabel" spacing="var(hb-param-margin-gene-middle-vertical)"/>
-                        <linearitem itemname="secondRowLabel" spacing="0un"/>
+                        <linearitem itemname="firstRowLabel"/>
+                        <linearitem itemname="secondRowLabel"/>
                     </layout>
                 </widget>
-                <widget name="oneRowLayout" type="HbWidget">
-                    <widget name="lonelyRowLabel" type="HbLabel">
-                        <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                        <sizehint height="6.625un" type="PREFERRED" width="32.5un"/>
-                    </widget>
-                    <real name="z" value="0"/>
-                    <sizehint height="expr(var(hb-param-margin-gene-middle-vertical) + (var(hb-param-text-height-tiny) * 2))" type="PREFERRED" width="31.5un"/>
-                    <sizehint type="MINIMUM" width="0.74627un"/>
-                    <bool name="visible" value="FALSE"/>
-                    <layout orientation="Vertical" spacing="0un" type="linear">
-                        <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                        <linearitem itemname="lonelyRowLabel"/>
-                    </layout>
-                </widget>
-                <widget name="animationLayout" type="HbWidget">
-                    <widget name="animationIcon" type="HbLabel">
-                        <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                        <sizehint height="var(hb-param-graphic-size-primary-medium)" type="PREFERRED" width="var(hb-param-graphic-size-primary-medium)"/>
-                    </widget>
-                    <real name="z" value="0"/>
-                    <sizehint height="expr(var(hb-param-margin-gene-middle-vertical) + (var(hb-param-text-height-tiny) * 2))" type="PREFERRED" width="31.5un"/>
-                    <bool name="visible" value="FALSE"/>
-                    <layout orientation="Vertical" spacing="0un" type="linear">
-                        <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                        <linearitem itemname="animationIcon"/>
-                    </layout>
-                </widget>
-                <real name="z" value="0"/>
-                <sizehint height="expr(var(hb-param-margin-gene-middle-vertical) + (var(hb-param-text-height-tiny) * 2))" type="PREFERRED" width="31.5un"/>
-                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-tiny)"/>
-                <layout type="stacked">
-                    <stackitem itemname="twoRowsLayout"/>
-                    <stackitem itemname="oneRowLayout"/>
-                    <stackitem itemname="animationLayout"/>
-                </layout>
-            </widget>
-            <widget name="controlAreaLayout" type="HbWidget">
-                <widget name="previousPushButton" type="HbPushButton">
-                    <icon iconName="qtg_mono_previous" name="icon"/>
-                    <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
-                    <sizehint height="8un" type="PREFERRED" width="expr(31.5un /3)"/>
-                    <string name="text"/>
-                    <bool name="enabled" value="FALSE"/>
-                </widget>
-                <widget name="playPushButton" type="HbPushButton">
-                    <icon iconName="qtg_mono_play" name="icon"/>
-                    <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
-                    <sizehint height="8un" type="PREFERRED" width="expr(31.5un /3)"/>
-                    <string name="text"/>
-                    <bool name="enabled" value="FALSE"/>
-                </widget>
-                <widget name="nextPushButton" type="HbPushButton">
-                    <icon iconName="qtg_mono_next" name="icon"/>
-                    <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
-                    <sizehint height="8un" type="PREFERRED" width="expr(31.5un /3)"/>
-                    <string name="text"/>
-                    <bool name="enabled" value="FALSE"/>
+                <widget name="animationIcon" type="HbLabel">
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    <icon iconName="qtg_anim_loading_1" name="icon"/>
+                    <sizehint height="var(hb-param-graphic-size-primary-medium)" type="PREFERRED" width="var(hb-param-graphic-size-primary-medium)"/>
                 </widget>
                 <real name="z" value="1"/>
-                <sizehint height="8un" type="PREFERRED" width="31.5un"/>
-                <sizehint height="0un" type="MINIMUM" width="0un"/>
-                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                <layout orientation="Horizontal" spacing="0un" type="linear">
-                    <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                    <linearitem itemname="previousPushButton" spacing="0un"/>
-                    <linearitem itemname="playPushButton" spacing="0un"/>
-                    <linearitem itemname="nextPushButton"/>
+                <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                <sizehint height="7un" type="PREFERRED" width="30.5un"/>
+                <sizehint height="expr(10un - 2 * 1.5un)" type="MINIMUM" width="expr(32un - 4   * var(hb-param-margin-gene-middle-horizontal))"/>
+                <contentsmargins bottom="1.5un" left="var(hb-param-margin-gene-middle-horizontal)" right="var(hb-param-margin-gene-middle-horizontal)" top="1.5un"/>
+                <sizehint height="2504062.01158un" type="MAXIMUM" width="2504062.01158un"/>
+                <layout type="stacked">
+                    <stackitem itemname="lonelyRowLabel"/>
+                    <stackitem itemname="twoRowsLayout"/>
+                    <stackitem itemname="animationIcon"/>
                 </layout>
             </widget>
+            <widget name="tunerBackgroundPushButton" type="HbPushButton">
+                <sizehint height="10un" type="PREFERRED" width="32un"/>
+                <sizehint type="MINIMUM" width="32un"/>
+                <string name="text"/>
+                <string name="state" value="normal"/>
+            </widget>
             <real name="z" value="0"/>
-            <sizehint height="expr((var(hb-param-margin-gene-middle-vertical) * 4)  + (var(hb-param-text-height-tiny) * 2) + 8un)" type="PREFERRED" width="expr(46un - 11un - 2px - (2 * var(hb-param-margin-gene-middle-horizontal)))"/>
-            <contentsmargins bottom="var(hb-param-margin-gene-middle-vertical)" left="var(hb-param-margin-gene-middle-horizontal)" right="var(hb-param-margin-gene-middle-horizontal)" top="var(hb-param-margin-gene-middle-vertical)"/>
-            <layout orientation="Vertical" spacing="var(hb-param-margin-gene-middle-vertical)" type="linear">
-                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                <linearitem itemname="informationAreaLayout" spacing="var(hb-param-margin-gene-middle-vertical)"/>
-                <linearitem itemname="controlAreaLayout" spacing="0un"/>
+            <sizehint height="10un" type="PREFERRED" width="32un"/>
+            <sizehint height="10un" type="MINIMUM" width="32un"/>
+            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+            <layout type="stacked">
+                <stackitem itemname="tunerInformationStackedLayout"/>
+                <stackitem itemname="tunerBackgroundPushButton"/>
             </layout>
         </widget>
-        <widget name="verticalSeparatorLabel" type="HbLabel">
-            <sizehint height="expr((var(hb-param-margin-gene-middle-vertical) * 4)  + (var(hb-param-text-height-tiny) * 2) + 8un)" type="PREFERRED" width="2"/>
-            <contentsmargins bottom="2" left="0un" right="0un" top="2"/>
-        </widget>
-        <real name="z" value="1"/>
-        <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
-        <sizehint height="expr((var(hb-param-margin-gene-middle-vertical) * 4)  + (var(hb-param-text-height-tiny) * 2) + 8un)" type="PREFERRED" width="46un"/>
-        <layout orientation="Horizontal" spacing="0un" type="linear">
-            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-            <linearitem itemname="radioIconPushButton" spacing="0un" stretchfactor="-1"/>
-            <linearitem itemname="verticalSeparatorLabel" spacing="0un"/>
-            <linearitem itemname="rightSideLayout" spacing="0un"/>
+        <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+        <sizehint height="26.5un" type="FIXED" width="37un"/>
+        <sizehint height="26.5un" type="MINIMUM"/>
+        <sizehint height="26.5un" type="MAXIMUM" width="37un"/>
+        <layout orientation="Vertical" spacing="0un" type="linear">
+            <contentsmargins bottom="2un" left="2.5un" right="2.5un" top="5.5un"/>
+            <linearitem itemname="tunerStackedLayout" spacing="var(hb-param-margin-gene-middle-vertical)"/>
+            <linearitem itemname="controlButtons" spacing="0un"/>
         </layout>
     </widget>
     <metadata activeUIState="Common ui state" display="NHD landscape" unit="un">

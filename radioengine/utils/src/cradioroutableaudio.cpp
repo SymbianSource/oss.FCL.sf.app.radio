@@ -21,6 +21,7 @@
 // User includes
 #include "cradioroutableaudio.h"
 #include "cradioaudiorouter.h"
+#include "cradioenginelogger.h"
 
 
 // ---------------------------------------------------------------------------
@@ -30,6 +31,7 @@
 EXPORT_C CRadioRoutableAudio::CRadioRoutableAudio( CRadioAudioRouter* aAudioRouter )
     : iAudioRouter( aAudioRouter )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iAudioRouter->RegisterRoutableAudio( this );
     }
 
@@ -51,6 +53,7 @@ EXPORT_C CRadioRoutableAudio::~CRadioRoutableAudio()
 //
 EXPORT_C void CRadioRoutableAudio::SetAudioOutput( CAudioOutput* aAudioOutput )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     delete iAudioOutput;
     iAudioOutput = aAudioOutput;
     }
@@ -61,6 +64,7 @@ EXPORT_C void CRadioRoutableAudio::SetAudioOutput( CAudioOutput* aAudioOutput )
 //
 EXPORT_C void CRadioRoutableAudio::DeleteAudioOutput()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     delete iAudioOutput;
     iAudioOutput = NULL;
     }
@@ -71,6 +75,7 @@ EXPORT_C void CRadioRoutableAudio::DeleteAudioOutput()
 //
 EXPORT_C void CRadioRoutableAudio::SetAudioRouteL( RadioEngine::TRadioAudioRoute aRoute )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( iAudioOutput )
         {
         iAudioOutput->SetAudioOutputL( aRoute == RadioEngine::ERadioSpeaker ? CAudioOutput::EPublic
@@ -84,6 +89,7 @@ EXPORT_C void CRadioRoutableAudio::SetAudioRouteL( RadioEngine::TRadioAudioRoute
 //
 EXPORT_C TBool CRadioRoutableAudio::AudioRoutingSupported() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
 #ifdef __WINS__
     return ETrue;
 #else

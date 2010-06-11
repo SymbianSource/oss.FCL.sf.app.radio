@@ -15,7 +15,6 @@
 *
 */
 
-
 #ifndef CRADIOENGINE_H_
 #define CRADIOENGINE_H_
 
@@ -31,11 +30,9 @@ class CRadioSettings;
 class MRadioApplicationSettings;
 class MRadioEngineSettings;
 class CRadioSystemEventCollector;
-class CRadioPubSub;
 class CRadioRepositoryManager;
 class MRadioPresetSettings;
 class MRadioSettingsSetter;
-class MRadioScanObserver;
 class MRadioEngineObserver;
 class MRadioRdsReceiver;
 
@@ -76,13 +73,6 @@ public:
     virtual CRadioSettings& Settings() const = 0;
 
     /**
-     * Returns a reference to the publish & subscribe handler
-     *
-     * @return  Reference to the publish & subscribe handler
-     */
-    virtual CRadioPubSub* PubSub() const = 0;
-
-    /**
      * Determines radio region
      */
     virtual TRadioRegion DetermineRegion() = 0;
@@ -91,9 +81,8 @@ public:
      * ( Re )initializes the radio.
      *
      * @param aRegionId Region id
-     * @param aPubSub   Pointer to Publish&Subscribe object
      */
-    virtual void InitRadioL( TInt aRegionId, CRadioPubSub* aPubSub = 0 ) = 0;
+    virtual void InitRadioL( TInt aRegionId ) = 0;
 
     /**
      * Has the radio been initialized
@@ -163,6 +152,18 @@ public:
     virtual TBool IsFrequencyValid( TUint32 aFrequency = 0 ) const = 0;
 
     /**
+     * Sets or unsets the manual seek mode
+     *
+     * @param aManualSeekActive ETrue if active EFalse if not
+     */
+    virtual void SetManualSeekMode( TBool aManualSeekActive ) = 0;
+
+    /**
+     * Returns the manual seek mode status
+     */
+    virtual TBool IsInManualSeekMode() const = 0;
+
+    /**
      * Tunes to frequency
      * If radio is not initialized by InitRadioL, frequency is just
      * set to settings.
@@ -172,20 +173,6 @@ public:
      */
     virtual void SetFrequency( TUint32 aFrequency,
             RadioEngine::TRadioFrequencyEventReason aReason = RadioEngine::ERadioFrequencyEventReasonUnknown ) = 0;
-
-    /**
-     * Test function to try to make the tuning as fast as possible.
-     * Use with care since this will skip a lot of checks done by the SetFrequency() function
-     */
-    virtual void SetFrequencyFast( TUint32 aFrequency,
-            RadioEngine::TRadioFrequencyEventReason aReason = RadioEngine::ERadioFrequencyEventReasonUnknown ) = 0;
-
-    /**
-     * Steps to next frequency according to direction
-     *
-     * @param aDirection The direciton to step to
-     */
-    virtual void StepToFrequency( RadioEngine::TRadioTuneDirection aDirection ) = 0;
 
     /**
      * Performs seeking operation.
@@ -207,25 +194,6 @@ public:
     virtual RadioEngine::TRadioSeeking Seeking() const = 0;
 
     /**
-     * Starts scanning all available stations from the minimum frequency
-     *
-     * Calling this method also cancels any existing scan or seek operations.
-     *
-     * @param   aObserver       Observer to be notified of the progress of the scan.
-     *                          If a scan is currently in progress or the radio is not on, then
-     *                          the new scan is not performed at all and an error is passed on completion event.
-     *
-     */
-    virtual void StartScan( MRadioScanObserver& aObserver ) = 0;
-
-    /**
-     * Stops any scans currently in progress and notifies the observer
-     *
-     * @param aError The error code for completing the scanning.
-     */
-    virtual void StopScan( TInt aError = KErrCancel ) = 0;
-
-    /**
      * Changes volume by one level.
      *
      * @param aDirection Direction of the volume change.
@@ -244,7 +212,7 @@ public:
      *
      * @param aMute mute status.
      */
-    virtual void SetVolumeMuted( TBool aMute ) = 0;
+    virtual void SetVolumeMuted( TBool aMute, TBool aUpdateSettings = ETrue ) = 0;
 
     /**
      * Retrieves current antenna state.

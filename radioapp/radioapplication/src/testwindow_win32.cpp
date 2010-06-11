@@ -87,14 +87,14 @@ Win32Window::Win32Window() :
     mThemeBox->setEditable( false );
     initThemes();    
 
-    connectAndTest( mOrientationButton, SIGNAL(clicked()), this, SLOT(changeOrientation()) );
-    connectAndTest( mVolUpButton, SIGNAL(clicked()), this, SLOT(volumeUp()) );
-    connectAndTest( mVolDownButton, SIGNAL(clicked()), this, SLOT(volumeDown()) );
-    connectAndTest( mHeadsetButton, SIGNAL(clicked()), this, SLOT(toggleHeadsetStatus()) );
-    connectAndTest( mAddSongButton, SIGNAL(clicked()), this, SLOT(addSong()) );
-    connectAndTest( mClearSongButton, SIGNAL(clicked()), this, SLOT(clearSong()) );
-    connectAndTest( mOfflineButton, SIGNAL(clicked()), this, SLOT(toggleOffline()) );
-    connectAndTest( mThemeBox, SIGNAL(activated(QString)), this, SLOT(changeTheme(QString)) );
+    Radio::connect( mOrientationButton, SIGNAL(clicked()), this, SLOT(changeOrientation()) );
+    Radio::connect( mVolUpButton, SIGNAL(clicked()), this, SLOT(volumeUp()) );
+    Radio::connect( mVolDownButton, SIGNAL(clicked()), this, SLOT(volumeDown()) );
+    Radio::connect( mHeadsetButton, SIGNAL(clicked()), this, SLOT(toggleHeadsetStatus()) );
+    Radio::connect( mAddSongButton, SIGNAL(clicked()), this, SLOT(addSong()) );
+    Radio::connect( mClearSongButton, SIGNAL(clicked()), this, SLOT(clearSong()) );
+    Radio::connect( mOfflineButton, SIGNAL(clicked()), this, SLOT(toggleOffline()) );
+    Radio::connect( mThemeBox, SIGNAL(activated(QString)), this, SLOT(changeTheme(QString)) );
 
     QTimer::singleShot( 0, this, SLOT(updateWindowSize()) );
 }
@@ -186,8 +186,8 @@ void Win32Window::changeOrientation()
  */
 void Win32Window::volumeUp()
 {
-    if ( ++mVolume > KMaximumVolumeLevel ) {
-        mVolume = KMaximumVolumeLevel;
+    if ( ++mVolume > MAXIMUM_VOLUME_LEVEL ) {
+        mVolume = MAXIMUM_VOLUME_LEVEL;
     }
     RadioEngineWrapperPrivate::instance()->setVolume( mVolume );
 }

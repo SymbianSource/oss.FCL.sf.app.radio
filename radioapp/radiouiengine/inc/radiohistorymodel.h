@@ -73,6 +73,8 @@ public:
 
     RadioHistoryItem itemAtIndex( const QModelIndex& index ) const;
 
+    void removeAll( bool removeTagged );
+
 signals:
 
     void itemAdded();
@@ -81,7 +83,6 @@ signals:
 public slots:
 
     void resetCurrentSong();
-    void removeAll();
 
 private:
 

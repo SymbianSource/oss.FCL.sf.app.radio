@@ -21,7 +21,6 @@
 #include "cradiosystemeventcollector.h"
 #include "cradiosettings.h"
 #include "mradioenginesettings.h"
-#include "cradiopubsub.h"
 #include "cradiorepositorymanager.h"
 #include "mradiordsreceiver.h"
 #include "cradioenginehandler.h"
@@ -30,18 +29,13 @@
 #include "radiologger.h"
 #include "radioenummapper.h"
 
-/**
- * Delayed tuning delay
- */
-const TInt KTuneDelay = 100000;
-
 /*!
  * Map to translate seek direction enum from its definition in the engine to
  * its definition in the ui and vice versa
  */
 BEGIN_ENUM_MAP( KSeekDirectionMap )
-    ENUM_MAP_ITEM( Seeking::Down, RadioEngine::ERadioDown ),
-    ENUM_MAP_ITEM( Seeking::Up,   RadioEngine::ERadioUp )
+    ENUM_MAP_ITEM( Seek::Down,              RadioEngine::ERadioDown ),
+    ENUM_MAP_ITEM( Seek::Up,                RadioEngine::ERadioUp )
 END_ENUM_MAP( KSeekDirectionMap )
 
 /*!
@@ -72,15 +66,15 @@ END_ENUM_MAP( KRegionMap )
  * its definition in the ui and vice versa
  */
 BEGIN_ENUM_MAP( KSeekingStateMap )
-    ENUM_MAP_ITEM( Seeking::NotSeeking,     RadioEngine::ERadioNotSeeking ),
-    ENUM_MAP_ITEM( Seeking::SeekingUp,      RadioEngine::ERadioSeekingUp ),
-    ENUM_MAP_ITEM( Seeking::SeekingDown,    RadioEngine::ERadioSeekingDown )
+    ENUM_MAP_ITEM( Seek::NotSeeking,        RadioEngine::ERadioNotSeeking ),
+    ENUM_MAP_ITEM( Seek::SeekingUp,         RadioEngine::ERadioSeekingUp ),
+    ENUM_MAP_ITEM( Seek::SeekingDown,       RadioEngine::ERadioSeekingDown )
 END_ENUM_MAP( KSeekingStateMap )
 
 /*!
  * Convenience macro to do the mapping of seeking states
  */
-#define MAP_TO_UI_SEEKING_STATE(ui_enum) MAP_TO_UI_ENUM( Seeking::State, ui_enum, KSeekingStateMap )
+#define MAP_TO_UI_SEEKING_STATE(ui_enum) MAP_TO_UI_ENUM( Seek::State, ui_enum, KSeekingStateMap )
 
 
 // ======== MEMBER FUNCTIONS ========
@@ -101,12 +95,7 @@ CRadioEngineHandler::CRadioEngineHandler( MRadioEngineHandlerObserver& aObserver
 //
 CRadioEngineHandler::~CRadioEngineHandler()
     {
-    if ( iEngine ) {
-        iEngine->Settings().Repository().RemoveObserver( &iObserver );
-    }
-
     delete iEngine;
-    delete iDelayTimer;
     }
 
 // ---------------------------------------------------------------------------
@@ -117,26 +106,12 @@ void CRadioEngineHandler::ConstructL()
     {
     LOG_METHOD;
 
-    iDelayTimer = CPeriodic::NewL( CActive::EPriorityStandard );
-
     iEngine = CRadioEngine::NewL( *this );
 
     iEngine->SystemEventCollector().AddObserverL( &iObserver );
-    iEngine->Settings().Repository().AddObserverL( &iObserver );
-    iEngine->AudioRouter().SetAudioRouteL( RadioEngine::ERadioHeadset );
     iEngine->AddObserverL( &iObserver );
 
     iRegion = MAP_TO_UI_REGION( iEngine->Settings().EngineSettings().RegionId() );
-
-//    iEngineHolder->PubSub().SetControlEventObserver( &iObserver );
-
-//    iRadioEngine->SetVolumeMuted( EFalse );
-//    iRadioEngine->SetVolume( MaxVolume() );
-
-//    CVRRepositoryManager::GetRepositoryValueL( KVRCRUid, KVRCRLaunchCount, usageCount );
-//    CVRRepositoryManager::SetRepositoryValueL( KVRCRUid, KVRCRLaunchCount, ++usageCount );
-//    iControlEventObserver = CVRControlEventObserverImpl::NewL( *this );
-//    doc->PubSubL().SetControlEventObserver( iControlEventObserver );
     }
 
 // ---------------------------------------------------------------------------
@@ -149,6 +124,22 @@ void CRadioEngineHandler::SetRdsObserver( MRadioRdsDataObserver* aObserver )
     }
 
 // ---------------------------------------------------------------------------
+// Starts or stops receiving RDS data
+// ---------------------------------------------------------------------------
+//
+void CRadioEngineHandler::SetRdsEnabled( TBool aRdsEnabled )
+    {
+    if ( aRdsEnabled )
+        {
+        iEngine->RdsReceiver().StartReceiver();
+        }
+    else
+        {
+        iEngine->RdsReceiver().StopReceiver();
+        }
+    }
+
+// ---------------------------------------------------------------------------
 // Returns the radio status.
 // ---------------------------------------------------------------------------
 //
@@ -158,32 +149,39 @@ TBool CRadioEngineHandler::IsRadioOn()
     }
 
 // ---------------------------------------------------------------------------
-// Tune to the specified frequency
+// Sets the manual seek status
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineHandler::Tune( TUint aFrequency )
+void CRadioEngineHandler::SetManualSeekMode( TBool aManualSeek )
     {
-    iEngine->SetFrequency( aFrequency );
+    iEngine->SetManualSeekMode( aManualSeek );
     }
 
 // ---------------------------------------------------------------------------
-// Tune to the specified frequency after a delay
+// Returns the manual seek status
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineHandler::TuneWithDelay( TUint aFrequency )
+TBool CRadioEngineHandler::IsInManualSeekMode() const
     {
-    iFrequency = aFrequency;
-    iDelayTimer->Cancel();
-    iDelayTimer->Start( KTuneDelay, KTuneDelay, TCallBack( TuneDelayCallback, this ) );
+    return iEngine->IsInManualSeekMode();
+    }
+
+// ---------------------------------------------------------------------------
+// Tune to the specified frequency
+// ---------------------------------------------------------------------------
+//
+void CRadioEngineHandler::SetFrequency( TUint aFrequency )
+    {
+    iEngine->SetFrequency( aFrequency );
     }
 
 // ---------------------------------------------------------------------------
 // Sets the audio mute state
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineHandler::SetMuted( const TBool aMuted )
+void CRadioEngineHandler::SetMuted( const TBool aMuted, const TBool aUpdateSettings )
     {
-    iEngine->SetVolumeMuted( aMuted );
+    iEngine->SetVolumeMuted( aMuted, aUpdateSettings );
     }
 
 // ---------------------------------------------------------------------------
@@ -261,7 +259,7 @@ TBool CRadioEngineHandler::IsAntennaAttached() const
 // Retrieves the current frequency.
 // ---------------------------------------------------------------------------
 //
-TUint CRadioEngineHandler::TunedFrequency() const
+TUint CRadioEngineHandler::CurrentFrequency() const
     {
     return iEngine->Settings().EngineSettings().TunedFrequency();
     }
@@ -297,7 +295,7 @@ TBool CRadioEngineHandler::IsFrequencyValid( TUint aFrequency ) const
 // Scan up to the next available frequency
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineHandler::Seek( Seeking::Direction direction )
+void CRadioEngineHandler::Seek( Seek::Direction direction )
     {
     LOG_TIMESTAMP( "Seek" );
     iEngine->Seek( MAP_FROM_UI_DIRECTION( direction ) );
@@ -317,27 +315,9 @@ void CRadioEngineHandler::CancelSeek()
 // Returns the engine seeking state
 // ---------------------------------------------------------------------------
 //
-Seeking::State CRadioEngineHandler::SeekingState() const
+Seek::State CRadioEngineHandler::SeekingState() const
     {
     return MAP_TO_UI_SEEKING_STATE( iEngine->Seeking() );
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineHandler::StartScan( MRadioScanObserver& aObserver )
-    {
-    iEngine->StartScan( aObserver );
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineHandler::StopScan( TInt aError )
-    {
-    iEngine->StopScan( aError );
     }
 
 // ---------------------------------------------------------------------------
@@ -382,24 +362,6 @@ TBool CRadioEngineHandler::IsAudioRoutedToLoudspeaker() const
     }
 
 // ---------------------------------------------------------------------------
-// Returns ar reference to the publish & subscribe handler
-// ---------------------------------------------------------------------------
-//
-CRadioPubSub& CRadioEngineHandler::PubSub()
-    {
-    return *iEngine->PubSub();
-    }
-
-// ---------------------------------------------------------------------------
-// Returns the repository manager.
-// ---------------------------------------------------------------------------
-//
-CRadioRepositoryManager& CRadioEngineHandler::Repository() const
-    {
-    return iEngine->Settings().Repository();
-    }
-
-// ---------------------------------------------------------------------------
 // Returns the repository manager.
 // ---------------------------------------------------------------------------
 //
@@ -436,26 +398,4 @@ CRadioSystemEventCollector* CRadioEngineHandler::InitSystemEventCollectorL()
 CRadioSettings* CRadioEngineHandler::InitSettingsL()
     {
     return CRadioSettings::NewL();
-    }
-
-// ---------------------------------------------------------------------------
-// From MRadioEngineInitializer
-//
-// ---------------------------------------------------------------------------
-//
-CRadioPubSub* CRadioEngineHandler::InitPubSubL()
-    {
-    return CRadioPubSub::NewL();
-    }
-
-// --------------------------------------------------------------------------------
-// Static callback function to be used by the tune delay timer
-// --------------------------------------------------------------------------------
-//
-TInt CRadioEngineHandler::TuneDelayCallback( TAny* aSelf )
-    {
-    CRadioEngineHandler* self = static_cast<CRadioEngineHandler*>( aSelf );
-    self->iDelayTimer->Cancel();
-    self->Tune( self->iFrequency );
-    return 0; // Not used by CPeriodic
     }

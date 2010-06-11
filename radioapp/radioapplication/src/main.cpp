@@ -22,12 +22,6 @@
 #include "radioapplication.h"
 #include "radiologger.h"
 
-// Constants
-#ifdef BUILD_WIN32
-    const char* TRANSLATIONS_FOLDER = "";
-#else
-    const char* TRANSLATIONS_FOLDER = "/resource/qt/translations/";
-#endif // BUILD_WIN32
 
 /*!
  * Runs the application
@@ -40,7 +34,7 @@ int main( int argc, char* argv[] )
 
     RadioApplication app( argc, argv );
 
-    HbTranslator translator( TRANSLATIONS_FOLDER, "fmradio" ); // TODO: Rename exe to fmradio.exe to get rid of this
+    HbTranslator translator;
 
     const int returnValue = app.exec();
 

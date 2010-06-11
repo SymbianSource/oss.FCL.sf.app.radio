@@ -18,14 +18,50 @@
 // System includes
 #include <barsread.h>
 #include <coemain.h>
+#include <bautils.h>
+#include <data_caging_path_literals.hrh>
+#include <fmradioenginesettings.rsg>
+#include <centralrepository.h>
 
 // User includes
 #include "radiointernalcrkeys.h"
-#include "radioenginesettings.rsg"
 #include "radioenginedef.h"
 #include "cradioenginesettings.h"
+#include "cradiosettingsimp.h"
 #include "mradiosettingsobserver.h"
-#include "cradiorepositorymanager.h"
+#include "cradioenginelogger.h"
+
+// This has to be the last include.
+#ifdef STUB_CONSTELLATION
+#   include <RadioStubManager.h>
+#endif //STUB_CONSTELLATION
+
+
+ /**
+  * On/Off type flags used by TBitFlags.
+  */
+ enum TFlagValues
+     {
+      EHeadsetVolMuted      = 1 << 0
+     ,ESpeakerVolMuted      = 1 << 1
+     ,EPowerOn              = 1 << 2
+     ,EStereoOutput         = 1 << 3
+     ,EHeadsetAudioRoute    = 1 << 4
+     };
+
+// ======== LOCAL FUNCTIONS ========
+
+ // ---------------------------------------------------------------------------
+ // Normalize return value from TBitFlags to 1 or 0 just in case
+ // Two negations: 16 => 0 => 1
+ // ---------------------------------------------------------------------------
+ //
+static TBool NormalizeBool( TBool aBool )
+    {
+    // Normalize return value from TBitFlags to 1 or 0 just in case
+    // Two negations: 16 => 0 => 1
+    return !( !aBool );
+    }
 
 
 // ======== MEMBER FUNCTIONS ========
@@ -34,10 +70,10 @@
 //
 // ---------------------------------------------------------------------------
 //
-CRadioEngineSettings* CRadioEngineSettings::NewL( CRadioRepositoryManager& aRepositoryManager,
-                                                  CCoeEnv& aCoeEnv )
+CRadioEngineSettings* CRadioEngineSettings::NewL( CRadioSettingsImp& aRadioSettingsImp )
     {
-    CRadioEngineSettings* self = new ( ELeave ) CRadioEngineSettings( aRepositoryManager, aCoeEnv );
+    LEVEL3( LOG_METHOD_AUTO );
+    CRadioEngineSettings* self = new ( ELeave ) CRadioEngineSettings( aRadioSettingsImp );
     CleanupStack::PushL( self );
     self->ConstructL();
     CleanupStack::Pop( self );
@@ -50,32 +86,22 @@ CRadioEngineSettings* CRadioEngineSettings::NewL( CRadioRepositoryManager& aRepo
 //
 void CRadioEngineSettings::ConstructL()
     {
-    iRepositoryManager.AddObserverL( this );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRHeadsetVolume,          CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRSpeakerVolume,          CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCROutputMode,             CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRAudioRoute,             CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRHeadsetMuteState,       CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRSpeakerMuteState,       CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRVisualRadioPowerState,  CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRTunedFrequency,         CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRDefaultMinVolumeLevel,  CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRCurrentRegion,          CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRRdsAfSearch,            CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRNetworkId,              CRadioRepositoryManager::ERadioEntityDes16 );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRSubscriberId,           CRadioRepositoryManager::ERadioEntityDes16 );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRCountryCode,            CRadioRepositoryManager::ERadioEntityDes16 );
+    LEVEL3( LOG_METHOD_AUTO );
+    iRepository = CRepository::NewL( KRadioCRUid );
 
     InitializeRegionsL();
+
+    InitializeDataHolders();
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-CRadioEngineSettings::CRadioEngineSettings( CRadioRepositoryManager& aRepositoryManager, CCoeEnv& aCoeEnv )
-    : CRadioSettingsBase( aRepositoryManager, aCoeEnv )
+CRadioEngineSettings::CRadioEngineSettings( CRadioSettingsImp& aRadioSettingsImp )
+    : iRadioSettingsImp( aRadioSettingsImp )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -84,9 +110,11 @@ CRadioEngineSettings::CRadioEngineSettings( CRadioRepositoryManager& aRepository
 //
 CRadioEngineSettings::~CRadioEngineSettings()
     {
-    iRepositoryManager.RemoveObserver( this );
+    LEVEL3( LOG_METHOD_AUTO );
     iRegions.ResetAndDestroy();
     iRegions.Close();
+    iResFile.Close();
+    delete iRepository;
     }
 
 // ---------------------------------------------------------------------------
@@ -95,6 +123,7 @@ CRadioEngineSettings::~CRadioEngineSettings()
 //
 void CRadioEngineSettings::SetObserver( MRadioSettingsObserver* aObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iObserver = aObserver;
     }
 
@@ -104,7 +133,13 @@ void CRadioEngineSettings::SetObserver( MRadioSettingsObserver* aObserver )
 //
 TInt CRadioEngineSettings::SetHeadsetVolume( TInt aVolume )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRHeadsetVolume, aVolume );
+    LEVEL3( LOG_METHOD_AUTO );
+    TInt err = iRepository->Set( KRadioCRHeadsetVolume, aVolume );
+    if ( !err )
+        {
+        iHeadsetVolume = aVolume;
+        }
+    return err;
     }
 
 // ---------------------------------------------------------------------------
@@ -113,7 +148,8 @@ TInt CRadioEngineSettings::SetHeadsetVolume( TInt aVolume )
 //
 TInt CRadioEngineSettings::HeadsetVolume() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRHeadsetVolume );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iHeadsetVolume;
     }
 
 // ---------------------------------------------------------------------------
@@ -122,7 +158,13 @@ TInt CRadioEngineSettings::HeadsetVolume() const
 //
 TInt CRadioEngineSettings::SetSpeakerVolume( TInt aVolume )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRSpeakerVolume, aVolume );
+    LEVEL3( LOG_METHOD_AUTO );
+    TInt err = iRepository->Set( KRadioCRSpeakerVolume, aVolume );
+    if ( !err )
+        {
+        iSpeakerVolume = aVolume;
+        }
+    return err;
     }
 
 // ---------------------------------------------------------------------------
@@ -131,7 +173,8 @@ TInt CRadioEngineSettings::SetSpeakerVolume( TInt aVolume )
 //
 TInt CRadioEngineSettings::SpeakerVolume() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRSpeakerVolume );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iSpeakerVolume;
     }
 
 // ---------------------------------------------------------------------------
@@ -140,6 +183,7 @@ TInt CRadioEngineSettings::SpeakerVolume() const
 //
 TInt CRadioEngineSettings::SetVolume( TInt aVolume )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( AudioRoute() == RadioEngine::ERadioHeadset )
         {
         return SetHeadsetVolume( aVolume );
@@ -156,6 +200,7 @@ TInt CRadioEngineSettings::SetVolume( TInt aVolume )
 //
 TInt CRadioEngineSettings::Volume() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( AudioRoute() == RadioEngine::ERadioHeadset )
         {
         return HeadsetVolume();
@@ -173,7 +218,13 @@ TInt CRadioEngineSettings::Volume() const
 //
 TInt CRadioEngineSettings::SetOutputMode( TInt aOutputMode )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCROutputMode, aOutputMode );
+    LEVEL3( LOG_METHOD_AUTO );
+    TInt err = iRepository->Set( KRadioCROutputMode, aOutputMode );
+    if ( !err )
+        {
+        iFlags.Assign( EStereoOutput, aOutputMode == RadioEngine::ERadioStereo );
+        }
+    return err;
     }
 
 // ---------------------------------------------------------------------------
@@ -183,7 +234,8 @@ TInt CRadioEngineSettings::SetOutputMode( TInt aOutputMode )
 //
 TInt CRadioEngineSettings::OutputMode() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCROutputMode );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iFlags.IsSet( EStereoOutput ) ? RadioEngine::ERadioStereo : RadioEngine::ERadioMono;
     }
 
 // ---------------------------------------------------------------------------
@@ -193,7 +245,13 @@ TInt CRadioEngineSettings::OutputMode() const
 //
 TInt CRadioEngineSettings::SetAudioRoute( TInt aAudioRoute )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRAudioRoute, aAudioRoute );
+    LEVEL3( LOG_METHOD_AUTO );
+    TInt err = iRepository->Set( KRadioCRAudioRoute, aAudioRoute );
+    if ( !err )
+        {
+        iFlags.Assign( EHeadsetAudioRoute, aAudioRoute == RadioEngine::ERadioHeadset );
+        }
+    return err;
     }
 
 // ---------------------------------------------------------------------------
@@ -203,7 +261,8 @@ TInt CRadioEngineSettings::SetAudioRoute( TInt aAudioRoute )
 //
 TInt CRadioEngineSettings::AudioRoute() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRAudioRoute );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iFlags.IsSet( EHeadsetAudioRoute ) ? RadioEngine::ERadioHeadset : RadioEngine::ERadioSpeaker;
     }
 
 // ---------------------------------------------------------------------------
@@ -213,7 +272,8 @@ TInt CRadioEngineSettings::AudioRoute() const
 //
 TInt CRadioEngineSettings::SetHeadsetVolMuted( TBool aMuted )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRHeadsetMuteState, aMuted );
+    LEVEL3( LOG_METHOD_AUTO );
+    return SetFlagValue( KRadioCRHeadsetMuteState, EHeadsetVolMuted, aMuted );
     }
 
 // ---------------------------------------------------------------------------
@@ -223,7 +283,8 @@ TInt CRadioEngineSettings::SetHeadsetVolMuted( TBool aMuted )
 //
 TBool CRadioEngineSettings::IsHeadsetVolMuted() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRHeadsetMuteState );
+    LEVEL3( LOG_METHOD_AUTO );
+    return NormalizeBool( iFlags.IsSet( EHeadsetVolMuted ) );
     }
 
 // ---------------------------------------------------------------------------
@@ -233,7 +294,8 @@ TBool CRadioEngineSettings::IsHeadsetVolMuted() const
 //
 TInt CRadioEngineSettings::SetSpeakerVolMuted( TBool aMuted )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRSpeakerMuteState, aMuted );
+    LEVEL3( LOG_METHOD_AUTO );
+    return SetFlagValue( KRadioCRSpeakerMuteState, ESpeakerVolMuted, aMuted );
     }
 
 // ---------------------------------------------------------------------------
@@ -243,7 +305,8 @@ TInt CRadioEngineSettings::SetSpeakerVolMuted( TBool aMuted )
 //
 TBool CRadioEngineSettings::IsSpeakerVolMuted() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRSpeakerMuteState );
+    LEVEL3( LOG_METHOD_AUTO );
+    return NormalizeBool( iFlags.IsSet( ESpeakerVolMuted ) );
     }
 
 // ---------------------------------------------------------------------------
@@ -253,6 +316,7 @@ TBool CRadioEngineSettings::IsSpeakerVolMuted() const
 //
 TInt CRadioEngineSettings::SetVolMuted( TBool aMuted )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( AudioRoute() == RadioEngine::ERadioHeadset )
         {
         return SetHeadsetVolMuted( aMuted );
@@ -270,6 +334,7 @@ TInt CRadioEngineSettings::SetVolMuted( TBool aMuted )
 //
 TBool CRadioEngineSettings::IsVolMuted() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( AudioRoute() == RadioEngine::ERadioHeadset )
         {
         return IsHeadsetVolMuted();
@@ -287,7 +352,8 @@ TBool CRadioEngineSettings::IsVolMuted() const
 //
 TInt CRadioEngineSettings::SetPowerOn( TBool aPowerState )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRVisualRadioPowerState, aPowerState );
+    LEVEL3( LOG_METHOD_AUTO );
+    return SetFlagValue( KRadioCRRadioPowerState, EPowerOn, aPowerState );
     }
 
 // ---------------------------------------------------------------------------
@@ -297,7 +363,8 @@ TInt CRadioEngineSettings::SetPowerOn( TBool aPowerState )
 //
 TBool CRadioEngineSettings::IsPowerOn() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRVisualRadioPowerState );
+    LEVEL3( LOG_METHOD_AUTO );
+    return NormalizeBool( iFlags.IsSet( EPowerOn ) );
     }
 
 // ---------------------------------------------------------------------------
@@ -307,8 +374,13 @@ TBool CRadioEngineSettings::IsPowerOn() const
 //
 TInt CRadioEngineSettings::SetTunedFrequency( TUint32 aFrequency )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid,
-                    KRadioCRTunedFrequency, static_cast<TInt>( aFrequency ) );
+    LEVEL3( LOG_METHOD_AUTO );
+    TInt err = iRepository->Set( KRadioCRTunedFrequency, static_cast<TInt>( aFrequency ) );
+    if ( !err )
+        {
+        iFrequency = aFrequency;
+        }
+    return err;
     }
 
 // ---------------------------------------------------------------------------
@@ -318,7 +390,8 @@ TInt CRadioEngineSettings::SetTunedFrequency( TUint32 aFrequency )
 //
 TUint32 CRadioEngineSettings::TunedFrequency() const
     {
-    return static_cast<TUint32>( iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRTunedFrequency ) );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iFrequency;
     }
 
 // ---------------------------------------------------------------------------
@@ -328,7 +401,8 @@ TUint32 CRadioEngineSettings::TunedFrequency() const
 //
 TInt CRadioEngineSettings::DefaultMinVolumeLevel() const
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRDefaultMinVolumeLevel );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iDefaultMinVolume;
     }
 
 // ---------------------------------------------------------------------------
@@ -338,6 +412,7 @@ TInt CRadioEngineSettings::DefaultMinVolumeLevel() const
 //
 TInt CRadioEngineSettings::CountRegions() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iRegions.Count();
     }
 
@@ -348,6 +423,7 @@ TInt CRadioEngineSettings::CountRegions() const
 //
 CRadioRegion& CRadioEngineSettings::Region( TInt aIndex ) const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( aIndex == KErrNotFound )
         {
         aIndex = RegionIndexForId( DefaultRegion() );
@@ -363,8 +439,8 @@ CRadioRegion& CRadioEngineSettings::Region( TInt aIndex ) const
 //
 TRadioRegion CRadioEngineSettings::RegionId() const
     {
-    return static_cast<TRadioRegion>( iRepositoryManager.EntityValueInt( KRadioCRUid,
-                                                                         KRadioCRCurrentRegion ) );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iRegionId;
     }
 
 // ---------------------------------------------------------------------------
@@ -374,19 +450,9 @@ TRadioRegion CRadioEngineSettings::RegionId() const
 //
 TRadioRegion CRadioEngineSettings::DefaultRegion() const
     {
-    TInt region( 0 );
-
-    TRAPD( err, iRepositoryManager.GetRepositoryValueL( KRadioCRUid, KRadioCRDefaultRegion, region ) );
-
-    TRadioRegion regionSetting = static_cast<TRadioRegion>( region );
-
-    if ( err != KErrNone )
-        {
-        regionSetting = ERadioRegionNone;
-        }
-    return regionSetting;
+    LEVEL3( LOG_METHOD_AUTO );
+    return iDefaultRegion;
     }
-
 
 // ---------------------------------------------------------------------------
 // From class MRadioEngineSettings.
@@ -395,17 +461,8 @@ TRadioRegion CRadioEngineSettings::DefaultRegion() const
 //
 TPtrC CRadioEngineSettings::NetworkId() const
     {
-    return TPtrC( iRepositoryManager.EntityValueDes16( KRadioCRUid, KRadioCRNetworkId ) );
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioEngineSettings.
-//
-// ---------------------------------------------------------------------------
-//
-TPtrC CRadioEngineSettings::SubscriberId() const
-    {
-    return TPtrC( iRepositoryManager.EntityValueDes16( KRadioCRUid, KRadioCRSubscriberId ) );
+    LEVEL3( LOG_METHOD_AUTO );
+    return TPtrC( iNetworkId );
     }
 
 // ---------------------------------------------------------------------------
@@ -415,7 +472,8 @@ TPtrC CRadioEngineSettings::SubscriberId() const
 //
 TPtrC CRadioEngineSettings::CountryCode() const
     {
-    return TPtrC( iRepositoryManager.EntityValueDes16( KRadioCRUid, KRadioCRCountryCode ) );
+    LEVEL3( LOG_METHOD_AUTO );
+    return TPtrC( iCountryCode );
     }
 
 // ---------------------------------------------------------------------------
@@ -425,12 +483,14 @@ TPtrC CRadioEngineSettings::CountryCode() const
 //
 TInt CRadioEngineSettings::SetRegionId( TInt aRegion )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     __ASSERT_ALWAYS( RegionIndexForId( aRegion ) != KErrNotFound,
                      User::Panic( _L( "CRadioEngineSettings" ), KErrArgument ) );
 
-    TInt err = iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRCurrentRegion, aRegion );
+    TInt err = iRepository->Set( KRadioCRCurrentRegion, aRegion );
     if ( !err )
         {
+        iRegionId = static_cast<TRadioRegion>( aRegion );
         UpdateCurrentRegionIdx( aRegion );
         err = SetTunedFrequency( Region( iCurrentRegionIdx ).MinFrequency() );
         }
@@ -442,29 +502,11 @@ TInt CRadioEngineSettings::SetRegionId( TInt aRegion )
 //
 // ---------------------------------------------------------------------------
 //
-TInt CRadioEngineSettings::SetRdsAfSearch( TBool aEnabled )
-    {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRRdsAfSearch, aEnabled );
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioSettingsSetter.
-//
-// ---------------------------------------------------------------------------
-//
 TInt CRadioEngineSettings::SetNetworkId( const TDesC& aNetworkId )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRNetworkId, aNetworkId );
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioSettingsSetter.
-//
-// ---------------------------------------------------------------------------
-//
-TInt CRadioEngineSettings::SetSubscriberId( const TDesC& aSubscriberId )
-    {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRSubscriberId, aSubscriberId );
+    LEVEL3( LOG_METHOD_AUTO );
+    iNetworkId.Copy( aNetworkId.Left( iNetworkId.MaxLength() ) );
+    return iRepository->Set( KRadioCRNetworkId, iNetworkId );
     }
 
 // ---------------------------------------------------------------------------
@@ -474,7 +516,9 @@ TInt CRadioEngineSettings::SetSubscriberId( const TDesC& aSubscriberId )
 //
 TInt CRadioEngineSettings::SetCountryCode( const TDesC& aCountryCode )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRCountryCode, aCountryCode );
+    LEVEL3( LOG_METHOD_AUTO );
+    iCountryCode.Copy( aCountryCode.Left( iCountryCode.MaxLength() ) );
+    return iRepository->Set( KRadioCRCountryCode, iCountryCode );
     }
 
 // ---------------------------------------------------------------------------
@@ -484,6 +528,7 @@ TInt CRadioEngineSettings::SetCountryCode( const TDesC& aCountryCode )
 //
 TUint32 CRadioEngineSettings::FrequencyStepSize() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return Region( iCurrentRegionIdx ).StepSize();
     }
 
@@ -494,6 +539,7 @@ TUint32 CRadioEngineSettings::FrequencyStepSize() const
 //
 TUint32 CRadioEngineSettings::MaxFrequency() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return Region( iCurrentRegionIdx ).MaxFrequency();
     }
 
@@ -504,6 +550,7 @@ TUint32 CRadioEngineSettings::MaxFrequency() const
 //
 TUint32 CRadioEngineSettings::MinFrequency() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return Region( iCurrentRegionIdx ).MinFrequency();
     }
 
@@ -514,17 +561,101 @@ TUint32 CRadioEngineSettings::MinFrequency() const
 //
 TInt CRadioEngineSettings::DecimalCount() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return Region( iCurrentRegionIdx ).DecimalCount();
     }
 
 // ---------------------------------------------------------------------------
-// From class MRadioEngineSettings.
-//
+// Initializes the data holders
 // ---------------------------------------------------------------------------
 //
-TBool CRadioEngineSettings::RdsAfSearchEnabled() const
+void CRadioEngineSettings::InitializeDataHolders()
     {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRRdsAfSearch );
+    TInt temp = 0;
+    GetRepositoryValue( KRadioCRHeadsetMuteState, temp, EFalse );
+    iFlags.Assign( EHeadsetVolMuted, temp );
+
+    temp = RadioEngine::ERadioHeadsetDefaultVolume;
+    GetRepositoryValue( KRadioCRHeadsetVolume, temp, temp );
+    iHeadsetVolume = temp;
+
+    temp = 0;
+    GetRepositoryValue( KRadioCRSpeakerMuteState, temp, EFalse );
+    iFlags.Assign( ESpeakerVolMuted, temp );
+
+    temp = RadioEngine::ERadioSpeakerDefaultVolume;
+    GetRepositoryValue( KRadioCRSpeakerVolume, temp, temp );
+    iSpeakerVolume = temp;
+
+    temp = 0;
+    GetRepositoryValue( KRadioCRRadioPowerState, temp, EFalse );
+    iFlags.Assign( EPowerOn, temp );
+
+    temp = RadioEngine::ERadioStereo;
+    if ( GetRepositoryValue( KRadioCROutputMode, temp, temp ) )
+        {
+        iFlags.Assign( EStereoOutput, temp == RadioEngine::ERadioStereo );
+        }
+
+    temp = RadioEngine::ERadioHeadset;
+    if ( GetRepositoryValue( KRadioCRAudioRoute, temp, temp ) )
+        {
+        iFlags.Assign( EHeadsetAudioRoute, temp == RadioEngine::ERadioHeadset );
+        }
+
+    temp = RadioEngine::ERadioDefaultMinVolume;
+    GetRepositoryValue( KRadioCRDefaultMinVolumeLevel, temp, temp );
+    iDefaultMinVolume = temp;
+
+    temp = ERadioRegionNone;
+    GetRepositoryValue( KRadioCRDefaultRegion, temp, temp );
+    iDefaultRegion = static_cast<TRadioRegion>( temp );
+
+    temp = ERadioRegionNone;
+    GetRepositoryValue( KRadioCRCurrentRegion, temp, temp );
+    iRegionId = static_cast<TRadioRegion>( temp );
+
+    temp = MinFrequency();
+    GetRepositoryValue( KRadioCRTunedFrequency, temp, temp );
+    iFrequency = static_cast<TUint32>( temp );
+    }
+
+// ---------------------------------------------------------------------------
+// Gets a repository value and sets the default value if the key is not found
+// ---------------------------------------------------------------------------
+//
+TBool CRadioEngineSettings::GetRepositoryValue( int aKey, TInt& aValue, TInt aDefault )
+    {
+    TInt temp = 0;
+    TInt err = iRepository->Get( aKey, temp );
+    if ( !err )
+        {
+        aValue = temp;
+        return ETrue;
+        }
+    else if ( err == KErrNotFound )
+        {
+        if ( iRepository->Set( aKey, aDefault ) == KErrNone )
+            {
+            aValue = aDefault;
+            return ETrue;
+            }
+        }
+    return EFalse;
+    }
+
+// ---------------------------------------------------------------------------
+// Sets a boolean value to cenrep and data holder
+// ---------------------------------------------------------------------------
+//
+TInt CRadioEngineSettings::SetFlagValue( int aKey, int aFlagId, TInt aValue )
+    {
+    TInt err = iRepository->Set( aKey, aValue );
+    if ( !err )
+        {
+        iFlags.Assign( aFlagId, aValue );
+        }
+    return err;
     }
 
 // ---------------------------------------------------------------------------
@@ -533,18 +664,33 @@ TBool CRadioEngineSettings::RdsAfSearchEnabled() const
 //
 void CRadioEngineSettings::InitializeRegionsL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iRegions.ResetAndDestroy();
 
     TResourceReader reader;
-    iCoeEnv.CreateResourceReaderLC( reader, R_QRAD_REGIONS );
 
+    TFileName resourceFileName;
+    resourceFileName.Append( KRadioSettingsResourceFile );
+
+    //User::LeaveIfError( iRadioSettingsImp.FsSession().Connect() );
+
+    iRadioSettingsImp.ResolveDriveL( resourceFileName, KDC_RESOURCE_FILES_DIR );
+    BaflUtils::NearestLanguageFile( iRadioSettingsImp.FsSession(), resourceFileName);
+
+    iResFile.OpenL( iRadioSettingsImp.FsSession(), resourceFileName);
+
+    iResFile.ConfirmSignatureL();
+    HBufC8* readBuffer = iResFile.AllocReadLC(R_QRAD_REGIONS);
+    reader.SetBuffer(readBuffer);
     TInt regionCount = reader.ReadInt16();
 
     for ( TInt i = 0 ; i < regionCount; i++ )
         {
         TInt resId = reader.ReadInt32(); // The next resource ID to read.
+        HBufC8* regionBuffer = iResFile.AllocReadLC(resId);
         TResourceReader regionReader;
-        iCoeEnv.CreateResourceReaderLC( regionReader, resId );
+        regionReader.SetBuffer(regionBuffer);
+
         CRadioRegion* region = CRadioRegion::NewL( regionReader );
         CleanupStack::PushL( region );
 
@@ -556,10 +702,8 @@ void CRadioEngineSettings::InitializeRegionsL()
         else{
             CleanupStack::PopAndDestroy( region );
             }
-        CleanupStack::PopAndDestroy();
+        CleanupStack::PopAndDestroy(regionBuffer);
         }
-
-    CleanupStack::PopAndDestroy();
 
     if ( CountRegions() <= 0 || !IsRegionAllowed( DefaultRegion() ) )
         {
@@ -567,6 +711,7 @@ void CRadioEngineSettings::InitializeRegionsL()
         }
 
     UpdateCurrentRegionIdx( RegionId() );
+    CleanupStack::PopAndDestroy(readBuffer);
     }
 
 // ---------------------------------------------------------------------------
@@ -575,6 +720,7 @@ void CRadioEngineSettings::InitializeRegionsL()
 //
 TInt CRadioEngineSettings::RegionIndexForId( TInt aRegionId ) const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TInt idx = KErrNotFound;
     for ( TInt i = 0 ; i < CountRegions(); ++i )
         {
@@ -593,43 +739,8 @@ TInt CRadioEngineSettings::RegionIndexForId( TInt aRegionId ) const
 //
 void CRadioEngineSettings::UpdateCurrentRegionIdx( TInt aRegionId )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iCurrentRegionIdx = RegionIndexForId( aRegionId );
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioRepositoryEntityObserver.
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineSettings::HandleRepositoryValueChangeL( const TUid& aUid,
-                                                         TUint32 aKey,
-                                                         TInt aValue,
-                                                         TInt aError )
-    {
-    if ( !aError && aUid == KRadioCRUid && iObserver )
-        {
-        if ( aKey == KRadioCRRdsAfSearch )
-            {
-            iObserver->RdsAfSearchSettingChangedL( aValue );
-            }
-        else if ( aKey == KRadioCRCurrentRegion )
-            {
-            if ( iCurrentRegionIdx != RegionIndexForId( aValue ) )
-                {
-                UpdateCurrentRegionIdx( aValue );
-                __ASSERT_ALWAYS( iCurrentRegionIdx != KErrNotFound,
-                     User::Panic( _L( "CRadioEngineSettings" ), KErrArgument ) );
-                User::LeaveIfError( SetTunedFrequency( Region( iCurrentRegionIdx ).MinFrequency() ) );
-                iObserver->RegionSettingChangedL( aValue );
-                }
-            }
-        else if ( aKey == KRadioCRRdsAfSearch )
-            {
-            iObserver->RdsAfSearchSettingChangedL( aValue );
-            }
-        else
-            {
-            }
-        }
     }
 
 // ---------------------------------------------------------------------------
@@ -638,31 +749,18 @@ void CRadioEngineSettings::HandleRepositoryValueChangeL( const TUid& aUid,
 //
 TBool CRadioEngineSettings::IsRegionAllowed( TRadioRegion aRegionId ) const
     {
+    LEVEL3( LOG_METHOD_AUTO );
 
-    TInt regionAllowed( EFalse );
-    TInt err( KErrNone );
-
-    switch ( aRegionId )
+    TInt regionAllowed( ETrue );
+    if ( ERadioRegionJapan == aRegionId )
         {
-        case ERadioRegionJapan:
-            TRAP( err, iRepositoryManager.GetRepositoryValueL( KRadioCRUid, KRadioCRRegionAllowedJapan, regionAllowed ) );
-            break;
-
-        case ERadioRegionAmerica:
-            TRAP( err, iRepositoryManager.GetRepositoryValueL( KRadioCRUid, KRadioCRRegionAllowedAmerica, regionAllowed ) );
-            break;
-
-        case ERadioRegionDefault:
-            TRAP( err, iRepositoryManager.GetRepositoryValueL( KRadioCRUid, KRadioCRRegionAllowedDefault, regionAllowed ) );
-            break;
-
-        default:
-            break;
-        }
-
-    if ( err != KErrNone )
-        {
-        regionAllowed = EFalse;
+        TInt err = iRepository->Get( KRadioCRRegionAllowedJapan, regionAllowed );
+        if ( KErrNone != err )
+            {
+            // In case the key is not found or otherwise unsuccessfully read,
+            // Japan region is not allowed by default.
+            regionAllowed = EFalse;
+            }
         }
 
     return TBool( regionAllowed );

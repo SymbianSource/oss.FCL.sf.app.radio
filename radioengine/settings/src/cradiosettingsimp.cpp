@@ -26,16 +26,9 @@
 #include "cradiosettingsimp.h"
 #include "cradioapplicationsettings.h"
 #include "cradioenginesettings.h"
-#include "cradiorepositorymanager.h"
-#include "radioengineutils.h"
-#include "radioengineutils.h"
+//#include "radioengineutils.h"
 #include "cradioenginelogger.h"
 
-// The name of the radio settings resource file.
-_LIT( KRadioSettingsResourceFile, "radioenginesettings.rsc" );
-
-// The granularity of the repository manager array.
-const TInt KRadioSettingsRepositoryManagerGranularity = 8;
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -43,11 +36,12 @@ const TInt KRadioSettingsRepositoryManagerGranularity = 8;
 //
 // ---------------------------------------------------------------------------
 //
-CRadioSettingsImp* CRadioSettingsImp::NewL( CCoeEnv* aCoeEnv )
+CRadioSettingsImp* CRadioSettingsImp::NewL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioSettingsImp* self = new (ELeave) CRadioSettingsImp;
     CleanupStack::PushL( self );
-    self->ConstructL( aCoeEnv );
+    self->ConstructL();
     CleanupStack::Pop( self );
     return self;
     }
@@ -56,16 +50,15 @@ CRadioSettingsImp* CRadioSettingsImp::NewL( CCoeEnv* aCoeEnv )
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioSettingsImp::ConstructL( CCoeEnv* aCoeEnv )
+void CRadioSettingsImp::ConstructL()
     {
-    RadioEngineUtils::InitializeL( aCoeEnv );
-    LoadResourcesL();
-
-    iRepositoryManager = CRadioRepositoryManager::NewL( KRadioSettingsRepositoryManagerGranularity );
+    LEVEL3( LOG_METHOD_AUTO );
+    iFsSession = new ( ELeave ) RFs;
+    User::LeaveIfError( iFsSession->Connect() );
 
     // Constructs the implementors of the interfaces.
-    iApplicationSettings = CRadioApplicationSettings::NewL( *iRepositoryManager, *RadioEngineUtils::Env() );
-    iEngineSettings = CRadioEngineSettings::NewL( *iRepositoryManager, *RadioEngineUtils::Env() );
+    iApplicationSettings = CRadioApplicationSettings::NewL();
+    iEngineSettings = CRadioEngineSettings::NewL( *this );
     }
 
 // ---------------------------------------------------------------------------
@@ -74,6 +67,7 @@ void CRadioSettingsImp::ConstructL( CCoeEnv* aCoeEnv )
 //
 CRadioSettingsImp::CRadioSettingsImp()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -82,16 +76,17 @@ CRadioSettingsImp::CRadioSettingsImp()
 //
 CRadioSettingsImp::~CRadioSettingsImp()
     {
-    delete iApplicationSettings;
+    LEVEL3( LOG_METHOD_AUTO );
     delete iEngineSettings;
-    delete iRepositoryManager;
-
-    if ( iResourceLoader )
+    delete iApplicationSettings;
+    if ( iFsSession )
         {
-        iResourceLoader->Close();
+        if ( iFsSession->Handle() )
+            {
+            iFsSession->Close();
+            }
+        delete iFsSession;
         }
-    delete iResourceLoader;
-    RadioEngineUtils::Release();
     }
 
 // ---------------------------------------------------------------------------
@@ -100,6 +95,7 @@ CRadioSettingsImp::~CRadioSettingsImp()
 //
 TBool CRadioSettingsImp::IsRegionAllowed( TRadioRegion aRegionId ) const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iEngineSettings->IsRegionAllowed( aRegionId );
     }
 
@@ -109,6 +105,7 @@ TBool CRadioSettingsImp::IsRegionAllowed( TRadioRegion aRegionId ) const
 //
 MRadioApplicationSettings& CRadioSettingsImp::ApplicationSettings() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iApplicationSettings;
     }
 
@@ -118,6 +115,7 @@ MRadioApplicationSettings& CRadioSettingsImp::ApplicationSettings() const
 //
 MRadioEngineSettings& CRadioSettingsImp::EngineSettings() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iEngineSettings;
     }
 
@@ -127,16 +125,8 @@ MRadioEngineSettings& CRadioSettingsImp::EngineSettings() const
 //
 MRadioSettingsSetter& CRadioSettingsImp::RadioSetter() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iEngineSettings;
-    }
-
-// ---------------------------------------------------------------------------
-// Returns the underlying repository.
-// ---------------------------------------------------------------------------
-//
-CRadioRepositoryManager& CRadioSettingsImp::Repository() const
-    {
-    return *iRepositoryManager;
     }
 
 // ---------------------------------------------------------------------------
@@ -145,12 +135,12 @@ CRadioRepositoryManager& CRadioSettingsImp::Repository() const
 //
 void CRadioSettingsImp::ResolveDriveL( TFileName& aFileName, const TDesC& aPath )
     {
-    LOG_FORMAT( "CRadioSettingsImp::ResolveDriveL( aFileName = %S, aPath = %S )", &aFileName, &aPath );
-
-    RFs& fsSession = RadioEngineUtils::FsSession();
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aFileName = %S, aPath = %S", &aFileName, &aPath ) );
+    
     TFileName fileName;
     TFileName baseResource;
-    TFindFile finder( fsSession );
+    TFindFile finder( *iFsSession );
     TLanguage language( ELangNone );
 
     _LIT( resourceFileExt, ".rsc" );
@@ -175,24 +165,24 @@ void CRadioSettingsImp::ResolveDriveL( TFileName& aFileName, const TDesC& aPath 
         err = finder.FindByDir( aFileName, aPath );
         }
 
-    LOG_FORMAT( "CRadioSettingsImp::ResolveDriveL - err = %d", err );
+    LEVEL3( LOG_FORMAT( "err = %d", err ) );
     TBool found = EFalse;
-    if ( !isResourceFile && err == KErrNone )
+    if ( !isResourceFile && ( KErrNone == err ) )
         {
         found = ETrue;
         aFileName.Zero();
         aFileName.Append( finder.File() );
         }
 
-    while ( !found && err == KErrNone && isResourceFile )
+    while ( !found && ( KErrNone == err ) && isResourceFile )
         {
         // Found file
         fileName.Zero();
         TParsePtrC foundPath( finder.File() );
         fileName.Copy( foundPath.DriveAndPath() );
         fileName.Append( aFileName );
-        BaflUtils::NearestLanguageFile( fsSession, fileName, language );
-        if ( language != ELangNone && BaflUtils::FileExists( fsSession, fileName ) )
+        BaflUtils::NearestLanguageFile( *iFsSession, fileName, language );
+        if ( language != ELangNone && BaflUtils::FileExists( *iFsSession, fileName ) )
             {
             found = ETrue;
             aFileName.Zero();
@@ -202,7 +192,7 @@ void CRadioSettingsImp::ResolveDriveL( TFileName& aFileName, const TDesC& aPath 
             {
             if ( language == ELangNone &&
                  !baseResource.Compare( KNullDesC ) &&
-                 BaflUtils::FileExists( fsSession, fileName ) )
+                 BaflUtils::FileExists( *iFsSession, fileName ) )
                 {
                 baseResource.Copy( fileName );
                 }
@@ -215,7 +205,7 @@ void CRadioSettingsImp::ResolveDriveL( TFileName& aFileName, const TDesC& aPath 
     if ( !found && baseResource.Compare( KNullDesC ) )
         {
         // If we found *.rsc then better to use that than nothing
-        if ( BaflUtils::FileExists( fsSession, baseResource ) )
+        if ( BaflUtils::FileExists( *iFsSession, baseResource ) )
             {
             found = ETrue;
             aFileName.Zero();
@@ -225,29 +215,24 @@ void CRadioSettingsImp::ResolveDriveL( TFileName& aFileName, const TDesC& aPath 
 
     if ( !found )
         {
-        LOG_FORMAT( "CRadioSettingsImp::ResolveDriveL - File %S not found ( err = %d )!", &aFileName, err );
-        User::Leave( KErrNotFound );
+        LEVEL3( LOG_FORMAT( "File %S not found ( err = %d )!", &aFileName, err ) );
+        if ( !err )
+            {
+            err = KErrNotFound;
+            }
+        User::Leave( err );
         }
 
-    LOG_FORMAT( "CRadioSettingsImp::ResolveDriveL( aFileName = %S )", &aFileName );
+    LEVEL3( LOG_FORMAT( "aFileName = %S", &aFileName ) );
     }
 
 // ---------------------------------------------------------------------------
-// Loads the required resources.
+// Returns the file server session
 // ---------------------------------------------------------------------------
 //
-void CRadioSettingsImp::LoadResourcesL()
+RFs& CRadioSettingsImp::FsSession()
     {
-    // Allocated in heap only so that the resource loader header doesn't need to be
-    // included in the header of this class. This is because this will be included
-    // by a QT component that should not depend on CONE
-    iResourceLoader = new (ELeave) RConeResourceLoader( *RadioEngineUtils::Env() );
-
-    TFileName resourceFileName;
-    resourceFileName.Append( KRadioSettingsResourceFile );
-
-    ResolveDriveL( resourceFileName, KDC_RESOURCE_FILES_DIR );
-
-    iResourceLoader->OpenL( resourceFileName );
+    LEVEL3( LOG_METHOD_AUTO );
+    return *iFsSession;
     }
 

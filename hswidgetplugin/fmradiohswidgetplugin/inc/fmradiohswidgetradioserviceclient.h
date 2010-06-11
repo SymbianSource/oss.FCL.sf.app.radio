@@ -28,11 +28,11 @@
 const QString KRadioServiceName = "com.nokia.services.Radio";
 /**  Radio control interface name. */
 const QString KRadioServiceControlInterfaceName = "IRadioControl";
-/**  Radio monitor interface name. */
+/**  Radio control operation name. */
 const QString KRadioServiceControlOperation = "command(int)";
 /**  Radio monitor interface name. */
 const QString KRadioServiceMonitorInterfaceName = "IRadioMonitor";
-/**  Radio monitor interface name. */
+/**  Radio monitor operation name. */
 const QString KRadioServiceMonitorOperation = "requestNotifications()";
 /**  Radio refresh operation name. */
 const QString KRadioServiceRefreshOperation = "requestAllData()";
@@ -42,24 +42,17 @@ class FmRadioHsWidgetRadioServiceClient : public QObject
 Q_OBJECT
 
 public:
-    FmRadioHsWidgetRadioServiceClient(QObject *parent = 0);
+    explicit FmRadioHsWidgetRadioServiceClient(QObject *parent = 0);
     virtual ~FmRadioHsWidgetRadioServiceClient();
     
-    enum FmRadioStartupState
+    // Enum for station changing command.
+    enum FmRadioStationChangeCommand
     {
-        StartForeground,
-        StartBackground
+        PreviousFavouriteStation,
+        NextFavouriteStation
     };
-    enum FmRadioChannelChangeCommand
-    {
-        PreviousFavouriteChannel,
-        NextFavouriteChannel
-    };
-    enum FmRadioAudioControlCommand
-    {
-        Mute,
-        Unmute
-    };
+    
+    // Enum for type of radio information.
     enum FmRadioInformationType
     {
         InformationTypeStationName,
@@ -69,6 +62,8 @@ public:
         InformationTypeDynamicPsName,
         InformationTypePty
     };
+    
+    // Enum for controlling the visibility of the radio application.
     enum FmRadioVisibilty
     {
         DoNotChange,
@@ -76,37 +71,36 @@ public:
         ToBackground
     };
 
-    void init();
-
 signals:
-    void radioInformationChanged(int notificationId, QVariant value);
-    void radioStateChanged(QVariant value);
+    void radioInformationChanged(const int notificationId,
+        const QVariant &value);
+    void radioStateChanged(const QVariant &value);
 
 public slots:
-    void doChangeFmRadioVisibility(FmRadioVisibilty visibility);
-    void test();
-    void doChangeFmRadioChannel(FmRadioChannelChangeCommand command);
-    void doControlFmRadioAudio(FmRadioAudioControlCommand command);
-    void handleFmRadioInformationChange(const QVariant& value);
-    void handleFmRadioStateChange(QVariant& value);
-    void startMonitoring(FmRadioVisibilty visibility);
+    void doCloseFmRadio();
+    void doPowerOnFmRadio();
+    void doChangeFmRadioVisibility(const FmRadioVisibilty visibility);
+    void doChangeFmRadioStation(const FmRadioStationChangeCommand command);
+    void handleFmRadioInformationChange(const QVariant &value);
+    void handleFmRadioStateChange(const QVariant &value);
+    void startMonitoring(const FmRadioVisibilty visibility);
     void stopMonitoring();
 
 protected slots:
-    void requestCompleted(const QVariant& value);
 
 private slots:
-    //void handleOk(const QVariant &result);
-    void handleError(int errorCode, const QString& errorMessage);
-    void handleRequestError(int error);
+    void handleError(const int errorCode, const QString &errorMessage);
+    void handleRequestError(const int error);
     
     void createControlServiceRequest();
     void createMonitorServiceRequest();
 
-    void doSendMonitorRequest(FmRadioVisibilty visibility);
-    void doSendControlRequest(QVariant &argument, FmRadioVisibilty visibility);
+    void doSendMonitorRequest(const FmRadioVisibilty visibility);
+    void doSendControlRequest(const QVariant &argument,
+        const FmRadioVisibilty visibility);
     
-    void prepareRequestInfo(XQAiwRequest *request, FmRadioVisibilty visibility);
+    void prepareRequestInfo(XQAiwRequest *request,
+        const FmRadioVisibilty visibility);
     
 private: // data
     bool mRequestPending;
@@ -114,8 +108,7 @@ private: // data
     XQAiwRequest* mRadioMonitorRequest;
     XQAiwRequest* mRadioControlRequest;
     
-    bool                mDataInitialized;
-
+    bool mDataInitialized;
 };
 
 #endif /* FMRADIOHSWIDGETRADIOSERVICECLIENT_H_ */

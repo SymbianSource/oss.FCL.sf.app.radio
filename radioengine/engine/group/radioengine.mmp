@@ -21,9 +21,9 @@
 
 #include <data_caging_paths.hrh>
 
-TARGET                  radioengine.dll
+TARGET                  fmradioengine.dll
 TARGETTYPE              DLL
-UID                     0x1000008D 0x10281CB2
+UID                     0x1000008D 0x2002FF4F
 VERSION                 11.0
 
 CAPABILITY              CAP_GENERAL_DLL
@@ -38,11 +38,6 @@ SOURCE                  cradiordsreceiver.cpp
 SOURCE                  cradiordsreceiverbase.cpp
 SOURCE                  cradionetworkinfolistener.cpp
 
-#ifdef __FEATURE_RDS_SIMULATOR
-MACRO __FEATURE_RDS_SIMULATOR
-SOURCE                  t_cradiordsreceiversimulator.cpp
-#endif // __FEATURE_RDS_SIMULATOR
-
 USERINCLUDE             ../api
 USERINCLUDE             ../inc
 USERINCLUDE             ../../utils/api
@@ -52,8 +47,8 @@ USERINCLUDE             ../../group
 // Default system include paths for application layer modules.
 APP_LAYER_SYSTEMINCLUDE
 
-LIBRARY                 radioengineutils.lib
-LIBRARY                 radioenginesettings.lib
+LIBRARY                 fmradioengineutils.lib
+LIBRARY                 fmradioenginesettings.lib
 
 LIBRARY                 AudioOutputRouting.lib
 LIBRARY                 euser.lib

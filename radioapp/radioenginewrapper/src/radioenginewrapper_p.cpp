@@ -25,10 +25,8 @@
 #include "radio_global.h"
 #include "cradioenginehandler.h"
 #include "radiostationhandlerif.h"
-#include "cradiopubsub.h"
 #include "radiocontroleventlistener.h"
 #include "radiordslistener.h"
-#include "cradiorepositorymanager.h"
 #include "radioenginewrapperobserver.h"
 
 // Constants
@@ -43,7 +41,7 @@ RadioEngineWrapperPrivate::RadioEngineWrapperPrivate( RadioEngineWrapper* wrappe
     mEngineHandler( new CRadioEngineHandler( *this ) ),
     mControlEventListener( new RadioControlEventListener( *this ) ),
     mRdsListener ( new RadioRdsListener( mStationHandler, *this ) ),
-    mTuneReason( 0 ),
+    mTuneReason( TuneReason::Unspecified ),
     mUseLoudspeaker( false )
 {
 }
@@ -61,37 +59,24 @@ RadioEngineWrapperPrivate::~RadioEngineWrapperPrivate()
 /*!
  * Initializes the private implementation
  */
-void RadioEngineWrapperPrivate::init()
+bool RadioEngineWrapperPrivate::init()
 {
     TRAPD( err, mEngineHandler->ConstructL() );
     if ( err != KErrNone ) {
         LOG_FORMAT( "RadioEngineWrapperPrivate::init, EngineHandler construct failed: %d", err );
         mEngineHandler.reset();
-        return;
-        //TODO: Error handling?
+        return false;
     }
 
     mEngineHandler->SetRdsObserver( mRdsListener.data() );
-    mEngineHandler->PubSub().SetControlEventObserver( mControlEventListener.data() );
     mControlEventListener->init();
-
-    // Start observing profile changes
-    mEngineHandler->Repository().AddEntityL( KCRUidProfileEngine,
-                                             KProEngActiveProfile,
-                                             CRadioRepositoryManager::ERadioEntityInt );
 
     mUseLoudspeaker = mEngineHandler->IsAudioRoutedToLoudspeaker();
     if ( !mUseLoudspeaker ) {
         RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( false ) );
     }
-}
 
-/*!
- * Starts up the radio engine
- */
-bool RadioEngineWrapperPrivate::isEngineConstructed()
-{
-    return mEngineHandler != 0;
+    return true;
 }
 
 /*!
@@ -117,22 +102,11 @@ CRadioEngineHandler& RadioEngineWrapperPrivate::RadioEnginehandler()
 /*!
  * Tunes to the given frequency
  */
-void RadioEngineWrapperPrivate::tuneFrequency( uint frequency, const int reason )
+void RadioEngineWrapperPrivate::setFrequency( uint frequency, const int reason )
 {
-    if ( mEngineHandler->TunedFrequency() != frequency ) {
+    if ( mEngineHandler->CurrentFrequency() != frequency ) {
         mTuneReason = reason;
-        mEngineHandler->Tune( frequency );
-    }
-}
-
-/*!
- * Tunes to the given frequency after a delay
- */
-void RadioEngineWrapperPrivate::tuneWithDelay( uint frequency, const int reason )
-{
-    if ( mEngineHandler->TunedFrequency() != frequency ) {
-        mTuneReason = reason;
-        mEngineHandler->TuneWithDelay( frequency );
+        mEngineHandler->SetFrequency( frequency );
     }
 }
 
@@ -147,7 +121,7 @@ ObserverList& RadioEngineWrapperPrivate::observers()
 /*!
  *
  */
-void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction, const int reason )
+void RadioEngineWrapperPrivate::startSeeking( Seek::Direction direction, const int reason )
 {
     mTuneReason = reason;
     mEngineHandler->Seek( direction );
@@ -170,11 +144,13 @@ void RadioEngineWrapperPrivate::FrequencyEventL( TUint32 aFrequency,
                                                  TInt aError )
 {
     Q_UNUSED( aReason );
-    LOG_FORMAT( "RadioEngineWrapperPrivate::FrequencyEventL - Frequency: %d, Reason: %d, Error: %d", aFrequency, aReason, aError );
+    LOG_FORMAT( "RadioEngineWrapperPrivate::FrequencyEventL - Freq: %d, TuneReason: %d, Err: %d", aFrequency, mTuneReason, aError );
 
     if ( !aError ) {
         const uint frequency = static_cast<uint>( aFrequency );
         RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( frequency, mTuneReason ) );
+    } else {
+        RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( mEngineHandler->MinFrequency(), TuneReason::StationScanNoStationsFound ) ); // no frequencies found
     }
 }
 
@@ -267,14 +243,4 @@ void RadioEngineWrapperPrivate::HandleSystemEventL( TRadioSystemEventType DEBUGV
 //    ERadioAudioRoutingSpeaker,      ///< Audio routed through speaker ( IHF )
 //    ERadioAudioResourcesAvailable,  ///< Audio resources have become available
 //    ERadioAudioAutoResumeForbidden  ///< Audio auto resuming is forbidden
-}
-
-/*!
- * \reimp
- */
-void RadioEngineWrapperPrivate::HandleRepositoryValueChangeL( const TUid& aUid, TUint32 aKey, TInt aValue, TInt aError )
-{
-    if ( aUid == KCRUidProfileEngine && aKey == KProEngActiveProfile && !aError && aValue == KOfflineProfileId ) {
-        LOG( "RadioEngineWrapperPrivate::HandleRepositoryValueChangeL: Offline profile activated" );
-    }
 }

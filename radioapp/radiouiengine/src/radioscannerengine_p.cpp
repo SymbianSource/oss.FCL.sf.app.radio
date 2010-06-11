@@ -59,7 +59,7 @@ void RadioScannerEnginePrivate::tunedToFrequency( uint frequency, int reason )
 
     Q_Q( RadioScannerEngine );
     if ( reason == TuneReason::StationScanInitialization ) {
-        mUiEngine.wrapper().startSeeking( Seeking::Up, TuneReason::StationScan );
+        mUiEngine.wrapper().startSeeking( Seek::Up, TuneReason::StationScan );
     } else if ( reason == TuneReason::StationScan ) {
         if ( frequency > mLastFoundFrequency ) {
             // Station has been found normally
@@ -72,6 +72,8 @@ void RadioScannerEnginePrivate::tunedToFrequency( uint frequency, int reason )
             // Seeking looped around the frequency band. Send invalid station as indicator that the scanning should stop
             q->emitStationFound( RadioStation() );
         }
+    } else {
+        q->emitStationFound( RadioStation() );
     }
 }
 
@@ -82,8 +84,13 @@ void RadioScannerEnginePrivate::addFrequencyAndReport( const uint frequency )
 {
     RadioStationModel& stationModel = mUiEngine.api().stationModel();
     stationModel.stationHandlerIf().addScannedFrequency( frequency );
+
+    // Return value of findFrequency() is intentionally ignored. The station was just added
+    // to the model in the previous line so it should be found and if it isn't then an
+    // empty station is sent with the signal and scanner will stop the scanning process.
     RadioStation station;
     stationModel.findFrequency( frequency, station );
+
     Q_Q( RadioScannerEngine );
     q->emitStationFound( station );
 }

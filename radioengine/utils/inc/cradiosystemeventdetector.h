@@ -80,11 +80,6 @@ private:
 
     void ConstructL();
 
-    /**
-     * Used internally to change network coverage status and report it to observer.
-     */
-    void SetNetworkCoverageL( const TBool aIsMobileNetworkCoverage, const TBool aIsWlanCoverage );
-
     CRadioSystemEventDetector( MRadioSystemEventDetectorObserver&  aObserver );
 
 private: // data
@@ -93,31 +88,23 @@ private: // data
     MRadioSystemEventDetectorObserver&  iObserver;
 
     /** handler to Publish & Subscribe interface*/
-    CRadioPropertyObserver*    iCallStatusObserver;
+    CRadioPropertyObserver*     iCallStatusObserver;
     /** handler to Publish & Subscribe interface*/
-    CRadioPropertyObserver*    iNetworkStatusObserver;
+    CRadioPropertyObserver*     iNetworkStatusObserver;
     /** handler to Publish & Subscribe interface*/
-    CRadioPropertyObserver*    iVoiceUiObserver;
-    /** handler to Publish & Subscribe interface*/
-    CRadioPropertyObserver*    iAudioPolicyObserver;
+    CRadioPropertyObserver*     iAudioPolicyObserver;
 
     /**Indicator for the mobile network status*/
-    TBool iIsMobileNetworkCoverage;
-
-    /**Indicator for the wlan network status*/
-    TBool iIsWlanCoverage;
+    TBool                       iIsMobileNetworkCoverage;
 
     /**Indicator for the call status*/
-    TBool iIsCallActive;
+    TBool                       iIsCallActive;
 
     /** Array of audio policy categories that VR must not resume after. */
-    RArray<TInt> iNoAutoResumeAudioCategories;
+    RArray<TInt>                iNoAutoResumeAudioCategories;
 
     /** Indicator for audio resource status. */
-    TBool iIsAudioResourcesAvailable;
-
-    /** Indicator for Voice UI status. */
-    TBool iIsVoiceUiActive;
+    TBool                       iIsAudioResourcesAvailable;
     
     };
 

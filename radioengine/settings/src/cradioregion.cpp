@@ -20,6 +20,7 @@
 
 // User includes
 #include "cradioregion.h"
+#include "cradioenginelogger.h"
 
 // Used to convert kilohertz values to hertz values
 const TInt KRadioThousand = 1000;
@@ -32,6 +33,7 @@ const TInt KRadioThousand = 1000;
 //
 CRadioRegion::CRadioRegion()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -40,6 +42,7 @@ CRadioRegion::CRadioRegion()
 //
 void CRadioRegion::ConstructL( TResourceReader& aRr )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iId = static_cast<TRadioRegion>( aRr.ReadUint16());
     iStepSize = static_cast<TUint16>( aRr.ReadUint16() ) * KRadioThousand;
     iMinFreq = aRr.ReadUint32() * KRadioThousand;
@@ -64,6 +67,7 @@ void CRadioRegion::ConstructL( TResourceReader& aRr )
 //
 CRadioRegion* CRadioRegion::NewL( TResourceReader& aRr )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioRegion* self = new ( ELeave ) CRadioRegion;
 
     CleanupStack::PushL( self );
@@ -80,6 +84,7 @@ CRadioRegion* CRadioRegion::NewL( TResourceReader& aRr )
 //
 CRadioRegion::~CRadioRegion()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iCountryCodes.ResetAndDestroy();
     iCountryCodes.Close();
     delete iName;
@@ -92,6 +97,7 @@ CRadioRegion::~CRadioRegion()
 //
 EXPORT_C TRadioRegion CRadioRegion::Id() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iId;
     }
 
@@ -101,6 +107,7 @@ EXPORT_C TRadioRegion CRadioRegion::Id() const
 //
 EXPORT_C TUint32 CRadioRegion::StepSize() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iStepSize;
     }
 
@@ -110,6 +117,7 @@ EXPORT_C TUint32 CRadioRegion::StepSize() const
 //
 EXPORT_C TUint32 CRadioRegion::MinFrequency() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iMinFreq;
     }
 
@@ -119,6 +127,7 @@ EXPORT_C TUint32 CRadioRegion::MinFrequency() const
 //
 EXPORT_C TUint32 CRadioRegion::MaxFrequency() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iMaxFreq;
     }
 
@@ -128,6 +137,7 @@ EXPORT_C TUint32 CRadioRegion::MaxFrequency() const
 //
 EXPORT_C TInt CRadioRegion::DecimalCount() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iDecimalCount;
     }
 
@@ -137,6 +147,7 @@ EXPORT_C TInt CRadioRegion::DecimalCount() const
 //
 EXPORT_C const RRadioCountryCodeArray& CRadioRegion::CountryCodes()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iCountryCodes;
     }
 
@@ -146,6 +157,7 @@ EXPORT_C const RRadioCountryCodeArray& CRadioRegion::CountryCodes()
 //
 EXPORT_C const TDesC16& CRadioRegion::Name() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iName;
     }
 
@@ -155,5 +167,6 @@ EXPORT_C const TDesC16& CRadioRegion::Name() const
 //
 EXPORT_C const TDesC16& CRadioRegion::SettingItemName() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iSettingName;
     }

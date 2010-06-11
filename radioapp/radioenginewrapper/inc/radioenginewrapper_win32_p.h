@@ -65,8 +65,7 @@ public:
     /**
      * Initialization and startup
      */
-    void init();
-    bool isEngineConstructed();
+    bool init();
 
     /**
      * Returns the radio settings
@@ -74,14 +73,13 @@ public:
     RadioSettingsIf& settings();
 
     /**
-     * Functions called from slots to tune to given frequency or preset
+     * Tunes to the given frequency
      */
-    void tuneFrequency( uint frequency, const int reason );
-    void tuneWithDelay( uint frequency, const int reason );
+    void setFrequency( uint frequency, const int reason );
 
     ObserverList& observers();
 
-    void startSeeking( Seeking::Direction direction, const int reason );
+    void startSeeking( Seek::Direction direction, const int reason );
     void cancelSeeking();
 
     void toggleAudioRoute();
@@ -176,6 +174,8 @@ private: // data
 
     QString                                         mArtist;
     QString                                         mTitle;
+
+    bool                                            mManualSeekMode;
 
 };
 

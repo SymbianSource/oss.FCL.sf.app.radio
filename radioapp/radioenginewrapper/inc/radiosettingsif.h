@@ -25,6 +25,7 @@ public:
 
     // First time start
     virtual bool isFirstTimeStart() = 0;
+    virtual void setFirstTimeStartPerformed( bool firstTimeStartPerformed ) = 0;
 
     // Favorites
     virtual bool showFavorites() const = 0;

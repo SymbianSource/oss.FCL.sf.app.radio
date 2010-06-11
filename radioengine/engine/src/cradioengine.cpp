@@ -20,6 +20,7 @@
 #include "cradioengineimp.h"
 #include "cradioenginelogger.h"
 #include "mradioengineinitializer.h"
+#include "radioengineutils.h"
 
 // ================= MEMBER FUNCTIONS =======================
 
@@ -29,6 +30,8 @@
 //
 EXPORT_C CRadioEngine* CRadioEngine::NewL( MRadioEngineInitializer& aInitializer )
     {
+    RadioEngineUtils::InitializeL();
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioAudioRouter* audioRouter = aInitializer.InitAudioRouterL();
     CleanupStack::PushL( audioRouter );
 
@@ -38,10 +41,9 @@ EXPORT_C CRadioEngine* CRadioEngine::NewL( MRadioEngineInitializer& aInitializer
 
     self->SetSystemEventCollector( aInitializer.InitSystemEventCollectorL() );
     self->SetRadioSettings( aInitializer.InitSettingsL() );
-    self->SetRadioPubSub( aInitializer.InitPubSubL() );
     self->ConstructL();
 
-    self->InitRadioL( self->DetermineRegion(), self->PubSub() );
+    self->InitRadioL( self->DetermineRegion() );
     self->EnableAudio( ETrue );
 
     CleanupStack::Pop( self );
@@ -55,6 +57,7 @@ EXPORT_C CRadioEngine* CRadioEngine::NewL( MRadioEngineInitializer& aInitializer
 CRadioEngine::CRadioEngine( CRadioAudioRouter* aAudioRouter )
     : CRadioRoutableAudio( aAudioRouter )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -63,4 +66,5 @@ CRadioEngine::CRadioEngine( CRadioAudioRouter* aAudioRouter )
 //
 EXPORT_C CRadioEngine::~CRadioEngine()
     {
+    RadioEngineUtils::Release();
     }

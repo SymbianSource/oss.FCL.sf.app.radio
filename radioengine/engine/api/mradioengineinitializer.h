@@ -27,7 +27,6 @@ class CRadioAudioRouter;
 class CRadioSystemEventCollector;
 class CRadioSettings;
 class CRadioEngine;
-class CRadioPubSub;
 
 NONSHARABLE_CLASS( MRadioEngineInitializer )
     {
@@ -36,7 +35,6 @@ public:
     virtual CRadioAudioRouter* InitAudioRouterL() = 0;
     virtual CRadioSystemEventCollector* InitSystemEventCollectorL() = 0;
     virtual CRadioSettings* InitSettingsL() = 0;
-    virtual CRadioPubSub* InitPubSubL() = 0;
 
     };
 

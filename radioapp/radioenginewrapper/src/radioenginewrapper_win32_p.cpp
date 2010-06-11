@@ -69,7 +69,8 @@ RadioEngineWrapperPrivate::RadioEngineWrapperPrivate( RadioEngineWrapper* wrappe
     mFrequencyStepSize( 50000 ),
     mRegionId( RadioRegion::Default ),
     mMinFrequency( 87500000 ),
-    mMaxFrequency( 108000000 )
+    mMaxFrequency( 108000000 ),
+    mManualSeekMode( false )
 {
     ::theInstance = this;
     mEngineSettings.reset( new QSettings( "Nokia", "QtFmRadio" ) );
@@ -78,7 +79,7 @@ RadioEngineWrapperPrivate::RadioEngineWrapperPrivate( RadioEngineWrapper* wrappe
         mFrequency = mMinFrequency;
     }
 
-    connectAndTest( mTuneTimer, SIGNAL(timeout()), this, SLOT(frequencyEvent()) );
+    Radio::connect( mTuneTimer, SIGNAL(timeout()), this, SLOT(frequencyEvent()) );
     mTuneTimer->setSingleShot( true );    
 }
 
@@ -103,7 +104,7 @@ RadioEngineWrapperPrivate* RadioEngineWrapperPrivate::instance()
 /*!
  * Initializes the private implementation
  */
-void RadioEngineWrapperPrivate::init()
+bool RadioEngineWrapperPrivate::init()
 {
     mUseLoudspeaker = false;
     if ( !mUseLoudspeaker ) {
@@ -111,13 +112,6 @@ void RadioEngineWrapperPrivate::init()
     }
 
     parseData();
-}
-
-/*!
- * Starts up the radio engine
- */
-bool RadioEngineWrapperPrivate::isEngineConstructed()
-{
     return true;
 }
 
@@ -136,23 +130,17 @@ RadioSettingsIf& RadioEngineWrapperPrivate::settings()
 /*!
  * Tunes to the given frequency
  */
-void RadioEngineWrapperPrivate::tuneFrequency( uint frequency, const int reason )
+void RadioEngineWrapperPrivate::setFrequency( uint frequency, const int reason )
 {
     mNextFrequency = frequency;
     mTuneReason = reason;
-    mTuneTimer->stop();
-    mTuneTimer->start( 500 );
-}
 
-/*!
- * Tunes to the given frequency after a delay
- */
-void RadioEngineWrapperPrivate::tuneWithDelay( uint frequency, const int reason )
-{
-    mNextFrequency = frequency;
-    mTuneReason = reason;
     mTuneTimer->stop();
-    mTuneTimer->start( 1500 );
+    if ( !mManualSeekMode ) {
+        mTuneTimer->start( 500 );
+    } else {
+        frequencyEvent();
+    }
 }
 
 /*!
@@ -166,9 +154,10 @@ ObserverList& RadioEngineWrapperPrivate::observers()
 /*!
  *
  */
-void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction, const int reason )
+void RadioEngineWrapperPrivate::startSeeking( Seek::Direction direction, const int reason )
 {
     mTuneReason = reason;
+    mNextFrequency = 0;
 
     // Find the previous and next favorite from current frequency
     uint previous = 0;
@@ -183,7 +172,7 @@ void RadioEngineWrapperPrivate::startSeeking( Seeking::Direction direction, cons
     }
 
 
-    if ( direction == Seeking::Up ) {
+    if ( direction == Seek::Up ) {
         if ( next == 0 ) {
             next = KScanFrequencies[0];
         }
@@ -286,10 +275,14 @@ void RadioEngineWrapperPrivate::setOffline( bool offline )
  */
 void RadioEngineWrapperPrivate::frequencyEvent()
 {
-    mFrequency = mNextFrequency;
-    mEngineSettings->setValue( KKeyFrequency, mFrequency );
+    if ( mNextFrequency > 0 ) {
+        mFrequency = mNextFrequency;
+        mEngineSettings->setValue( KKeyFrequency, mFrequency );
+    }
 
-    RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( mFrequency, mTuneReason ) );
+    if ( !mManualSeekMode ) {
+        RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( mNextFrequency, mTuneReason ) );
+    }
 }
 
 /*!

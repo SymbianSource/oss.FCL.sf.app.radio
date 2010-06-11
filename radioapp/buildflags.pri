@@ -32,9 +32,6 @@
 # Functional testing
 # RADIOFLAGS += SHOW_CALLSIGN_IN_ANY_REGION
 
-# Build flag to enable usage of the new preset utility
-RADIOFLAGS += COMPILE_WITH_NEW_PRESET_UTILITY
-
 # Build flag to add EXPORTUNFROZEN to the pro file
 # RADIOFLAGS += USE_UNFROZEN_EXPORTS
 
@@ -47,16 +44,27 @@ RADIOFLAGS += COMPILE_WITH_NEW_PRESET_UTILITY
 
 # Full logging flag that enables the full logging including also timestamps
 # Enabled by default in debug builds
- CONFIG(debug, debug|release) : LOGGING_FLAGS += LOGGING_ENABLED
+# CONFIG(debug, debug|release) : LOGGING_FLAGS += LOGGING_ENABLED
 
 # Uncomment to enable full logging in release builds
-# LOGGING_FLAGS *= LOGGING_ENABLED
+LOGGING_FLAGS *= LOGGING_ENABLED
 
 # Timestamp logging flag that enables only timestamp logging
 # LOGGING_FLAGS += TIMESTAMP_LOGGING_ENABLED
 
 # Combines Ui and Engine logs by feeding UI traces to the engine logger
 LOGGING_FLAGS += COMBINE_WITH_ENGINE_LOGGER
+
+# Logging level
+# 1 - Normal level
+# 2 - More verbose level
+# 3 - Most verbose level
+LOGGING_FLAGS += LOGGING_LEVEL=1
+
+# Select which radio component is being logged
+# 1 - Radio application
+# 2 - Radio homescreen widget
+LOGGING_FLAGS += LOGGED_COMPONENT=1
 
 contains(LOGGING_FLAGS, TIMESTAMP_LOGGING_ENABLED)|contains(LOGGING_FLAGS, LOGGING_ENABLED) {
 
@@ -75,6 +83,11 @@ contains(LOGGING_FLAGS, TIMESTAMP_LOGGING_ENABLED)|contains(LOGGING_FLAGS, LOGGI
 # 2 - Log failed connection and halt debugger
 LOGGING_FLAGS += CONNECT_TEST_MODE=2
 
+win32: {
+    LOGGING_FLAGS *= LOGGING_ENABLED    # Logging is always enabled in Win32 environment
+    RADIOFLAGS += VID_DEFAULT=0
+}
+
 DEFINES += $$LOGGING_FLAGS
 
 # ##########################################################
@@ -87,7 +100,7 @@ CONFIG += $$RADIOFLAGS
 CONFIG += $$LOGGING_FLAGS
 
 symbian: {
-    DEFINES += SYMBIAN
+    DEFINES                 += SYMBIAN
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.VID              = VID_DEFAULT
     TARGET.CAPABILITY       = CAP_GENERAL_DLL
@@ -98,10 +111,15 @@ win32: {
     DESTDIR     = ../bin
     LIBS        += -L../bin
     INCLUDEPATH += ../radioenginewrapper/inc
+    INCLUDEPATH += ../../internal/win32_stubs
+    HEADERS     += ../../internal/win32_stubs/qsysteminfo.h
+    HEADERS     += ../../internal/win32_stubs/xqserviceutil.h
+    HEADERS     += ../../internal/win32_stubs/xqserviceprovider.h
+    SOURCES     += ../../internal/win32_stubs/win32_stubs.cpp
 }
 
 USE_UNFROZEN_EXPORTS {
-    symbian:MMP_RULES   +=  "exportunfrozen"
+    symbian:MMP_RULES   += "exportunfrozen"
     symbian:DEF_FILE    = not_used.def
 }
 

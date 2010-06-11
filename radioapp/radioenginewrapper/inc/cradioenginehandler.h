@@ -53,28 +53,37 @@ public:
     void SetRdsObserver( MRadioRdsDataObserver* aObserver );
 
     /**
+     * Starts or stops receiving RDS data
+     */
+    void SetRdsEnabled( TBool aRdsEnabled );
+
+    /**
      * Returns the radio status
      * @return ETrue = radio is on, EFalse = radio is off
      */
     TBool IsRadioOn();
 
     /**
+     * Sets the manual seek status
+     */
+    void SetManualSeekMode( TBool aManualSeek );
+
+    /**
+     * Returns the manual seek status
+     */
+    TBool IsInManualSeekMode() const;
+
+    /**
      * Tune to the specified frequency
      * @param aFrequency - frequency to lock onto.
      */
-    void Tune( TUint aFrequency );
-
-    /**
-     * Tune to the specified frequency after a delay
-     * @param aFrequency - frequency to lock onto.
-     */
-    void TuneWithDelay( TUint aFrequency );
+    void SetFrequency( TUint aFrequency );
 
     /**
      * Sets the audio mute state
      * @param aMuted - flag to determine whether mute should be turned on or off
      */
-    void SetMuted( const TBool aMuted );
+    void SetMuted( const TBool aMuted, const TBool aUpdateSettings = ETrue );
 
     /**
      * Gets the audio mute state
@@ -120,7 +129,7 @@ public:
      * Retrieves the current frequency.
      * @return the frequency in hertz
      */
-    TUint TunedFrequency() const;
+    TUint CurrentFrequency() const;
 
     /**
      * Returns the minimum allowed frequency in the current region
@@ -140,7 +149,7 @@ public:
     /**
      * Scan up to the next available frequency.
      */
-    void Seek( Seeking::Direction direction );
+    void Seek( Seek::Direction direction );
 
     /**
      * Cancel previously requested scan.
@@ -150,11 +159,7 @@ public:
     /**
      * Returns the engine seeking state
      */
-    Seeking::State SeekingState() const;
-
-    void StartScan( MRadioScanObserver& aObserver );
-
-    void StopScan( TInt aError = KErrCancel );
+    Seek::State SeekingState() const;
 
     /**
      * Rreturn step size for tuning.
@@ -181,17 +186,8 @@ public:
     TBool IsAudioRoutedToLoudspeaker() const;
 
     /**
-     * Returns ar reference to the publish & subscribe handler
+     * Returns a reference to the application settings
      */
-    CRadioPubSub& PubSub();
-
-    /**
-     * Returns the repository manager.
-     *
-     * @return  The repository manager.
-     */
-    CRadioRepositoryManager& Repository() const;
-
     MRadioApplicationSettings& ApplicationSettings() const;
 
 private:
@@ -201,16 +197,6 @@ private:
     CRadioAudioRouter* InitAudioRouterL();
     CRadioSystemEventCollector* InitSystemEventCollectorL();
     CRadioSettings* InitSettingsL();
-    CRadioPubSub* InitPubSubL();
-
-// New functions
-
-    /**
-     * Static callback function to be used by the tune delay timer
-     * @param aSelf Pointer to this
-     * @return not used
-     */
-    static TInt TuneDelayCallback( TAny* aSelf );
 
 private: // data
 
@@ -230,12 +216,6 @@ private: // data
      * Frequency used by delayed tuning
      */
     TUint                           iFrequency;
-
-    /**
-     * Timer used for delayed tuning
-     * Own.
-     */
-    CPeriodic*                      iDelayTimer;
 
     /**
      * Selected radio region

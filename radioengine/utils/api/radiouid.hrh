@@ -19,6 +19,6 @@
 #define RADIOUID_HRH
 
 //TODO: Get uid. this is from visual radio
-#define KUidRadioApplication 0x101FF976
+#define KUidRadioApplication 0x2002FF4E
 
 #endif // RADIOUID_HRH

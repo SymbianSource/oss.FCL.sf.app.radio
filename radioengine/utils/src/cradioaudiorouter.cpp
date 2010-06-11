@@ -32,6 +32,7 @@ const TInt KVisualRadioInitialRoutableAudioArraySize( 2 );
 CRadioAudioRouter::CRadioAudioRouter( MRadioAudioRoutingObserver& aAudioRoutingObserver )
     : iAudioRoutingObserver( aAudioRoutingObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -40,6 +41,7 @@ CRadioAudioRouter::CRadioAudioRouter( MRadioAudioRoutingObserver& aAudioRoutingO
 //
 EXPORT_C CRadioAudioRouter* CRadioAudioRouter::NewL( MRadioAudioRoutingObserver& aAudioRoutingObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioAudioRouter* self = new( ELeave ) CRadioAudioRouter( aAudioRoutingObserver );
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -53,6 +55,7 @@ EXPORT_C CRadioAudioRouter* CRadioAudioRouter::NewL( MRadioAudioRoutingObserver&
 //
 EXPORT_C CRadioAudioRouter::~CRadioAudioRouter()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iRoutableAudios.Close();
     RadioEngineUtils::Release();
     }
@@ -64,6 +67,7 @@ EXPORT_C CRadioAudioRouter::~CRadioAudioRouter()
 void CRadioAudioRouter::ConstructL()
     {
     RadioEngineUtils::InitializeL();
+    LEVEL3( LOG_METHOD_AUTO );
     iRoutableAudios = RArray<CRadioRoutableAudio*>( KVisualRadioInitialRoutableAudioArraySize );
     }
 
@@ -73,7 +77,7 @@ void CRadioAudioRouter::ConstructL()
 //
 EXPORT_C void CRadioAudioRouter::SetAudioRouteL( RadioEngine::TRadioAudioRoute aAudioRoute )
     {
-    LOG_FORMAT( "CRadioAudioRouter::SetAudioRouteL: Route: %d", aAudioRoute );
+    LEVEL3( LOG_METHOD_AUTO );
 
     for ( TInt i = 0 ; i < iRoutableAudios.Count(); i++ )
         {
@@ -88,7 +92,7 @@ EXPORT_C void CRadioAudioRouter::SetAudioRouteL( RadioEngine::TRadioAudioRoute a
 //
 EXPORT_C void CRadioAudioRouter::RegisterRoutableAudio( CRadioRoutableAudio* aRoutableAudio )
     {
-    LOG( "CRadioAudioRouter::RegisterRoutableAudio" );
+    LEVEL3( LOG_METHOD_AUTO );
     iRoutableAudios.Append( aRoutableAudio );
     }
 
@@ -98,7 +102,7 @@ EXPORT_C void CRadioAudioRouter::RegisterRoutableAudio( CRadioRoutableAudio* aRo
 //
 EXPORT_C void CRadioAudioRouter::UnRegisterRoutableAudio( CRadioRoutableAudio* aRoutableAudio )
     {
-    LOG( "CRadioAudioRouter::UnRegisterRoutableAudio" );
+    LEVEL3( LOG_METHOD_AUTO );
 
     TInt objectIndex = iRoutableAudios.Find( aRoutableAudio );
 

@@ -31,46 +31,62 @@
 #include "radiouiengine.h"
 #include "radiostation.h"
 #include "radiostationmodel.h"
-#include "radiouiutilities.h"
+#include "radioutil.h"
+#include "radiouiloader.h"
 #include "radiologger.h"
 
 // Frequency lines
-const int KTabHeightSmall = 10;
-const int KTabHeightBig = 15;
-const int KTabWidthFavorite = 4;
-const qreal KIndicatorWidth = 2.0;
+const int TAB_HEIGHT_SMALL = 10;
+const int TAB_HEIGHT_BIG = 15;
+const int PEN_WIDTH_FAVORITE = 4;
+const qreal INDICATOR_WIDTH = 2.0;
 
-const qreal KRounder = 0.5;
-const int KSelectorWidth = 2;
-const int KSelectorZPos = 100;
+const qreal ROUNDER = 0.5;
+const int SELECTOR_WIDTH = 2;
+const int SELECTOR_Z_POS = 100;
 
-const int KHalfHertz = KOneHertz / 2;
-const int KOneTabDistance = 15;
-const uint KOneTabInHz = 0.2 * KOneHertz;
-const qreal KPixelInHz = KOneTabInHz / KOneTabDistance;
-const int KWidth = KOneTabDistance * 5;
-//const int KPixmapWidth = KWidth + KOneTabDistance;
-const int KHeight = 50;                 //TODO: Remove hardcoding
+const int HALF_HERTZ = ONE_HERTZ / 2;
+const int ONE_TAB_DISTANCE = 20;
+const uint ONE_TAB_IN_HZ = uint( 0.2 * ONE_HERTZ );
+const qreal PIXEL_IN_HZ = ONE_TAB_IN_HZ / ONE_TAB_DISTANCE;
+const qreal PIXMAP_OVERLAP = qreal( ONE_TAB_DISTANCE ) / 2;
+const int ITEM_WIDTH = ONE_TAB_DISTANCE * 5;
+const int PIXMAP_WIDTH = ITEM_WIDTH + (int)PIXMAP_OVERLAP;
+const int STRIP_HEIGHT = 50;
 
-const int K100Khz = 100000;
+const uint ONE_HUNDRED_KHZ = 100000;
 
-const char* KSlideToLeft        = "SlideToLeft";
-const char* KSlideFromLeft      = "SlideFromLeft";
-const char* KSlideToRight       = "SlideToRight";
-const char* KSlideFromRight     = "SlideFromRight";
+const char* DECIMAL_TEXT = ".0";
+
+#ifdef BUILD_WIN32
+    const int FREQUENCY_FONT_SIZE = 12;
+    const int DECIMAL_FONT_SIZE = 8;
+#else
+    const int FREQUENCY_FONT_SIZE = 6;
+    const int DECIMAL_FONT_SIZE = 4;
+#endif // BUILD_WIN32
+
+const QFont FREQUENCY_FONT( "", FREQUENCY_FONT_SIZE );
+const QFont DECIMAL_FONT( "", DECIMAL_FONT_SIZE );
+
+const char* SLIDE_TO_LEFT       = "SlideToLeft";
+const char* SLIDE_FROM_LEFT     = "SlideFromLeft";
+const char* SLIDE_TO_RIGHT      = "SlideToRight";
+const char* SLIDE_FROM_RIGHT    = "SlideFromRight";
 const char* LEFT_BUTTON         = "tv:left_button";
 const char* RIGHT_BUTTON        = "tv:right_button";
 
 const char* TEXT_COLOR_ATTRIBUTE = "text";
-const int BUTTON_HIDE_TIMEOUT = 500;
-const int BUTTON_SHOW_TIMEOUT = 1000;
+const int MANUALSEEK_START_TIMEOUT = 400;
+const int MANUALSEEK_END_TIMEOUT = 2000;
+const int MANUALSEEK_SIGNAL_DELAY = 300;
 
 /*!
  *
  */
 static QLineF makeTab( qreal pos, int height )
 {
-    return QLineF( pos, KHeight - height, pos, KHeight );
+    return QLineF( pos, STRIP_HEIGHT - height, pos, STRIP_HEIGHT );
 }
 
 /*!
@@ -87,134 +103,93 @@ RadioFrequencyStrip::RadioFrequencyStrip() :
     mSeparatorPos( 0.0 ),
     mMaxWidth( 0 ),
     mSelectorPos( 0.0 ),
-    mLeftButton( new HbPushButton( this ) ),
-    mRightButton( new HbPushButton( this ) ),
-    mButtonTimer( NULL ),
-    mButtonsVisible( true ),
-    mUserIsScrolling( false ),
+    mLeftButton( 0 ),
+    mRightButton( 0 ),
+    mManualSeekTimer( NULL ),
+    mManualSeekMode( false ),
+    mLastReportedFrequency( 0 ),
+    mManualSeekTimerId( 0 ),
     mForegroundColor( Qt::white )//HbColorScheme::color( TEXT_COLOR_ATTRIBUTE ) )
 {
-    RadioUiUtilities::setFrequencyStrip( this );
+    RadioUtil::setFrequencyStrip( this );
 
-    setScrollingStyle( HbScrollArea::Pan );
-    setItemSize( QSizeF( KWidth, KHeight ) );
-    setFrictionEnabled( true );
+    setScrollingStyle( HbScrollArea::PanWithFollowOn );
+    setItemSize( QSizeF( ITEM_WIDTH + PIXMAP_OVERLAP / 2, STRIP_HEIGHT ) );
+    setOverlap( PIXMAP_OVERLAP / 2 );
 
     initModel();
 
     initSelector();
 
-    initButtons();
-
     initEmptyItems();
 
+    initPositions();
+
     mFrequency = RadioUiEngine::lastTunedFrequency();
-    scrollToFrequency( mFrequency, 0 );
 }
 
 /*!
  *
  */
-void RadioFrequencyStrip::setLeftButtonIcon( const HbIcon& leftButtonIcon )
-{
-    mLeftButtonIcon = leftButtonIcon;
-    if ( mLeftButton ) {
-        mLeftButtonIcon.setColor( Qt::white );
-        mLeftButton->setIcon( mLeftButtonIcon );
-    }
-}
-
-/*!
- *
- */
-HbIcon RadioFrequencyStrip::leftButtonIcon() const
-{
-    return mLeftButtonIcon;
-}
-
-/*!
- *
- */
-void RadioFrequencyStrip::setRightButtonIcon( const HbIcon& rightButtonIcon )
-{
-    mRightButtonIcon = rightButtonIcon;
-    if ( mRightButton ) {
-        mRightButtonIcon.setColor( Qt::white );
-        mRightButton->setIcon( mRightButtonIcon );
-    }
-}
-
-/*!
- *
- */
-HbIcon RadioFrequencyStrip::rightButtonIcon() const
-{
-    return mRightButtonIcon;
-}
-
-/*!
- *
- */
-void RadioFrequencyStrip::init( RadioUiEngine* engine )
+void RadioFrequencyStrip::init( RadioUiEngine* engine, RadioUiLoader& uiLoader )
 {
     mUiEngine = engine;
     mMinFrequency       = mUiEngine->minFrequency();
     mMaxFrequency       = mUiEngine->maxFrequency();
     mFrequencyStepSize  = mUiEngine->frequencyStepSize();
-    mFrequency          = mUiEngine->currentFrequency();
-    scrollToFrequency( mFrequency, 0 );
 
-    mButtonTimer = new QTimer( this );
-    mButtonTimer->setInterval( BUTTON_HIDE_TIMEOUT );
-    mButtonTimer->setSingleShot( true );
-    connectAndTest( mButtonTimer, SIGNAL(timeout()),
-                    this,         SLOT(toggleButtons()) );
+    mLeftButton = uiLoader.findWidget<HbPushButton>( DOCML::MV_NAME_PREV_BUTTON );
+    mRightButton = uiLoader.findWidget<HbPushButton>( DOCML::MV_NAME_NEXT_BUTTON );
+    initButtons();
 
-    connectAndTest( mLeftButton,    SIGNAL(clicked()),
+    mManualSeekTimer = new QTimer( this );
+    mManualSeekTimer->setInterval( MANUALSEEK_START_TIMEOUT );
+    mManualSeekTimer->setSingleShot( true );
+    Radio::connect( mManualSeekTimer,   SIGNAL(timeout()),
+                    this,               SLOT(toggleManualSeek()) );
+
+    Radio::connect( mLeftButton,    SIGNAL(clicked()),
                     this,           SLOT(handleLeftButton()) );
-    connectAndTest( mRightButton,   SIGNAL(clicked()),
+    Radio::connect( mRightButton,   SIGNAL(clicked()),
                     this,           SLOT(handleRightButton()) );
-    connectAndTest( mLeftButton,    SIGNAL(longPress(QPointF)),
+    Radio::connect( mLeftButton,    SIGNAL(longPress(QPointF)),
                     this,           SLOT(handleLongLeftButton()) );
-    connectAndTest( mRightButton,   SIGNAL(longPress(QPointF)),
+    Radio::connect( mRightButton,   SIGNAL(longPress(QPointF)),
                     this,           SLOT(handleLongRightButton()) );
 
-    connectAndTest( this,           SIGNAL(scrollingEnded()),
-                    this,           SLOT(checkIllegalPos()) );
+    Radio::connect( this,           SIGNAL(scrollingEnded()),
+                    this,           SLOT(handleScrollingEnd()) );
 
     grabGesture( Qt::SwipeGesture );
 
     //TODO: Remove. Stepsize hardcoded to 100 Khz in europe region during demo
-    if ( mFrequencyStepSize < K100Khz ) {
-        mFrequencyStepSize = K100Khz;
+    if ( mFrequencyStepSize < ONE_HUNDRED_KHZ ) {
+        mFrequencyStepSize = ONE_HUNDRED_KHZ;
     }
 
     RadioStationModel* stationModel = &mUiEngine->stationModel();
-    connectAndTest( stationModel,   SIGNAL(rowsInserted(QModelIndex,int,int)),
+    Radio::connect( stationModel,   SIGNAL(rowsInserted(QModelIndex,int,int)),
                     this,           SLOT(updateStation(QModelIndex,int,int)) );
-    connectAndTest( stationModel,   SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                    this,           SLOT(updateStation(QModelIndex,int,int)) );
-    connectAndTest( stationModel,   SIGNAL(modelReset()),
+    Radio::connect( stationModel,   SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                    this,           SLOT(removeStation(QModelIndex,int,int)) );
+    Radio::connect( stationModel,   SIGNAL(modelReset()),
                     this,           SLOT(initEmptyItems()) );
 
-    initPositions();
+    updateAllItems();
 
-    void updateItems();
+    showButtons();
 }
 
 /*!
  *
  */
-void RadioFrequencyStrip::setFrequency( const uint frequency, int reason )
+void RadioFrequencyStrip::setFrequency( const uint frequency, int reason, Scroll::Direction direction )
 {
+    Q_UNUSED( reason );
     LOG_FORMAT( "RadioFrequencyStrip::setFrequency, frequency: %d, reason: %d", frequency, reason );
-    if ( reason != TuneReason::FrequencyStrip &&            // Not sent by the FrequencyStrip
-         frequency != mFrequency &&                         // Different from the current
-         mFrequencies.contains( frequency ) )               // 0 frequency means any illegal value
-    {
-        scrollToFrequency( frequency, mAutoScrollTime );
-        if ( reason != TuneReason::Skip && reason != TuneReason::StationScan ) {
-            emitFrequencyChanged( frequency );
+    if ( mFrequencies.contains( frequency ) ) {
+        if ( frequency != mFrequency || reason == TuneReason::Skip ) {
+            scrollToFrequency( frequency, direction, mAutoScrollTime, RadioUtil::tuneReason( reason ) );
         }
     }
 }
@@ -228,14 +203,41 @@ uint RadioFrequencyStrip::frequency() const
 }
 
 /*!
- * Public slot
+ *
+ */
+bool RadioFrequencyStrip::isInManualSeekMode() const
+{
+    return mManualSeekMode;
+}
+
+/*!
+ *
+ */
+void RadioFrequencyStrip::cancelManualSeek()
+{
+    mManualSeekTimer->stop();
+    if ( mManualSeekMode ) {
+        toggleManualSeek();
+    }
+}
+
+/*!
+ *
+ */
+void RadioFrequencyStrip::addScannedStation( const RadioStation& station )
+{
+    FrequencyPos pos = mFrequencies.value( station.frequency() );
+    updateItem( pos.mItem, station.frequency() );
+}
+
+/*!
  *
  */
 void RadioFrequencyStrip::updateFavorite( const RadioStation& station )
 {
     LOG_SLOT_CALLER;
     FrequencyPos pos = mFrequencies.value( station.frequency() );
-    updateFavorites( pos.mItem );
+    updateItem( pos.mItem );
 }
 
 /*!
@@ -244,15 +246,25 @@ void RadioFrequencyStrip::updateFavorite( const RadioStation& station )
  */
 void RadioFrequencyStrip::setScanningMode( bool isScanning )
 {
-    mButtonTimer->stop();
+    mManualSeekTimer->stop();
     if ( isScanning ) {
-        scrollToFrequency( mMinFrequency, mAutoScrollTime );
+        initEmptyItems();
         hideButtons();
+        scrollToFrequency( mMinFrequency, Scroll::Shortest, mAutoScrollTime );
     } else {
         showButtons();
-
     }
     setEnabled( !isScanning );
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioFrequencyStrip::removeStation( const QModelIndex& parent, int first, int last )
+{
+    Q_UNUSED( parent );
+    updateStationsInRange( first, last, true );
 }
 
 /*!
@@ -262,16 +274,7 @@ void RadioFrequencyStrip::setScanningMode( bool isScanning )
 void RadioFrequencyStrip::updateStation( const QModelIndex& parent, int first, int last )
 {
     Q_UNUSED( parent );
-    RadioStationModel& model = mUiEngine->stationModel();
-    uint frequency = 0;
-    for ( int i = first; i <= last; ++i ) {
-        frequency = model.data( model.index( i, 0, QModelIndex() ),
-                                RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
-        if ( mFrequencies.contains( frequency ) ) {
-            FrequencyPos pos = mFrequencies.value( frequency );
-            updateFavorites( pos.mItem );
-        }
-    }
+    updateStationsInRange( first, last );
 }
 
 /*!
@@ -281,10 +284,13 @@ void RadioFrequencyStrip::updateStation( const QModelIndex& parent, int first, i
 void RadioFrequencyStrip::initEmptyItems()
 {
     LOG_METHOD;
-    QList<RadioStation> emptyList;
-    foreach ( RadioFrequencyItem* item, mFrequencyItems ) {
-        QPixmap pixmap = drawPixmap( item->frequency(), emptyList, item );
-        item->setPixmap( pixmap );
+    //TODO: Remove the weird hack of checking the sender
+    if ( !sender() || RadioUtil::scanStatus() != Scan::ScanningInMainView ) {
+        QList<RadioStation> emptyList;
+        foreach ( RadioFrequencyItem* item, mFrequencyItems ) {
+            QPixmap pixmap = drawPixmap( item->frequency(), emptyList, item );
+            item->setPixmap( pixmap );
+        }
     }
 }
 
@@ -301,7 +307,7 @@ void RadioFrequencyStrip::handleLeftButton()
  */
 void RadioFrequencyStrip::handleLongLeftButton()
 {
-    emit seekRequested( Seeking::Down );
+    emit seekRequested( Seek::Down );
 }
 
 /*!
@@ -317,36 +323,47 @@ void RadioFrequencyStrip::handleRightButton()
  */
 void RadioFrequencyStrip::handleLongRightButton()
 {
-    emit seekRequested( Seeking::Up );
+    emit seekRequested( Seek::Up );
 }
 
 /*!
  * Private slot
+ *
  */
-void RadioFrequencyStrip::toggleButtons()
+void RadioFrequencyStrip::toggleManualSeek()
 {
-    if ( mButtonsVisible ) {
+    mManualSeekMode = !mManualSeekMode;
+    emit manualSeekChanged( mManualSeekMode );
+
+    if ( mManualSeekMode ) {
         hideButtons();
+        mManualSeekTimerId = startTimer( MANUALSEEK_SIGNAL_DELAY );
     } else {
         showButtons();
+        killTimer( mManualSeekTimerId );
+        mManualSeekTimerId = 0;
     }
 }
 
 /*!
  * Private slot
  */
-void RadioFrequencyStrip::checkIllegalPos()
+void RadioFrequencyStrip::handleScrollingEnd()
 {
     // Check if the selector is in the invalid area where the strip loops around
     const int selectorPosition = selectorPos();
-    if ( !mPositions.contains( selectorPosition ) ) {
-        if ( selectorPosition < mMaxWidth - KWidth + mSeparatorPos ) {
-            scrollToFrequency( mMaxFrequency, 500 );
-            emitFrequencyChanged( mMaxFrequency );
-        } else {
-            scrollToFrequency( mMinFrequency, 500 );
-            emitFrequencyChanged( mMinFrequency );
+    if ( mManualSeekMode ) {
+        if ( !mPositions.contains( selectorPosition ) ) {
+            if ( selectorPosition < mMaxWidth - ITEM_WIDTH + mSeparatorPos ) {
+                scrollToFrequency( mMaxFrequency, Scroll::Shortest, 500 );
+                emit frequencyChanged( mMaxFrequency, TuneReason::ManualSeekUpdate, Scroll::Shortest );
+            } else {
+                scrollToFrequency( mMinFrequency, Scroll::Shortest, 500 );
+                emit frequencyChanged( mMinFrequency, TuneReason::ManualSeekUpdate, Scroll::Shortest );
+            }
         }
+
+        mManualSeekTimer->start( MANUALSEEK_END_TIMEOUT );
     }
 }
 
@@ -376,9 +393,13 @@ void RadioFrequencyStrip::scrollPosChanged( QPointF newPosition )
 {
     Q_UNUSED( newPosition );
 
-    if ( mUserIsScrolling ) {
+    if ( mManualSeekMode ) {
         const int pos = selectorPos();
-        emitFrequencyChanged( mPositions.value( pos ) );
+        const uint frequency = mPositions.value( pos );
+        if ( frequency > 0 ) {
+            mFrequency = mPositions.value( pos );
+            emit frequencyChanged( mFrequency, TuneReason::ManualSeekUpdate, Scroll::Shortest );
+        }
     }
 }
 
@@ -390,32 +411,29 @@ void RadioFrequencyStrip::resizeEvent ( QGraphicsSceneResizeEvent* event )
     LOG_METHOD_ENTER;
     RadioStripBase::resizeEvent( event );
 
-    mSelectorPos = event->newSize().width() / 2;
-    mSelectorImage->setOffset( mSelectorPos - (KIndicatorWidth / 2), 0.0 );
+    const qreal height = event->newSize().height();
+    const qreal width = event->newSize().width();
 
-    const int stripHeight = event->newSize().height();
-    if ( !mLeftButtonIcon.isNull() ) {
-        mLeftButton->resize( stripHeight, stripHeight );
-        mLeftButton->setBackground( mLeftButtonIcon );
+    mSelectorPos = width / 2;
+    mSelectorImage->setOffset( mSelectorPos - (INDICATOR_WIDTH / 2), 0.0 );
+
+    if ( mLeftButton && mRightButton ) {
+        mLeftButton->resize( height, height );
+        mRightButton->resize( height, height );
+        mRightButton->setPos( QPointF( width - height, 0 ) );
     }
 
-    if ( !mRightButtonIcon.isNull() ) {
-        mRightButton->resize( stripHeight, stripHeight );
-        mRightButton->setBackground( mRightButtonIcon );
-    }
-    mRightButton->setPos( QPointF( size().width() - mRightButton->size().width(), 0 ) );
-
-    scrollToFrequency( mFrequency, 0 );
+    scrollToFrequency( mFrequency );
 }
 
 /*!
  * \reimp
  */
-void RadioFrequencyStrip::showEvent( QShowEvent* event )
-{
-    Q_UNUSED( event );
-    scrollToFrequency( mFrequency, 0 );
-}
+//void RadioFrequencyStrip::showEvent( QShowEvent* event )
+//{
+//    RadioStripBase::showEvent( event );
+//    scrollToFrequency( mFrequency );
+//}
 
 /*!
  * \reimp
@@ -425,10 +443,10 @@ void RadioFrequencyStrip::changeEvent( QEvent* event )
     if ( event->type() == HbEvent::ThemeChanged ) {
         // Update the foreground color and redraw each item
         mForegroundColor = Qt::white;// HbColorScheme::color( TEXT_COLOR_ATTRIBUTE );
-        updateItems();
+        updateAllItems();
     }
 
-    return HbWidgetBase::changeEvent(event);
+    return RadioStripBase::changeEvent(event);
 }
 
 /*!
@@ -437,9 +455,11 @@ void RadioFrequencyStrip::changeEvent( QEvent* event )
 void RadioFrequencyStrip::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
     RadioStripBase::mousePressEvent( event );
-    mUserIsScrolling = true;
-    mButtonTimer->stop();
-    mButtonTimer->start( BUTTON_HIDE_TIMEOUT );
+
+    mManualSeekTimer->stop();
+    if ( !mManualSeekMode ) {
+        mManualSeekTimer->start( MANUALSEEK_START_TIMEOUT );
+    }
 }
 
 /*!
@@ -447,41 +467,11 @@ void RadioFrequencyStrip::mousePressEvent( QGraphicsSceneMouseEvent* event )
  */
 void RadioFrequencyStrip::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 {
-    mUserIsScrolling = false;
     RadioStripBase::mouseReleaseEvent( event );
 
-//    if ( !mIsPanGesture ) {
-//        const qreal touchDelta = event->pos().x() - mSelectorPos;
-//        const int touchPos = selectorPosition + touchDelta;
-//        const uint frequencyAtPos = mPositions.value( touchPos );
-//
-//        uint foundFrequency = 0;
-//        for ( int i = 0; i < 10; ++i ) {
-//            const uint delta = i * mFrequencyStepSize;
-//            FrequencyPos leftFreq = mFrequencies.value( frequencyAtPos - delta );
-//            FrequencyPos rightFreq = mFrequencies.value( frequencyAtPos + delta );
-//
-//            if ( touchPos - leftFreq.mPosition > KTouchPosThreshold ) {
-//                break;
-//            }
-//
-//            if ( leftFreq.mFavorite || leftFreq.mLocalStation ) {
-//                foundFrequency = frequencyAtPos - delta;
-//                break;
-//            } else if ( rightFreq.mFavorite || rightFreq.mLocalStation ) {
-//                foundFrequency = frequencyAtPos + delta;
-//                break;
-//            }
-//        }
-//
-//        if ( foundFrequency > 0 ) {
-//            setFrequency( foundFrequency, 0 );
-//        }
-//    }
-
-    mButtonTimer->stop();
-    if ( !mButtonsVisible ) {
-        mButtonTimer->start( BUTTON_SHOW_TIMEOUT );
+    mManualSeekTimer->stop();
+    if ( mManualSeekMode && !isScrolling() ) {
+        mManualSeekTimer->start( MANUALSEEK_END_TIMEOUT );
     }
 }
 
@@ -490,16 +480,29 @@ void RadioFrequencyStrip::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
  */
 void RadioFrequencyStrip::gestureEvent( QGestureEvent* event )
 {
-    if ( HbSwipeGesture* gesture = static_cast<HbSwipeGesture*>( event->gesture( Qt::SwipeGesture ) ) ) {
-        if ( gesture->state() == Qt::GestureFinished ) {
-            if ( gesture->horizontalDirection() == QSwipeGesture::Left ) {
+    HbSwipeGesture* swipeGesture = static_cast<HbSwipeGesture*>( event->gesture( Qt::SwipeGesture ) );
+    if ( swipeGesture && !mManualSeekMode ) {
+        if ( swipeGesture->state() == Qt::GestureFinished ) {
+            if ( swipeGesture->horizontalDirection() == QSwipeGesture::Left ) {
                 emit skipRequested( StationSkip::Next );
-            } else if ( gesture->horizontalDirection() == QSwipeGesture::Right ) {
+            } else if ( swipeGesture->horizontalDirection() == QSwipeGesture::Right ) {
                 emit skipRequested( StationSkip::Previous );
             }
         }
-    } else {
+    } else if ( mManualSeekMode ) {
         RadioStripBase::gestureEvent( event );
+    }
+}
+
+/*!
+ * \reimp
+ */
+void RadioFrequencyStrip::timerEvent( QTimerEvent* event )
+{
+    Q_UNUSED( event );
+    if ( mLastReportedFrequency != mFrequency ) {
+        mLastReportedFrequency = mFrequency;
+        emit frequencyChanged( mFrequency, TuneReason::ManualSeekTune, Scroll::Shortest );
     }
 }
 
@@ -508,8 +511,8 @@ void RadioFrequencyStrip::gestureEvent( QGestureEvent* event )
  */
 void RadioFrequencyStrip::initModel()
 {
-    const uint minFreq = uint( qreal(mMinFrequency) / KOneHertz + KRounder );
-    const uint maxFreq = uint( qreal(mMaxFrequency) / KOneHertz + 0.9 ); // always round up
+    const uint minFreq = uint( qreal(mMinFrequency) / ONE_HERTZ + ROUNDER );
+    const uint maxFreq = uint( qreal(mMaxFrequency) / ONE_HERTZ + 0.9 ); // always round up
 
     QStringList list;
     QString freqText;
@@ -521,13 +524,13 @@ void RadioFrequencyStrip::initModel()
     mFrequencyItems.append( new RadioFrequencyItem( "" ) );
     list.append( "" );
 
-    mMaxWidth = list.count() * KWidth;
+    mMaxWidth = list.count() * ITEM_WIDTH;
 
-    mSeparatorPos = qreal(KWidth) / 2;
-    const uint minDrawableFreq = minFreq * KOneHertz - KHalfHertz;;
-    const uint maxDrawableFreq = maxFreq * KOneHertz + KHalfHertz;
-    mSeparatorPos += qreal( ( mMinFrequency  - minDrawableFreq ) / 2 ) / KPixelInHz;
-    mSeparatorPos -= qreal( ( maxDrawableFreq - mMaxFrequency ) / 2 ) / KPixelInHz;
+    mSeparatorPos = qreal(ITEM_WIDTH) / 2;
+    const uint minDrawableFreq = minFreq * ONE_HERTZ - HALF_HERTZ;;
+    const uint maxDrawableFreq = maxFreq * ONE_HERTZ + HALF_HERTZ;
+    mSeparatorPos += qreal( ( mMinFrequency  - minDrawableFreq ) / 2 ) / PIXEL_IN_HZ;
+    mSeparatorPos -= qreal( ( maxDrawableFreq - mMaxFrequency ) / 2 ) / PIXEL_IN_HZ;
 
     setModel( new QStringListModel( list, this ) );
 }
@@ -537,10 +540,10 @@ void RadioFrequencyStrip::initModel()
  */
 void RadioFrequencyStrip::initSelector()
 {
-    QPixmap selectorPixmap = QPixmap( QSize( KSelectorWidth, KHeight ) );
+    QPixmap selectorPixmap = QPixmap( QSize( SELECTOR_WIDTH, STRIP_HEIGHT ) );
     selectorPixmap.fill( Qt::red );
     mSelectorImage->setPixmap( selectorPixmap );
-    mSelectorImage->setZValue( KSelectorZPos );
+    mSelectorImage->setZValue( SELECTOR_Z_POS );
 }
 
 /*!
@@ -572,17 +575,23 @@ void RadioFrequencyStrip::initPositions()
  */
 void RadioFrequencyStrip::initButtons()
 {
-    mLeftButton->setZValue( KSelectorZPos );
+    mLeftButton->setZValue( SELECTOR_Z_POS );
     mLeftButton->setObjectName( LEFT_BUTTON );
-    mRightButton->setZValue( KSelectorZPos );
+    mRightButton->setZValue( SELECTOR_Z_POS );
     mRightButton->setObjectName( RIGHT_BUTTON );
 
+    const qreal height = size().height();
+    const qreal width = size().width();
+    mLeftButton->resize( height, height );
+    mRightButton->resize( height, height );
+    mRightButton->setPos( QPointF( width - height, 0 ) );
+
     QEffectList effectList;
-    effectList.append( EffectInfo( mLeftButton, ":/effects/slide_to_left.fxml", KSlideToLeft ) );
-    effectList.append( EffectInfo( mLeftButton, ":/effects/slide_from_left.fxml", KSlideFromLeft ) );
-    effectList.append( EffectInfo( mRightButton, ":/effects/slide_to_right.fxml", KSlideToRight ) );
-    effectList.append( EffectInfo( mRightButton, ":/effects/slide_from_right.fxml", KSlideFromRight ) );
-    RadioUiUtilities::addEffects( effectList );
+    effectList.append( EffectInfo( mLeftButton, ":/effects/slide_to_left.fxml", SLIDE_TO_LEFT ) );
+    effectList.append( EffectInfo( mLeftButton, ":/effects/slide_from_left.fxml", SLIDE_FROM_LEFT ) );
+    effectList.append( EffectInfo( mRightButton, ":/effects/slide_to_right.fxml", SLIDE_TO_RIGHT ) );
+    effectList.append( EffectInfo( mRightButton, ":/effects/slide_from_right.fxml", SLIDE_FROM_RIGHT ) );
+    RadioUtil::addEffects( effectList );
 }
 
 /*!
@@ -597,13 +606,43 @@ void RadioFrequencyStrip::addFrequencyPos( int pos, uint frequency, RadioFrequen
 /*!
  *
  */
-void RadioFrequencyStrip::updateFavorites( RadioFrequencyItem* item )
+void RadioFrequencyStrip::updateStationsInRange( int first, int last, bool stationRemoved )
+{
+    if ( RadioUtil::scanStatus() != Scan::ScanningInMainView ) {
+        RadioStationModel& model = mUiEngine->stationModel();
+        uint frequency = 0;
+        for ( int i = first; i <= last; ++i ) {
+            frequency = model.data( model.index( i, 0, QModelIndex() ),
+                                    RadioRole::RadioStationRole ).value<RadioStation>().frequency();
+            if ( mFrequencies.contains( frequency ) ) {
+                FrequencyPos pos = mFrequencies.value( frequency );
+                updateItem( pos.mItem, 0, stationRemoved ? frequency : 0 );
+            }
+        }
+    }
+}
+
+/*!
+ *
+ */
+void RadioFrequencyStrip::updateItem( RadioFrequencyItem* item, uint upperRange, uint ignoredFrequency )
 {
     if ( item ) {
         uint frequency = item->frequency();
         QList<RadioStation> stations;
+
+        if ( upperRange == 0 ) {
+            upperRange = frequency + HALF_HERTZ;
+        }
+
         if ( mUiEngine ) {
-            stations = mUiEngine->stationsInRange( frequency - KHalfHertz, frequency + KHalfHertz );
+            stations = mUiEngine->stationsInRange( frequency - HALF_HERTZ, upperRange );
+            for ( int i = stations.count() - 1; ignoredFrequency > 0 && i >= 0; --i ) {
+                if ( stations[i].frequency() == ignoredFrequency ) {
+                    stations.removeAt( i );
+                    break;
+                }
+            }
         }
 
         QPixmap pixmap = drawPixmap( frequency, stations, item );
@@ -620,10 +659,10 @@ void RadioFrequencyStrip::updateFavorites( RadioFrequencyItem* item )
 /*!
  *
  */
-void RadioFrequencyStrip::updateItems()
+void RadioFrequencyStrip::updateAllItems()
 {
     foreach ( RadioFrequencyItem* item, mFrequencyItems ) {
-        updateFavorites( item );
+        updateItem( item );
     }
 }
 
@@ -632,7 +671,7 @@ void RadioFrequencyStrip::updateItems()
  */
 QPixmap RadioFrequencyStrip::drawPixmap( uint frequency, QList<RadioStation> stations, RadioFrequencyItem* item )
 {
-    QPixmap pixmap( KWidth, KHeight );
+    QPixmap pixmap( PIXMAP_WIDTH, STRIP_HEIGHT );
     pixmap.fill( Qt::transparent );
     QPainter painter( &pixmap );
     QPen normalPen = painter.pen();
@@ -641,71 +680,72 @@ QPixmap RadioFrequencyStrip::drawPixmap( uint frequency, QList<RadioStation> sta
     painter.setPen( normalPen );
 
     if ( frequency == 0 ) {
-        painter.drawLine( makeTab( mSeparatorPos - 1 + KRounder, KHeight ) );
-        painter.drawLine( makeTab( mSeparatorPos + KRounder, KHeight ) );
+        painter.drawLine( makeTab( mSeparatorPos - 1 + ROUNDER, STRIP_HEIGHT ) );
+        painter.drawLine( makeTab( mSeparatorPos + ROUNDER, STRIP_HEIGHT ) );
         return pixmap;
     }
 
-    const QString itemText = QString::number( frequency / KOneHertz );
-    const uint startFrequency = frequency - KHalfHertz;
-    const uint endFrequency = startFrequency + KOneHertz;
-    const uint  roundedMin = int( qreal(mMinFrequency) / KOneHertz + KRounder );
-    const uint freq = frequency / KOneHertz;
+    const QString itemText = QString::number( frequency / ONE_HERTZ );
+    const uint startFrequency = frequency - HALF_HERTZ;
+    const uint endFrequency = startFrequency + ONE_HERTZ;
+    const uint  roundedMin = int( qreal(mMinFrequency) / ONE_HERTZ + ROUNDER );
+    const uint freq = frequency / ONE_HERTZ;
     const int diff = freq - roundedMin;
-    const qreal startPixel = diff * KWidth;
+    const qreal startPixel = diff * ITEM_WIDTH;
     qreal pixels = 0.0;
-    QFont painterFont = painter.font();
-    painterFont.setPointSize( 6 );
-    painter.setFont( painterFont );
+    const qreal leftOverlap = PIXMAP_OVERLAP / 2;
 
-    const int charWidth = painter.fontMetrics().averageCharWidth();
     for ( uint frequency = startFrequency; frequency <= endFrequency; frequency += mFrequencyStepSize ) {
 
         if ( frequency < mMinFrequency || frequency > mMaxFrequency ) {
             continue;
         }
 
-        pixels = qreal( frequency - startFrequency ) / KPixelInHz;
-        if ( frequency % KOneHertz == 0 ) {
+        pixels = qreal( frequency - startFrequency ) / PIXEL_IN_HZ;
+        if ( frequency % ONE_HERTZ == 0 ) {
 
             // Draw the high frequency tab and the frequency text for the even number
-            painter.drawLine( makeTab( pixels, KTabHeightBig ) );
-            const int textPosX = pixels - itemText.length() * charWidth / 2;
-            painter.drawText( QPoint( textPosX, 20 ), itemText );
+            painter.drawLine( makeTab( pixels + leftOverlap, TAB_HEIGHT_BIG ) );
 
-        } else if ( frequency % KOneTabInHz == 0 ) {
+            // Draw the frequency text and its 00 decimals
+            painter.setFont( DECIMAL_FONT );
+            const int decimalWidth = painter.fontMetrics().width( DECIMAL_TEXT );
+            const int decimalSpace = painter.fontMetrics().leftBearing( '.' );
+            painter.setFont( FREQUENCY_FONT );
+            const int frequencyWidth = painter.fontMetrics().width( itemText );
+            const int textPosX = int( pixels + leftOverlap - ( frequencyWidth + decimalSpace + decimalWidth ) / 2 );
+            painter.drawText( QPoint( textPosX, 20 ), itemText );
+            painter.setFont( DECIMAL_FONT );
+            painter.drawText( QPoint( textPosX + frequencyWidth + decimalSpace, 20 ), DECIMAL_TEXT );
+
+        } else if ( frequency % ONE_TAB_IN_HZ == 0 ) {
 
             // Draw the low frequency tab for the uneven number
-            painter.drawLine( makeTab( pixels, KTabHeightSmall ) );
+            painter.drawLine( makeTab( pixels + leftOverlap, TAB_HEIGHT_SMALL ) );
 
         }
 
-        addFrequencyPos( startPixel + pixels + KRounder, frequency, item );
+        addFrequencyPos( int( startPixel + pixels + ROUNDER ), frequency, item );
     }
 
     // Draw favorites and local stations
     favoritePen.setColor( Qt::yellow );
 
-    const int markerYPos = KHeight - 20;
+    const int markerYPos = STRIP_HEIGHT - 20;
     foreach ( const RadioStation& station, stations ) {
         const uint frequency = station.frequency();
-        pixels = qreal( frequency - startFrequency ) / KPixelInHz;
+        pixels = qreal( frequency - startFrequency ) / PIXEL_IN_HZ;
 
         if ( station.isFavorite() ) {
-            favoritePen.setWidth( KTabWidthFavorite );
+            favoritePen.setWidth( PEN_WIDTH_FAVORITE );
             painter.setPen( favoritePen );
-            painter.drawEllipse( pixels - 3, markerYPos - 3, 6, 6 );
+            painter.drawEllipse( int( pixels + leftOverlap - 3 ), markerYPos - 3, 6, 6 );
 //            painter.drawPixmap( pixels - 10, 20, 20, 20, mFavoriteIcon.pixmap() );
         } else if ( station.isType( RadioStation::LocalStation ) ) {
-//            painter.setPen( normalPen );
-//            painter.drawLine( pixels,                           // Start X
-//                              KHeight - KTabHeightFavorite,     // Start Y
-//                              pixels,                           // End X
-//                              KHeight );                        // End Y
 
             favoritePen.setWidth( 1 );
             painter.setPen( favoritePen );
-            painter.drawEllipse( pixels - 4, markerYPos - 4, 8, 8 );
+            painter.drawEllipse( int( pixels + leftOverlap - 4 ), markerYPos - 4, 8, 8 );
         }
     }
 
@@ -719,7 +759,8 @@ void RadioFrequencyStrip::emitFrequencyChanged( uint frequency )
 {
     if ( frequency > 0 && frequency != mFrequency ) {
         mFrequency = frequency;
-        emit frequencyChanged( frequency, TuneReason::FrequencyStrip );
+        //TOD: Get direction
+        emit frequencyChanged( frequency, TuneReason::FrequencyStrip, Scroll::Shortest );
     }
 }
 
@@ -728,23 +769,54 @@ void RadioFrequencyStrip::emitFrequencyChanged( uint frequency )
  */
 int RadioFrequencyStrip::selectorPos() const
 {
-    const int pos = ( -contentWidget()->x() + mSelectorPos ) + KRounder;
+    const int pos = int( -contentWidget()->x() + mSelectorPos + ROUNDER );
     return pos % mMaxWidth;
 }
 
 /*!
  *
  */
-void RadioFrequencyStrip::scrollToFrequency( uint frequency, int time )
+void RadioFrequencyStrip::scrollToFrequency( uint frequency, Scroll::Direction direction, int time, TuneReason::Reason reason )
 {
-    // Find the shortest route to the requested frequency.
-    const int pos = ( -contentWidget()->x() + mSelectorPos ) + KRounder;
-    if ( pos >= mMaxWidth - KWidth + mSeparatorPos ) {
-        const qreal newPos = qreal( mFrequencies.value( frequency ).mPosition ) - mSelectorPos + mMaxWidth;
-        scrollContentsTo( QPointF( newPos, 0 ), time );
-    } else {
-        scrollContentsTo( QPointF( qreal( mFrequencies.value( frequency ).mPosition ) - mSelectorPos, 0 ), time );
+    int targetFreqPos = mFrequencies.value( frequency ).mPosition;
+    const int currentFreqPos = mFrequencies.value( mFrequency ).mPosition;
+    const int currentPos = int( -contentWidget()->x() + mSelectorPos + ROUNDER );
+    const bool isInSecondHalf = currentPos >= mMaxWidth - ITEM_WIDTH + mSeparatorPos;
+
+    // Special case: When there is only one favorite and the user presses skip
+    // the strip must scroll around to the same frequency.
+    if ( mFrequency == frequency && reason == TuneReason::Skip ) {
+        if ( direction == Scroll::Left ) {
+            targetFreqPos += mMaxWidth;
+        } else {
+        targetFreqPos -= mMaxWidth;
+        }
     }
+
+    mFrequency = frequency;
+
+    qreal newPos = targetFreqPos;
+    if ( direction == Scroll::Left ) {
+
+        if ( currentFreqPos > targetFreqPos ) {
+            newPos += mMaxWidth;
+        }
+
+    } else if ( direction == Scroll::Right ) {
+
+        if ( currentFreqPos < targetFreqPos ) {
+            newPos -= mMaxWidth;
+        }
+
+    }
+
+    if ( isInSecondHalf ) {
+        newPos += mMaxWidth;
+    }
+
+    newPos -= mSelectorPos - ROUNDER;
+
+    scrollContentsTo( QPointF( newPos, 0 ), time );
 }
 
 /*!
@@ -752,9 +824,8 @@ void RadioFrequencyStrip::scrollToFrequency( uint frequency, int time )
  */
 void RadioFrequencyStrip::hideButtons()
 {
-    mButtonsVisible = false;
-    HbEffect::start( mLeftButton, KSlideToLeft );
-    HbEffect::start( mRightButton, KSlideToRight );
+    HbEffect::start( mLeftButton, SLIDE_TO_LEFT );
+    HbEffect::start( mRightButton, SLIDE_TO_RIGHT );
 }
 
 /*!
@@ -762,7 +833,6 @@ void RadioFrequencyStrip::hideButtons()
  */
 void RadioFrequencyStrip::showButtons()
 {
-    mButtonsVisible = true;
-    HbEffect::start( mLeftButton, KSlideFromLeft );
-    HbEffect::start( mRightButton, KSlideFromRight );
+    HbEffect::start( mLeftButton, SLIDE_FROM_LEFT );
+    HbEffect::start( mRightButton, SLIDE_FROM_RIGHT );
 }

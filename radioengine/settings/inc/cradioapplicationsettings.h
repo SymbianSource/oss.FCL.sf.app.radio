@@ -20,36 +20,38 @@
 
 // User includes
 #include "mradioapplicationsettings.h"
-#include "cradiosettingsbase.h"
+
+// Forward declarations
+class CRepository;
 
 /**
  * Concrete implementation of application settings.
  */
-NONSHARABLE_CLASS( CRadioApplicationSettings ) : public CRadioSettingsBase
+NONSHARABLE_CLASS( CRadioApplicationSettings ) : public CBase
                                                , public MRadioApplicationSettings
     {
 
 public:
 
-    static CRadioApplicationSettings* NewL( CRadioRepositoryManager& aRepositoryManager, CCoeEnv& aCoeEnv );
+    static CRadioApplicationSettings* NewL();
 
     ~CRadioApplicationSettings();
 
 // from base class MRadioApplicationSettings
 
-    TInt SetActiveFocusLocation( TInt aIndex );
-    TInt ActiveFocusLocation() const;
-    void SetAudioPlayHistoryL( TRadioCRAudioPlayHistory aHistory );
-    TRadioCRAudioPlayHistory AudioPlayHistory() const;
-    TInt UpdateStartCount();
+    TBool IsFirstTimeStart();
+    void SetFirstTimeStartPerformed( TBool aFirstTimeStartPerformed );
     TInt SetUiFlags( TUint aUiFlags );
     TUint UiFlags() const;
 
 private:
 
-    CRadioApplicationSettings( CRadioRepositoryManager& aRepositoryManager, CCoeEnv& aCoeEnv );
+    CRadioApplicationSettings();
 
     void ConstructL();
+    
+private: // data
+    CRepository* iRepository;
 
     };
 

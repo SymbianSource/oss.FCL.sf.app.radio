@@ -48,12 +48,6 @@ class UI_ENGINE_DLL_EXPORT RadioStationModel : public QAbstractListModel
 
 public:
 
-    enum RadioRole
-    {
-        RadioStationRole = Qt::UserRole + 1,
-        ToggleFavoriteRole
-    };
-
     enum DetailFlag
     {
         Minimal     = 1 << 0,
@@ -104,7 +98,7 @@ public:
     /*!
      * Functions to find stations by frequency
      */
-    bool findFrequency( uint frequency, RadioStation& station );
+    bool findFrequency( uint frequency, RadioStation& station ) const;
 
     /*!
      * Functions to find stations by preset index
@@ -116,6 +110,11 @@ public:
      * Finds the closest station from the given frequency
      */
     RadioStation findClosest( const uint frequency, StationSkip::Mode mode );
+
+    /*!
+     * Checks if the model contains the given frequency
+     */
+    bool contains( const uint frequency ) const;
 
     /*!
      * Functions to remove stations
@@ -168,7 +167,7 @@ public:
     /*!
      * Returns the model index corresponding to the given frequency
      */
-    QModelIndex modelIndexFromFrequency( uint frequency );
+    int indexFromFrequency( uint frequency );
 
 signals:
 

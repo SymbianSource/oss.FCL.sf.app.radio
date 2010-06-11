@@ -34,7 +34,7 @@
 /**
  * Timeout period for checking if station is sending dynamic PS in milliseconds
  */
-const int KDynamicPsCheckTimeout = 10 * 1000;
+const int DYNAMIC_PS_CHECK_TIMEOUT = 10 * 1000;
 
 /*!
  *
@@ -46,9 +46,9 @@ RadioStationModelPrivate::RadioStationModelPrivate( RadioStationModel* model,
     mCurrentStation( &mManualStation ),
     mDynamicPsTimer( new QTimer() )
 {
-    connectAndTest( mDynamicPsTimer.data(), SIGNAL(timeout()),
+    Radio::connect( mDynamicPsTimer.data(), SIGNAL(timeout()),
                     q_ptr,                  SLOT(dynamicPsCheckEnded()) );
-    mDynamicPsTimer->setInterval( KDynamicPsCheckTimeout );
+    mDynamicPsTimer->setInterval( DYNAMIC_PS_CHECK_TIMEOUT );
     mDynamicPsTimer->setSingleShot( true );
 }
 
@@ -96,6 +96,7 @@ void RadioStationModelPrivate::setCurrentStation( uint frequency )
     Q_Q( RadioStationModel );
     if ( oldStation && oldStation->isValid() ) {
         q->emitDataChanged( *oldStation );
+        q->emitDataChanged( *mCurrentStation );
     }
 }
 
@@ -310,6 +311,7 @@ void RadioStationModelPrivate::doSaveStation( RadioStation& station, bool persis
     if ( persistentSave ) {
         const bool success = mPresetStorage->savePreset( *station.data_ptr() );
         RADIO_ASSERT( success, "RadioStationModelPrivate::saveStation", "Failed to add station" );
+        Q_UNUSED( success );
     }
 }
 

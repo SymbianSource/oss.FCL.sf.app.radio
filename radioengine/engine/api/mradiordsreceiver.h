@@ -20,7 +20,6 @@
 
 // Forward declarations
 class CRadioUtility;
-class CRadioPubSub;
 class MRadioRdsDataObserver;
 
 NONSHARABLE_CLASS( MRadioRdsReceiver )
@@ -33,7 +32,7 @@ public:
      * @param aRadioUtility A reference to the radio utility
      * @param aPubSub       Pointer to Publish&Subscribe object
      */
-    virtual void InitL( CRadioUtility& aRadioUtility, CRadioPubSub* aPubSub ) = 0;
+    virtual void InitL( CRadioUtility& aRadioUtility ) = 0;
 
     /**
      * Adds an observer wich will be notified of the new RDS data

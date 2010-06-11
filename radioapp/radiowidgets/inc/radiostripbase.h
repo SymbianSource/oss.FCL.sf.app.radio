@@ -42,7 +42,7 @@ public:
     QAbstractItemModel* model() const;
 
     void setCyclic( bool isCyclic );
-    void setSpacing( qreal spacing );
+    void setOverlap( qreal overlap );
     void setAutoCenter( bool autoCenter );
     void setItemSize( const QSizeF& size );
     void setIndex( int index, bool animateToCenter );
@@ -104,7 +104,7 @@ private: //data
     bool                    mIsCyclic;
     bool                    mAutoCenter;
 
-    qreal                   mSpacing;
+    qreal                   mOverlap;
 
     QSizeF                  mItemSize;
 

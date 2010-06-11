@@ -23,7 +23,6 @@
 
 // User includes
 #include "radioviewbase.h"
-#include "radiowidgetsexport.h"
 
 // Forward declarations
 class RadioWindow;
@@ -33,9 +32,10 @@ class RadioUiLoader;
 class RadioFrequencyScanner;
 class RadioStationCarousel;
 class RadioFrequencyStrip;
+class RadioStation;
 
 // Class declaration
-class WIDGETS_DLL_EXPORT RadioMainView : public RadioViewBase
+class RadioMainView : public RadioViewBase
     {
     Q_OBJECT
 
@@ -46,14 +46,25 @@ public:
 
     void setScanningMode( bool scanning );
 
+signals:
+
+    void applicationReady();
+
 private slots:
 
-    void setFrequencyFromWidget( uint frequency, int reason );
+    void setFrequencyFromWidget( uint frequency, int reason, int direction );
     void setFrequencyFromEngine( uint frequency, int reason );
     void skip( int skipMode );
+    void openStationsView();
     void toggleScanning();
     void seekingStarted();
+    void updateAntennaStatus( bool connected );
     void updateAudioRoute( bool loudspeaker );
+    void setManualSeekMode( bool manualSeekActive );
+    void handleFavoriteChange( const RadioStation& station );
+
+    void toggleSkippingMode();  //TODO: Remove. Temporary test code
+    void resetFirstTimeCount(); //TODO: Remove. Temporary test code
 
 private:
 
@@ -63,11 +74,18 @@ private:
     void setOrientation();
     void userAccepted();
 
+// from base class QObject
+
+    bool eventFilter( QObject* watched, QEvent* event );
+
 private: // data
 
     QScopedPointer<RadioFrequencyScanner>   mFrequencyScanner;
     RadioStationCarousel*                   mCarousel;
     RadioFrequencyStrip*                    mFrequencyStrip;
+
+    HbAction*                               mSkippingAction;    //TODO: Remove. Temporary test code
+    bool                                    mAlternateSkipping; //TODO: Remove. Temporary test code
 
     };
 

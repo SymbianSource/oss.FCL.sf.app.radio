@@ -21,3 +21,48 @@ HbMarqueeItem#marquee3::text {
     text-align: center center;
     text-wrap-mode: no-wrap;
 }
+
+HbPushButton#tunerBackgroundPushButton::text,
+HbPushButton[state = "normal"]#tunerBackgroundPushButton::text {
+    color: grey;
+    text-align: left bottom;
+}
+
+HbPushButton[state = "normal"]#tunerBackgroundPushButton::background {
+    border-width: 1un;
+}
+
+HbPushButton[state = "highlight"]#tunerBackgroundPushButton::text {
+    color: yellow;
+    text-align: right top;
+}
+
+HbPushButton[state = "pressed"]#tunerBackgroundPushButton::text {
+    color: red;
+    text-align: center center;
+}
+
+HbPushButton[state = "normal"]#tunerBackgroundPushButton::background {
+    frame-graphics-name: "qtg_fr_tuner";
+    frame-graphics-type: ThreePiecesHorizontal;
+}
+
+HbPushButton[state = "pressed"]#tunerBackgroundPushButton::background {
+    frame-graphics-name: "qtg_fr_hsitems2_pressed";
+    frame-graphics-type: NinePieces;
+}
+
+
+HbPushButton[state = "latched"]#tunerBackgroundPushButton::text {
+    color: green;
+    text-align: top center;
+}
+
+HbPushButton[state = "latched"]#tunerBackgroundPushButton::background {
+    border-width: 0un;
+}
+
+HbPushButton[state = "disabled"]#tunerBackgroundPushButton::text {
+    color: brown;
+    text-align: right bottom;
+}

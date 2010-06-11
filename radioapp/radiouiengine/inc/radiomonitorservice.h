@@ -20,6 +20,7 @@
 
 // System includes
 #include <xqserviceprovider.h>
+#include <QPointer>
 
 // User includes
 #include "radioservicedef.h"
@@ -28,6 +29,7 @@
 // Forward declarations
 class RadioUiEnginePrivate;
 class RadioStation;
+class QTimer;
 
 class RadioMonitorService : public XQServiceProvider
                           , public RadioEngineWrapperObserver
@@ -41,8 +43,6 @@ public:
 
     void init();
 
-    void notifySong( const QString& song );
-
 public slots:
 
     void requestNotifications();    // Slot called by Qt Highway
@@ -53,9 +53,10 @@ private slots:
     void notifyRadioStatus();
     void notifyFavoriteCount();
     void notifyStationChange( const RadioStation& station );
+    void sendNotifications();
 
 private:
-    
+
 // from base class RadioEngineWrapperObserver
 
     void tunedToFrequency( uint frequency, int reason );
@@ -63,16 +64,23 @@ private:
 // New functions
 
     RadioStatus::Status determineRadioStatus() const;
+
+    void checkIfCurrentStationIsFavorite();
+
     void notify( const QVariant& notification );
     void notifyList( const QVariantList& list );
-    
+
 private: // data
 
     RadioUiEnginePrivate&   mUiEngine;
 
     QList<int>              mRequestIndexes;
-    
+
     RadioStatus::Status     mRadioStatus;
+
+    QVariantList            mNotificationList;
+
+    QPointer<QTimer>        mNotificationTimer;
 
 };
 

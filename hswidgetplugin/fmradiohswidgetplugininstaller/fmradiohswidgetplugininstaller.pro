@@ -25,6 +25,9 @@ CONFIG += mobility
 MOBILITY = serviceframework
 
 SOURCES += fmradiohswidgetplugininstaller.cpp
+SOURCES += ../../common/radiologger.cpp
+
+INCLUDEPATH += ../../common
 
 symbian {    
     TARGET.CAPABILITY = ALL -TCB

@@ -24,12 +24,11 @@ WINSCW ARMV5
 
 PRJ_EXPORTS
 
-//../sis/visualradiostub.sis /epoc32/data/z/system/install/visualradio.sis
-backup_registration.xml /epoc32/data/z/private/101ff976/backup_registration.xml
+backup_registration.xml /epoc32/data/z/private/2002FF52/backup_registration.xml
 
-../cenrep/101FF976.txt  /epoc32/data/z/private/10202be9/101FF976.txt
-../cenrep/101FF976.txt  /epoc32/RELEASE/winscw/UDEB/Z/private/10202be9/101FF976.txt
-../cenrep/101FF976.txt  /epoc32/RELEASE/winscw/UREL/Z/private/10202be9/101FF976.txt
+../cenrep/2002FF52.txt  /epoc32/data/z/private/10202be9/2002FF52.txt
+../cenrep/2002FF52.txt  /epoc32/RELEASE/winscw/UDEB/Z/private/10202be9/2002FF52.txt
+../cenrep/2002FF52.txt  /epoc32/RELEASE/winscw/UREL/Z/private/10202be9/2002FF52.txt
 
 PRJ_MMPFILES
 radioenginesettings.mmp

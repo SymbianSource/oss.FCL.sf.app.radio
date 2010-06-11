@@ -34,20 +34,8 @@ class RadioSettingsIf;
 class RadioStation;
 class RadioHistoryModel;
 class RadioHistoryItem;
-class RadioCarouselModel;
-class RadioStationFilterModel;
 class RadioScannerEngine;
 class RadioMonitorService;
-
-namespace GenreTarget
-{
-    enum Target{
-        Carousel,
-        StationsList,
-        HomeScreen
-    };
-}
-
 
 class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 {
@@ -62,7 +50,6 @@ public:
     /**
      * Static functions that are used before the ui engine is created
      */
-    static bool isOfflineProfile();
     static uint lastTunedFrequency();
 
     RadioUiEngine( QObject* parent = 0 );
@@ -73,6 +60,11 @@ public:
     bool init();
 
     bool isFirstTimeStart();
+    void setFirstTimeStartPerformed( bool firstTimeStartPerformed );
+
+    void setPowerOn();
+    void setPowerOff( int delay = 0 );
+    bool isPoweringOff() const;
 
     /**
      * Getters for things owned by the engine
@@ -80,8 +72,7 @@ public:
     RadioSettingsIf& settings();
     RadioStationModel& stationModel();
     RadioHistoryModel& historyModel();
-    RadioStationFilterModel* createNewFilterModel( QObject* parent = 0 );
-    RadioCarouselModel* carouselModel();
+    RadioScannerEngine* createScannerEngine();
     RadioScannerEngine* scannerEngine();
 
     bool isRadioOn() const;
@@ -111,6 +102,14 @@ public:
     enum MusicStore{ OviStore, OtherStore };
     void openMusicStore( const RadioHistoryItem& item, MusicStore store = OviStore );
 
+    void setManualSeekMode( bool manualSeek );
+    bool isInManualSeekMode() const;
+
+    /**
+     * Tunes the radio engine to given frequency
+     */
+    void setFrequency( uint frequency, const int reason = TuneReason::Unspecified );
+
 signals:
 
     void tunedToFrequency( uint frequency, int commandSender );
@@ -125,14 +124,9 @@ signals:
     void audioRouteChanged( bool loudspeaker );
     void antennaStatusChanged( bool connected );
 
-public slots:
+    void powerOffRequested();
 
-    /**
-     * Slots to tune to given frequency or preset
-     */
-    void tuneFrequency( uint frequency, const int reason = TuneReason::Unspecified );
-    void tuneWithDelay( uint frequency, const int reason = TuneReason::Unspecified );
-    void tunePreset( int presetIndex );
+public slots:
 
     /*!
      * volume update command slot for the engine
@@ -151,7 +145,7 @@ private:
      * functions used only by the private class to get signals emitted
      */
     void emitTunedToFrequency( uint frequency, int commandSender );
-    void emitSeekingStarted( Seeking::Direction direction );
+    void emitSeekingStarted( Seek::Direction direction );
     void emitRadioStatusChanged( bool radioIsOn );
     void emitRdsAvailabilityChanged( bool available );
     void emitVolumeChanged( int volume );

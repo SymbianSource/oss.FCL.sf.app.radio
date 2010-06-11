@@ -17,18 +17,16 @@
 include(../buildflags.pri)
 
 TEMPLATE    = lib
-TARGET      = radiopresetstorage
+TARGET      = fmradiopresetstorage
 CONFIG      += dll
 DEFINES     += BUILD_PRESET_STORAGE_DLL
 
-INCLUDEPATH += inc
+symbian:TARGET.UID3 = 0x2002EAD9
 
-COMPILE_WITH_NEW_PRESET_UTILITY {
-    INCLUDEPATH += /epoc32/include/newfmpresetutility
-    symbian:LIBS += -lpresetutility
-} else {
-    symbian:LIBS += -lfmpresetutility
-}
+INCLUDEPATH += inc
+INCLUDEPATH += ../../common
+
+symbian:LIBS += -lpresetutility
 
 DEPENDPATH += $$INCLUDEPATH src
 

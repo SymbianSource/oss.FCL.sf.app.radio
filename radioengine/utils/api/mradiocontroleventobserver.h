@@ -55,13 +55,6 @@ public:
     virtual void SeekL( RadioEngine::TRadioTuneDirection aDirection ) = 0;
 
     /**
-     * Called when "step to frequency up" request occurs.
-     *
-     * @param aDirection If ERadioUp steps up, otherwise steps down
-     */
-    virtual void StepToFrequencyL( RadioEngine::TRadioTuneDirection aDirection ) = 0;
-
-    /**
      * Called when "set frequency" request occurs.
      *
      * @param aFreq Frequency to set

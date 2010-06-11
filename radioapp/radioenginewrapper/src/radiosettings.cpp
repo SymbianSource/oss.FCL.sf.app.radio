@@ -60,6 +60,15 @@ bool RadioSettings::isFirstTimeStart()
 /*!
  * \reimp
  */
+void RadioSettings::setFirstTimeStartPerformed( bool firstTimeStartPerformed )
+{
+    Q_D( RadioSettings );
+    d->setFirstTimeStartPerformed( firstTimeStartPerformed );
+}
+
+/*!
+ * \reimp
+ */
 bool RadioSettings::showFavorites() const
 {
     Q_D( const RadioSettings );

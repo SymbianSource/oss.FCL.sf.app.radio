@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hbwidget type="RadioStationItem" version="0.1">
+<hbwidget type="RadioCarouselItem" version="0.1">
     <layout name="default" type="mesh">
         <meshitem dst="" dstEdge="TOP" src="favorite_button" srcEdge="TOP"/>
         <meshitem dst="" dstEdge="LEFT" src="favorite_button" srcEdge="LEFT"/>

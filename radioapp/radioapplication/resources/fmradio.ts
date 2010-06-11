@@ -72,16 +72,6 @@
     <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_alarm_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Alarm</source>
-    <translation variants="no">Alarm</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_info_news">
     <comment>Main view Information area item. Displayed if PTY is available. RDS Programme Type identifier for PTY code 1.</comment>        
     <source>News</source>
@@ -99,16 +89,6 @@
     <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01, rad_02</extra-loc-viewid>
     <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_light_classical_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Light classical</source>
-    <translation variants="no">Light classical</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -192,16 +172,6 @@
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_religious_talk_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Religious talk</source>
-    <translation variants="no">Religious talk</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_culture">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Culture</source>
@@ -262,26 +232,6 @@
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_classical_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Classical</source>
-    <translation variants="no">Classical</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_national_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>National Music</source>
-    <translation variants="no">National Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_info_rhythm_and_blues">
     <comment>Main view Information area item. Displayed if PTY is available. Used only in US region.</comment>        
     <source>Rhythm and blues</source>
@@ -309,26 +259,6 @@
     <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_other_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Other Music</source>
-    <translation variants="no">Other Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_religion_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Religion</source>
-    <translation variants="no">Religion</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -392,26 +322,6 @@
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_documentary_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Documentary</source>
-    <translation variants="no">Documentary</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_education_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Education</source>
-    <translation variants="no">Education</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_national_music">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>National Music</source>
@@ -429,26 +339,6 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_pop_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Pop Music</source>
-    <translation variants="no">Pop Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_list_l1_mhz">
-    <comment>Text in a home screen widget information area. %L1 is the radio station&apos;s frequency.</comment>        
-    <source>%L1 Mhz</source>
-    <translation variants="no">%L1 Mhz</translation>
-    <extra-loc-layout_id>txt_rad_list_l1_mhz</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>list</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -478,26 +368,6 @@
     <translation variants="no">National Music</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_culture_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Culture</source>
-    <translation variants="no">Culture</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_finance_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Finance</source>
-    <translation variants="no">Finance</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -552,12 +422,12 @@
     <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_social_affairs_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Social Affairs</source>
-    <translation variants="no">Social Affairs</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
+<message numerus="no" id="txt_rad_info_station_list_is_full_please_remove_s">
+    <comment>Dialog text which is displayed if all found stations do not fit to the Stations list after doing a Search all stations function. Displayed also if user tries to mark station as favorite in main view or in stations view and there is not enough room for stations in the Stations list.</comment>        
+    <source>Station list is full. Please remove some stations and try again.</source>
+    <translation variants="no">Station list is full. Please remove some stations and try again.</translation>
+    <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
+    <extra-loc-viewid>rad</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -638,16 +508,6 @@
     <translation variants="no">Varied</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_alarm_test_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Alarm Test</source>
-    <translation variants="no">Alarm Test</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -774,16 +634,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_religious_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Religious music</source>
-    <translation variants="no">Religious music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_info_delete_station">
     <comment>Confirmation query for deleting a selected station.</comment>        
     <source>Delete station?</source>
@@ -804,16 +654,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_soft_rock_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Soft rock</source>
-    <translation variants="no">Soft rock</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_menu_add_to_favourites">
     <comment>Item specific menu item. Allows the user to add a local station to favourite stations list. Available only if the station item is not already in the favourites.</comment>        
     <source>Add to favourites</source>
@@ -830,16 +670,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <translation variants="no">Current affairs</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_drama_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Drama</source>
-    <translation variants="no">Drama</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -924,16 +754,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_soft_rhythm_and_blues_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Soft rhythm and blues</source>
-    <translation variants="no">Soft rhythm and blues</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_info_clear_all_stations_list">
     <comment>Dialog text displayed when user is about to clear the all stations in All stations view.</comment>        
     <source>Clear All stations list?</source>
@@ -994,16 +814,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_country_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Country Music</source>
-    <translation variants="no">Country Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_info_activate_radio_in_offline_mode">
     <comment>Confirmation query which is displayed when the FM Radio is launched while the device is in offline mode.</comment>        
     <source>Activate Fm Radio in off-line mode?</source>
@@ -1031,16 +841,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>rad_02</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_soft_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Soft</source>
-    <translation variants="no">Soft</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1084,32 +884,12 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_phone_in_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Phone In</source>
-    <translation variants="no">Phone In</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_list_searching_all_available_stations_ple">
     <comment>Main pane Information area item. Displayed below the tuning animation during the first time startup.</comment>        
     <source>Searching all available stations. Please wait.</source>
     <translation variants="no">Searching all available stations. Please wait.</translation>
     <extra-loc-layout_id>txt_rad_info_connect_wired_headset</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_leisure_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Leisure</source>
-    <translation variants="no">Leisure</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -1164,26 +944,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_news_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>News</source>
-    <translation variants="no">News</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_list_fm_radio">
-    <comment>Text in a home screen widget information area. Displayed when no station is tuned.</comment>        
-    <source>FM Radio</source>
-    <translation variants="no">FM Radio</translation>
-    <extra-loc-layout_id>txt_rad_list_fm_radio</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>list</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_pop_music">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Pop Music</source>
@@ -1194,16 +954,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_top_40_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Top 40</source>
-    <translation variants="no">Top 40</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_public">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Public</source>
@@ -1211,16 +961,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>rad_02</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_nostalgia_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Nostalgia</source>
-    <translation variants="no">Nostalgia</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1242,6 +982,16 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-viewid>rad_02</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_fmradio_list_quick_access_for_fm_radio_in_your">
+    <comment>FM radio home screen widget description in application library</comment>        
+    <source>Quick access for FM radio in your homescreen.</source>
+    <translation variants="no">Quick access for FM radio in your homescreen.</translation>
+    <extra-loc-layout_id>qtl_list_sec_large_graphic</extra-loc-layout_id>    
+    <extra-loc-viewid>fmradio</extra-loc-viewid>
+    <extra-loc-positionid>list</extra-loc-positionid>
+    <extra-loc-feature>fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_short_caption_fm_radio">
@@ -1304,16 +1054,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_rock_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Rock Music</source>
-    <translation variants="no">Rock Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dpophead_no_stations_found_try_searching">
     <comment>Discreet popup heading text. Displayed when no stations were found after search all stations function has been finished.</comment>        
     <source>No stations found. Try searching stations by scrolling the frequency strip.</source>
@@ -1334,16 +1074,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_tsw_caption_fm_radio">
-    <comment>Application name in Task switcher.</comment>        
-    <source>FM Radio</source>
-    <translation variants="no">FM Radio</translation>
-    <extra-loc-layout_id>txt_tsw_caption_fmradio</extra-loc-layout_id>    
-    <extra-loc-viewid>tsw_01</extra-loc-viewid>
-    <extra-loc-positionid>caption</extra-loc-positionid>
-    <extra-loc-feature>ts</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_subhead_play_history">
     <comment>Heading text for the Play history view.</comment>        
     <source>Play history</source>
@@ -1354,16 +1084,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_oldies_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Oldies Music</source>
-    <translation variants="no">Oldies Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_menu_remove_tag">
     <comment>Item specific menu item. Allows the user to remove a song from the tagged songs list.</comment>        
     <source>Remove tag</source>
@@ -1371,26 +1091,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
     <extra-loc-viewid>rad_03</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_sport_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Sport</source>
-    <translation variants="no">Sport</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_classic_rock_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Classic rock</source>
-    <translation variants="no">Classic rock</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1544,16 +1244,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_weather_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Weather</source>
-    <translation variants="no">Weather</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_1_2">
     <comment>Two row list item first row. Displays artist and song name. Only in landscape. %1 is the artist&apos;s name and %2 is the song name.</comment>        
     <source>%1 - %2</source>
@@ -1561,36 +1251,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>qtl_list_pri2_graphic_add</extra-loc-layout_id>    
     <extra-loc-viewid>rad_03</extra-loc-viewid>
     <extra-loc-positionid>dblist</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_personality_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Personality</source>
-    <translation variants="no">Personality</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_rhythm_and_blues_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Rhythm and blues</source>
-    <translation variants="no">Rhythm and blues</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_information_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Information</source>
-    <translation variants="no">Information</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1610,26 +1270,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <translation variants="no">Alarm Test</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_current_affairs_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Current affairs</source>
-    <translation variants="no">Current affairs</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_childrens_programmes_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Children’s programmes</source>
-    <translation variants="no">Children’s programmes</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -1724,16 +1364,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_easy_listening_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Easy Listening</source>
-    <translation variants="no">Easy Listening</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_adult_hits">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Adult hits</source>
@@ -1750,26 +1380,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <translation variants="no">(No songs)</translation>
     <extra-loc-layout_id>qtl_view_empty_title_pri</extra-loc-layout_id>    
     <extra-loc-viewid>rad_03</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_public_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Public</source>
-    <translation variants="no">Public</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_varied_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Varied</source>
-    <translation variants="no">Varied</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -1794,26 +1404,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_science_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Science</source>
-    <translation variants="no">Science</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_jazz_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Jazz Music</source>
-    <translation variants="no">Jazz Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_documentary">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Documentary</source>
@@ -1830,16 +1420,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <translation variants="no">Seeking</translation>
     <extra-loc-layout_id>txt_rad_info_connect_wired_headset</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_folk_music_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Folk Music</source>
-    <translation variants="no">Folk Music</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -1914,42 +1494,12 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_adult_hits_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Adult hits</source>
-    <translation variants="no">Adult hits</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_serious_classical_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Serious classical</source>
-    <translation variants="no">Serious classical</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_info_documentary">
     <comment>Main view Information area item. Displayed if PTY is available. RDS Programme Type identifier for PTY code 29.</comment>        
     <source>Documentary</source>
     <translation variants="no">Documentary</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_college_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>College</source>
-    <translation variants="no">College</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -1964,14 +1514,14 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_connect_wired_headset">
-    <comment>Notification text which is displayed in home screen widget, when the headset antenna is not connected.</comment>        
-    <source>Connect wired headset.</source>
-    <translation variants="no">Connect wired headset.</translation>
-    <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+<message numerus="no" id="txt_fmradio_list_fm_radio_homescreen_widget">
+    <comment>FM Radio home screen widget name in application library</comment>        
+    <source>FM Radio homescreen widget</source>
+    <translation variants="no">FM Radio homescreen widget</translation>
+    <extra-loc-layout_id>qtl_list_pri_large_graphic</extra-loc-layout_id>    
+    <extra-loc-viewid>fmradio</extra-loc-viewid>
+    <extra-loc-positionid>list</extra-loc-positionid>
+    <extra-loc-feature>fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_fm_radio">
@@ -1994,6 +1544,16 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
+<message numerus="no" id="qtl_grid_taskswitcher_tiny">
+    <comment>Application name in Task switcher.</comment>        
+    <source>FM Radio</source>
+    <translation variants="no">FM Radio</translation>
+    <extra-loc-layout_id>qtl_grid_taskswitcher_tiny</extra-loc-layout_id>    
+    <extra-loc-viewid>tsw_01</extra-loc-viewid>
+    <extra-loc-positionid>caption</extra-loc-positionid>
+    <extra-loc-feature>ts</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
 <message numerus="no" id="txt_rad_button_deactivate_loudspeaker">
     <comment>A button text in main view. Displayed if volume is coming from the integrated loudspeaker. Activating the function routes audio to the headset.</comment>        
     <source>Deactivate loudspeaker</source>
@@ -2010,16 +1570,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <translation variants="no">Religious talk</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_language_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Language</source>
-    <translation variants="no">Language</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
@@ -2094,16 +1644,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_talk_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Talk</source>
-    <translation variants="no">Talk</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz">
     <comment>First row of the the two row list item. %L1 is the frequency value of the station. Displayed only if the station does not have a name.</comment>        
     <source>%L1 MHz</source>
@@ -2150,16 +1690,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <translation variants="no">Classic rock</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_travel_hs">
-    <comment>Displayed in FM Radio home screen widget&apos;s information area.</comment>        
-    <source>Travel</source>
-    <translation variants="no">Travel</translation>
-    <extra-loc-layout_id>txt_rad_info_news_hs</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_05</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>

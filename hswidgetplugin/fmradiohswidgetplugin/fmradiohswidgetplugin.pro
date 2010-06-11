@@ -19,6 +19,8 @@ include(../buildflags.pri)
 TEMPLATE = lib
 CONFIG += plugin mobility hb
 MOBILITY = serviceframework
+# Traslations is waiting for the widget specific ts
+#TRANSLATIONS += $${TARGET}.ts
 
 LIBS += -lxqsettingsmanager \
 		-lxqservice \
@@ -26,9 +28,10 @@ LIBS += -lxqsettingsmanager \
 
 HEADERS += ./inc/*.h
 SOURCES += ./src/*.cpp
+SOURCES += ../../common/radiologger.cpp
 
 INCLUDEPATH += ./inc
-INCLUDEPATH += ../../radioapp/commoninc
+INCLUDEPATH += ../../common
 
 UID = 2002E6D6
 
@@ -42,23 +45,24 @@ symbian: {
 
     TARGET.UID3 = 0x$${UID}
     TARGET.EPOCALLOWDLLDATA=1
-    TARGET.CAPABILITY = ALL -TCB
+    TARGET.VID = VID_DEFAULT
+    TARGET.CAPABILITY = CAP_GENERAL_DLL
     
     plugins.path = $${DESTDIR}
     plugins.sources = $${TARGET}.dll 
     
     widgetResources.path = $${DESTDIR}
-# commented out
-#    widgetResources.sources += resource/$${TARGET}.s60xml
-# Use this in emulator instead of xml in resources directory.    
-#    widgetResources.sources += $${TARGET}.xml
     widgetResources.sources += resource/$${TARGET}.xml
     widgetResources.sources += resource/$${TARGET}.manifest
-# icon is now removed to be able to unistall the widget more easily.
-#    widgetResources.sources += resource/$${TARGET}_icon*.png
+    # icon is now removed to be able to unistall the widget more easily.
+    #widgetResources.sources += resource/$${TARGET}_icon*.png
+	
+    localisedFiles.path = /resource/qt/translations
+    localisedFiles.sources += ./locales/*.qm
         
     DEPLOYMENT += plugins \
-                  widgetResources
+                  widgetResources \
+                  localisedFiles
 }
 
 win32: {
@@ -76,6 +80,9 @@ win32: {
     manifest.path = $${DESTDIR}
     manifest.files = ./resource/*.manifest ./resource/*.xml ./resource/*.css #./resource/*.png
     
-    INSTALLS += manifest    
+    widgetLocalisation.path = $$PWD/../../../../../bin/$${SUBDIRPART}/resource/qt/translations
+    widgetLocalisation.files += ./locales/*.qm
     
+    INSTALLS += manifest    
 }
+

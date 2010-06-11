@@ -16,6 +16,7 @@
 */
 
 #include "cradiorepositoryentitybase.h"
+#include "cradioenginelogger.h"
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -23,20 +24,22 @@
 //
 // ---------------------------------------------------------------------------
 //
-CRadioRepositoryEntityBase::CRadioRepositoryEntityBase( const TUid& aUid,
+EXPORT_C CRadioRepositoryEntityBase::CRadioRepositoryEntityBase( const TUid& aUid,
                                                         TUint32 aKey,
                                                         MRadioRepositoryEntityObserver& aObserver,
                                                         CActive::TPriority aPriority )
     : CActive( aPriority ), iObserver( aObserver ), iUid( aUid ), iKey( aKey )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-CRadioRepositoryEntityBase::~CRadioRepositoryEntityBase()
+EXPORT_C CRadioRepositoryEntityBase::~CRadioRepositoryEntityBase()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -54,5 +57,6 @@ const TUid& CRadioRepositoryEntityBase::Uid() const
 //
 TUint32 CRadioRepositoryEntityBase::Key() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iKey;
     }

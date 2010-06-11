@@ -18,6 +18,7 @@
 // User includes
 #include "cradiosystemeventcollector.h"
 #include "cradiosystemeventcollectorimp.h"
+#include "cradioenginelogger.h"
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -28,6 +29,7 @@
 //
 EXPORT_C CRadioSystemEventCollector* CRadioSystemEventCollector::NewL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return CRadioSystemEventCollectorImp::NewL();
     }
 
@@ -37,4 +39,5 @@ EXPORT_C CRadioSystemEventCollector* CRadioSystemEventCollector::NewL()
 //
 EXPORT_C CRadioSystemEventCollector::~CRadioSystemEventCollector()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }

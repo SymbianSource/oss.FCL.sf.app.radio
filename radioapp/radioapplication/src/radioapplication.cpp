@@ -17,6 +17,7 @@
 
 // System includes
 #include <QTimer>
+#include <qsysteminfo.h>
 #include <HbDeviceMessageBox>
 
 // User includes
@@ -71,13 +72,21 @@ RadioApplication::~RadioApplication()
  */
 void RadioApplication::init()
 {
-    bool okToStart = !RadioUiEngine::isOfflineProfile();
+    // If started as a service, there is no need for offline-check
+    const Hb::ActivationReason reason = activateReason();
+    bool okToStart = reason == Hb::ActivationReasonService;
+    QScopedPointer<QtMobility::QSystemDeviceInfo> deviceInfo( new QtMobility::QSystemDeviceInfo() );
 
     if ( !okToStart ) {
-        HbDeviceMessageBox box( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ), HbMessageBox::MessageTypeQuestion );
-        box.setTimeout( HbPopup::NoTimeout );
-        box.exec();
-        okToStart = box.isAcceptAction( box.triggeredAction() );
+        if ( deviceInfo->currentProfile() != QtMobility::QSystemDeviceInfo::OfflineProfile ) {
+            okToStart = true;
+        } else {
+            // Device is in offline profile, ask the user for permission to start
+            HbDeviceMessageBox box( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ), HbMessageBox::MessageTypeQuestion );
+            box.setTimeout( HbPopup::NoTimeout );
+            box.exec();
+            okToStart = box.isAcceptAction( box.triggeredAction() );
+        }
     }
 
     if ( okToStart ) {
@@ -92,7 +101,7 @@ void RadioApplication::init()
         INIT_WIN32_TEST_WINDOW
 
         // Construct the real views
-        mMainWindow->init();
+        mMainWindow->init( deviceInfo.take() );
 
         mMainWindow->show();
     } else {

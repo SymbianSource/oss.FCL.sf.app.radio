@@ -28,13 +28,6 @@
 #include "radio_global.h"
 
 // Constants
-const int KLastCallSignCharCode = 25;
-const uint KThreeLetterCallSignCount = 72;
-const uint KKxxxCallSignPiFirst = 0x1000;
-const uint KWxxxCallSignPiFirst = 0x54A8;
-const uint KWxxxCallSignPiLast = 0x994F;
-const uint KxxxCallSignPiFirst = 0x9950;
-const uint KxxxCallSignPiLast = 0x99B9;
 
 // Forward declarations
 class RadioStationPrivate;
@@ -157,6 +150,7 @@ public: // Getters and setters
     int genre() const;
 
     QString frequencyMhz() const;
+    QString nameOrFrequencyMhz() const;
     uint frequency() const;
     int presetIndex() const;
 

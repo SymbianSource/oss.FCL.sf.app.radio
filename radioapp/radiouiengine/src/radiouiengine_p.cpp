@@ -32,18 +32,13 @@
 #include "radiostationmodel.h"
 #include "radiostationmodel_p.h"
 #include "radiohistorymodel.h"
-#include "radiocarouselmodel.h"
 #include "radiopresetstorage.h"
 #include "radiosettings.h"
 #include "radiostation.h"
 #include "radioscannerengine.h"
 #include "radiostationhandlerif.h"
-#ifndef BUILD_WIN32
-#   include "radiocontrolservice.h"
-#   include "radiomonitorservice.h"
-#else
-#   include "radiomonitorservice_win32.h"
-#endif
+#include "radiocontrolservice.h"
+#include "radiomonitorservice.h"
 #include "radioservicedef.h"
 #include "radiologger.h"
 
@@ -83,13 +78,16 @@ RadioUiEngine& RadioUiEnginePrivate::api()
  */
 bool RadioUiEnginePrivate::init()
 {
-#ifndef BUILD_WIN32
     mControlService.reset( new RadioControlService( *q_ptr ) );
-#endif
     mMonitorService.reset( new RadioMonitorService( *this ) );
     mStationModel.reset( new RadioStationModel( *this ) );
+
     mEngineWrapper.reset( new RadioEngineWrapper( mStationModel->stationHandlerIf() ) );
+    if ( !mEngineWrapper->init() ) {
+        return false;
+    }
     mEngineWrapper->addObserver( this );
+
     mPresetStorage.reset( new RadioPresetStorage() );
     mStationModel->initialize( mPresetStorage.data(), mEngineWrapper.data() );
     mHistoryModel.reset( new RadioHistoryModel( *q_ptr ) );
@@ -107,7 +105,7 @@ bool RadioUiEnginePrivate::init()
 
     mMonitorService->init();
 
-    return mEngineWrapper->isEngineConstructed();
+    return true;
 }
 
 /*!
@@ -142,33 +140,6 @@ void RadioUiEnginePrivate::radioStatusChanged( bool radioIsOn )
 {
     Q_Q( RadioUiEngine );
     q->emitRadioStatusChanged( radioIsOn );
-
-    if ( radioIsOn ) {
-        Q_Q( RadioUiEngine );
-        QStringList args; // = qApp->arguments();
-        if ( args.count() == 2 )
-        {
-            if ( args.at( 0 ) == "-f" ) // Frequency
-            {
-                uint frequency = args.at( 1 ).toUInt();
-
-                if ( frequency >= mEngineWrapper->minFrequency() && frequency <= mEngineWrapper->maxFrequency() )
-                {
-                    LOG_FORMAT( "RadioApplication::handleArguments, Tuning to frequency: %d", frequency );
-                    q->tuneFrequency( frequency, 0 );
-                }
-            }
-            else if ( args.at( 0 ) == "-i" ) // Preset index
-            {
-                int preset = args.at( 1 ).toInt();
-                if ( preset > 0 && preset < mStationModel->rowCount() )
-                {
-                    LOG_FORMAT( "RadioApplication::handleArguments, Tuning to preset %d", preset );
-                    q->tunePreset( preset );
-                }
-            }
-        }
-    }
 }
 
 /*!
@@ -178,6 +149,32 @@ void RadioUiEnginePrivate::rdsAvailabilityChanged( bool available )
 {
     Q_Q( RadioUiEngine );
     q->emitRdsAvailabilityChanged( available );
+}
+
+/*!
+ *
+ */
+void RadioUiEnginePrivate::increaseVolume()
+{
+    Q_Q( RadioUiEngine );
+    if( q->isScanning() ){
+        // volume not changed while scanning
+    } else {
+        mEngineWrapper->increaseVolume();
+    }
+}
+
+/*!
+ *
+ */
+void RadioUiEnginePrivate::decreaseVolume()
+{
+    Q_Q( RadioUiEngine );
+    if( q->isScanning() ) {
+        // volume not changed while scanning
+    } else {
+        mEngineWrapper->decreaseVolume();
+    }
 }
 
 /*!
@@ -221,7 +218,7 @@ void RadioUiEnginePrivate::antennaStatusChanged( bool connected )
  */
 void RadioUiEnginePrivate::skipPrevious()
 {
-    skip( StationSkip::PreviousFavorite );
+    skip( StationSkip::PreviousFavorite, 0, TuneReason::SkipFromEngine );
 }
 
 /*!
@@ -229,23 +226,36 @@ void RadioUiEnginePrivate::skipPrevious()
  */
 void RadioUiEnginePrivate::skipNext()
 {
-    skip( StationSkip::NextFavorite );
+    skip( StationSkip::NextFavorite, 0, TuneReason::SkipFromEngine );
 }
 
 /*!
  * Tunes to next or previous station
  */
-uint RadioUiEnginePrivate::skip( StationSkip::Mode mode, uint startFrequency )
+uint RadioUiEnginePrivate::skip( StationSkip::Mode mode, uint startFrequency, const int reason )
 {
     LOG_FORMAT( "RadioUiEnginePrivate::skip: mode: %d", mode );
     if ( startFrequency == 0 ) {
         startFrequency = mEngineWrapper->currentFrequency();
     }
 
-    const uint newFrequency = mStationModel->findClosest( startFrequency, mode ).frequency();
+    const int favoriteCount = mStationModel->favoriteCount();
+    if ( favoriteCount < 2 ) {
+        if ( mode == StationSkip::NextFavorite ) {
+            mode = StationSkip::Next;
+        } else if ( mode == StationSkip::PreviousFavorite ) {
+            mode = StationSkip::Previous;
+        }
+    }
 
-    LOG_FORMAT( "RadioUiEnginePrivate::skip. CurrentFreq: %u, tuning to: %u", startFrequency, newFrequency );
-    mEngineWrapper->tuneFrequency( newFrequency, TuneReason::Skip );
-    return newFrequency;
+    const RadioStation station = mStationModel->findClosest( startFrequency, mode );
+    if ( station.isValid() ) {
+        const uint newFrequency = station.frequency();
+
+        LOG_FORMAT( "RadioUiEnginePrivate::skip. CurrentFreq: %u, tuning to: %u", startFrequency, newFrequency );
+        mEngineWrapper->setFrequency( newFrequency, reason );
+        return newFrequency;
+    }
+    return startFrequency;
 }
 

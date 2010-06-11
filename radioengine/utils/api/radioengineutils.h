@@ -36,18 +36,11 @@ class RadioEngineUtils
 
 public:
 
-    IMPORT_C static void InitializeL( CCoeEnv* aCoeEnv = NULL );
+    IMPORT_C static void InitializeL();
 
     IMPORT_C static void Release();
 
     IMPORT_C static MRadioEngineLogger* Logger();
-
-    /**
-     * Return the cone environment
-     *
-     * @return Pointer to CCoeEnv
-     */
-    IMPORT_C static CCoeEnv* Env();
 
     /**
      * Returns the file server session

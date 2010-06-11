@@ -15,9 +15,13 @@
 *
 */
 
+// System includes
 #include <qservicemanager.h>
 #include <QCoreApplication>
 #include <QFile>
+
+// User includes
+#include "radiologger.h"
 
 QTM_USE_NAMESPACE
 
@@ -25,13 +29,17 @@ const QString KXml = "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradio
 
 int main(int argc, char *argv[])
 {
+    LOG_METHOD;
+    
     QCoreApplication app(argc, argv);
 
     QServiceManager s;
 
 	if (QFile::exists(KXml)) {
+	    LOG_FORMAT( "Add %s service", GETSTRING(KXml) );
         s.addService(KXml);
 	} else {
+        LOG("Remove fmradiohswidgetplugin service.");
 		s.removeService("fmradiohswidgetplugin");
 	}
 }

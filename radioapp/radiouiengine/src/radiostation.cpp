@@ -25,13 +25,21 @@
 #include "radio_global.h"
 
 // Constants
-const QString KTagArtist = "artist";
-const QString KTagTitle = "title";
-const QString KLinkArtist = "<a href=\"" + KTagArtist + "\">";
-const QString KLinkTitle = "<a href=\"" + KTagTitle + "\">";
-const QString KLinkClose = "</a>";
+const QString TAG_ARTIST = "artist";
+const QString TAG_TITLE = "title";
+const QString HTML_ARTIST = "<a href=\"" + TAG_ARTIST + "\">";
+const QString HTML_TITLE = "<a href=\"" + TAG_TITLE + "\">";
+const QString HTML_CLOSE = "</a>";
 
-const char* callSign[KThreeLetterCallSignCount] =
+const uint LAST_CALLSIGN_CHAR_CODE = 25;
+const uint THREE_LETTER_CALLSIGN_COUNT = 72;
+const uint KXXX_CALLSIGN_PI_FIRST = 0x1000;
+const uint WXXX_CALLSIGN_PI_FIRST = 0x54A8;
+const uint WXXX_CALLSIGN_PI_LAST = 0x994F;
+const uint XXX_CALLSIGN_PI_FIRST = 0x9950;
+const uint XXX_CALLSIGN_PI_LAST = 0x99B9;
+
+const char* CALLSIGN_TABLE[THREE_LETTER_CALLSIGN_COUNT] =
    {"KBW", "KCY", "KDB", "KDF", "KEX", "KFH","KFI","KGA","KGB",
     "KGO", "KGU", "KGW", "KGY", "KHQ", "KID", "KIT", "KJR", "KLO",
     "KLZ", "KMA", "KMJ", "KNX", "KOA", "KOB", "KOY", "KPQ", "KQV",
@@ -41,7 +49,7 @@ const char* callSign[KThreeLetterCallSignCount] =
     "WJW", "WJZ", "WKY", "WLS", "WLW", "WMC", "WMT", "WOC", "WOI",
     "WOL", "WOR", "WOW", "WRC", "WRR", "WSB", "WSM", "WWJ", "WWL"};
 
-const uint piCode[KThreeLetterCallSignCount] =
+const uint PI_CODE_TABLE[THREE_LETTER_CALLSIGN_COUNT] =
    {0x99A5, 0x99A6, 0x9990, 0x99A7, 0x9950, 0x9951, 0x9952, 0x9953,
     0x9991, 0x9954, 0x9955, 0x9956, 0x9957, 0x99AA, 0x9958, 0x9959,
     0x995A, 0x995B, 0x995C, 0x995D, 0x995E, 0x995F, 0x9960, 0x99AB,
@@ -52,9 +60,9 @@ const uint piCode[KThreeLetterCallSignCount] =
     0x997C, 0x997D, 0x997E, 0x999E, 0x999F, 0x9981, 0x99A0, 0x9983,
     0x9984, 0x99A1, 0x99B9, 0x99A2, 0x99A3, 0x99A4, 0x9988, 0x9989};
 
-const uint KDisableLocalAreaCoverageMask = 0x0800;
+const uint DISABLE_LOCAL_AREA_COVERAGE_MASK = 0x0800;
 
-const int KPsNameChangeThresholdSeconds = 10;
+const int PS_NAME_CHANGE_THRESHOLD_SECONDS = 10;
 
 /**
  * Static shared data instance that is used by all default-constructed RadioStation instances
@@ -67,7 +75,7 @@ Q_GLOBAL_STATIC_WITH_ARGS( RadioStationPrivate, shared_null, ( RadioStation::Sha
 QString RadioStation::parseFrequency( uint frequency )
 {
     QString freqString;
-    freqString.sprintf( "%.1f", qreal( frequency ) / KFrequencyMultiplier );
+    freqString.sprintf( "%.1f", qreal( frequency ) / FREQUENCY_MULTIPLIER );
     return freqString;
 }
 
@@ -179,7 +187,7 @@ void RadioStation::setName( const QString& name )
         QTime previousChange = mData->mLastPsNameChangeTime;
         mData->mLastPsNameChangeTime = QTime::currentTime();
         if ( previousChange.isValid() && mData->mPsType == RadioStation::Static &&
-             previousChange.secsTo( mData->mLastPsNameChangeTime ) < KPsNameChangeThresholdSeconds ) {
+             previousChange.secsTo( mData->mLastPsNameChangeTime ) < PS_NAME_CHANGE_THRESHOLD_SECONDS ) {
             LOG( "Station changed PS name too often. PS type changed to Dynamic" );
             mData->mPsType = RadioStation::Dynamic;
             mData->mDynamicPsText = mData->mName;
@@ -232,7 +240,7 @@ bool RadioStation::setPiCode( int piCode, RadioRegion::Region region )
     // toggling local area coverage bit code must not be interpreted as new PI code
     if( region != RadioRegion::America )
     {
-        piCode &= ~KDisableLocalAreaCoverageMask;
+        piCode &= ~DISABLE_LOCAL_AREA_COVERAGE_MASK;
     }
 
     LOG_FORMAT( "stored PI: %d", mData->mPiCode );
@@ -311,11 +319,11 @@ void RadioStation::setRadioTextPlus( const int rtPlusClass, const QString& rtPlu
         detach();
         QString replacement = "";
         if ( rtPlusClass == RtPlus::Artist ) {
-            replacement = KLinkArtist;
+            replacement = HTML_ARTIST;
         } else if ( rtPlusClass == RtPlus::Title ) {
-            replacement = KLinkTitle;
+            replacement = HTML_TITLE;
         }
-        replacement += rtPlusItem + KLinkClose;
+        replacement += rtPlusItem + HTML_CLOSE;
 
         mData->mRadioText.replace( rtPlusItem, replacement );
         mData->mChangeFlags |= RadioStation::RadioTextChanged;
@@ -386,7 +394,18 @@ int RadioStation::genre() const
  */
 QString RadioStation::frequencyMhz() const
 {
-    return parseFrequency( mData->mFrequency );
+    return qtTrId( "txt_rad_list_l1_mhz_big" ).arg( parseFrequency( mData->mFrequency ) );
+}
+
+/*!
+ *
+ */
+QString RadioStation::nameOrFrequencyMhz() const
+{
+    if ( !mData->mName.isEmpty() ) {
+        return mData->mName;
+    }
+    return frequencyMhz();
 }
 
 /*!
@@ -576,17 +595,17 @@ void RadioStation::decrementReferenceCount()
 
     LOG_FORMAT( "RadioStation::piCodeToCallSign PI: %d", programmeIdentification );
     // call signs beginning with 'K'
-    if( ( programmeIdentification>=KKxxxCallSignPiFirst ) && ( programmeIdentification < KWxxxCallSignPiFirst ) ) {
+    if( ( programmeIdentification>=KXXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification < WXXX_CALLSIGN_PI_FIRST ) ) {
         callSign += "K";
-        callSign += iterateCallSign( KKxxxCallSignPiFirst, programmeIdentification );
+        callSign += iterateCallSign( KXXX_CALLSIGN_PI_FIRST, programmeIdentification );
     }
     // call signs beginning with 'W'
-    else if (( programmeIdentification >= KWxxxCallSignPiFirst ) && ( programmeIdentification <= KWxxxCallSignPiLast )) {
+    else if (( programmeIdentification >= WXXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification <= WXXX_CALLSIGN_PI_LAST )) {
         callSign += "W";
-        callSign += iterateCallSign( KWxxxCallSignPiFirst, programmeIdentification );
+        callSign += iterateCallSign( WXXX_CALLSIGN_PI_FIRST, programmeIdentification );
     }
     // 3 letter only call signs
-    else if(( programmeIdentification >= KxxxCallSignPiFirst ) && ( programmeIdentification <= KxxxCallSignPiLast)) {
+    else if(( programmeIdentification >= XXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification <= XXX_CALLSIGN_PI_LAST)) {
         callSign += callSignString( programmeIdentification );
     }
     else
@@ -641,9 +660,9 @@ QString RadioStation::iterateCallSign( int piBase, int programmeIdentification )
  */
 QString RadioStation::callSignString( uint programmeIdentification )
 {
-    for ( uint i = 0; i < KThreeLetterCallSignCount; ++i ) {
-        if( piCode[i] == programmeIdentification ) {
-            return callSign[i];
+    for ( uint i = 0; i < THREE_LETTER_CALLSIGN_COUNT; ++i ) {
+        if( PI_CODE_TABLE[i] == programmeIdentification ) {
+            return CALLSIGN_TABLE[i];
         }
     }
 
@@ -658,7 +677,7 @@ QString RadioStation::callSignString( uint programmeIdentification )
 char RadioStation::callSignChar( uint decimalValue )
 {
     LOG_FORMAT( "RadioStation::callSignChar A+: %d", decimalValue );
-    if ( decimalValue <= KLastCallSignCharCode ) {
+    if ( decimalValue <= LAST_CALLSIGN_CHAR_CODE ) {
         return static_cast<char>( 'A' + decimalValue );
     }
     return '?';

@@ -52,7 +52,7 @@ public:
     int rowCount() const;
     QVariant data( const int row, const int role ) const;
 
-    void removeAll();
+    void removeAll( bool removeTagged );
 
     enum ViewMode{ ShowAll, ShowTagged };
     void setViewMode( ViewMode mode );

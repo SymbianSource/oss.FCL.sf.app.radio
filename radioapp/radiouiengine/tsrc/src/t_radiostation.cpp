@@ -27,7 +27,7 @@
 #include "radiohistorymodel.h"
 #include "radioenginewrapper.h"
 #include "radiouiengine.h"
-#include "radiologger.h" //connectAndTest
+#include "radiologger.h" //Radio::connect
 
 // Constants
 const uint KTestFrequency1 = 89000000;
@@ -180,19 +180,19 @@ void TestRadioUiEngine::initTestCase()
     	mRadioStationModel->removeAll(); //ASSERT: \"last >= first\" in file qabstractitemmodel.cpp, line 2110	
     }    
 
-    connectAndTest( mRadioStationModel,  SIGNAL(dataChanged(const QModelIndex, const QModelIndex)),
+    Radio::connect( mRadioStationModel,  SIGNAL(dataChanged(const QModelIndex, const QModelIndex)),
         this,    SLOT(dataChanged(const QModelIndex, const QModelIndex)) );
     
-    connectAndTest( mRadioStationModel,           SIGNAL(stationAdded(RadioStation)),
+    Radio::connect( mRadioStationModel,           SIGNAL(stationAdded(RadioStation)),
         this,    SLOT(stationAdded(RadioStation)) );
     
-    connectAndTest( mRadioStationModel,           SIGNAL(stationDataChanged(RadioStation)),
+    Radio::connect( mRadioStationModel,           SIGNAL(stationDataChanged(RadioStation)),
         this,    SLOT(stationDataChanged(RadioStation)) );
     
-    connectAndTest( mRadioStationModel,           SIGNAL(favoriteChanged(RadioStation)),
+    Radio::connect( mRadioStationModel,           SIGNAL(favoriteChanged(RadioStation)),
         this,    SLOT(favoriteChanged(RadioStation)) );
     
-    connectAndTest( mhistoryModel,           SIGNAL(itemAdded()),
+    Radio::connect( mhistoryModel,           SIGNAL(itemAdded()),
         this,    SLOT(itemAdded()) );
 }
 

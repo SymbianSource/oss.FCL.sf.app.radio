@@ -51,6 +51,7 @@ public:
 
     // First time start
     bool isFirstTimeStart();
+    void setFirstTimeStartPerformed( bool firstTimeStartPerformed );
 
     bool isFlagSet( ToggleFlag flag ) const;
     void toggleFlag( ToggleFlag flag );

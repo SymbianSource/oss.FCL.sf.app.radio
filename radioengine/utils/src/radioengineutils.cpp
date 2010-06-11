@@ -27,9 +27,9 @@
 //
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void RadioEngineUtils::InitializeL( CCoeEnv* aCoeEnv )
+EXPORT_C void RadioEngineUtils::InitializeL()
     {
-    CRadioEngineTls::InitializeL( aCoeEnv );
+    CRadioEngineTls::InitializeL();
     CRadioEngineTls::Instance().AddRef();
     }
 
@@ -49,15 +49,6 @@ EXPORT_C void RadioEngineUtils::Release()
 EXPORT_C MRadioEngineLogger* RadioEngineUtils::Logger()
     {
     return CRadioEngineTls::Instance().Logger();
-    }
-
-// ---------------------------------------------------------------------------
-// Return the cone environment
-// ---------------------------------------------------------------------------
-//
-EXPORT_C CCoeEnv* RadioEngineUtils::Env()
-    {
-    return CRadioEngineTls::Instance().Env();
     }
 
 // ---------------------------------------------------------------------------

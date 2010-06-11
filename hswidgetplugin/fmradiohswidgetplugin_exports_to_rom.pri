@@ -27,7 +27,7 @@ BLD_INF_RULES.prj_exports += \
 
 #iby exports to language
 #BLD_INF_RULES.prj_exports += \
-#"rom/homescreenapp_resources.iby  LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(homescreenapp_resources.iby)"
+#"rom/fmradiohswidgetplugin_resources.iby  LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(fmradiohswidgetplugin_resources.iby)"
 
 BLD_INF_RULES.prj_extensions += \
 $$LITERAL_HASH"ifdef MARM" \

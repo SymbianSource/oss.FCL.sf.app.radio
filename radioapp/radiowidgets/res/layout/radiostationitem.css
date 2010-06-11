@@ -1,15 +1,15 @@
-RadioStationItem {
+RadioCarouselItem {
 	layout: default
 }
 
-RadioStationItem::favorite_button {
+RadioCarouselItem::favorite_button {
 	max-width: 6un;
 	max-height: 6un;
 	top: -var(hb-param-margin-gene-top);
 	left: -var(hb-param-margin-gene-left)
 }
 
-RadioStationItem::genre_label {
+RadioCarouselItem::genre_label {
 	pref-height: 6un;
 	top: -var(hb-param-margin-gene-top);
 	right: 8un;
@@ -22,7 +22,7 @@ RadioFadingLabel#genre_label::text {
     font-variant: secondary;
 }
 
-RadioStationItem::name_label {
+RadioCarouselItem::name_label {
 	pref-height: 5un;
 	left: -var(hb-param-margin-gene-left);
 	top: -var(hb-param-margin-gene-top);
@@ -35,7 +35,7 @@ RadioFadingLabel#name_label::text {
     font-variant: primary;
 }
 
-RadioStationItem::rt_label {
+RadioCarouselItem::rt_label {
 	pref-height: 21un;
 	left: -var(hb-param-margin-gene-left);
 	top: -var(hb-param-margin-gene-top);
@@ -48,7 +48,7 @@ RadioFadingLabel#rt_label::text {
     font-variant: secondary;
 }
 
-RadioStationItem::url_label {
+RadioCarouselItem::url_label {
 	pref-height: 5un;
 	left: -var(hb-param-margin-gene-left);
 	top: -var(hb-param-margin-gene-top);

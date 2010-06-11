@@ -117,21 +117,9 @@ public:
     virtual TInt SetRegionId( TInt aRegion ) = 0;
 
     /**
-     * Stores the RDS alternate frequency search setting
-     *
-     * @param aEnabled ETrue if search is enabled, otherwise EFalse
-     */
-    virtual TInt SetRdsAfSearch( TBool aEnabled ) = 0;
-
-    /**
      *
      */
     virtual TInt SetNetworkId( const TDesC& aNetworkId ) = 0;
-
-    /**
-     *
-     */
-    virtual TInt SetSubscriberId( const TDesC& aSubscriberId ) = 0;
 
     /**
      *

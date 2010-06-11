@@ -41,7 +41,7 @@ private:
 
 // from base class MRadioRdsReceiver
 
-    void InitL( CRadioUtility& aRadioUtility, CRadioPubSub* aPubSub );
+    void InitL( CRadioUtility& aRadioUtility );
     void SetAutomaticSwitchingL( TBool aEnable );
     void StartReceiver();
     void StopReceiver();

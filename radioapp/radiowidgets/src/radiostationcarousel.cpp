@@ -17,126 +17,70 @@
 
 // System includes
 #include <QGraphicsLinearLayout>
-#include <HbAnchorLayout>
-#include <QPixmap>
-#include <QGraphicsSceneMouseEvent>
-#include <HbEffect>
+#include <QGraphicsSceneResizeEvent>
 #include <QTimer>
-#include <QTimeLine>
 #include <HbPanGesture>
+#include <HbSwipeGesture>
+#include <HbFontSpec>
 
 // User includes
 #include "radiostationcarousel.h"
+#include "radiocarouselanimator.h"
 #include "radiouiloader.h"
-#include "radiostationitem.h"
+#include "radiocarouselitem.h"
 #include "radiostation.h"
 #include "radiouiengine.h"
 #include "radiostationmodel.h"
 #include "radiofadinglabel.h"
 #include "radiologger.h"
-#include "radiocarouselmodel.h"
-#include "radiouiutilities.h"
+#include "radioutil.h"
 #include "radio_global.h"
 
-#ifdef USE_LAYOUT_FROM_E_DRIVE
-    const QString KFavoriteIconPath = "e:/radiotest/images/favoriteiconactive.png";
-    const QString KNonFavoriteIconPath = "e:/radiotest/images/favoriteiconinactive.png";
+// Constants
+const int RTPLUS_CHECK_TIMEOUT = 700;
+const int INFOTEXT_NOFAVORITES_TIMEOUT = 5000;
+const int SET_FREQUENCY_TIMEOUT = 500;
+const int FAVORITE_HINT_SHOW_DELAY = 1000;
+const int FAVORITE_HINT_HIDE_DELAY = 2000;
+
+#ifdef BUILD_WIN32
+#   define SCROLLBAR_POLICY ScrollBarAlwaysOn
 #else
-    const QString KFavoriteIconPath = ":/images/favoriteiconactive.png";
-    const QString KNonFavoriteIconPath = ":/images/favoriteiconinactive.png";
-#endif
+#   define SCROLLBAR_POLICY ScrollBarAlwaysOff
+#endif // BUILD_WIN32
 
-const int KRadioTextPlusCheckTimeout = 700; // 700 ms
-const int KFreqScrollDivider = 100000;
-const int INFOTEXT_NOFAVORITES_TIMEOUT = 15000;
-
-// ===============================================================
-//  Scanning helper
-// ===============================================================
+#define CALL_TO_ALL_ITEMS( expr ) \
+    mItems[LeftItem]->expr; \
+    mItems[CenterItem]->expr; \
+    mItems[RightItem]->expr;
 
 /*!
  *
  */
-ScanningHelper::ScanningHelper( RadioStationCarousel& carousel ) :
-    mCarousel( carousel ),
-    mCurrentFrequency( 0 ),
-    mPreviousFrequency( 0 ),
-    mStationItem( 0 ),
-    mNumberScrollingTimeLine( new QTimeLine( 1000, this ) )
-{
-    mNumberScrollingTimeLine->setCurveShape( QTimeLine::EaseInCurve );
-    connectAndTest( mNumberScrollingTimeLine,  SIGNAL(finished()),
-                    &mCarousel,                SIGNAL(scanAnimationFinished()) );
-    connectAndTest( mNumberScrollingTimeLine,  SIGNAL(frameChanged(int)),
-                    this,                      SLOT(numberScrollUpdate(int)) );
-}
-
-/*!
- *
- */
-void ScanningHelper::start()
-{
-    QTimer::singleShot( 0, this, SLOT(startSlide()) );
-}
-
-/*!
- * Private slot
- */
-void ScanningHelper::startSlide()
-{
-    mCarousel.scrollToIndex( mModelIndex, RadioStationCarousel::NoSignal );
-    startNumberScroll();
-}
-
-/*!
- * Private slot
- */
-void ScanningHelper::startNumberScroll()
-{
-    //TODO: Take italy case into account
-    if ( mPreviousFrequency ) {
-        mNumberScrollingTimeLine->setFrameRange( mPreviousFrequency / KFreqScrollDivider, mCurrentFrequency / KFreqScrollDivider );
-        mNumberScrollingTimeLine->start();
-    } else {
-        emit mCarousel.scanAnimationFinished();
-    }
-}
-
-/*!
- * Private slot
- */
-void ScanningHelper::numberScrollUpdate( int value )
-{
-    if ( mStationItem ) {
-        mStationItem->setFrequency( value * KFreqScrollDivider );
-    }
-}
-
-// ===============================================================
-//  Carousel
-// ===============================================================
-
-/*!
- *
- */
-RadioStationCarousel::RadioStationCarousel( RadioUiEngine* uiEngine ) :
-    HbGridView( 0 ),
-    mUiEngine( uiEngine ),
-    mAntennaAttached( false ),
+RadioStationCarousel::RadioStationCarousel( QGraphicsItem* parent ) :
+    HbScrollArea( parent ),
+    mUiEngine( NULL ),
     mAutoScrollTime( 300 ),
     mGenericTimer( new QTimer( this ) ),
     mTimerMode( NoTimer ),
-    mScanningHelper( 0 ),
-    mInfoText( 0 ),
-    mCurrentItem( 0 ),
-    mPanStartPos( 0 )
+    mAnimator( NULL ),
+    mInfoText( NULL ),
+    mContainer( new HbWidget( this ) ),
+    mMidScrollPos( 0 ),
+    mMaxScrollPos( 0 ),
+    mCurrentIndex( 0 ),
+    mTargetIndex( -1 ),
+    mIsCustomFreq( false ),
+    mInfoTextType( CarouselInfoText::None ),
+    mModel( NULL ),
+    mPosAdjustmentDisabled( false ),
+    mScrollDirection( Scroll::Shortest ),
+    mManualSeekMode( false ),
+    mAlternateSkipping( false )
 #ifdef USE_DEBUGGING_CONTROLS
     ,mRdsLabel( new RadioFadingLabel( this ) )
 #endif // USE_DEBUGGING_CONTROLS
 {
-    RadioUiUtilities::setCarousel( this );
-    setClampingStyle( HbScrollArea::StrictClamping );
-    setScrollingStyle( HbScrollArea::Pan );
 }
 
 /*!
@@ -197,49 +141,67 @@ int RadioStationCarousel::autoScrollTime() const
 void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngine )
 {
     mUiEngine = uiEngine;
-    mAntennaAttached = mUiEngine->isAntennaAttached();
+    RadioUtil::setCarousel( this );
+
+    mItems[LeftItem] = new RadioCarouselItem( *this );
+    mItems[CenterItem] = new RadioCarouselItem( *this );
+    mItems[RightItem] = new RadioCarouselItem( *this );
+
+    QGraphicsLinearLayout* layout = new QGraphicsLinearLayout( Qt::Horizontal );
+    layout->setContentsMargins( 0, 0, 0, 0 );
+    layout->setSpacing( 0 );
+    layout->addItem( mItems[LeftItem] );
+    layout->addItem( mItems[CenterItem] );
+    layout->addItem( mItems[RightItem] );
+    mContainer->setLayout( layout );
+    setContentWidget( mContainer );
+
+    setClampingStyle( HbScrollArea::NoClamping );
+    setScrollDirections( Qt::Horizontal );
+
+    setFrictionEnabled( true );
+    setHorizontalScrollBarPolicy( HbScrollArea::SCROLLBAR_POLICY );
+    setVerticalScrollBarPolicy( HbScrollArea::ScrollBarAlwaysOff );
 
     mInfoText = uiLoader.findWidget<HbLabel>( DOCML::MV_NAME_INFO_TEXT );
     mInfoText->setTextWrapping( Hb::TextWordWrap );
 
-    setRowCount( 1 );
-    setColumnCount( 1 );
+#ifdef BUILD_WIN32
+    HbFontSpec spec = mInfoText->fontSpec();
+    spec.setRole( HbFontSpec::Secondary );
+    mInfoText->setFontSpec( spec );
+#endif
+
     setScrollDirections( Qt::Horizontal );
-    setFrictionEnabled( true );
-    setLongPressEnabled( false );
-    setItemRecycling( false );
-    setUniformItemSizes( true );
-    setItemPrototype( new RadioStationItem( *this ) );
-    setSelectionMode( NoSelection );
+//    grabGesture( Qt::SwipeGesture );
 
-//    grabGesture( Qt::PanGesture );
+//    Radio::connect( this,           SIGNAL(scrollPositionChanged(QPointF)),
+//                    this,           SLOT(scrollPosChanged(QPointF)) );
+    Radio::connect( this,           SIGNAL(scrollingEnded()),
+                    this,           SLOT(adjustAfterScroll()) );
 
-    RadioCarouselModel* carouselModel = mUiEngine->carouselModel();
-    setCarouselModel( carouselModel );
-
-    mCurrentItem = static_cast<RadioStationItem*>( itemByIndex( carouselModel->index( 0, 0 ) ) );
-
-    RadioStationModel* stationModel = &mUiEngine->stationModel();
-    connectAndTest( stationModel,   SIGNAL(favoriteChanged(RadioStation)),
+    mModel = &mUiEngine->stationModel();
+    Radio::connect( mModel,         SIGNAL(favoriteChanged(RadioStation)),
                     this,           SLOT(update(RadioStation)) );
-    connectAndTest( stationModel,   SIGNAL(stationDataChanged(RadioStation)),
+    Radio::connect( mModel,         SIGNAL(stationDataChanged(RadioStation)),
                     this,           SLOT(update(RadioStation)));
-    connectAndTest( stationModel,   SIGNAL(radioTextReceived(RadioStation)),
+    Radio::connect( mModel,         SIGNAL(radioTextReceived(RadioStation)),
                     this,           SLOT(updateRadioText(RadioStation)));
-    connectAndTest( stationModel,   SIGNAL(dynamicPsChanged(RadioStation)),
+    Radio::connect( mModel,         SIGNAL(dynamicPsChanged(RadioStation)),
                     this,           SLOT(update(RadioStation)));
-
-    updateClampingStyle();
-
-    connectAndTest( this,           SIGNAL(longPressed(HbAbstractViewItem*,QPointF)),
-                    this,           SLOT(openContextMenu(HbAbstractViewItem*,QPointF)) );
-    setLongPressEnabled( true );
 
     mGenericTimer->setSingleShot( true );
-    connectAndTest( mGenericTimer,  SIGNAL(timeout()),
+    Radio::connect( mGenericTimer,  SIGNAL(timeout()),
                     this,           SLOT(timerFired()));
 
-    initToLastTunedFrequency();
+    Radio::connect( mModel,         SIGNAL(rowsInserted(QModelIndex,int,int)),
+                    this,           SLOT(updateStations()) );
+    Radio::connect( mModel,         SIGNAL(modelReset()),
+                    this,           SLOT(updateStations()) );
+    Radio::connect( mModel,         SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                    this,           SLOT(updateStations()) );
+
+    setFrequency( mUiEngine->currentFrequency(), TuneReason::Unspecified );
 
 #ifdef USE_DEBUGGING_CONTROLS
     mRdsLabel->setPos( QPoint( 300, 10 ) );
@@ -251,7 +213,7 @@ void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngin
     mRdsLabel->setFontSpec( spec );
     mRdsLabel->setTextColor( Qt::gray );
     if ( mUiEngine ) {
-        connectAndTest( mUiEngine,      SIGNAL(rdsAvailabilityChanged(bool)),
+        Radio::connect( mUiEngine,      SIGNAL(rdsAvailabilityChanged(bool)),
                         this,           SLOT(setRdsAvailable(bool)) );
     }
 #endif // USE_DEBUGGING_CONTROLS
@@ -260,52 +222,42 @@ void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngin
 /*!
  *
  */
-void RadioStationCarousel::setCarouselModel( RadioCarouselModel* carouselModel )
+void RadioStationCarousel::setFrequency( uint frequency, int reason, Scroll::Direction direction )
 {
-    if ( carouselModel ) {
-        connectAndTest( carouselModel,  SIGNAL(rowsInserted(QModelIndex,int,int)),
-                        this,           SLOT(insertFrequency(QModelIndex,int,int)) );
-        connectAndTest( carouselModel,  SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                        this,           SLOT(prepareToRemoveFrequency(QModelIndex,int,int)) );
-        connectAndTest( carouselModel,  SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                        this,           SLOT(removeFrequency(QModelIndex,int,int)) );
-    } else {
-        QAbstractItemModel* currentModel = model();
-        disconnect( currentModel,   SIGNAL(rowsInserted(QModelIndex,int,int)),
-                    this,           SLOT(insertFrequency(QModelIndex,int,int)) );
-        disconnect( currentModel,   SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                    this,           SLOT(prepareToRemoveFrequency(QModelIndex,int,int)) );
-        disconnect( currentModel,   SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                    this,           SLOT(removeFrequency(QModelIndex,int,int)) );
-    }
-    setModel( carouselModel );
-    updateFrequencies();
-    initCurrentStationItem();
-}
+    if ( mModel ) {
+        if ( !mManualSeekMode ) {
 
-/*!
- *
- */
-void RadioStationCarousel::setFrequency( uint frequency, int reason )
-{
-    RadioStationItem* item = currentStationItem();
-//    if ( item && item->mFrequency == frequency ) {
-//        return;
-//    }
+            if ( mModel->rowCount() <= 1 ) {
+                mItems[LeftItem]->setStation( RadioStation() );
+                mItems[RightItem]->setStation( RadioStation() );
+            }
 
-    if ( mModelIndexes.contains( frequency ) ) {
-        QModelIndex index = mModelIndexes.value( frequency );
+            mIsCustomFreq = false;
+            if ( reason == TuneReason::Skip || reason == TuneReason::StationScanFinalize ) {
+                const int newIndex = mModel->indexFromFrequency( frequency );
+                scrollToIndex( newIndex, direction, NoSignal );
+                mCurrentIndex = newIndex;
+            } else {
+                if ( mModel->contains( frequency ) ) {
+                    mCurrentIndex = mModel->indexFromFrequency( frequency );
+                } else {
+                    const RadioStation prevStation = mModel->findClosest( frequency, StationSkip::Previous );
+                    if ( prevStation.isValid() ) {
+                        mCurrentIndex = mModel->indexFromFrequency( prevStation.frequency() );
+                    } else {
+                        mCurrentIndex = -1;
+                    }
 
-        if ( reason == TuneReason::FrequencyStrip || reason == TuneReason::StationsList ) {
-            scrollToIndex( index, RadioStationCarousel::NoAnim | RadioStationCarousel::NoSignal );
-        } else if ( reason == TuneReason::Skip || reason == TuneReason::StationScan ) {
-            scrollToIndex( index, RadioStationCarousel::NoSignal );
+                    mIsCustomFreq = true;
+                }
+
+                mItems[CenterItem]->setFrequency( frequency );
+                mTimerMode = SetFrequency;
+                mGenericTimer->stop();
+                mGenericTimer->start( SET_FREQUENCY_TIMEOUT );
+            }
         } else {
-            scrollToIndex( index );
-        }
-    } else {
-        if ( item ) {
-            item->setFrequency( frequency );
+            mItems[CenterItem]->setFrequency( frequency );
         }
     }
 }
@@ -323,7 +275,7 @@ RadioUiEngine* RadioStationCarousel::uiEngine()
  */
 bool RadioStationCarousel::isAntennaAttached() const
 {
-    return mAntennaAttached;
+    return mUiEngine->isAntennaAttached();
 }
 
 /*!
@@ -331,19 +283,24 @@ bool RadioStationCarousel::isAntennaAttached() const
  */
 void RadioStationCarousel::setScanningMode( bool scanning )
 {
-    initCurrentStationItem();
+    CALL_TO_ALL_ITEMS( setSeekLayout( scanning ) );
 
     if ( scanning ) {
-
         setInfoText( CarouselInfoText::Scanning );
-        if ( !mScanningHelper ) {
-            mScanningHelper = new ScanningHelper( *this );
+        if ( !mAnimator ) {
+            mAnimator = new RadioCarouselAnimator( *this );
         }
+        mAnimator->startFlashingText();
     } else {
-        delete mScanningHelper;
-        mScanningHelper = 0;
+        if ( mAnimator ) {
+            mAnimator->stopFlashingText();
+        }
         clearInfoText();
+        setCenterIndex( 0 );
+        mTimerMode = FavoriteHintShow;
+        mGenericTimer->start( FAVORITE_HINT_SHOW_DELAY );
     }
+
     setEnabled( !scanning );
 }
 
@@ -352,7 +309,7 @@ void RadioStationCarousel::setScanningMode( bool scanning )
  */
 bool RadioStationCarousel::isInScanningMode() const
 {
-    return RadioUiUtilities::isScannerAlive();
+    return RadioUtil::scanStatus() == Scan::ScanningInMainView;
 }
 
 /*!
@@ -360,21 +317,7 @@ bool RadioStationCarousel::isInScanningMode() const
  */
 void RadioStationCarousel::cleanRdsData()
 {
-    RadioStationItem* item = currentStationItem();
-    if ( item ) {
-        item->cleanRdsData();
-    }
-}
-
-/*!
- *
- */
-void RadioStationCarousel::updateCurrentItem()
-{
-    RadioStationItem* item = currentStationItem();
-    if ( item ) {
-        item->update();
-    }
+    mItems[CenterItem]->cleanRdsData();
 }
 
 /*!
@@ -382,40 +325,23 @@ void RadioStationCarousel::updateCurrentItem()
  */
 void RadioStationCarousel::animateNewStation( const RadioStation& station )
 {
-    if ( mScanningHelper ) {
-        RadioCarouselModel* model = carouselModel();
-        const QModelIndex index = model->modelIndexFromFrequency( station.frequency() );
-        mScanningHelper->mModelIndex = index;
-        mScanningHelper->mCurrentFrequency = station.frequency();
-        mScanningHelper->mStationItem = static_cast<RadioStationItem*>( itemByIndex( index ) );
+    if ( mAnimator && mUiEngine ) {
+        const uint previousFrequency = mItems[CenterItem]->frequency();
 
-        uint prevFrequency = 0;
-        if ( model->rowCount() > 1 ) {
-            const int prevIndex = index.row() - 1;
-            RadioStation prevStation = model->data( model->index( prevIndex, 0 ), RadioStationModel::RadioStationRole ).value<RadioStation>();
-            prevFrequency = prevStation.frequency();
-        } else if ( mUiEngine ) {
-            prevFrequency = mUiEngine->minFrequency();
-        }
+        mItems[RightItem]->setFrequency( previousFrequency );
+        mCurrentIndex = mModel->indexFromFrequency( station.frequency() );
 
-        mScanningHelper->mPreviousFrequency = prevFrequency;
-        if ( mScanningHelper->mStationItem ) {
-            mScanningHelper->mStationItem->setFrequency( prevFrequency );
-            mScanningHelper->mStationItem->cleanRdsData();
-        }
-
-        mScanningHelper->start();
+        mAnimator->startNumberScroll( previousFrequency, station.frequency() );
     }
 }
 
 /*!
  *
  */
-void RadioStationCarousel::setItemVisible( bool visible )
+void RadioStationCarousel::cancelAnimation()
 {
-    RadioStationItem* item = currentStationItem();
-    if ( item ) {
-        item->setVisible( visible );
+    if ( mAnimator ) {
+        mAnimator->stopAll();
     }
 }
 
@@ -425,13 +351,21 @@ void RadioStationCarousel::setItemVisible( bool visible )
 void RadioStationCarousel::setInfoText( CarouselInfoText::Type type )
 {
     mInfoTextType = type;
-    if ( type == CarouselInfoText::NoFavorites ) {
-        mInfoText->setPlainText( hbTrId( "txt_rad_dialog_long_press_arrow_keys_to_search_str" ) );
+    if ( type == CarouselInfoText::NoFavorites || type == CarouselInfoText::FavoriteIconHint ) {
+//        mInfoText->setPlainText( hbTrId( "txt_rad_dialog_long_press_arrow_keys_to_search_str" ) );
+    //TODO: Remove hardcoding. Temporarily hardcoded for usability testing
+        mInfoText->setPlainText( "Tap star to mark favourites" );
         mInfoText->setAlignment( Qt::AlignCenter );
-        setItemVisible( false );
+        mItems[CenterItem]->setItemVisibility( RadioCarouselItem::IconVisible );
         mTimerMode = InfoText;
         mGenericTimer->setInterval( INFOTEXT_NOFAVORITES_TIMEOUT );
         mGenericTimer->start();
+
+        if ( !mAnimator ) {
+            mAnimator = new RadioCarouselAnimator( *this );
+        }
+        mAnimator->startFlashingIcon();
+
     } else if ( type == CarouselInfoText::ConnectAntenna ) {
         cleanRdsData();
         mInfoText->setPlainText( hbTrId( "txt_rad_info_connect_wired_headset1" ) );
@@ -444,6 +378,9 @@ void RadioStationCarousel::setInfoText( CarouselInfoText::Type type )
         cleanRdsData();
         mInfoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
         mInfoText->setPlainText( hbTrId( "txt_rad_list_searching_all_available_stations_ple" ) );
+    } else if ( type == CarouselInfoText::ManualSeek ) {
+        mInfoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
+        mInfoText->setPlainText( "Manual Seek Mode" );
     }
 
     mInfoText->setVisible( true );
@@ -455,23 +392,81 @@ void RadioStationCarousel::setInfoText( CarouselInfoText::Type type )
 void RadioStationCarousel::clearInfoText()
 {
     if ( mInfoTextType != CarouselInfoText::None ) {
+        if ( mAnimator ) {
+            mAnimator->stopFlashingIcon();
+        }
+
         mGenericTimer->stop();
         mInfoTextType = CarouselInfoText::None;
         mInfoText->setVisible( false );
         mInfoText->clear();
-        setItemVisible( true );
-        updateCurrentItem();
+        mItems[CenterItem]->setItemVisibility( RadioCarouselItem::AllVisible );
+    }
+}
+
+/*!
+ *
+ */
+void RadioStationCarousel::setManualSeekMode( bool manualSeekActive )
+{
+    mManualSeekMode = manualSeekActive;
+    setEnabled( !manualSeekActive );
+
+    mItems[CenterItem]->setSeekLayout( manualSeekActive );
+    if ( manualSeekActive ) {
+        setInfoText( CarouselInfoText::ManualSeek );
+    } else {
+        clearInfoText();
+        setFrequency( mUiEngine->currentFrequency(), TuneReason::Unspecified );
+    }
+}
+
+/*!
+ * TODO: Remove this! This is test code
+ */
+void RadioStationCarousel::setAlternateSkippingMode( bool alternateSkipping )
+{
+    mAlternateSkipping = alternateSkipping;
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioStationCarousel::scrollPosChanged( const QPointF& newPosition )
+{
+    Q_UNUSED( newPosition );
+//    const int xPos = static_cast<int>( newPosition.x() );
+//    mItems[CenterItem]->setPos( xPos - mMidScrollPos, 0 );
+}
+
+/*!
+ * Private slot
+ ''
+ */
+void RadioStationCarousel::adjustAfterScroll()
+{
+    if ( isInScanningMode() ) {
+        return;
+    }
+
+    if ( mTargetIndex != -1 ) {
+        setCenterIndex( mTargetIndex );
     }
 }
 
 /*!
  * Private slot
+ *
  */
 void RadioStationCarousel::update( const RadioStation& station )
 {
-    RadioStationItem* item = currentStationItem();
-    if ( item && item->frequency() == station.frequency() && !isInScanningMode() ) {
-        item->update( &station );
+    if ( !mManualSeekMode && !isInScanningMode() ) {
+        for ( int i = LeftItem; i <= RightItem; ++i ) {
+            if ( mItems[i]->frequency() == station.frequency() ) {
+                mItems[i]->update( &station );
+            }
+        }
     }
 }
 
@@ -482,15 +477,12 @@ void RadioStationCarousel::updateRadioText( const RadioStation& station )
 {
     if ( isAntennaAttached() && !isInScanningMode() ) {
         if ( station.radioText().isEmpty() ) {
-            RadioStationItem* item = currentStationItem();
-            if ( item ) {
-                item->mRadiotextLabel->setText( "" );
-            }
+            mItems[CenterItem]->setRadioText( "" );
         } else {
             mRadioTextHolder = station.radioText();
             mTimerMode = RtPlusCheck;
             mGenericTimer->stop();
-            mGenericTimer->setInterval( KRadioTextPlusCheckTimeout );
+            mGenericTimer->setInterval( RTPLUS_CHECK_TIMEOUT );
             mGenericTimer->start();
         }
     }
@@ -499,68 +491,13 @@ void RadioStationCarousel::updateRadioText( const RadioStation& station )
 /*!
  * Private slot
  */
-void RadioStationCarousel::insertFrequency( const QModelIndex& parent, int first, int last )
+void RadioStationCarousel::updateStations()
 {
-    Q_UNUSED( parent );
-    QAbstractItemModel* freqModel = model();
-
-    for ( int i = first; freqModel && i <= last; ++i ) {
-        QModelIndex index = freqModel->index( i, 0 );
-        RadioStation station = freqModel->data( index, RadioStationModel::RadioStationRole ).value<RadioStation>();
-        mModelIndexes.insert( station.frequency(), index );
-        LOG_FORMAT( "Added frequency %u", station.frequency() );
-        if ( !isInScanningMode() ) {
-            scrollToIndex( index, RadioStationCarousel::NoAnim | RadioStationCarousel::NoSignal );
-        }
+    if ( isInScanningMode() ) {
+        return;
     }
 
-    initCurrentStationItem();
-
-    updateClampingStyle();
-}
-
-/*!
- * Private slot
- */
-void RadioStationCarousel::prepareToRemoveFrequency( const QModelIndex& parent, int first, int last )
-{
-    Q_UNUSED( parent );
-    QAbstractItemModel* freqModel = model();
-    for ( int i = first; freqModel && i <= last; ++i ) {
-        QModelIndex index = freqModel->index( i, 0 );
-        RadioStation station = freqModel->data( index, RadioStationModel::RadioStationRole ).value<RadioStation>();
-        mModelIndexes.remove( station.frequency() );
-    }
-}
-
-/*!
- * Private slot
- */
-void RadioStationCarousel::removeFrequency( const QModelIndex& parent, int first, int last )
-{
-    Q_UNUSED( parent );
-    Q_UNUSED( first );
-    Q_UNUSED( last );
-
-    initCurrentStationItem();
-    updateClampingStyle();
-}
-
-/*!
- * Private slot
- */
-void RadioStationCarousel::updateFrequencies()
-{
-    mModelIndexes.clear();
-    QAbstractItemModel* itemModel = model();
-    if ( itemModel ) {
-        const int count = itemModel->rowCount();
-        for ( int i = 0; i < count; ++i ) {
-            QModelIndex index = itemModel->index( i, 0 );
-            uint frequency = itemModel->data( index, RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
-            mModelIndexes.insert( frequency, index );
-        }
-    }
+    setFrequency( mUiEngine->currentFrequency(), TuneReason::Unspecified );
 }
 
 /*!
@@ -568,28 +505,45 @@ void RadioStationCarousel::updateFrequencies()
  */
 void RadioStationCarousel::timerFired()
 {
-    if ( mTimerMode == RtPlusCheck ) {
-        RadioStationItem* item = currentStationItem();
-        if ( item ) {
-            item->mRadiotextLabel->setText( mRadioTextHolder );
-        }
+    if ( mTimerMode == SetFrequency ) {
+        setCenterIndex( mCurrentIndex, NoSignal | IgnoreCenter );
+        mTimerMode = NoTimer;
+    } else if ( mTimerMode == RtPlusCheck ) {
+        //mItems[CenterItem]->mRadiotextLabel->setText( mRadioTextHolder );
         mRadioTextHolder = "";
+        mTimerMode = NoTimer;
     } else if ( mTimerMode == InfoText ) {
         clearInfoText();
+        mTimerMode = NoTimer;
+    } else if ( mTimerMode == FavoriteHintShow ) {
+        setInfoText( CarouselInfoText::FavoriteIconHint );
+        mTimerMode = FavoriteHintHide;
+        mGenericTimer->start( FAVORITE_HINT_HIDE_DELAY );
+    } else if ( mTimerMode == FavoriteHintHide ) {
+        clearInfoText();
+        mTimerMode = NoTimer;
     }
-
-    mTimerMode = NoTimer;
 }
 
 /*!
  * Private slot
  */
-void RadioStationCarousel::openContextMenu( HbAbstractViewItem* item, const QPointF& coords )
+void RadioStationCarousel::toggleFavorite()
 {
-    if ( item ) {
-        static_cast<RadioStationItem*>( item )->handleLongPress( coords );
+    if ( mModel ) {
+        mModel->setData( QModelIndex(), mItems[CenterItem]->frequency(), RadioRole::ToggleFavoriteRole );
     }
 }
+
+/*!
+ * Private slot
+ */
+//void RadioStationCarousel::openContextMenu( HbAbstractViewItem* item, const QPointF& coords )
+//{
+//    if ( item ) {
+//        static_cast<RadioStationItem*>( item )->handleLongPress( coords );
+//    }
+//}
 
 #ifdef USE_DEBUGGING_CONTROLS
 /*!
@@ -614,7 +568,6 @@ void RadioStationCarousel::setRdsAvailable( bool available )
  */
 void RadioStationCarousel::updateAntennaStatus( bool connected )
 {
-    mAntennaAttached = connected;
     mGenericTimer->stop();
 
     if ( !connected ) {
@@ -629,11 +582,39 @@ void RadioStationCarousel::updateAntennaStatus( bool connected )
  */
 void RadioStationCarousel::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
-    if ( mInfoTextType == CarouselInfoText::NoFavorites ) {
+    if ( mInfoTextType == CarouselInfoText::NoFavorites || mInfoTextType == CarouselInfoText::FavoriteIconHint ) {
         clearInfoText();
     }
 
-    HbGridView::mousePressEvent( event );
+    HbScrollArea::mousePressEvent( event );
+}
+
+/*!
+ * \reimp
+ */
+void RadioStationCarousel::resizeEvent( QGraphicsSceneResizeEvent* event )
+{
+    HbScrollArea::resizeEvent( event );
+
+    const int width = (int)event->newSize().width();
+
+    mMidScrollPos = -width;
+    mMaxScrollPos = mMidScrollPos * 2;
+
+    if ( isInitialized() ) {
+        mItems[LeftItem]->setMinimumWidth( width );
+        mItems[CenterItem]->setMinimumWidth( width );
+        mItems[RightItem]->setMinimumWidth( width );
+    }
+}
+
+/*!
+ * \reimp
+ */
+void RadioStationCarousel::showEvent( QShowEvent* event )
+{
+    HbScrollArea::showEvent( event );
+//    mContainer->setPos( mMidScrollPos, 0 );
 }
 
 /*!
@@ -641,11 +622,23 @@ void RadioStationCarousel::mousePressEvent( QGraphicsSceneMouseEvent* event )
  */
 void RadioStationCarousel::gestureEvent( QGestureEvent* event )
 {
-    HbGridView::gestureEvent( event );
+//    if ( HbSwipeGesture* swipeGesture = static_cast<HbSwipeGesture*>( event->gesture( Qt::SwipeGesture ) ) ) {
+//        if ( swipeGesture->state() == Qt::GestureFinished ) {
+//            if ( swipeGesture->horizontalDirection() == QSwipeGesture::Left ) {
+//                emit skipRequested( StationSkip::Next );
+//            } else if ( swipeGesture->horizontalDirection() == QSwipeGesture::Right ) {
+//                emit skipRequested( StationSkip::Previous );
+//            }
+//            mIsCustomFreq = false;
+//        }
+//        return;
+//    }
+
+    HbScrollArea::gestureEvent( event );
 
     if ( HbPanGesture* gesture = qobject_cast<HbPanGesture*>( event->gesture( Qt::PanGesture ) ) ) {
         if ( gesture->state() == Qt::GestureFinished ) {
-            updatePos( (int)gesture->offset().x() );
+            adjustPos( (int)gesture->offset().x() );
         }
     }
 }
@@ -653,105 +646,265 @@ void RadioStationCarousel::gestureEvent( QGestureEvent* event )
 /*!
  *
  */
-void RadioStationCarousel::initToLastTunedFrequency()
+bool RadioStationCarousel::isInitialized() const
 {
-    const uint currentFrequency = mUiEngine->currentFrequency();
-    const QModelIndex currentIndex = carouselModel()->modelIndexFromFrequency( currentFrequency );
+    return mUiEngine != NULL;
+}
 
-    if ( currentIndex.isValid() ) {//&& itemByIndex( currentIndex ) ) {
-        scrollToIndex( currentIndex, RadioStationCarousel::NoSignal | RadioStationCarousel::NoAnim );
-    } else {
-        RadioStationItem* item = static_cast<RadioStationItem*>( itemAt( 0, 0 ) );
-        if ( item ) {
-            item->setFrequency( currentFrequency );
+/*!
+ *
+ */
+void RadioStationCarousel::setCenterIndex( int index, ScrollMode mode )
+{
+    Q_UNUSED( mode );
+    if ( mModel ) {
+        const int newIndex = trimIndex( index );
+        mCurrentIndex = newIndex;
+        mTargetIndex = -1;
+
+        if ( !mIsCustomFreq ) {
+            mItems[CenterItem]->setStation( mModel->stationAt( mCurrentIndex ) );
         }
+
+        if ( mModel->rowCount() > 1 ) {
+            const int leftIndex = prevIndex( mCurrentIndex );
+            const int rightIndex = nextIndex( mCurrentIndex );
+            mItems[LeftItem]->setStation( mModel->stationAt( leftIndex ) );
+            mItems[RightItem]->setStation( mModel->stationAt( rightIndex ) );
+        } else {
+
+            if ( mIsCustomFreq ) {
+                const uint frequency = mItems[CenterItem]->frequency();
+                mItems[LeftItem]->setStation( mModel->findClosest( frequency, StationSkip::Previous ) );
+                mItems[RightItem]->setStation( mModel->findClosest( frequency, StationSkip::Next ) );
+            } else {
+                mItems[LeftItem]->setStation( RadioStation() );
+                mItems[RightItem]->setStation( RadioStation() );
+            }
+        }
+
+        scrollContentsTo( QPointF( -mMidScrollPos /* + delta */, 0 ), 0 );
+
+//        if ( !mode.testFlag( NoSignal ) ) {
+//            uint frequency = mModel->stationAt( mCurrentIndex ).frequency();
+//            emit frequencyChanged( frequency, TuneReason::StationCarousel, mScrollDirection );
+//            mScrollDirection = Scroll::Shortest;
+//        }
     }
 }
 
 /*!
  *
  */
-void RadioStationCarousel::updateClampingStyle()
+void RadioStationCarousel::scrollToIndex( int index, Scroll::Direction direction, ScrollMode mode )
 {
-    if ( model()->rowCount() > 1 ) {
-        setClampingStyle( HbScrollArea::StrictClamping );
-    } else {
-        setClampingStyle( HbScrollArea::BounceBackClamping );
-        update( mUiEngine->stationModel().currentStation() );
-    }
-}
+    if ( mModel && index >= 0  ) {
+        mTargetIndex = index;
+        const int difference = calculateDifference( index, direction );
+        int scrollTime = mAutoScrollTime;
 
-/*!
- *
- */
-void RadioStationCarousel::initCurrentStationItem()
-{
-    mCurrentItem = static_cast<RadioStationItem*>( visibleItems().first() );
-}
+        int posX = direction == Scroll::Left ? -mMaxScrollPos : 0;
+        if ( difference == 1 ) {
+            if ( direction == Scroll::Right ) {
+                posX = 0;
+            } else if ( direction == Scroll::Left ) {
+                posX = -mMaxScrollPos;
+            }
+        } else {
+            if ( direction == Scroll::Right ) {
+                // Item where the scrolling starts
+                mItems[RightItem]->setStation( mModel->stationAt( mCurrentIndex ) );
 
-/*!
- *
- */
-RadioStationItem* RadioStationCarousel::currentStationItem()
-{
-    return mCurrentItem;
-}
+                // Item that is skipped over
+                const uint centerFreq = mModel->stationAt( nextIndex( index ) ).frequency();
+                mItems[CenterItem]->setFrequency( centerFreq );
 
-/*!
- *
- */
-RadioCarouselModel* RadioStationCarousel::carouselModel() const
-{
-    return static_cast<RadioCarouselModel*>( model() );
-}
+                // Item where the scrolling ends
+                const RadioStation station = mModel->stationAt( index );
+                mItems[LeftItem]->setStation( station );
 
-/*!
- *
- */
-void RadioStationCarousel::scrollToIndex( const QModelIndex& index, RadioStationCarousel::ScrollMode mode )
-{
-    RadioStationItem* item = static_cast<RadioStationItem*>( itemByIndex( index ) );
-    if ( index.isValid() && item ) {
-        const int posX = index.row() * (int)size().width();
-        setCurrentIndex( index, QItemSelectionModel::ClearAndSelect );
+                mContainer->setPos( mMaxScrollPos, 0 );
+                posX = 0;
+            } else if ( direction == Scroll::Left ) {
+                // Item where the scrolling starts
+                mItems[LeftItem]->setStation( mModel->stationAt( mCurrentIndex ) );
+
+                // Item that is skipped over
+                const uint centerFreq = mModel->stationAt( prevIndex( index ) ).frequency();
+                mItems[CenterItem]->setFrequency( centerFreq );
+
+                // Item where the scrolling ends
+                const RadioStation station = mModel->stationAt( index );
+                mItems[RightItem]->setStation( station );
+
+                mContainer->setPos( 0, 0 );
+                posX = -mMaxScrollPos;
+            }
+        }
 
         if ( mode.testFlag( UpdateItem ) ) {
-            item->update();
+            //item->update();
         }
 
-        int scrollTime = mAutoScrollTime;
         if ( mode.testFlag( NoAnim ) ) {
             scrollTime = 0;
+        } else if ( mode.testFlag( FromPanGesture ) ) {
+            if ( mAlternateSkipping ) { //TODO: Remove this! This is test code
+                scrollTime = 500;
+            } else {
+                scrollTime = 300;
+            }
+        } else if ( mode.testFlag( FromSwipeGesture ) ) {
+            scrollTime = 100;
         }
+
         scrollContentsTo( QPointF( posX, 0 ), scrollTime );
-        mCurrentItem = static_cast<RadioStationItem*>( item );
-        if ( !mode.testFlag( NoSignal ) ) {
-            uint frequency = model()->data( index, RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
-            emit frequencyChanged( frequency, TuneReason::StationCarousel );
-        }
     }
 }
 
 /*!
  *
  */
-void RadioStationCarousel::updatePos( int offset )
+int RadioStationCarousel::calculateDifference( int targetIndex, Scroll::Direction& direction )
 {
-//    QModelIndex index = currentIndex();
-//
-//    ScrollMode mode = 0;
-//    const qreal threshold = size().width() / 3;
-//    if ( abs( offset ) >= threshold ) {
-//        if ( offset > 0 ) {
-//            index = previousIndex( index );
-//        } else {
-//            index = nextIndex( index );
-//        }
-//    } else {
-//        mode |= RadioStationCarousel::NoSignal;
-//    }
-//
-//    scrollToIndex( index, mode );
+    int difference = 0;
+    const int rowCount = mModel->rowCount();
+
+    int diffToLeft = 0;
+    int diffToRight = 0;
+    if ( targetIndex > mCurrentIndex ) {
+        const int loopedDiff = mCurrentIndex + rowCount - targetIndex;
+        const int directDiff = targetIndex - mCurrentIndex;
+        diffToLeft = loopedDiff;
+        diffToRight = directDiff;
+    } else {
+        const int loopedDiff = targetIndex + rowCount - mCurrentIndex;
+        const int directDiff = mIsCustomFreq ? 1 : mCurrentIndex - targetIndex;
+        diffToLeft = directDiff;
+        diffToRight = loopedDiff;
+    }
+
+    if ( direction == Scroll::Right ) {
+        difference = diffToLeft;
+    } else if ( direction == Scroll::Left ) {
+        difference = diffToRight;
+    } else {
+        if ( diffToLeft < diffToRight ) {
+            difference = diffToLeft;
+            direction = Scroll::Right;
+        } else {
+            difference = diffToRight;
+            direction = Scroll::Left;
+        }
+    }
+
+    return difference;
+}
+
+/*!
+ *
+ */
+bool RadioStationCarousel::isScrollingAllowed() const
+{
+    const int rowCount = mModel->rowCount();
+    return rowCount > 1 || ( rowCount == 1 && mIsCustomFreq );
+}
+
+/*!
+ *
+ */
+void RadioStationCarousel::adjustPos( int offset )
+{
+    int newPos = mMidScrollPos;
+    const int threshold = (int)size().width() / 5;
+    int newIndex = mCurrentIndex;
+    bool needsToScroll = false;
+
+    if ( isScrollingAllowed() && abs( offset ) >= threshold ) {
+        needsToScroll = true;
+        if ( offset > 0 ) {
+            newPos = 0;
+            mScrollDirection = Scroll::Right;
+            if ( !mIsCustomFreq ) {
+
+                if ( mAlternateSkipping ) { //TODO: Remove this! This is test code
+                    const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::PreviousFavorite ).frequency();
+                    if ( newFreq > 0 ) {
+                        newIndex = mModel->indexFromFrequency( newFreq );
+                    } else {
+                        needsToScroll = false;
+                        newPos = mMidScrollPos;
+                    } // End test code
+
+                } else {
+                    --newIndex;
+                }
+            }
+        } else {
+            mScrollDirection = Scroll::Left;
+            newPos = mMaxScrollPos;
+
+            if ( mAlternateSkipping ) { //TODO: Remove this! This is test code
+                const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::NextFavorite ).frequency();
+                if ( newFreq > 0 ) {
+                    newIndex = mModel->indexFromFrequency( newFreq );
+                } else {
+                    needsToScroll = false;
+                    newPos = mMidScrollPos;
+                } // End test code
+
+            } else {
+                ++newIndex;
+            }
+        }
+    }
+
+    newIndex = trimIndex( newIndex );
+    if ( needsToScroll ) {
+        const uint frequency = mModel->stationAt( newIndex ).frequency();
+        emit frequencyChanged( frequency, TuneReason::StationCarousel, mScrollDirection );
+        scrollToIndex( newIndex, mScrollDirection, RadioStationCarousel::FromPanGesture );
+        mIsCustomFreq = false;
+    } else {
+        scrollContentsTo( QPointF( -newPos, 0 ), 300 );
+    }
+}
+
+/*!
+ *
+ */
+int RadioStationCarousel::trimIndex( int index )
+{
+    const int count = mModel ? mModel->rowCount() : 0;
+
+    if ( count == 0 ) {
+        return -1;
+    }
+
+    if ( index < 0 ) {
+        index = count - 1;
+    }
+    index %= count;
+    return index;
+}
+
+/*!
+ *
+ */
+int RadioStationCarousel::prevIndex( int index )
+{
+    if ( !mIsCustomFreq ) {
+        --index;
+    }
+    return trimIndex( index );
+}
+
+/*!
+ *
+ */
+int RadioStationCarousel::nextIndex( int index )
+{
+    return trimIndex( index + 1 );
 }
 
 /*!
@@ -759,11 +912,10 @@ void RadioStationCarousel::updatePos( int offset )
  */
 void RadioStationCarousel::skip( StationSkip::Mode mode )
 {
-    RadioStationItem* item = currentStationItem();
-    if ( item ) {
-        RadioCarouselModel* model = carouselModel();
-        const uint frequency = model->findClosest( item->frequency(), mode ).frequency();
-        const QModelIndex& index = model->modelIndexFromFrequency( frequency );
-        scrollToIndex( index, RadioStationCarousel::NoSignal );
+    if ( mModel ) {
+        const uint frequency = mModel->findClosest( mItems[CenterItem]->frequency(), mode ).frequency();
+        const int index = mModel->indexFromFrequency( frequency );
+        const Scroll::Direction direction = RadioUtil::scrollDirectionFromSkipMode( mode );
+        scrollToIndex( index, direction, RadioStationCarousel::NoSignal );
     }
 }

@@ -20,6 +20,7 @@
 
 // System includes
 #include <QtGlobal>
+#include <QList>
 
 #include "radiopresetstorageexport.h"
 
@@ -44,6 +45,7 @@ public:
     bool deletePreset( int presetIndex );
     bool savePreset( const RadioStationIf& station );
     bool readPreset( int index, RadioStationIf& station );
+    void readFrequencies( QList<uint>& frequencyList );
 
 private: // data
 

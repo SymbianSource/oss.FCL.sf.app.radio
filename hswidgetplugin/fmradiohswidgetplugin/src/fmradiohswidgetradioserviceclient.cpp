@@ -23,6 +23,7 @@
 #include "fmradiohswidget.h"
 #include "radioservicedef.h"
 #include "radionotificationdata.h"
+#include "radiologger.h"
 
 /*!
  Constructor
@@ -30,10 +31,11 @@
 FmRadioHsWidgetRadioServiceClient::FmRadioHsWidgetRadioServiceClient(QObject *parent) :
     QObject(parent),
     mRequestPending(false),
-    mRadioMonitorRequest(0),
-    mRadioControlRequest(0),
+    mRadioMonitorRequest(NULL),
+    mRadioControlRequest(NULL),
     mDataInitialized(false)
 {
+    LOG_METHOD;
 }
 
 /*!
@@ -41,112 +43,83 @@ FmRadioHsWidgetRadioServiceClient::FmRadioHsWidgetRadioServiceClient(QObject *pa
  */
 FmRadioHsWidgetRadioServiceClient::~FmRadioHsWidgetRadioServiceClient()
 {
+    LOG_METHOD;
     stopMonitoring();
 }
 
 /*!
- * Initialize all data
+ Close FM Radio application.
+ 
  */
-void FmRadioHsWidgetRadioServiceClient::init()
+void FmRadioHsWidgetRadioServiceClient::doCloseFmRadio()
 {
-    const bool radioIsRunning = false; //TODO: Find out if radio is running. Use P&S key for now
-    if ( radioIsRunning ) {
-        //startMonitoring();
-    }
+    LOG_METHOD;
+    QVariant commandArgument;
+    commandArgument.setValue(static_cast<int>(RadioServiceCommand::PowerOff));
+    doSendControlRequest(commandArgument, DoNotChange);
 }
-
 
 /*!
- Starting of FM Radio.
- 
- /param startupState 
+ Power on FM Radio application.
+ This is used only when radio is in Closing state. This merely cancels the
+ radio power off delay and unmutes the audio. Currently the starting of radio
+ is done with startMonitoring(). 
  */
-/*
-void FmRadioHsWidgetRadioServiceClient::doStartFmRadio(FmRadioStartupState startupState)
+void FmRadioHsWidgetRadioServiceClient::doPowerOnFmRadio()
 {
-    if (!mRadioControlRequest) {
-        createControlServiceRequest();
-    }
-
+    LOG_METHOD;
     QVariant commandArgument;
-    switch (startupState) {
-    case StartForeground:
-        // TODO: Include header and remove comment.
-        commandArgument.setValue(*//*RadioServiceCommand::Foreground*/ //6);
-/*        break;
-    case StartBackground:
-        // TODO: Include header and remove comment.
-        commandArgument.setValue(*//*RadioServiceCommand::Background*/ //7);
-/*        break;
-    default:
-        break;
-    }
-    QList<QVariant> arguments;
-    arguments.append(commandArgument);
-    mRadioControlRequest->setArguments(arguments);
-
-    bool res = mRadioControlRequest->send();
+    commandArgument.setValue(static_cast<int>(RadioServiceCommand::PowerOn));
+    doSendControlRequest(commandArgument, DoNotChange);
 }
-*/
+
+
 /*!
  Bring FM Radio to foreground.
  
  */
-void FmRadioHsWidgetRadioServiceClient::doChangeFmRadioVisibility(FmRadioVisibilty visibility)
+void FmRadioHsWidgetRadioServiceClient::doChangeFmRadioVisibility(
+    const FmRadioVisibilty visibility)
 {
+    LOG_METHOD;
     QVariant commandArgument;
     switch (visibility) {
     case ToForeground:
-        commandArgument.setValue((int) RadioServiceCommand::Foreground);
+        LOG("ToForeground");
+        commandArgument.setValue(static_cast<int>(RadioServiceCommand::Foreground));
         break;
     case ToBackground:
-        commandArgument.setValue((int) RadioServiceCommand::Background);
+        LOG("ToBackground");
+        commandArgument.setValue(static_cast<int>(RadioServiceCommand::Background));
     case DoNotChange:
     default:
+        LOG("DoNotChange or default");
         break;
     }
     doSendControlRequest(commandArgument, visibility);
 }
 
 /*!
- Changing of FM Radio channel.
+ Changing of FM Radio station.
  
  /param command Command to execute.
  */
-void FmRadioHsWidgetRadioServiceClient::doChangeFmRadioChannel(
-    FmRadioChannelChangeCommand command)
+void FmRadioHsWidgetRadioServiceClient::doChangeFmRadioStation(
+    const FmRadioStationChangeCommand command)
 {
+    LOG_METHOD;
     QVariant commandArgument;
     switch (command) {
-    case PreviousFavouriteChannel:
-        commandArgument.setValue((int) RadioServiceCommand::Previous);
+    case PreviousFavouriteStation:
+        LOG("PreviousFavouriteChannel");
+        commandArgument.setValue(static_cast<int>(RadioServiceCommand::Previous));
         break;
-    case NextFavouriteChannel:
-        commandArgument.setValue((int) RadioServiceCommand::Next);
-        break;
-    default:
-        break;
-    }
-    doSendControlRequest(commandArgument, DoNotChange);
-}
-
-/*!
- Changing of FM Radio channel.
- 
- /param command Command to execute.
- */
-void FmRadioHsWidgetRadioServiceClient::doControlFmRadioAudio(
-    FmRadioAudioControlCommand command)
-{
-    QVariant commandArgument;
-    switch (command) {
-    case Mute:
-        commandArgument.setValue((int) RadioServiceCommand::Pause);
-        break;
-    case Unmute:
-        commandArgument.setValue((int) RadioServiceCommand::Play);
+    case NextFavouriteStation:
+        LOG("NextFavouriteChannel");
+        commandArgument.setValue(static_cast<int>(RadioServiceCommand::Next));
         break;
     default:
+        LOG("default");
         break;
     }
     doSendControlRequest(commandArgument, DoNotChange);
@@ -155,38 +128,47 @@ void FmRadioHsWidgetRadioServiceClient::doControlFmRadioAudio(
 /*!
  Start FM Radio information listening.
  */
-void FmRadioHsWidgetRadioServiceClient::doSendControlRequest(QVariant &argument,
-    FmRadioVisibilty visibility)
+void FmRadioHsWidgetRadioServiceClient::doSendControlRequest(
+    const QVariant &argument, const FmRadioVisibilty visibility)
 {
+    LOG_METHOD;
+    if (!argument.isValid()) {
+        return;
+    }
+    
+    // If there is not mRadioControlRequest already.
     if (!mRadioControlRequest) {
+        // Create it.
         createControlServiceRequest();
     }
-
+    
+    // Set argument list for request.
     QList<QVariant> arguments;
     arguments.append(argument);
     mRadioControlRequest->setArguments(arguments);
     
     prepareRequestInfo(mRadioControlRequest, visibility);
-
+    
+    LOG("Send request");
     bool res = mRadioControlRequest->send();
 
     if (!res) {
+        LOG("Send failed");
         int error = mRadioControlRequest->lastError();
         handleRequestError(error);
     }
-    
-    //stopMonitoring();
-    //startMonitoring();
 }
 
 /*!
  Start FM Radio information listening.
  */
-void FmRadioHsWidgetRadioServiceClient::doSendMonitorRequest(FmRadioVisibilty visibility)
+void FmRadioHsWidgetRadioServiceClient::doSendMonitorRequest(
+    const FmRadioVisibilty visibility)
 {
+    LOG_METHOD;
     prepareRequestInfo(mRadioMonitorRequest, visibility);
     if (!mRequestPending) {
-        //FmRadioHsWidgetRadioServiceSingleton::instance()->sendRequest();
+        LOG("Send request");
         mRequestPending = mRadioMonitorRequest->send();
     }
 }
@@ -196,19 +178,34 @@ void FmRadioHsWidgetRadioServiceClient::doSendMonitorRequest(FmRadioVisibilty vi
  
  /param value
  */
-void FmRadioHsWidgetRadioServiceClient::handleFmRadioInformationChange(const QVariant& value)
+void FmRadioHsWidgetRadioServiceClient::handleFmRadioInformationChange(
+    const QVariant &value)
 {
+    LOG_METHOD;
+    LEVEL2(LOG_SLOT_CALLER);
+    // Request is not pending anymore.
     mRequestPending = false;
+    // If first request was refresh operation.
     if (!mDataInitialized) {
+        LOG("Set operation to KRadioServiceMonitorOperation");
+        // Change the operation to the monitoring.
         mRadioMonitorRequest->setOperation(KRadioServiceMonitorOperation);
+        // Data is now initialized.
         mDataInitialized = true;
     }
+    // Request notifications again.
     startMonitoring(DoNotChange);
+    
+    // If valid and right kind of data was received.
     if ( value.isValid() && value.canConvert( QVariant::List ) ) {
         QVariantList notificationList = value.toList();
+        // Iterate through the list.
         foreach ( const QVariant& variant, notificationList ) {
+            // Extract notification data.
             RadioNotificationData notification = variant.value<RadioNotificationData>();
+            // And it's type.
             const int notificationId = notification.mType;
+            // Emit the new information.
             emit radioInformationChanged( notificationId, notification.mData );
         }
     }
@@ -219,8 +216,9 @@ void FmRadioHsWidgetRadioServiceClient::handleFmRadioInformationChange(const QVa
  
  /param int Error value.
  */
-void FmRadioHsWidgetRadioServiceClient::handleRequestError(int error)
+void FmRadioHsWidgetRadioServiceClient::handleRequestError(const int error)
 {
+    LOG_METHOD;
     QString errorStr;
     QVariant var(FmRadioHsWidget::NotRunning);
     switch (error) {
@@ -228,28 +226,30 @@ void FmRadioHsWidgetRadioServiceClient::handleRequestError(int error)
         errorStr = "No error";
         break;
     case XQService::EConnectionError:
-        errorStr = "(/*!< Error in IPC Connection */";
+        errorStr = "Error in IPC Connection";
         break;
     case XQService::EConnectionClosed:
-        errorStr = "/*!< IPC Connection is closed */";
+        errorStr = "IPC Connection is closed";
         stopMonitoring();
         handleFmRadioStateChange(var);
         break;
     case XQService::EServerNotFound:
-        errorStr = "/*!< Can not find server */";
+        errorStr = "Can not find server";
         break;
     case XQService::EIPCError:
-        errorStr = "/*!< Known IPC error defined by SDK */";
+        errorStr = "Known IPC error defined by SDK";
         break;
     case XQService::EUnknownError:
-        errorStr = "/*!< Unknown IPC error */";
+        errorStr = "Unknown IPC error";
         break;
     case XQService::ERequestPending:
-        errorStr = "/*!< Already pending request */";
+        errorStr = "Already pending request";
         break;
     default:
+        errorStr = "default case";
         break;
     }
+    LOG(GETSTRING(errorStr));
 }
 
 /*!
@@ -257,21 +257,12 @@ void FmRadioHsWidgetRadioServiceClient::handleRequestError(int error)
  
  /param value New state of FM Radio.
  */
-void FmRadioHsWidgetRadioServiceClient::handleFmRadioStateChange(QVariant& value)
+void FmRadioHsWidgetRadioServiceClient::handleFmRadioStateChange(
+    const QVariant &value)
 {
+    LOG_METHOD;
     if (value.isValid()) {
         emit radioStateChanged(value);
-    }
-}
-
-/*!
- Handle request completion.
- 
- /param value
- */
-void FmRadioHsWidgetRadioServiceClient::requestCompleted(const QVariant& value)
-{
-    if (value.isValid()) {
     }
 }
 
@@ -281,11 +272,13 @@ void FmRadioHsWidgetRadioServiceClient::requestCompleted(const QVariant& value)
  /param errorCode
  /param errorMessage
  */
-void FmRadioHsWidgetRadioServiceClient::handleError(int errorCode, const QString& errorMessage)
+void FmRadioHsWidgetRadioServiceClient::handleError(const int errorCode,
+    const QString &errorMessage)
 {
-    int e = errorCode;
-    QString em = errorMessage;
-    handleRequestError(e);
+    Q_UNUSED(errorMessage)
+    LOG_METHOD;
+    LEVEL2(LOG_SLOT_CALLER);
+    handleRequestError(errorCode);
 }
 
 /*!
@@ -293,37 +286,10 @@ void FmRadioHsWidgetRadioServiceClient::handleError(int errorCode, const QString
  */
 void FmRadioHsWidgetRadioServiceClient::createControlServiceRequest()
 {
+    LOG_METHOD;
     if (!mRadioControlRequest) {
-        QString fullInterfaceName = /*KRadioServiceName +"."+*/ KRadioServiceControlInterfaceName;
-        mRadioControlRequest = mApplicationManager.create(fullInterfaceName,
-            KRadioServiceControlOperation, false);
-
-        if (mRadioControlRequest) {
-            mRadioControlRequest->setEmbedded(false);
-            mRadioControlRequest->setSynchronous(true);
-            //TODO: Do backgound set through XQRequestInfo in MCL wk14.
-            //mRadioControlRequest->setBackground(true);
-
-            /*
-            bool b = connect(mRadioControlRequest, SIGNAL(requestOk(const QVariant&)), this,
-                SLOT(requestCompleted(const QVariant&)));
-            bool t = connect(mRadioControlRequest, SIGNAL(requestError(int,const QString&)), this,
-                SLOT(handleError(int,const QString&)));
-            */
-        }
-    }
-}
-
-/*!
- Creates monitor service request object.
- */
-void FmRadioHsWidgetRadioServiceClient::createMonitorServiceRequest()
-{
-    if (!mRadioMonitorRequest) {
-		QString operation = mDataInitialized ? KRadioServiceMonitorOperation
-            : KRadioServiceRefreshOperation;
-        QString fullInterfaceName = /*KRadioServiceName +"."+*/ KRadioServiceMonitorInterfaceName;
-        
+        // Following commented code is for debugging when changing service and interface names.
+        //QString fullInterfaceName = /*KRadioServiceName +"."+*/ KRadioServiceControlInterfaceName;
         /*
         QList<XQAiwInterfaceDescriptor> list;
         list = mApplicationManager.list(KRadioServiceName, fullInterfaceName, "");
@@ -337,23 +303,75 @@ void FmRadioHsWidgetRadioServiceClient::createMonitorServiceRequest()
                 }
             }
         */
-        
         /*
         mRadioMonitorRequest = mApplicationManager.create(interfaceDescriptor,
-            KRadioServiceMonitorOperation, false);
+            KRadioServiceControlOperation, false);
         */
+        
+        LOG("Create request");
+        mRadioControlRequest = mApplicationManager.create(
+            KRadioServiceControlInterfaceName, KRadioServiceControlOperation,
+            false);
+        
+        if (mRadioControlRequest) {
+            LOG("Request created");
+            // Request is synchronous.
+            mRadioControlRequest->setSynchronous(true);
+            // Request is not embedded.
+            mRadioControlRequest->setEmbedded(false);
+        }
+    }
+}
 
+/*!
+ Creates monitor service request object.
+ */
+void FmRadioHsWidgetRadioServiceClient::createMonitorServiceRequest()
+{
+    LOG_METHOD;
+    if (!mRadioMonitorRequest) {
+        // If data is not initialized, set operation to refresh,
+        // otherwise to monitor operation.
+		QString operation = mDataInitialized ? KRadioServiceMonitorOperation
+            : KRadioServiceRefreshOperation;
+        QString fullInterfaceName = /*KRadioServiceName +"."+*/ KRadioServiceMonitorInterfaceName;
+
+        // Following commented code is for debugging when changing service and interface names.
+        /*
+        QList<XQAiwInterfaceDescriptor> list;
+        list = mApplicationManager.list(KRadioServiceName, fullInterfaceName, "");
+        XQAiwInterfaceDescriptor interfaceDescriptor;
+        foreach (XQAiwInterfaceDescriptor d, list)
+            {
+                QString in = d.interfaceName();
+                QString sn = d.serviceName();
+                if (sn == KRadioServiceName && in == fullInterfaceName) {
+                    interfaceDescriptor = d;
+                }
+            }
+        */
+        /*
+        mRadioMonitorRequest = mApplicationManager.create(interfaceDescriptor,
+            operation, false);
+        */
+        
+        LOG("Create request");
         mRadioMonitorRequest = mApplicationManager.create(
-            fullInterfaceName, operation, false);
-
+            KRadioServiceMonitorInterfaceName, operation, false);
+        
         if (mRadioMonitorRequest) {
+            LOG("Request created");
+            // Connect request to handle it's completion.
             connect(mRadioMonitorRequest, SIGNAL(requestOk(const QVariant&)),
                 this, SLOT(handleFmRadioInformationChange(const QVariant&)));
+            // Connect request to handle it's error.
             connect(mRadioMonitorRequest,
                 SIGNAL(requestError(int,const QString&)), this,
                 SLOT(handleError(int,const QString&)));
-
+            
+            // Request is asynchronous.
             mRadioMonitorRequest->setSynchronous(false);
+            // Request is not embedded.
             mRadioMonitorRequest->setEmbedded(false);
         }
     }
@@ -364,8 +382,8 @@ void FmRadioHsWidgetRadioServiceClient::createMonitorServiceRequest()
  */
 void FmRadioHsWidgetRadioServiceClient::startMonitoring(FmRadioVisibilty visibility)
 {
-    //FmRadioHsWidgetRadioServiceSingleton::instance(this)->requestNotifications(this);
-
+    LOG_METHOD;
+    // If there is no mRadioMonitorRequest create it.
     if (!mRadioMonitorRequest) {
         createMonitorServiceRequest();
     }
@@ -377,26 +395,27 @@ void FmRadioHsWidgetRadioServiceClient::startMonitoring(FmRadioVisibilty visibil
  */
 void FmRadioHsWidgetRadioServiceClient::stopMonitoring()
 {
-    //FmRadioHsWidgetRadioServiceSingleton::instance(this)->cancelNotifications(this);
-
+    LOG_METHOD;
+    // Delete the mRadioMonitorRequest. 
     if (mRadioMonitorRequest) {
         delete mRadioMonitorRequest;
         mRadioMonitorRequest = NULL;
+        mRequestPending = false;
+        mDataInitialized = false;
     }
-    mRequestPending = false;
-    mDataInitialized = false;
 }
 
 /*!
  Prepares the visibility of the request.
  */
-void FmRadioHsWidgetRadioServiceClient::prepareRequestInfo(XQAiwRequest *request,
-    FmRadioVisibilty visibility)
+void FmRadioHsWidgetRadioServiceClient::prepareRequestInfo(
+    XQAiwRequest *request, const FmRadioVisibilty visibility)
 {
+    LOG_METHOD;
     XQRequestInfo info;
     switch (visibility) {
     case ToForeground:
-        //info.setForeground(true);
+        info.setForeground(true);
         break;
     case ToBackground:
         info.setBackground(true);
@@ -407,91 +426,5 @@ void FmRadioHsWidgetRadioServiceClient::prepareRequestInfo(XQAiwRequest *request
     }
     if (request) {
         request->setInfo(info);
-        bool a = request->isBackground();
     }
-    //bool f = info.isForeground();
-    bool b = info.isBackground();
-}
-
-void FmRadioHsWidgetRadioServiceClient::test()
-{
-    // Test is kept for example. We have to switch to use the XQAiwRequest and this includes workin example code. 
-    //XQAiwRequest* req;
-/*
-    QUrl uri("application://101FF976");
-    QString a = "Uri=" + uri.toString();
-    if (uri.isValid()) {
-        QString b = "isValid";
-    }
-    QString c = "Uri authority=" + uri.authority();
-*/
-/*
-    QList<XQAiwInterfaceDescriptor> list = mApplicationManager.list(KRadioServiceName, KRadioServiceMonitorInterfaceName);
-    foreach (XQAiwInterfaceDescriptor d, list) {
-        QString in = d.interfaceName();
-        QString sn = d.serviceName();
-    }
-
-    list = mApplicationManager.list(KRadioServiceName, KRadioServiceMonitorInterfaceName, "");
-    foreach (XQAiwInterfaceDescriptor d, list) {
-        QString in = d.interfaceName();
-        QString sn = d.serviceName();
-    }
-
-    list = mApplicationManager.list(KRadioServiceMonitorInterfaceName, "");
-    foreach (XQAiwInterfaceDescriptor d, list) {
-        QString in = d.interfaceName();
-        QString sn = d.serviceName();
-    }
-*/
-    //req = mApplicationManager.create(uri, false);
-
-    /*req = mApplicationManager.create(KRadioServiceMonitorInterfaceName, KRadioServiceMonitorOperation,
-        false);*/
-
-/* ///
-    if (!mRadioMonitorRequest) {
-        createMonitorServiceRequest();
-    }
-    bool res = mRadioMonitorRequest->send();
-///
-*/
-    
-    /*if (req) {*/
-/*
-        // Connect signals once
-        bool a = connect(req, SIGNAL(requestOk(const QVariant&)), this,
-            SLOT(handleOk(const QVariant&)));
-        bool b = connect(req, SIGNAL(requestError(int,const QString&)), this,
-            SLOT(handleError(int,const QString&)));
-*/
-        /*bool b = connect(req, SIGNAL(requestOk(const QVariant&)), this,
-            SLOT(handleFmRadioInformationChange(QVariant)));
-        bool c = connect(req, SIGNAL(requestError(int,const QString&)), this,
-            SLOT(handleError(int,const QString&)));*/
-/*
-        QList<QVariant> arg;
-        arg << "";
-        req->setArguments(arg);
-*/
-/*
-        QString op = req->operation();
-        req->setOperation(KRadioServiceMonitorOperation);
-        op = req->operation();
-*/
-        /*bool res = req->send();*/
-
-        /*if (res) {
-            //QTimer::singleShot(40000, this, SLOT(doSendMonitorRequest()));
-        }
-        else {
-            // Request failed.
-            int x = 2;
-        }
-
-    }
-    else {
-        int r;
-        r = 5;
-    }*/
 }

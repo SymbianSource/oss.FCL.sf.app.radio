@@ -52,7 +52,10 @@ const char* SQL_ADD_ITEM         = "INSERT INTO history (artist,title,station,fr
 const char* SQL_SELECT_ALL       = "SELECT * FROM history ORDER BY id DESC";
 const char* SQL_SELECT_TAGGED    = "SELECT * FROM history WHERE tagged=1";// ORDER BY id DESC";
 
-const char* SQL_DELETE_ALL       = "DELETE FROM history";
+//const char* SQL_DELETE_ALL       = "DELETE FROM history";
+const char* SQL_DELETE_RECENT    = "DELETE FROM history WHERE tagged=0";
+//const char* SQL_DELETE_TAGGED    = "DELETE FROM history WHERE tagged=1";
+const char* SQL_CLEAR_TAGS       = "UPDATE history SET tagged = 0 WHERE tagged = 1";
 
 //static const char* SQL_FIND_ITEM_BY_ID = "SELECT * FROM history WHERE id = ?";
 const char* SQL_TOGGLE_TAG       = "UPDATE history SET tagged = ? WHERE id = ?";
@@ -79,10 +82,10 @@ RadioHistoryModelPrivate::RadioHistoryModelPrivate( RadioHistoryModel* model,
                                                     RadioUiEngine& uiEngine ) :
     q_ptr( model ),
     mUiEngine( uiEngine ),
+    mRtItemClass( -1 ),
     mTopItemIsPlaying( false ),
     mShowDetails( true ),
-    mViewMode( ShowAll ),
-    mRtItemClass( -1 )
+    mViewMode( ShowAll )
 {
 }
 
@@ -222,7 +225,7 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
 /*!
  *
  */
-void RadioHistoryModelPrivate::removeAll()
+void RadioHistoryModelPrivate::removeAll( bool removeTagged )
 {
     if ( !mQueryModel ) {
         return;
@@ -230,7 +233,7 @@ void RadioHistoryModelPrivate::removeAll()
 
     QSqlQuery query = beginTransaction();
 
-    query.prepare( SQL_DELETE_ALL );
+    query.prepare( removeTagged ? SQL_CLEAR_TAGS : SQL_DELETE_RECENT );
 
     // Commented out because rowsRemoved() seems to crash HbListView
 //    commitTransaction( query, RemoveRows, 0, rowCount() - 1 );

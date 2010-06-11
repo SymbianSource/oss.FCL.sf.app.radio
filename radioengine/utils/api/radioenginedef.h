@@ -22,6 +22,28 @@ namespace RadioEngine
     {
 
     /**
+     * Headset volume.
+     */
+    enum TRadioHeadsetVolume
+        {
+        ERadioHeadsetDefaultVolume = 4   /**< Headset default volume. */
+        };
+
+    /**
+     * Speaker volume.
+     */
+    enum TRadioSpeakerVolume
+        {
+        ERadioSpeakerDefaultVolume = 4   /**< Speaker default volume. */
+        };
+
+    /** Minimum volume */
+    enum TRadioMinVolume
+        {
+        ERadioDefaultMinVolume = 1   /**< Default minimum volume. */
+        };
+
+    /**
      * Output sources.
      */
     enum TRadioAudioRoute

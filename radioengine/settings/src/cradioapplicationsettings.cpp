@@ -15,12 +15,19 @@
 *
 */
 
+// System includes
+#include <centralrepository.h>
+
 // User includes
+#include "cradiosettingsimp.h"
 #include "radiointernalcrkeys.h"
 #include "cradioapplicationsettings.h"
-#include "cradiorepositorymanager.h"
 #include "cradioenginelogger.h"
 
+// This has to be the last include.
+#ifdef STUB_CONSTELLATION
+#   include <RadioStubManager.h>
+#endif //STUB_CONSTELLATION
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -28,10 +35,10 @@
 //
 // ---------------------------------------------------------------------------
 //
-CRadioApplicationSettings* CRadioApplicationSettings::NewL( CRadioRepositoryManager& aRepositoryManager,
-                                                            CCoeEnv& aCoeEnv )
+CRadioApplicationSettings* CRadioApplicationSettings::NewL()
     {
-    CRadioApplicationSettings* self = new ( ELeave ) CRadioApplicationSettings( aRepositoryManager, aCoeEnv );
+    LEVEL3( LOG_METHOD_AUTO );
+    CRadioApplicationSettings* self = new ( ELeave ) CRadioApplicationSettings();
     CleanupStack::PushL( self );
     self->ConstructL();
     CleanupStack::Pop( self );
@@ -44,19 +51,18 @@ CRadioApplicationSettings* CRadioApplicationSettings::NewL( CRadioRepositoryMana
 //
 void CRadioApplicationSettings::ConstructL()
     {
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRActiveFocusLocation, CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRAudioPlayHistory, CRadioRepositoryManager::ERadioEntityInt );
-    iRepositoryManager.AddEntityL( KRadioCRUid, KRadioCRUiFlags, CRadioRepositoryManager::ERadioEntityInt );
+    LEVEL2( LOG_METHOD_AUTO );
+    iRepository = CRepository::NewL( KRadioCRUid );
+    LOG_FORMAT( "iRepository = %i", iRepository );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-CRadioApplicationSettings::CRadioApplicationSettings( CRadioRepositoryManager& aRepositoryManager,
-                                                      CCoeEnv& aCoeEnv )
-    : CRadioSettingsBase( aRepositoryManager, aCoeEnv )
+CRadioApplicationSettings::CRadioApplicationSettings()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -65,6 +71,8 @@ CRadioApplicationSettings::CRadioApplicationSettings( CRadioRepositoryManager& a
 //
 CRadioApplicationSettings::~CRadioApplicationSettings()
     {
+    LEVEL3( LOG_METHOD_AUTO );
+    delete iRepository;
     }
 
 // ---------------------------------------------------------------------------
@@ -72,60 +80,26 @@ CRadioApplicationSettings::~CRadioApplicationSettings()
 //
 // ---------------------------------------------------------------------------
 //
-TInt CRadioApplicationSettings::SetActiveFocusLocation( TInt aIndex )
+TBool CRadioApplicationSettings::IsFirstTimeStart()
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRActiveFocusLocation, aIndex );
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioApplicationSettings.
-//
-// ---------------------------------------------------------------------------
-//
-TInt CRadioApplicationSettings::ActiveFocusLocation() const
-    {
-    return iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRActiveFocusLocation );
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioApplicationSettings.
-//
-// ---------------------------------------------------------------------------
-//
-void CRadioApplicationSettings::SetAudioPlayHistoryL( TRadioCRAudioPlayHistory aHistory )
-    {
-    if ( AudioPlayHistory() != ERadioCRAudioPlayed )
-        {
-        User::LeaveIfError( iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRAudioPlayHistory, aHistory ) );
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioApplicationSettings.
-//
-// ---------------------------------------------------------------------------
-//
-MRadioApplicationSettings::TRadioCRAudioPlayHistory CRadioApplicationSettings::AudioPlayHistory() const
-    {
-    return static_cast<TRadioCRAudioPlayHistory>(
-                    iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRAudioPlayHistory ) );
-    }
-
-// ---------------------------------------------------------------------------
-// From class MRadioApplicationSettings.
-//
-// ---------------------------------------------------------------------------
-//
-TInt CRadioApplicationSettings::UpdateStartCount()
-    {
+    LEVEL3( LOG_METHOD_AUTO );
     TInt startCount = 0;
-    TRAP_IGNORE
-        (
-        CRadioRepositoryManager::GetRepositoryValueL( KRadioCRUid, KRadioCRLaunchCount, startCount );
-        CRadioRepositoryManager::SetRepositoryValueL( KRadioCRUid, KRadioCRLaunchCount, startCount + 1 );
-        );
-    return startCount;
+    iRepository->Get( KRadioCRLaunchCount, startCount );
+
+    return startCount == 0;
     }
+
+// ---------------------------------------------------------------------------
+// From class MRadioApplicationSettings.
+//
+// ---------------------------------------------------------------------------
+//
+void CRadioApplicationSettings::SetFirstTimeStartPerformed( TBool aFirstTimeStartPerformed )
+    {
+    LEVEL3( LOG_METHOD_AUTO );
+    iRepository->Set( KRadioCRLaunchCount, aFirstTimeStartPerformed ? 1 : 0 );
+    }
+
 
 // ---------------------------------------------------------------------------
 // From class MRadioApplicationSettings.
@@ -134,7 +108,8 @@ TInt CRadioApplicationSettings::UpdateStartCount()
 //
 TInt CRadioApplicationSettings::SetUiFlags( TUint aUiFlags )
     {
-    return iRepositoryManager.SetEntityValue( KRadioCRUid, KRadioCRUiFlags, static_cast<TInt>( aUiFlags ) );
+    LEVEL3( LOG_METHOD_AUTO );
+    return iRepository->Set( KRadioCRUiFlags, static_cast<TInt>( aUiFlags ) );
     }
 
 // ---------------------------------------------------------------------------
@@ -144,5 +119,8 @@ TInt CRadioApplicationSettings::SetUiFlags( TUint aUiFlags )
 //
 TUint CRadioApplicationSettings::UiFlags() const
     {
-    return static_cast<TUint>( iRepositoryManager.EntityValueInt( KRadioCRUid, KRadioCRUiFlags ) );
+    LEVEL3( LOG_METHOD_AUTO );
+    TInt uiFlags( 0 );
+    iRepository->Get( KRadioCRUiFlags, uiFlags );
+    return static_cast<TUint>( uiFlags );
     }

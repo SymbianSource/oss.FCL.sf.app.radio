@@ -30,6 +30,7 @@
 CRadioRdsReceiver::CRadioRdsReceiver( MRadioEngineSettings& aSettings )
     : CRadioRdsReceiverBase( aSettings )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -38,6 +39,7 @@ CRadioRdsReceiver::CRadioRdsReceiver( MRadioEngineSettings& aSettings )
 //
 void CRadioRdsReceiver::ConstructL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     BaseConstructL();
     }
 
@@ -47,6 +49,7 @@ void CRadioRdsReceiver::ConstructL()
 //
 CRadioRdsReceiver* CRadioRdsReceiver::NewL( MRadioEngineSettings& aSettings )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioRdsReceiver* self = new ( ELeave ) CRadioRdsReceiver( aSettings );
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -60,6 +63,7 @@ CRadioRdsReceiver* CRadioRdsReceiver::NewL( MRadioEngineSettings& aSettings )
 //
 CRadioRdsReceiver::~CRadioRdsReceiver()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( iRdsUtility )
         {
         iRdsUtility->Close();
@@ -70,16 +74,15 @@ CRadioRdsReceiver::~CRadioRdsReceiver()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiver::InitL( CRadioUtility& aRadioUtility, CRadioPubSub* aPubSub )
+void CRadioRdsReceiver::InitL( CRadioUtility& aRadioUtility )
     {
     LOG_METHOD_AUTO;
-    iPubSub = aPubSub;
 
     iRdsUtility = &aRadioUtility.RadioRdsUtilityL( *this );
 
     LogReceiverCapabilities();
 
-    SetAutomaticSwitchingL( iSettings.RdsAfSearchEnabled() );
+    SetAutomaticSwitchingL( EFalse );
     }
 
 // ---------------------------------------------------------------------------
@@ -88,6 +91,7 @@ void CRadioRdsReceiver::InitL( CRadioUtility& aRadioUtility, CRadioPubSub* aPubS
 //
 void CRadioRdsReceiver::SetAutomaticSwitchingL( TBool aEnable )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( iRdsUtility )
         {
         User::LeaveIfError( iRdsUtility->SetAutomaticSwitching( aEnable ) );
@@ -103,6 +107,7 @@ void CRadioRdsReceiver::SetAutomaticSwitchingL( TBool aEnable )
 //
 void CRadioRdsReceiver::StartReceiver()
     {
+    LOG_METHOD_AUTO;
     // Request to be notified of almost all RDS data.
     // Unwanted RDS values:
     //    ERdsClockTime
@@ -119,7 +124,7 @@ void CRadioRdsReceiver::StartReceiver()
     rdsData.iAdditionalFunctions1 = 0;
     rdsData.iAdditionalFunctions2 = 0;
 
-    LOG_ASSERT( iRdsUtility, LOG( "CRadioRdsReceiver::StartReceiverL. Error: RDS utility not created!" ) );
+    LOG_ASSERT( iRdsUtility, LOG( "Error: RDS utility not created!" ) );
     if ( iRdsUtility && !iStarted )
         {
         TInt err = iRdsUtility->NotifyRdsDataChange( rdsData );
@@ -127,11 +132,11 @@ void CRadioRdsReceiver::StartReceiver()
             {
             // Avoid further calls
             iStarted = ETrue;
-            LOG( "CRadioRdsReceiver::StartReceiverL: Requested RDS notifications from receiver." );
+            LOG( "Requested RDS notifications from receiver." );
             }
         else
             {
-            LOG_FORMAT( "CRadioRdsReceiver::StartReceiverL. Failed to request RDS data with err %d", err );
+            LOG_FORMAT( "Failed to request RDS data with err %d", err );
             }
         }
     }
@@ -142,7 +147,7 @@ void CRadioRdsReceiver::StartReceiver()
 //
 void CRadioRdsReceiver::StopReceiver()
     {
-    LOG( "CRadioRdsReceiver::StopReceiver" );
+    LOG_METHOD_AUTO;
 
     if ( iRdsUtility )
         {
@@ -157,6 +162,7 @@ void CRadioRdsReceiver::StopReceiver()
 //
 void CRadioRdsReceiver::LogReceiverCapabilities()
     {
+    LEVEL3( LOG_METHOD_AUTO );
 #ifdef LOGGING_ENABLED
     // Log the RDS utility capabilities
     if ( iRdsUtility )
@@ -205,13 +211,13 @@ void CRadioRdsReceiver::LogReceiverCapabilities()
                 {
                 capsBuf.Append( _L("TrafficAnnouncement ") );
                 }
-            LOG_FORMAT( "CRadioRdsReceiver::LogReceiverCapabilities. RDS receiver capabilities: %S", &capsBuf );
-            LOG_FORMAT( "CRadioRdsReceiver::LogReceiverCapabilities. Functions: %d, AdditionalFunctions1: %d, iAdditionalFunctions2: %d",
+            LOG_FORMAT( "RDS receiver capabilities: %S", &capsBuf );
+            LOG_FORMAT( "Functions: %d, AdditionalFunctions1: %d, iAdditionalFunctions2: %d",
                     caps.iRdsFunctions, caps.iAdditionalFunctions1, caps.iAdditionalFunctions2 );
             }
         else
             {
-            LOG_FORMAT( "CRadioRdsReceiver::LogReceiverCapabilities: Failed to get RDS utility capabilities: err %d", err );
+            LOG_FORMAT( "Failed to get RDS utility capabilities: err %d", err );
             }
         }
 #endif // LOGGING_ENABLED

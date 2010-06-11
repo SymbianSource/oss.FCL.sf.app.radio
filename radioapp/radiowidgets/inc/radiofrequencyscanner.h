@@ -21,6 +21,7 @@
 // System includes
 #include <QObject>
 #include <QScopedPointer>
+#include <QPointer>
 
 // Forward declarations
 class HbProgressDialog;
@@ -79,12 +80,14 @@ private: // data
      * Scanning progress note
      * Own.
      */
-    QScopedPointer<HbProgressDialog>    mScanningProgressNote;
+    QPointer<HbProgressDialog>          mScanningProgressNote;
 
     int                                 mStripScrollTime;
     int                                 mCarouselScrollTime;
 
     bool                                mIsAlive;
+
+    bool                                mUserCanceled;
 
 };
 
