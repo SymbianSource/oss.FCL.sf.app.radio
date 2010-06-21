@@ -539,16 +539,15 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
     TGestureCode eventCode( aEvent.Code( MGestureEvent::EAxisBoth ) );
     FTRACE( FPrint( _L("CFMRadioAlfVisualizer::HandleGestureL(eventCode=%d)"), eventCode ) );
     
-    CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( CCoeEnv::Static()->AppUi() );
     // handle gestures only if there is no call or tuning ongoing
-    if ( !appUi->RadioEngine()->IsInCall() &&
-            appUi->RadioState() != CFMRadioAppUi::EFMRadioStateBusySeek )
+    if ( !iAppUi->RadioEngine()->IsInCall() &&
+            iAppUi->RadioState() != CFMRadioAppUi::EFMRadioStateBusySeek )
         {
         switch ( eventCode )
             {
             case EGestureTap:
                 {
-                CAknVolumePopup* volPopup = appUi->ActiveVolumePopup();
+                CAknVolumePopup* volPopup = iAppUi->ActiveVolumePopup();
                 if ( volPopup )
                     {
                     if ( volPopup->IsVisible() )
@@ -567,11 +566,11 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
                 {
                 if ( iDragAxis == EFMRadioDragAxisX )
                     {
-                    if ( appUi->NumberOfChannelsStored() )
+                    if ( iAppUi->NumberOfChannelsStored() )
                         {
                         iRevertGestureDrag = EFalse;
                         }
-                    appUi->HandleCommandL( EFMRadioCmdNextChannel );
+                    iAppUi->HandleCommandL( EFMRadioCmdNextChannel );
                     }
                 break;
                 }
@@ -579,11 +578,11 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
                 {
                 if ( iDragAxis == EFMRadioDragAxisX )
                     {
-                    if ( appUi->NumberOfChannelsStored() )
+                    if ( iAppUi->NumberOfChannelsStored() )
                         {
                         iRevertGestureDrag = EFalse;
                         }
-                    appUi->HandleCommandL( EFMRadioCmdPrevChannel );
+                    iAppUi->HandleCommandL( EFMRadioCmdPrevChannel );
                     }
                 break;
                 }
@@ -592,7 +591,7 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
                 if ( iDragAxis == EFMRadioDragAxisY )
                     {
                     iRevertGestureDrag = EFalse;
-                    appUi->HandleCommandL( EFMRadioCmdSeekUp );
+                    iAppUi->HandleCommandL( EFMRadioCmdSeekUp );
                     }
                 break;
                 }
@@ -601,7 +600,7 @@ void CFMRadioAlfVisualizer::HandleGestureL( const MGestureEvent& aEvent )
                 if ( iDragAxis == EFMRadioDragAxisY )
                     {
                     iRevertGestureDrag = EFalse;
-                    appUi->HandleCommandL( EFMRadioCmdSeekDown );
+                    iAppUi->HandleCommandL( EFMRadioCmdSeekDown );
                     }
                 break;
                 }
@@ -699,56 +698,60 @@ TBool CFMRadioAlfVisualizer::OfferEventL( const TAlfEvent& aEvent )
     {
     TBool keyHandled = EFalse;
     
-    if ( aEvent.IsKeyEvent() && AknLayoutUtils::PenEnabled() )
+    if ( !iAppUi->RadioEngine()->IsInCall() )
         {
-        const TKeyEvent& kEvent = aEvent.KeyEvent();
-        
-        if ( kEvent.iCode == EKeyEnter || kEvent.iCode == EKeyOK )
+        if ( aEvent.IsKeyEvent() && AknLayoutUtils::PenEnabled() )
             {
-            iAppUi->ActivateLocalViewL( KFMRadioChannelListViewId );
-            keyHandled = ETrue;
-            }
-        
-        switch ( kEvent.iScanCode )
-            {
-            case EStdKeyRightArrow: // check arrow keys
-            case EStdKeyLeftArrow:
-            case EStdKeyUpArrow:
-            case EStdKeyDownArrow:
+            const TKeyEvent& kEvent = aEvent.KeyEvent();
+            
+            if ( kEvent.iCode == EKeyEnter || kEvent.iCode == EKeyOK )
                 {
-                iKeyScanCode = kEvent.iScanCode;
-    
-                if ( aEvent.Code() == EEventKeyUp )
-                    {
-                    iLongPressTimer->Cancel();
-                    if ( !iLongKeyTriggered )
-                        {
-                        TriggerCommandL();
-                        }
-                    }
-                else if ( aEvent.Code() == EEventKeyDown )
-                    {
-                    iLongKeyTriggered = EFalse;
-                    // Start the long key press timer
-                    iLongPressTimer->Cancel();
-                    iLongPressTimer->Start( KFMRadioRockerLongPressDelay, 
-                                            0, 
-                                            TCallBack( CFMRadioAlfVisualizer::StaticLongPressCallBack, this ) );
-                    
-                    }
+                TriggerCommandL( EFMRadioCmdChannelList );
                 keyHandled = ETrue;
-                break;
                 }
-            default:
+            
+            switch ( kEvent.iScanCode )
                 {
-                break;
+                case EStdKeyRightArrow: // check arrow keys
+                case EStdKeyLeftArrow:
+                case EStdKeyUpArrow:
+                case EStdKeyDownArrow:
+                    {
+                    iKeyScanCode = kEvent.iScanCode;
+        
+                    if ( aEvent.Code() == EEventKeyUp )
+                        {
+                        iLongPressTimer->Cancel();
+                        if ( !iLongKeyTriggered )
+                            {
+                            TriggerCommandL();
+                            }
+                        }
+                    else if ( aEvent.Code() == EEventKeyDown )
+                        {
+                        iLongKeyTriggered = EFalse;
+                        // Start the long key press timer
+                        iLongPressTimer->Cancel();
+                        iLongPressTimer->Start( KFMRadioRockerLongPressDelay, 
+                                                0, 
+                                                TCallBack( CFMRadioAlfVisualizer::StaticLongPressCallBack, this ) );
+                        
+                        }
+                    keyHandled = ETrue;
+                    break;
+                    }
+                default:
+                    {
+                    break;
+                    }
                 }
             }
+        if ( aEvent.IsPointerEvent() )
+            {
+            return CGestureControl::OfferEventL( aEvent );
+            }
         }
-    if ( aEvent.IsPointerEvent() )
-        {
-        return CGestureControl::OfferEventL( aEvent );
-        }
+    
     return keyHandled;
     }
 
@@ -1085,7 +1088,7 @@ void CFMRadioAlfVisualizer::Translate( CAlfTextVisual* aTextVisual, const TAlfTi
 // Triggers the command to view handling
 // ---------------------------------------------------------------------------
 //
-void CFMRadioAlfVisualizer::TriggerCommandL()
+void CFMRadioAlfVisualizer::TriggerCommandL( TInt aCommand )
     {
     TVwsViewId viewId( KNullUid, KNullUid );
     TInt err = iAppUi->GetActiveViewId( viewId );
@@ -1137,6 +1140,10 @@ void CFMRadioAlfVisualizer::TriggerCommandL()
                     commandId = EFMRadioRockerButtonKeyDown;
                     break;
                     }
+                }
+            if ( aCommand == EFMRadioCmdChannelList )
+                {
+                commandId = EFMRadioCmdChannelList;
                 }
             // send command to view
             view->ProcessCommandL( commandId );

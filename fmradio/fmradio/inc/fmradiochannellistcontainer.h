@@ -220,7 +220,6 @@ class CFMRadioChannelListContainer : public CCoeControl,
         CDesCArray* iChannelItemArray;
         // Index of the most recently listened channel to keep the listbox up-to-date.
         TInt iLastChIndex;
-        RPointerArray<CCoeControl>    iControls;
         // array for list icon bitmaps
         RPointerArray<CFbsBitmap> iBitMaps;
         TBool iFadeStatus;

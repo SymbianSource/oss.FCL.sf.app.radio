@@ -347,8 +347,9 @@ private:    // New functions
         void AnimateTemporaryStationInformationVisuals( TFMRadioStationChangeType aChangeType );    
         /**
          * Triggers the command to view handling
+         * @param aCommand command id
          */
-        void TriggerCommandL();
+        void TriggerCommandL( TInt aCommand = 0 );
         /**
          * Static call back for the long key press timer.
          * @param   aSelf   Pointer to self.

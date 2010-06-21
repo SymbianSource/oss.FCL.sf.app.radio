@@ -86,14 +86,13 @@ void CFMRadioScanLocalStationsContainer::ConstructL( const TRect& aRect )
 
     iSkin = AknsUtils::SkinInstance();
 
-	// Instantiate a listbox for the channel list
-	iChannelList = new ( ELeave ) CAknSingleNumberStyleListBox();
-	iControls.Append( iChannelList );
-	iChannelList->SetContainerWindowL( *this );
-	iChannelList->SetListBoxObserver( this );
-	iChannelList->ConstructL( this, CEikListBox::ELoopScrolling | EAknListBoxSelectionList ); // Looped list
-	// Create scrollbars
-	iChannelList->CreateScrollBarFrameL( ETrue );
+    // Instantiate a listbox for the channel list
+    iChannelList = new ( ELeave ) CAknSingleNumberStyleListBox();
+    iChannelList->SetContainerWindowL( *this );
+    iChannelList->SetListBoxObserver( this );
+    iChannelList->ConstructL( this, CEikListBox::ELoopScrolling | EAknListBoxSelectionList ); // Looped list
+    // Create scrollbars
+    iChannelList->CreateScrollBarFrameL( ETrue );
     
     CAknIconArray* listIconArray = new ( ELeave ) CAknIconArray( 1 );
     CleanupStack::PushL( listIconArray );
@@ -159,8 +158,7 @@ void CFMRadioScanLocalStationsContainer::CreateListIconsL( CArrayPtr<CGulIcon>& 
 //
 CFMRadioScanLocalStationsContainer::~CFMRadioScanLocalStationsContainer()
     {
-    iControls.ResetAndDestroy();
-    iControls.Close();
+    delete iChannelList;
     iBitMaps.ResetAndDestroy();
     iBitMaps.Close();
     delete iChannelItemArray;
@@ -494,7 +492,7 @@ void CFMRadioScanLocalStationsContainer::SizeChanged()
 //
 TInt CFMRadioScanLocalStationsContainer::CountComponentControls() const
     {
-    return iControls.Count();
+    return 1;
     }
 
 // ---------------------------------------------------------
@@ -504,7 +502,22 @@ TInt CFMRadioScanLocalStationsContainer::CountComponentControls() const
 //
 CCoeControl* CFMRadioScanLocalStationsContainer::ComponentControl( TInt aIndex ) const
     {
-    return STATIC_CAST( CCoeControl*, iControls[aIndex] );
+    CCoeControl* control = NULL;
+    
+    switch ( aIndex )
+        {
+        case 0:
+            {
+            control = iChannelList;
+            break;
+            }
+        default:
+            {
+            break;
+            }
+        }
+    
+    return control;
     }
 
 // ---------------------------------------------------------

@@ -1504,6 +1504,30 @@ void CFMRadioAppUi::HandleWsEventL( const TWsEvent& aEvent, CCoeControl* aDestin
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleWsEventL - event %d "), aEvent.Type() ) );
     switch ( aEvent.Type() )
         {
+        case KAknUidValueEndKeyCloseEvent:
+            {
+            if ( IsForeground() )
+                {
+                const TUid KPhoneAppUid = {0x100058B3}; // hardcoded value for phone app uid
+                TApaTaskList taskList( iEikonEnv->WsSession() );
+                TApaTask phoneTask = taskList.FindApp( KPhoneAppUid );
+                
+                if ( phoneTask.Exists() )
+                    {
+                    // Bring phone to foreground
+                    phoneTask.BringToForeground();
+                    }
+                else
+                    {
+                    // Phone app should always be there, but this is a backup 
+                    // plan, just set radio to background
+                    TApaTask task( iEikonEnv->WsSession() );
+                    task.SetWgId( iEikonEnv->RootWin().Identifier() );
+                    task.SendToBackground();
+                    }
+                }
+            break;
+            }
         case EEventFocusLost:
             {
             // being sent to background, cancel any seek expect local stations scan
@@ -1749,10 +1773,12 @@ void CFMRadioAppUi::UpdateChannelsL( TMoveoperations aOperation,
     
     // Move channel operation moves channel from aIndex to aMovedToNewIndex value
     if ( EMoveChannels == aOperation )
-        {		
-        const CFMRadioPreset* channelinfo  = iChannels[ aIndex ];
+        {
+        CFMRadioPreset* channelInfo  = iChannels[ aIndex ];
         iChannels.Remove( aIndex );
-        iChannels.Insert( channelinfo, aMovedToNewIndex );
+        CleanupStack::PushL( channelInfo );
+        iChannels.InsertL( channelInfo, aMovedToNewIndex );
+        CleanupStack::Pop( channelInfo);
         }
     // Delete channel deletes channel from list 
     else if ( EDeleteChannel == aOperation )

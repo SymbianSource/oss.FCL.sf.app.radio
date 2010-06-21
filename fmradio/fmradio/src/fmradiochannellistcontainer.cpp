@@ -88,7 +88,6 @@ void CFMRadioChannelListContainer::ConstructL( const TRect& aRect )
 
     // Instantiate a listbox for the channel list
     iChannelList = new ( ELeave ) CAknDoubleNumberStyleListBox();
-    iControls.Append( iChannelList );
     iChannelList->SetContainerWindowL( *this );
     iChannelList->SetListBoxObserver( this );
     iChannelList->ConstructL( this, CEikListBox::ELoopScrolling | EAknListBoxSelectionList ); // Looped list
@@ -125,8 +124,7 @@ void CFMRadioChannelListContainer::ConstructL( const TRect& aRect )
 //
 CFMRadioChannelListContainer::~CFMRadioChannelListContainer()
     {
-    iControls.ResetAndDestroy();
-    iControls.Close();
+    delete iChannelList;
     iBitMaps.ResetAndDestroy();
     iBitMaps.Close();
     delete iChannelItemArray;
@@ -560,7 +558,7 @@ void CFMRadioChannelListContainer::SizeChanged()
 //
 TInt CFMRadioChannelListContainer::CountComponentControls() const
     {
-    return iControls.Count();
+    return 1;
     }
 
 // ---------------------------------------------------------
@@ -570,7 +568,22 @@ TInt CFMRadioChannelListContainer::CountComponentControls() const
 //
 CCoeControl* CFMRadioChannelListContainer::ComponentControl( TInt aIndex ) const
     {
-    return STATIC_CAST( CCoeControl *,iControls[aIndex] );
+    CCoeControl* control = NULL;
+    
+    switch ( aIndex )
+        {
+        case 0:
+            {
+            control = iChannelList;
+            break;
+            }
+        default:
+            {
+            break;
+            }
+        }
+    
+    return control;
     }
 
 // ---------------------------------------------------------
@@ -582,6 +595,12 @@ TKeyResponse CFMRadioChannelListContainer::OfferKeyEventL( const TKeyEvent& aKey
                                                            TEventCode aType )
     {
     TKeyResponse response = EKeyWasNotConsumed;
+    
+    if ( iFadeStatus )
+        {
+        // don't handle any keys if the view is faded
+        return response;
+        }
 
     switch ( aKeyEvent.iCode )
         {

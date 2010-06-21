@@ -208,7 +208,7 @@ void CFMRadioAlfMediaIdle::CreateFontsL()
 			TInt mediaIdleItemTextStyleId = manager.CreatePlatformTextStyleL();	
 			CAlfTextStyle* mediaIdleItemStyle = manager.TextStyle( mediaIdleItemTextStyleId );					
 			mediaIdleItemStyle->SetTextSizeInPixels( KRelativeFontSizeArray[i] * layoutHeight, ETrue ); 
-			iTextStyleIdArray.Append( mediaIdleItemTextStyleId );
+			iTextStyleIdArray.AppendL( mediaIdleItemTextStyleId );
 			}
 		iFontsOrientation = iOrientation;
 		iFontReferenceHeight = layoutHeight;

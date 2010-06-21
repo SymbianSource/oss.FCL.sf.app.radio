@@ -315,37 +315,36 @@ void CFMRadioScanLocalStationsView::FadeAndShowExit( TBool aFaded )
     {
     TInt err = KErrNone;
     iFaded = aFaded;
-    if( iContainer )
+    SetToolbarDimmedState( aFaded ); 
+    if ( iContainer )
         {
         if ( aFaded ) // Fade
             {
             // In case options menu is open when headset is disconnected
             StopDisplayingMenuBar();
-            SetToolbarDimmedState( ETrue ); 
             iContainer->SetFaded( aFaded );
             TRAP( err,Cba()->SetCommandSetL( R_FMRADIO_SOFTKEYS_EXIT ) );
             }
         else
             {
-            SetToolbarDimmedState( EFalse ); 
-            iContainer->SetFaded(aFaded);            
+            iContainer->SetFaded( aFaded );
             TRAP( err,Cba()->SetCommandSetL( R_AVKON_SOFTKEYS_OPTIONS_BACK ) );
             // Update index to be sure it is up-to-date (in case if list was scrolled in idle state)
             iContainer->UpdateLastListenedChannel( iChIndex );
-       	    
+            
             if( iScannedChannels.Count() > 0 )
-            	{
+                {
                 TRAP_IGNORE( SetMiddleSoftKeyIconL(); )
-            	
-				if ( ( CurrentlyPlayingChannel() == CurrentlySelectedChannel() ) )
-					{
-					SetContextMenu( R_FMRADIO_SCAN_STATIONS_CTX_MENUBAR_SAVE );
-					}
-				else
-					{
-					SetContextMenu( R_FMRADIO_SCAN_STATIONS_CTX_MENUBAR );
-					}
-            	}
+                
+                if ( ( CurrentlyPlayingChannel() == CurrentlySelectedChannel() ) )
+                    {
+                    SetContextMenu( R_FMRADIO_SCAN_STATIONS_CTX_MENUBAR_SAVE );
+                    }
+                else
+                    {
+                    SetContextMenu( R_FMRADIO_SCAN_STATIONS_CTX_MENUBAR );
+                    }
+                }
             }
         Cba()->DrawDeferred();
         }
@@ -597,12 +596,19 @@ void CFMRadioScanLocalStationsView::DynInitMenuPaneL( TInt aResourceId,
             aMenuPane->SetItemDimmed( EFMRadioCmdDeactivateIhf, ETrue );
             aMenuPane->SetItemDimmed( EFMRadioCmdActivateIhf, ETrue );
             }
-
-        if ( iScannedChannels.Count() < 2 )
+        
+        TInt scannedChannelCount = iScannedChannels.Count();
+        
+        if ( scannedChannelCount < 2 )
             {
             aMenuPane->DeleteMenuItem( EFMRadioCmdSaveAllChannels );
             }
 
+        if ( scannedChannelCount < 1)
+            {
+            aMenuPane->SetItemDimmed( EFMRadioCmdSaveChannel, ETrue );
+            }
+        
         // if help is not enabled, disable help option
         if ( !FeatureManager::FeatureSupported( KFeatureIdHelp ) )
             {
@@ -956,7 +962,7 @@ void CFMRadioScanLocalStationsView::AddTunedFrequencyToListL()
         
         if ( freqIndex < ( iScannedChannels.Count() - 1 ) )
             {
-            iScannedChannels.Insert( channel, freqIndex );
+            iScannedChannels.InsertL( channel, freqIndex );
             }
         else
             {
@@ -1064,24 +1070,24 @@ void CFMRadioScanLocalStationsView::ResetListAndStartScanL()
 // ---------------------------------------------------------
 //
 void CFMRadioScanLocalStationsView::DisplayScanningInProgressNoteL()
-	{
-	iScanningNote = new (ELeave) CAknWaitDialog(REINTERPRET_CAST(CEikDialog**, &iScanningNote));
-	iScanningNote->SetCallback( this );
-	
-	CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
-	
-	if ( appUi->IsStartupWizardRunning() )
-		{
-		iScanningNote->PrepareLC( R_FMRADIO_SEARCH_STATIONS_WAIT_CANCEL_NOTE );
-		}
-	else
-		{
-		iScanningNote->PrepareLC( R_FMRADIO_SEARCH_STATIONS_WAIT_NOTE );
-		}
-	
+    {
+    iScanningNote = new ( ELeave ) CAknWaitDialog( reinterpret_cast<CEikDialog**>( &iScanningNote ) );
+    iScanningNote->SetCallback( this );
+    
+    CFMRadioAppUi* appUi = static_cast<CFMRadioAppUi*>( iCoeEnv->AppUi() );
+    
+    if ( appUi->IsStartupWizardRunning() )
+        {
+        iScanningNote->PrepareLC( R_FMRADIO_SEARCH_STATIONS_WAIT_CANCEL_NOTE );
+        }
+    else
+        {
+        iScanningNote->PrepareLC( R_FMRADIO_SEARCH_STATIONS_WAIT_NOTE );
+        }
+    
     iScanningNote->RunLD();
-	}	
-	
+    }	
+
 // ---------------------------------------------------------
 // CFMRadioScanLocalStationsContainer::RemoveScanningInProgressNoteL
 // Remove and destroy the scanning fill note.

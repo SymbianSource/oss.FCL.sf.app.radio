@@ -560,23 +560,33 @@ HBufC* CFMRadioMusicStoreHandler::NokiaMusicShopSearchL(
         const TDesC& aArtistName,
         const TDesC& aAlbumName )
     {
-    HBufC* url = NULL;
+    HBufC* searchUrl = NULL;    // Launching the music store client
+    _LIT(KReferrerAppParam, "&ReferrerApp=3");
     
     if ( aSongName.Length() || aArtistName.Length() || aAlbumName.Length() )
         {
         CMPXFindInMShop* finder = CMPXFindInMShop::NewL();  //ECom Plugin
         CleanupStack::PushL( finder );
-        url = finder->CreateSearchURLL(  aSongName,
+        searchUrl = finder->CreateSearchURLL(  aSongName,
                                          aArtistName,
                                          aAlbumName,
                                          KNullDesC,     // Composer - Not used
                                          KNullDesC );   // Genre - Not used
-    
+        
+        HBufC* finalUrl = HBufC::NewL( searchUrl->Length() + KReferrerAppParam().Length() );
+        
+        TPtr urlPtr = finalUrl->Des();
+        urlPtr.Copy( *searchUrl );
+        urlPtr.Append( KReferrerAppParam() );
+        
+        delete searchUrl;
+        searchUrl = NULL;
+        
         CleanupStack::PopAndDestroy( finder ); // finder
         REComSession::FinalClose();
+        return finalUrl;
         }
-    
-    return url;
+    return searchUrl;
     }
 
 // -----------------------------------------------------------------------------

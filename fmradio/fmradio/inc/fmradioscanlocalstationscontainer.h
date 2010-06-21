@@ -186,7 +186,6 @@ class CFMRadioScanLocalStationsContainer : public CCoeControl,
         CDesCArray* iChannelItemArray;
         // Index of the most recently listened channel to keep the listbox up-to-date.
         TInt iLastChIndex;
-        RPointerArray<CCoeControl>    iControls;
         TBool iFadeStatus;
         MAknsSkinInstance* iSkin;
         CRadioEngine& iRadioEngine; //not own

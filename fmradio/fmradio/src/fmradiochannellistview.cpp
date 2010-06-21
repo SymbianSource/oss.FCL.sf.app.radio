@@ -306,16 +306,19 @@ void CFMRadioChannelListView::HandleCommandL( TInt aCommand )
             }
         case EFMRadioCmdErase:
             {
-            TInt selectedIndex = CurrentlySelectedChannel();
-            
-            if ( appUi->EraseChannelL( selectedIndex ) )
+            if ( iObserver.Channels().Count() > 0 )
                 {
-                if ( iContainer )
+                TInt selectedIndex = CurrentlySelectedChannel();
+                
+                if ( appUi->EraseChannelL( selectedIndex ) )
                     {
-                    iContainer->RemoveChannelL( selectedIndex );
+                    if ( iContainer )
+                        {
+                        iContainer->RemoveChannelL( selectedIndex );
+                        }
+                    // Dim the rename and delete buttons in case the list is now empty
+                    UpdateToolbar();
                     }
-                // Dim the rename and delete buttons in case the list is now empty
-                UpdateToolbar();
                 }
             break;
             }
@@ -694,8 +697,10 @@ void CFMRadioChannelListView::DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* 
             aMenuPane->SetItemDimmed( EAknCmdHelp, ETrue );
             }
         
+        TInt channelCount = iObserver.Channels().Count();
+        
         // don't show stylus pop-up menu during move operation
-        if ( iObserver.Channels().Count() > 1 && !iMoveMode )
+        if ( channelCount > 1 && !iMoveMode )
             {
             aMenuPane->SetItemDimmed( EFMRadioCmdMove, EFalse );
             }
@@ -704,8 +709,9 @@ void CFMRadioChannelListView::DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* 
             aMenuPane->SetItemDimmed( EFMRadioCmdMove, ETrue );
             }
         
-        if ( iMoveMode )
+        if ( iMoveMode || channelCount < 1 )
             {
+            // hide rename and erase 
             aMenuPane->SetItemDimmed( EFMRadioCmdRename, ETrue );
             aMenuPane->SetItemDimmed( EFMRadioCmdErase, ETrue );
             }

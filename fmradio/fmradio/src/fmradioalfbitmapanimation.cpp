@@ -207,7 +207,7 @@ void CFMRadioAlfBitmapAnimation::CreateBitmapAnimationArrayL()
                             bitmapId,
                             bitmapMaskId );
 
-        iFrames.Append( alfImage );
+        iFrames.AppendL( alfImage );
         }
     CleanupStack::PopAndDestroy(); //resourceReader
     }
