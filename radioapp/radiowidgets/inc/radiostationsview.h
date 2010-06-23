@@ -21,7 +21,6 @@
 // System includes
 #include <HbIcon>
 #include <QScopedPointer>
-#include <QPointer>
 
 // User includes
 #include "radioviewbase.h"
@@ -86,7 +85,7 @@ private: //data
 
     RadioStationModel*                      mModel;
 
-    QPointer<QSortFilterProxyModel>         mFilterModel;
+    QSortFilterProxyModel*                  mFilterModel;
 
     HbAction*                               mScanStationsAction;
     HbAction*                               mClearListAction;

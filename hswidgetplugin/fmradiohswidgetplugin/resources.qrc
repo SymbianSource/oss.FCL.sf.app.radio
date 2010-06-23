@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/ui">
-        <file>resource/fmradiohswidget.docml</file>
-        <file>resource/fmradiohswidgetplugin.css</file>
-        <file>resource/mono_power.png</file>
-        <file>resource/qtg_graf_hsradio_bg.png</file>
-    </qresource>
-</RCC>

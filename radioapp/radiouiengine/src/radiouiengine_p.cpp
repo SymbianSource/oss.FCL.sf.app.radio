@@ -46,7 +46,8 @@
  *
  */
 RadioUiEnginePrivate::RadioUiEnginePrivate( RadioUiEngine* engine ) :
-    q_ptr( engine )
+    q_ptr( engine ),
+    mPowerOffTimer( NULL )
 {
 }
 
@@ -60,7 +61,7 @@ RadioUiEnginePrivate::~RadioUiEnginePrivate()
     XQPublishAndSubscribeUtils utils( settingsManager );
     XQPublishAndSubscribeSettingsKey radioStartupKey( KRadioPSUid, KRadioStartupKey );
     bool deleted = utils.deleteProperty( radioStartupKey );
-    LOG_ASSERT( deleted, LOG( "RadioUiEnginePrivate::~RadioUiEnginePrivate(). Failed to delete P&S key" ) );
+    LOG_ASSERT( deleted, LOG( "RadioUiEnginePrivate::~RadioUiEnginePrivate(). Failed to remove P&S key" ) );
 #endif
 }
 

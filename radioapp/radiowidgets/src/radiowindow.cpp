@@ -96,7 +96,7 @@ void RadioWindow::activateMainView()
     if ( !mMainView ) {
         mMainView = ViewPtr( new RadioMainView() );
     }
-    activateView( mMainView, DOCML::FILE_MAINVIEW, Hb::ViewSwitchUseBackAnim );
+    activateView( mMainView.data(), DOCML::FILE_MAINVIEW, Hb::ViewSwitchUseBackAnim );
 }
 
 /*!
@@ -107,7 +107,7 @@ void RadioWindow::activateStationsView()
     if ( !mStationsView ) {
         mStationsView = ViewPtr( new RadioStationsView() );
     }
-    activateView( mStationsView, DOCML::FILE_STATIONSVIEW );
+    activateView( mStationsView.data(), DOCML::FILE_STATIONSVIEW );
 }
 
 /*!
@@ -118,7 +118,7 @@ void RadioWindow::activateHistoryView()
     if ( !mHistoryView ) {
         mHistoryView = ViewPtr( new RadioHistoryView() );
     }
-    activateView( mHistoryView, DOCML::FILE_HISTORYVIEW );
+    activateView( mHistoryView.data(), DOCML::FILE_HISTORYVIEW );
 }
 
 /*!

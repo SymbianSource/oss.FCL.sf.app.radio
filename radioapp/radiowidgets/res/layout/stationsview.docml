@@ -26,17 +26,17 @@
     </object>
     <object name="sv:local_stations_button" type="HbAction">
         <bool name="checkable" value="TRUE"/>
-        <icon iconName=":/images/pri_small_star_inactive.svg" name="icon"/>
+        <icon iconName="qtg_mono_radio_stations" name="icon"/>
         <string name="text" locid="txt_rad_button_local_stations" />
     </object>
     <object name="sv:favorite_stations_button" type="HbAction">
         <bool name="checkable" value="TRUE"/>
-        <icon iconName=":/images/pri_small_star.svg" name="icon"/>
+        <icon iconName="qtg_mono_favourites" name="icon"/>
         <string name="text" locid="txt_rad_button_favourites" />
     </object>
     <widget name="view" type="HbView">
         <icon name="nowPlayingIcon" iconName=":/images/nowplayingicon.png" />
-        <icon name="favoriteIcon" iconName=":/images/pri_small_star.svg" />
+        <icon name="favoriteIcon" iconName="qtg_mono_favourites" />
         <widget name="mMenu" role="HbView:menu" type="HbMenu">
             <ref object="sv:scan_action" role="HbMenu:addAction"/>
             <ref object="sv:clear_list_action" role="HbMenu:addAction"/>

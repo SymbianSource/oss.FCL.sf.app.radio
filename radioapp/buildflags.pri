@@ -23,9 +23,6 @@
 # Use of some debugging controls that are not part of official UI spec
 # RADIOFLAGS += USE_DEBUGGING_CONTROLS
 
-# Reads the layout docml files and images from e:/radiotest/ folder
-# RADIOFLAGS += USE_LAYOUT_FROM_E_DRIVE
-
 # Flag to use dummy radio data read from XML file
 # RADIOFLAGS += USE_DUMMY_RADIO_DATA
 
@@ -123,10 +120,7 @@ USE_UNFROZEN_EXPORTS {
     symbian:DEF_FILE    = not_used.def
 }
 
-# $$_PRO_FILE_PWD_ points to the directory of the pro file
-MOC_DIR         = $$_PRO_FILE_PWD_/tmp
-RCC_DIR         = $$_PRO_FILE_PWD_/tmp
-OBJECTS_DIR     = $$_PRO_FILE_PWD_/tmp
-UI_DIR          = $$_PRO_FILE_PWD_/tmp
-UI_HEADERS_DIR  = $$_PRO_FILE_PWD_/tmp
-UI_SOURCES_DIR  = $$_PRO_FILE_PWD_/tmp
+# Place generated files away from the source folder
+MOC_DIR         = /epoc32/build/radioapp/$$TMP_DIR_NAME
+RCC_DIR         = /epoc32/build/radioapp/$$TMP_DIR_NAME
+OBJECTS_DIR     = /epoc32/build/radioapp/$$TMP_DIR_NAME

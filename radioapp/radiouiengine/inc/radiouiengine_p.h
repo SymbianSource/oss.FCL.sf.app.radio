@@ -20,7 +20,7 @@
 
 // System includes
 #include <QScopedPointer>
-#include <QPointer>
+#include <QSharedPointer>
 
 // User includes
 #include "radio_global.h"
@@ -98,13 +98,13 @@ private: // data
 
     QScopedPointer<RadioMonitorService>     mMonitorService;
 
-    QPointer<RadioScannerEngine>            mScannerEngine;
+    QSharedPointer<RadioScannerEngine>      mScannerEngine;
 
     /**
      * Power off timer
      * Owned by public class by setting parent
      */
-    QPointer<QTimer>                        mPowerOffTimer;
+    QTimer*                                 mPowerOffTimer;
 
 };
 

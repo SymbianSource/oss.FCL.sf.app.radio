@@ -20,6 +20,7 @@
 
 // System includes
 #include <QAbstractListModel>
+#include <QScopedPointer>
 #include <QMap>
 
 // User includes
@@ -39,11 +40,20 @@ class QIcon;
 // Constants
 typedef QMap<uint,RadioStation> Stations;
 
+namespace FindCriteria
+{
+    enum Criteria
+    {
+        OnlySavedStations,
+        IncludeManualStation
+    };
+}
+
 // Class declaration
 class UI_ENGINE_DLL_EXPORT RadioStationModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioStationModel )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioStationModel )
     Q_DISABLE_COPY( RadioStationModel )
 
 public:
@@ -96,9 +106,15 @@ public:
     RadioStation stationAt( int index ) const;
 
     /*!
-     * Functions to find stations by frequency
+     * Finds a station by frequency
      */
-    bool findFrequency( uint frequency, RadioStation& station ) const;
+    bool findFrequency( uint frequency, RadioStation& station, FindCriteria::Criteria criteria = FindCriteria::OnlySavedStations ) const;
+
+    /*!
+     * Convenience function to find a radio station.
+     * Internally uses findFrequency() and returns an invalid station if the given frequency is not found
+     */
+    RadioStation findStation( uint frequency, FindCriteria::Criteria criteria = FindCriteria::OnlySavedStations ) const;
 
     /*!
      * Functions to find stations by preset index
@@ -200,18 +216,12 @@ private:
      */
     int findUnusedPresetIndex();
 
-    /**
-     * Used by the RDS data setters to find the correct station where the data is set
-     * First tries the currentStation variable and if the frequency doesn't match, finds the right one
-     */
-    RadioStation findCurrentStation( uint frequency );
-
 private: // data
 
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioStationModelPrivate* const d_ptr;
+    const QScopedPointer<RadioStationModelPrivate> d_ptr;
 
 };
 

@@ -63,7 +63,6 @@ RadioStationModel::RadioStationModel( RadioUiEnginePrivate& uiEngine ) :
  */
 RadioStationModel::~RadioStationModel()
 {
-    delete d_ptr;
 }
 
 /*!
@@ -176,10 +175,9 @@ void RadioStationModel::initialize( RadioPresetStorage* storage, RadioEngineWrap
 
     while ( index >= 0 ) {
         RadioStation station;
-        station.detach();
 
-        RadioStationIf* preset = static_cast<RadioStationIf*>( station.data_ptr() );
-        if ( d->mPresetStorage->readPreset( index, *preset ) ) {
+        RadioStationIf* stationInterface = static_cast<RadioStationIf*>( station.data_ptr() );
+        if ( d->mPresetStorage->readPreset( index, *stationInterface ) ) {
             if ( station.isValid() ) {
                 d->mStations.insert( station.frequency(), station );
             } else {
@@ -241,14 +239,30 @@ RadioStation RadioStationModel::stationAt( int index ) const
 /*!
  * Finds a station by frequency
  */
-bool RadioStationModel::findFrequency( uint frequency, RadioStation& station ) const
+bool RadioStationModel::findFrequency( uint frequency, RadioStation& station, FindCriteria::Criteria criteria ) const
 {
     Q_D( const RadioStationModel );
+
+    if ( criteria == FindCriteria::IncludeManualStation && d->mCurrentStation->frequency() == frequency ) {
+        station = *d->mCurrentStation;
+        return true;
+    }
+
     if ( d->mStations.contains( frequency ) ) {
         station = d->mStations.value( frequency );
         return true;
     }
     return false;
+}
+
+/*!
+ * Convenience function to find a radio station.
+ */
+RadioStation RadioStationModel::findStation( uint frequency, FindCriteria::Criteria criteria ) const
+{
+    RadioStation station;
+    findFrequency( frequency, station, criteria ); // Return value ignored
+    return station;
 }
 
 /*!
@@ -438,7 +452,7 @@ void RadioStationModel::addStation( const RadioStation& station )
 
     RadioStation newStation = station;
     newStation.setPresetIndex( newIndex );
-    newStation.unsetType( RadioStation::Temporary );
+    newStation.unsetType( RadioStation::ManualStation );
 
     // We have to call beginInsertRows() BEFORE the addition is actually done so we must figure out where
     // the new station will go in the sorted frequency order
@@ -458,7 +472,6 @@ void RadioStationModel::addStation( const RadioStation& station )
         }
     }
 
-//    emit layoutAboutToBeChanged();
     beginInsertRows( QModelIndex(), row, row );
 
     d->doSaveStation( newStation );
@@ -467,7 +480,10 @@ void RadioStationModel::addStation( const RadioStation& station )
 
     endInsertRows();
 
-//    emit layoutChanged();
+    // Not all UI components listen to rowsInserted() signal so emit the favorite signal
+    if ( newStation.isFavorite() ) {
+        emit favoriteChanged( *d->mCurrentStation );
+    }
 }
 
 /*!
@@ -480,8 +496,9 @@ void RadioStationModel::saveStation( RadioStation& station )
     RadioStation::Change changeFlags = station.changeFlags();
     station.resetChangeFlags();
 
-    if ( station.isType( RadioStation::Temporary ) ) {
+    if ( station.isType( RadioStation::ManualStation ) ) {
 
+        d->mManualStation = station;
         emitChangeSignals( station, changeFlags );
 
     } else if ( station.isValid() && stationHasChanged && d->mStations.contains( station.frequency() )) {
@@ -527,11 +544,6 @@ void RadioStationModel::setFavoriteByFrequency( uint frequency, bool favorite )
             }
 
             newStation.setType( RadioStation::LocalStation | RadioStation::Favorite );
-
-            // If PI code has been received, it is a local station
-            if ( newStation.hasPiCode() ) {
-                newStation.setType( RadioStation::LocalStation );
-            }
 
             // Emit the signals only after adding the preset and reinitializing the current station
             // because the UI will probably query the current station in its slots that get called.
@@ -717,19 +729,4 @@ int RadioStationModel::findUnusedPresetIndex()
 
     LOG_FORMAT( "RadioStationModelPrivate::findUnusedPresetIndex, index: %d", index );
     return index;
-}
-
-/*!
- * Used by the RDS data setters to find the correct station where the data is set
- */
-RadioStation RadioStationModel::findCurrentStation( uint frequency )
-{
-    Q_D( RadioStationModel );
-    RadioStation station = *d->mCurrentStation;
-    if ( station.frequency() != frequency ) {
-        if ( !findFrequency( frequency, station ) ) {
-            return RadioStation();
-        }
-    }
-    return station;
 }

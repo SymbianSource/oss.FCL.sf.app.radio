@@ -19,6 +19,7 @@
 #define RADIOHISTORYITEM_H
 
 // System includes
+#include <QSharedData>
 #include <QString>
 #include <QDateTime>
 
@@ -43,11 +44,12 @@ namespace RadioHistoryValue
     };
 }
 
-class RadioHistoryItemPrivate
+class RadioHistoryItemPrivate : public QSharedData
 {
 public:
 
     RadioHistoryItemPrivate();
+    RadioHistoryItemPrivate( const RadioHistoryItemPrivate& other );
     RadioHistoryItemPrivate( const QString& artist, const QString& title );
 
     void init( const QString& artist, const QString& title );
@@ -55,13 +57,6 @@ public:
     void initFromRecord( const QSqlRecord& record );
 
 public: // data
-
-    /**
-     * Reference count used for implicit sharing.
-     * Has to be named "ref" instead having the 'm' prefix like all other member variables in Radio
-     * This is because convenience functions like qAtomicAssign() expect it to be named "ref"
-     */
-    QAtomicInt      ref;
 
     int             mId;
 

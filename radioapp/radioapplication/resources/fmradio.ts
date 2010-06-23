@@ -52,16 +52,6 @@
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_recently_played_songs_collects_song2">
-    <comment>Info text in main pane area if Recently played songs has no item (e.g. after the user has emptied the list). Note that &quot;Identify song&quot; must be the same string as txt_rad_list_identify_song. &quot;Recently played songs&quot; text must be the same as &quot;Recently played songs&quot; text must be the same as txt_rad_button_recently_played_songs. Displayed if Shazam (song identification) application is NOT installed to the device.</comment>        
-    <source>Recently played songs collects song information from radio stations which send the song information using RDS+ technology.</source>
-    <translation variants="no">Recently played songs collects song information from radio stations which send the song information using RDS+ technology.</translation>
-    <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_03</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_common_button_cancel">
     <comment>Button. Ignores the dialog and returns previous view</comment>        
     <source>Cancel</source>
@@ -73,7 +63,7 @@
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_news">
-    <comment>Main view Information area item. Displayed if PTY is available. RDS Programme Type identifier for PTY code 1.</comment>        
+    <comment>Main view Information area item. Displayed if PTY is available. RDS Programme Type identifier for PTY code 1. Custom layout ID parent.</comment>        
     <source>News</source>
     <translation variants="no">News</translation>
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
@@ -182,13 +172,13 @@
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_menu_search_via_shazam">
-    <comment>Item specific menu item. Opens a Shazam application where user can search song related services.</comment>        
-    <source>Search via Shazam</source>
-    <translation variants="no">Search via Shazam</translation>
-    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_03</extra-loc-viewid>
-    <extra-loc-positionid>menu</extra-loc-positionid>
+<message numerus="no" id="txt_rad_button_add_to_favourites">
+    <comment>A button text in main view. Adds currently active station to Favourite station&apos;s list.</comment>        
+    <source>Add to favourites</source>
+    <translation variants="no">Add to favourites</translation>
+    <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
+    <extra-loc-viewid>rad_01</extra-loc-viewid>
+    <extra-loc-positionid>button</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -434,8 +424,8 @@
 </message>
 <message numerus="no" id="txt_rad_info_no_favourites_add_favourites_to_see">
     <comment>Info text in main pane if &quot;Favourites&quot; list has no items. &quot;Favourite stations&quot; text must be same localization as txt_rad_subhead_favorite_stations. Favourite icon refers to a star -icon in the main view.</comment>        
-    <source>You can mark your favourite stations in All stations view by long tapping the station and selecting Add favourite. You can also tap the favourite icon in main view to mark it as a favorite.</source>
-    <translation variants="no">You can mark your favourite stations in All stations view by long tapping the station and selecting Add favourite. You can also tap the favourite icon in main view to mark it as a favorite.</translation>
+    <source>Tap the star icon or Add to favourite button in main view to mark currently playing station as a favorite.</source>
+    <translation variants="no">Tap the star icon or Add to favourite button in main view to mark currently playing station as a favorite.</translation>
     <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
     <extra-loc-viewid>rad_02</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
@@ -473,22 +463,12 @@
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_stations">
-    <comment>A button text in main view. Opens a Stations list view, which lists All stations and Favourite stations views.</comment>        
+    <comment>A button text in main view. Opens a Stations list view, which lists All stations and Favourite stations views. Custom layout ID parent.</comment>        
     <source>Stations</source>
     <translation variants="no">Stations</translation>
     <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_dialog_long_press_arrow_keys_to_search_str">
-    <comment>Help text displayed in main view station information area. Displayed if no stations have been marked as favourites and user presses previous or next button.</comment>        
-    <source>Mark favourite stations by pressing the star icon to enable navigation with short arrow presses. You can also swipe here to navigate between all stations. Long press arrow keys to search strong signal stations. </source>
-    <translation variants="no">Mark favourite stations by pressing the star icon to enable navigation with short arrow presses. You can also swipe here to navigate between all stations. Long press arrow keys to search strong signal stations. </translation>
-    <extra-loc-layout_id>txt_rad_dialog_long_press_arrow_keys_to_search_str</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -602,18 +582,6 @@
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_recently_played_songs_collects_song_i">
-    <comment>Info text in main pane area if Recently played songs list has no item (e.g. after the user has emptied the list). Note that &quot;Identify song&quot; must be the same string as txt_rad_list_identify_song. &quot;Recently played songs&quot; text must be the same as txt_rad_button_recently_played_songs. Displayed if Shazam (song identification) application is installed to the device.</comment>        
-    <source>Recently played songs collects song information from radio stations which send the song information using RDS+ technology.
-Also songs which are identified with ”Identify song” functionality in main view are displayed here.</source>
-    <translation variants="no">Recently played songs collects song information from radio stations which send the song information using RDS+ technology.
-Also songs which are identified with ”Identify song” functionality in main view are displayed here.</translation>
-    <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_03</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_title_fm_radio">
     <comment>View title, shown in all FM Radio views.</comment>        
     <source>FM Radio</source>
@@ -676,8 +644,8 @@ Also songs which are identified with ”Identify song” functionality in main v
 </message>
 <message numerus="no" id="txt_rad_info_you_can_add_song_to_the_tagged_songs">
     <comment>Info text in main pane area if Tagged songs list has no item (e.g. after the user has deleted all content from the list). Note that &quot;tagged songs&quot; must use the same localisation as txt_rad_button_tagged_songs. Recently played songs must be same as &quot;Recently played songs&quot; text must be the same as txt_rad_button_recently_played_songs..</comment>        
-    <source>You can add song to the tagged songs list from Recently played songs or from main view if song is identified by FM Radio. </source>
-    <translation variants="no">You can add song to the tagged songs list from Recently played songs or from main view if song is identified by FM Radio. </translation>
+    <source>You can add song to the tagged songs list from Recently played songs or from main view if song information is available. </source>
+    <translation variants="no">You can add song to the tagged songs list from Recently played songs or from main view if song information is available. </translation>
     <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
     <extra-loc-viewid>rad_03</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
@@ -751,6 +719,16 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>rad_02</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
+    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_rad_info_song_information_is_collected_automat">
+    <comment>Info text in main pane area if Recently played songs has no item (e.g. after the user has emptied the list). Note that &quot;Identify song&quot; must be the same string as txt_rad_list_identify_song. &quot;Recently played songs&quot; text must be the same as &quot;Recently played songs&quot; text must be the same as txt_rad_button_recently_played_songs. Displayed if Shazam (song identification) application is NOT installed to the device.</comment>        
+    <source>Song information is collected automatically from radio stations which send the song information using the RDS+ technology.</source>
+    <translation variants="no">Song information is collected automatically from radio stations which send the song information using the RDS+ technology.</translation>
+    <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>rad_03</extra-loc-viewid>
+    <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -888,7 +866,7 @@ Also songs which are identified with ”Identify song” functionality in main v
     <comment>Main pane Information area item. Displayed below the tuning animation during the first time startup.</comment>        
     <source>Searching all available stations. Please wait.</source>
     <translation variants="no">Searching all available stations. Please wait.</translation>
-    <extra-loc-layout_id>txt_rad_info_connect_wired_headset</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_list_searching_all_available_stations_ple</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
@@ -1072,6 +1050,16 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-viewid>rad_02</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_tsw_caption_fm_radio">
+    <comment>Application name in Task switcher.</comment>        
+    <source>FM Radio</source>
+    <translation variants="no">FM Radio</translation>
+    <extra-loc-layout_id>qtl_grid_taskswitcher_tiny</extra-loc-layout_id>    
+    <extra-loc-viewid>tsw_01</extra-loc-viewid>
+    <extra-loc-positionid>caption</extra-loc-positionid>
+    <extra-loc-feature>ts</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_subhead_play_history">
@@ -1335,7 +1323,7 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_subhead_favorite_stations">
-    <comment>Heading text for the Stations view&apos;s Favorite stations view</comment>        
+    <comment>Heading text for the Stations view&apos;s &quot;Favorite stations&quot; view</comment>        
     <source>Favorite stations</source>
     <translation variants="no">Favorite stations</translation>
     <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
@@ -1394,16 +1382,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_button_identify_song">
-    <comment>A button text in main view. Allows the user to identify the currently playing song. Launches Shazam application which does the actual song identification. Displayed if Shazam application is available in the device.</comment>        
-    <source>Identify song</source>
-    <translation variants="no">Identify song</translation>
-    <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_documentary">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Documentary</source>
@@ -1418,19 +1396,9 @@ Also songs which are identified with ”Identify song” functionality in main v
     <comment>Main pane Information area item. Displayed on the center of the area when searching for a strong signal station.</comment>        
     <source>Seeking</source>
     <translation variants="no">Seeking</translation>
-    <extra-loc-layout_id>txt_rad_info_connect_wired_headset</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_list_seeking</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_list_l1_mhz_big">
-    <comment>Main pane information area item for the frequency. %L1 is the radio station&apos;s frequency. Displayed in big font. Displayed if station name is not available. Note that the &quot;Mhz&quot; text is displayed smaller than the actual frequency.</comment>        
-    <source>%L1 MHz</source>
-    <translation variants="no">%L1 MHz</translation>
-    <extra-loc-layout_id>txt_rad_list_l1_mhz_big</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>list</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1445,7 +1413,7 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_news">
-    <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
+    <comment>Second row on the Stations list item (PTY=Program type information).  </comment>        
     <source>News</source>
     <translation variants="no">News</translation>
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
@@ -1458,7 +1426,7 @@ Also songs which are identified with ”Identify song” functionality in main v
     <comment>Main pane Information area item. Displayed if an antenna is not connected and no internal antenna is available. </comment>        
     <source>Connect wired headset.</source>
     <translation variants="no">Connect wired headset.</translation>
-    <extra-loc-layout_id>txt_rad_info_connect_wired_headset</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_connect_wired_headset1</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
@@ -1504,16 +1472,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_button_tag_song">
-    <comment>A button text in main view. Adds the currently playing song to the Tagged songs list.</comment>        
-    <source>Tag song</source>
-    <translation variants="no">Tag song</translation>
-    <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_fmradio_list_fm_radio_homescreen_widget">
     <comment>FM Radio home screen widget name in application library</comment>        
     <source>FM Radio homescreen widget</source>
@@ -1528,7 +1486,7 @@ Also songs which are identified with ”Identify song” functionality in main v
     <comment>Text displayed in main view station information area (in place of station name) during the FM radio startup when the station information is waited to be loaded on the screen.</comment>        
     <source>FM Radio</source>
     <translation variants="no">FM Radio</translation>
-    <extra-loc-layout_id>txt_rad_info_fm_radio</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_connect_wired_headset1</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
@@ -1542,16 +1500,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-viewid>rad_02</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="qtl_grid_taskswitcher_tiny">
-    <comment>Application name in Task switcher.</comment>        
-    <source>FM Radio</source>
-    <translation variants="no">FM Radio</translation>
-    <extra-loc-layout_id>qtl_grid_taskswitcher_tiny</extra-loc-layout_id>    
-    <extra-loc-viewid>tsw_01</extra-loc-viewid>
-    <extra-loc-positionid>caption</extra-loc-positionid>
-    <extra-loc-feature>ts</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_deactivate_loudspeaker">
@@ -1571,16 +1519,6 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>rad_01</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_button_search_all_stations">
-    <comment>A button text in main view. Starts the automatic frequency scanning for seeking all the available local stations</comment>        
-    <source>Search all stations</source>
-    <translation variants="no">Search all stations</translation>
-    <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
     <extra-loc-feature>ra</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1705,7 +1643,7 @@ Also songs which are identified with ”Identify song” functionality in main v
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_subhead_all_stations">
-    <comment>Heading text for the Stations view&apos;s Play history view</comment>        
+    <comment>Heading text for the Stations view&apos;s &quot;All stations&quot; view</comment>        
     <source>All stations</source>
     <translation variants="no">All stations</translation>
     <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    

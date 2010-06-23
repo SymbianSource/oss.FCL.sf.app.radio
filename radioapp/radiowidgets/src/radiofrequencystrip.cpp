@@ -336,9 +336,11 @@ void RadioFrequencyStrip::toggleManualSeek()
     emit manualSeekChanged( mManualSeekMode );
 
     if ( mManualSeekMode ) {
+        grabMouse();
         hideButtons();
         mManualSeekTimerId = startTimer( MANUALSEEK_SIGNAL_DELAY );
     } else {
+        ungrabMouse();
         showButtons();
         killTimer( mManualSeekTimerId );
         mManualSeekTimerId = 0;
@@ -389,10 +391,8 @@ QGraphicsItem* RadioFrequencyStrip::createItemPrimitive( QGraphicsItem* parent )
 /*!
  * \reimp
  */
-void RadioFrequencyStrip::scrollPosChanged( QPointF newPosition )
+void RadioFrequencyStrip::scrollPosChanged()
 {
-    Q_UNUSED( newPosition );
-
     if ( mManualSeekMode ) {
         const int pos = selectorPos();
         const uint frequency = mPositions.value( pos );
@@ -408,7 +408,7 @@ void RadioFrequencyStrip::scrollPosChanged( QPointF newPosition )
  */
 void RadioFrequencyStrip::resizeEvent ( QGraphicsSceneResizeEvent* event )
 {
-    LOG_METHOD_ENTER;
+    LOG_METHOD;
     RadioStripBase::resizeEvent( event );
 
     const qreal height = event->newSize().height();
@@ -457,7 +457,12 @@ void RadioFrequencyStrip::mousePressEvent( QGraphicsSceneMouseEvent* event )
     RadioStripBase::mousePressEvent( event );
 
     mManualSeekTimer->stop();
-    if ( !mManualSeekMode ) {
+    if ( mManualSeekMode ) {
+        const bool insideStrip = rect().contains( event->pos() );
+        if ( !insideStrip ) {
+            toggleManualSeek();
+        }
+    } else {
         mManualSeekTimer->start( MANUALSEEK_START_TIMEOUT );
     }
 }

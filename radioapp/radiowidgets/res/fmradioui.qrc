@@ -4,8 +4,8 @@
         <file>layout/mainview.docml</file>
         <file>layout/stationsview.docml</file>
         <file>layout/historyview.docml</file>
-        <file>layout/radiostationitem.css</file>
-        <file>layout/radiostationitem.widgetml</file>
+        <file>layout/radiocarouselitem.css</file>
+        <file>layout/radiocarouselitem.widgetml</file>
     </qresource>
 
     <qresource>

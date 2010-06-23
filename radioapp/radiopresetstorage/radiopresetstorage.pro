@@ -14,6 +14,7 @@
 # Description:
 #
 
+TMP_DIR_NAME = presetstorage
 include(../buildflags.pri)
 
 TEMPLATE    = lib

@@ -17,6 +17,7 @@
 
 // System includes
 #include <QTimer>
+#include <QRegExp>
 
 // User includes
 #include "radiomonitorservice.h"
@@ -44,15 +45,15 @@ const int NOTIFICATION_DELAY = 200;
  *
  */
 RadioMonitorService::RadioMonitorService( RadioUiEnginePrivate& engine ) :
-    XQServiceProvider( RADIO_MONITOR_SERVICE, &engine.api() ),
+    XQServiceProvider( RADIO_SERVICE +"."+ RADIO_MONITOR_SERVICE, &engine.api() ),
     mUiEngine( engine ),
     mRadioStatus( RadioStatus::UnSpecified ),
     mNotificationTimer( new QTimer( this ) )
 {
     mNotificationTimer->setSingleShot( true );
     mNotificationTimer->setInterval( NOTIFICATION_DELAY );
-    Radio::connect( mNotificationTimer.data(),  SIGNAL(timeout()),
-                    this,                       SLOT(sendNotifications()) );
+    Radio::connect( mNotificationTimer, SIGNAL(timeout()),
+                    this,               SLOT(sendNotifications()) );
 
     publishAll();
 }
@@ -125,7 +126,7 @@ void RadioMonitorService::requestAllData()
     notification.setValue( RadioNotificationData( RadioServiceNotification::FavoriteCount, stationModel.favoriteCount() ) );
     notificationList.append( notification );
 
-    notification.setValue( RadioNotificationData( RadioServiceNotification::Frequency, station.frequency() ) );
+    notification.setValue( RadioNotificationData( RadioServiceNotification::Frequency, RadioStation::parseFrequency( station.frequency() ) ) );
     notificationList.append( notification );
 
     if ( !station.name().isEmpty() ) {
@@ -140,7 +141,8 @@ void RadioMonitorService::requestAllData()
     }
 
     if ( !station.radioText().isEmpty() ) {
-        notification.setValue( RadioNotificationData( RadioServiceNotification::RadioText, station.radioText() ) );
+        const QString trimmedRadioText = trimHtmlTags( station.radioText() );
+        notification.setValue( RadioNotificationData( RadioServiceNotification::RadioText, trimmedRadioText ) );
         notificationList.append( notification );
     }
 
@@ -219,7 +221,8 @@ void RadioMonitorService::notifyStationChange( const RadioStation& station )
     }
 
     if ( station.hasDataChanged( RadioStation::RadioTextChanged ) ) {
-        notification.setValue( RadioNotificationData( RadioServiceNotification::RadioText, station.radioText() ) );
+        const QString trimmedRadioText = trimHtmlTags( station.radioText() );
+        notification.setValue( RadioNotificationData( RadioServiceNotification::RadioText, trimmedRadioText ) );
         list.append( notification );
     }
 
@@ -243,7 +246,7 @@ void RadioMonitorService::tunedToFrequency( uint frequency, int reason )
 {
     Q_UNUSED( reason );
     if ( !mUiEngine.api().isScanning() ) {
-        RUN_NOTIFY( Frequency, frequency );
+        RUN_NOTIFY( Frequency, RadioStation::parseFrequency( frequency ) );
         RadioStation station;
         if ( mUiEngine.api().stationModel().findFrequency( frequency, station ) && !station.name().isEmpty() ) {
             RUN_NOTIFY( Name, station.name() );
@@ -282,6 +285,18 @@ void RadioMonitorService::checkIfCurrentStationIsFavorite()
 {
     const bool currentIsFavorite = mUiEngine.api().stationModel().currentStation().isFavorite();
     RUN_NOTIFY( CurrentIsFavorite, currentIsFavorite );
+}
+
+/*!
+ *
+ */
+QString RadioMonitorService::trimHtmlTags( const QString& html )
+{
+    QString trimmed = html;
+    QRegExp rex( "<.+>" );
+    rex.setMinimal( true );
+    trimmed.remove( rex );
+    return trimmed;
 }
 
 /*!

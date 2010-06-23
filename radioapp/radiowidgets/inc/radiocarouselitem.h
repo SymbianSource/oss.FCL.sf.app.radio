@@ -26,74 +26,102 @@
 
 // Forward declarations
 class RadioStation;
-class RadioFadingLabel;
-class HbPushButton;
-class RadioStation;
-class HbAnchorLayout;
-class RadioStationCarousel;
+class HbIconItem;
+class HbTextItem;
+class HbRichTextItem;
+class HbTouchArea;
+class RadioCarouselItemObserver;
 
 // Class declaration
 class RadioCarouselItem : public HbWidget
 {
-    friend class RadioStationCarousel;
+    Q_OBJECT
+    Q_PROPERTY(Appearance appearance READ appearance WRITE setAppearance)
+    Q_ENUMS(Appearance)
 
-    class Data;
+    friend class RadioStationCarousel;
 
 public:
 
-    RadioCarouselItem( RadioStationCarousel& carousel );
+    enum ItemFlag
+    {
+        NameVisible         = 1 << 0,
+        FavoriteVisible     = 1 << 1,
+        FavoriteTouchable   = 1 << 2,
+        GenreVisible        = 1 << 3,
+        RadiotextVisible    = 1 << 4,
+        RadiotextTouchable  = 1 << 5,
+        UrlVisible          = 1 << 6,
+        UrlTouchable        = 1 << 7,
+
+        LastFlagMarker      = 1 << 8,       // Keep this as the last flag
+
+        DefaultFlags = NameVisible | FavoriteVisible | FavoriteTouchable | GenreVisible | RadiotextVisible,
+        ManualSeekFlags = NameVisible
+    };
+    Q_DECLARE_FLAGS( CarouselItemFlags, ItemFlag )
+
+    enum Appearance { Default, Full, ManualSeek };
+
+    RadioCarouselItem( RadioCarouselItemObserver& observer, QGraphicsItem* parent, bool registerCss = false );
     ~RadioCarouselItem();
 
 // New functions
 
-    void setStation( const RadioStation& station );
+    void setAppearance( Appearance appearance );
+    Appearance appearance() const;
 
-    void swapData( RadioCarouselItem& other );
+    void setSeekLayout( bool seekLayout );
+
+    void setStation( const RadioStation& station );
 
     uint frequency() const;
     void update( const RadioStation* station = NULL );
     void setFrequency( uint frequency );
     void cleanRdsData();
-    void handleLongPress( const QPointF& coords );
     void setRadioText( const QString& text );
-
-    void setSeekLayout( bool seekLayout );
 
     enum ItemVisibility{ AllVisible, AllHidden, IconVisible };
     void setItemVisibility( ItemVisibility visibility );
 
     void setIconOpacity( qreal opacity );
 
+    void createPrimitives();
+
+public slots:
+
+    void updatePrimitives();
+
 private:
+
+    void gestureEvent( QGestureEvent* event );
+
+    void setFlags( CarouselItemFlags flags );
+    void clearFlags( CarouselItemFlags flags );
+
+    void updateVisibilities();
 
     void updateFavoriteIcon( bool isFavorite );
 
-    QString parseFrequency( const uint frequency );
-    QString nameOrFrequency( const RadioStation& station, uint frequency = 0 );
-
 private: // data
 
-    class Data
-    {
-    public:
-        Data();
-        ~Data();
+    RadioCarouselItemObserver&          mObserver;
 
-        QScopedPointer<RadioStation>        mStation;
-        HbAnchorLayout*                     mLayout;
-        QScopedPointer<RadioFadingLabel>    mNameLabel;
-        QScopedPointer<HbPushButton>        mIconButton;
-        QScopedPointer<RadioFadingLabel>    mGenreLabel;
-        QScopedPointer<RadioFadingLabel>    mRadiotextLabel;
-        QScopedPointer<RadioFadingLabel>    mUrlLabel;
-        bool                                mSeekLayout;
+    QScopedPointer<RadioStation>        mStation;
 
-    };
+    HbIconItem*                         mFavoriteItem;
+    HbTextItem*                         mGenreItem;
+    HbTouchArea*                        mFavoriteTouchArea;
+    HbTextItem*                         mNameItem;
+    HbRichTextItem*                     mRadiotextItem;
+    HbRichTextItem*                     mUrlItem;
 
-    RadioStationCarousel&   mCarousel;
-
-    QScopedPointer<Data>    mData;
+    Appearance                          mAppearance;
+    bool                                mOwnsCss;
+    CarouselItemFlags                   mFlags;
 
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( RadioCarouselItem::CarouselItemFlags )
 
 #endif // RADIOCAROUSELITEM_H

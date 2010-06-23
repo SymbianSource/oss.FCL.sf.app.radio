@@ -20,6 +20,7 @@
 
 // System includes
 #include <QtGlobal>
+#include <QScopedPointer>
 
 // User includes
 #include "radiosettingsif.h"
@@ -30,7 +31,7 @@ class RadioSettingsPrivate;
 // Class declaration
 class RadioSettings : public RadioSettingsIf
     {
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioSettings )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioSettings )
     Q_DISABLE_COPY( RadioSettings )
 
     friend class RadioEngineWrapperPrivate;
@@ -56,7 +57,7 @@ private: // data
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioSettingsPrivate* const d_ptr;
+    const QScopedPointer<RadioSettingsPrivate> d_ptr;
 
     };
 

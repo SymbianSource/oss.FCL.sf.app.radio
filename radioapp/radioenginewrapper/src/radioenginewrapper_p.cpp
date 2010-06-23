@@ -23,7 +23,7 @@
 #include "radiosettings_p.h"
 #include "radiologger.h"
 #include "radio_global.h"
-#include "cradioenginehandler.h"
+#include "radioenginehandler.h"
 #include "radiostationhandlerif.h"
 #include "radiocontroleventlistener.h"
 #include "radiordslistener.h"
@@ -38,7 +38,7 @@ RadioEngineWrapperPrivate::RadioEngineWrapperPrivate( RadioEngineWrapper* wrappe
                                                       RadioStationHandlerIf& stationHandler ) :
     q_ptr( wrapper ),
     mStationHandler( stationHandler ),
-    mEngineHandler( new CRadioEngineHandler( *this ) ),
+    mEngineHandler( new RadioEngineHandler( *this ) ),
     mControlEventListener( new RadioControlEventListener( *this ) ),
     mRdsListener ( new RadioRdsListener( mStationHandler, *this ) ),
     mTuneReason( TuneReason::Unspecified ),
@@ -61,17 +61,16 @@ RadioEngineWrapperPrivate::~RadioEngineWrapperPrivate()
  */
 bool RadioEngineWrapperPrivate::init()
 {
-    TRAPD( err, mEngineHandler->ConstructL() );
-    if ( err != KErrNone ) {
-        LOG_FORMAT( "RadioEngineWrapperPrivate::init, EngineHandler construct failed: %d", err );
+    if ( !mEngineHandler->constructEngine() ) {
+        LOG( "RadioEngineWrapperPrivate::init, EngineHandler construct failed" );
         mEngineHandler.reset();
         return false;
     }
 
-    mEngineHandler->SetRdsObserver( mRdsListener.data() );
+    mEngineHandler->setRdsObserver( mRdsListener.data() );
     mControlEventListener->init();
 
-    mUseLoudspeaker = mEngineHandler->IsAudioRoutedToLoudspeaker();
+    mUseLoudspeaker = mEngineHandler->isAudioRoutedToLoudspeaker();
     if ( !mUseLoudspeaker ) {
         RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( false ) );
     }
@@ -86,7 +85,7 @@ RadioSettingsIf& RadioEngineWrapperPrivate::settings()
 {
     if ( !mSettings ) {
         mSettings.reset( new RadioSettings() );
-        mSettings->d_func()->init( &mEngineHandler->ApplicationSettings() );
+        mSettings->d_func()->init( &mEngineHandler->applicationSettings() );
     }
     return *mSettings;
 }
@@ -94,7 +93,7 @@ RadioSettingsIf& RadioEngineWrapperPrivate::settings()
 /*!
  * Returns the enginehandler owned by the engine
  */
-CRadioEngineHandler& RadioEngineWrapperPrivate::RadioEnginehandler()
+RadioEngineHandler& RadioEngineWrapperPrivate::radioEnginehandler()
 {
     return *mEngineHandler;
 }
@@ -104,9 +103,9 @@ CRadioEngineHandler& RadioEngineWrapperPrivate::RadioEnginehandler()
  */
 void RadioEngineWrapperPrivate::setFrequency( uint frequency, const int reason )
 {
-    if ( mEngineHandler->CurrentFrequency() != frequency ) {
+    if ( mEngineHandler->currentFrequency() != frequency ) {
         mTuneReason = reason;
-        mEngineHandler->SetFrequency( frequency );
+        mEngineHandler->setFrequency( frequency );
     }
 }
 
@@ -124,7 +123,7 @@ ObserverList& RadioEngineWrapperPrivate::observers()
 void RadioEngineWrapperPrivate::startSeeking( Seek::Direction direction, const int reason )
 {
     mTuneReason = reason;
-    mEngineHandler->Seek( direction );
+    mEngineHandler->seek( direction );
 }
 
 /*!
@@ -150,7 +149,7 @@ void RadioEngineWrapperPrivate::FrequencyEventL( TUint32 aFrequency,
         const uint frequency = static_cast<uint>( aFrequency );
         RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( frequency, mTuneReason ) );
     } else {
-        RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( mEngineHandler->MinFrequency(), TuneReason::StationScanNoStationsFound ) ); // no frequencies found
+        RUN_NOTIFY_LOOP( mObservers, tunedToFrequency( mEngineHandler->minFrequency(), TuneReason::StationScanNoStationsFound ) ); // no frequencies found
     }
 }
 
@@ -201,10 +200,9 @@ void RadioEngineWrapperPrivate::AudioRoutingEventL( TInt aAudioDestination, TInt
 /*!
  * \reimp
  */
-void RadioEngineWrapperPrivate::SeekingEventL( TInt aSeekingState, TInt aError )
+void RadioEngineWrapperPrivate::SeekingEventL( TInt DEBUGVAR( aSeekingState ), TInt DEBUGVAR( aError ) )
 {
-    Q_UNUSED( aSeekingState );
-    Q_UNUSED( aError );
+    LOG_FORMAT( "RadioEngineWrapperPrivate::SeekingEventL, aSeekingState: %d, Error: %d", aSeekingState, aError );
 }
 
 /*!

@@ -137,12 +137,6 @@ private: // data
 
     QTimer*                                         mTuneTimer;
 
-    /**
-     * Preset scanning handler
-     * Own.
-     */
-//    QScopedPointer<RadioFrequencyScanningHandler>   mFrequencyScanningHandler;
-
 //    QScopedPointer<T_RadioDataParser>               mDataParser;
 
     QString                                         mParsingError;

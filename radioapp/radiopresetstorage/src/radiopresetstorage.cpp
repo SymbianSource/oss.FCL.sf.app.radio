@@ -48,7 +48,6 @@ RadioPresetStorage::RadioPresetStorage() :
  */
 RadioPresetStorage::~RadioPresetStorage()
 {
-    delete d_ptr;
 }
 
 /*!

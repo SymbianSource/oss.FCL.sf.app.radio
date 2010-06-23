@@ -20,6 +20,8 @@
 #include <QProcess>
 #include <QFile>
 #include <QTimer>
+#include <QDesktopServices>
+#include <QUrl>
 
 #ifdef BUILD_WIN32
 #   include <QSettings>
@@ -44,6 +46,11 @@ const uint DEFAULT_MIN_FREQUENCY = 87500000;
 const uint RADIO_CENREP_UID = 0x2002FF52;
 const uint RADIO_CENREP_FREQUENCY_KEY = 0x207;
 
+const QLatin1String OTHER_STORE_URL( "http://www.amazon.com/gp/search/ref=sr_adv_m_digital/?search-alias=digital-music&field-author=#artist#&field-title=#title#" );
+const QLatin1String OTHER_STORE_ARTIST_TAG( "#artist#" );
+const QLatin1String OTHER_STORE_TITLE_TAG( "#title#" );
+const char WHITESPACE = ' ';
+const char WHITESPACE_REPLACEMENT = '+';
 
 /*!
  *
@@ -84,7 +91,6 @@ RadioUiEngine::RadioUiEngine( QObject* parent ) :
  */
 RadioUiEngine::~RadioUiEngine()
 {
-    delete d_ptr;
 }
 
 /*!
@@ -196,13 +202,16 @@ RadioHistoryModel& RadioUiEngine::historyModel()
 }
 
 /*!
- *
+ * Creates a scanner engine and returns a pointer to it
+ * The returned pointer is wrapped inside a QScopedPointer to ensure this won't
+ * leak memory. The returned engine will be deleted even if the caller ignored
+ * the return value.
  */
-RadioScannerEngine* RadioUiEngine::createScannerEngine()
+RadioScannerEnginePtr RadioUiEngine::createScannerEngine()
 {
     Q_D( RadioUiEngine );
     if ( !d->mScannerEngine ) {
-        d->mScannerEngine = new RadioScannerEngine( *d );
+        d->mScannerEngine = RadioScannerEnginePtr( new RadioScannerEngine( *d ) );
     }
     return d->mScannerEngine;
 }
@@ -232,7 +241,7 @@ bool RadioUiEngine::isScanning() const
 {
     Q_D( const RadioUiEngine );
     if ( d->mScannerEngine ) {
-        return d->mScannerEngine->isScanning();
+        return d->mScannerEngine.data()->isScanning();
     }
     return false;
 }
@@ -367,9 +376,28 @@ uint RadioUiEngine::skipStation( StationSkip::Mode mode, uint startFrequency )
  */
 void RadioUiEngine::openMusicStore( const RadioHistoryItem& item, MusicStore store )
 {
-    Q_UNUSED( item );
-    Q_UNUSED( store );
-    //TODO: Integrate to music store
+    if ( store == OviStore ) {
+        //TODO: Integrate to music store
+    } else if ( store == OtherStore ) {
+        QString artist = item.artist();
+        artist.replace( WHITESPACE, WHITESPACE_REPLACEMENT );
+        QString title = item.title();
+        title.replace( WHITESPACE, WHITESPACE_REPLACEMENT );
+
+        QString url( OTHER_STORE_URL );
+        url.replace( OTHER_STORE_ARTIST_TAG, artist );
+        url.replace( OTHER_STORE_TITLE_TAG, title );
+
+        launchBrowser( url );
+    }
+}
+
+/*!
+ *
+ */
+void RadioUiEngine::launchBrowser( const QString& url )
+{
+    QDesktopServices::openUrl( QUrl( url ) );
 }
 
 /*!

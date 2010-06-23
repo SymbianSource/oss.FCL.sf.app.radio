@@ -37,9 +37,10 @@
 #include "radio_global.h"
 #include "radioenginewrapper_win32_p.h"
 
-const int KWindowWidth = 360;
-const int KWindowHeight = 640;
-const int KToolbarHeight = 140;
+const int WINDOW_WIDTH = 360;
+const int WINDOW_HEIGHT = 640;
+const int TOOLBAR_HEIGHT = 120;
+const int WINDOW_EXTRA_WIDTH = 5;
 
 const QString KBtnDisconnectHeadset = "Disconnect Headset";
 const QString KBtnConnectHeadset = "Connect Headset";
@@ -223,9 +224,9 @@ void Win32Window::toggleHeadsetStatus()
 void Win32Window::updateWindowSize()
 {
     if ( mOrientation == Qt::Horizontal ) {
-        resize( KWindowHeight, KWindowWidth + KToolbarHeight );
+        resize( WINDOW_HEIGHT + WINDOW_EXTRA_WIDTH, WINDOW_WIDTH + TOOLBAR_HEIGHT );
     } else {
-        resize( KWindowWidth, KWindowHeight + KToolbarHeight );
+        resize( WINDOW_WIDTH + WINDOW_EXTRA_WIDTH, WINDOW_HEIGHT + TOOLBAR_HEIGHT );
     }
 }
 

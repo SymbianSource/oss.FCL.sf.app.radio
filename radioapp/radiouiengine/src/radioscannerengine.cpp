@@ -44,7 +44,6 @@ RadioScannerEngine::RadioScannerEngine( RadioUiEnginePrivate& uiEngine ) :
 RadioScannerEngine::~RadioScannerEngine()
 {
     cancel();
-    delete d_ptr;
 }
 
 /*!

@@ -44,7 +44,7 @@ const char* SQL_CREATE_TABLE    = "CREATE TABLE history ("
                                   "frequency INTEGER NOT NULL, "
                                   "tagged INTEGER NOT NULL DEFAULT 0, "
                                   "fromRds INTEGER NOT NULL DEFAULT 1, "
-                                  "time TIMESTAMP NOT NULL)";
+                                  "time INTEGER NOT NULL)";
 
 const char* SQL_ADD_ITEM         = "INSERT INTO history (artist,title,station,frequency,fromRds,time) "
                                             "VALUES ( ?,?,?,?,?,? )";
@@ -195,12 +195,27 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
 
             QStringList list;
             if ( mShowDetails ) {
-                list.append( qtTrId( "txt_rad_dblist_1_2" ).arg( artist ).arg( title ) );
-                QDateTime dateTime = record.value( RadioHistoryValue::Time ).toDateTime();
-                const QString time = dateTime.toLocalTime().toString();
+                QString formatter = qtTrId( "txt_rad_dblist_1_2" );
+                LOG_FORMAT( "---formatter--- %s", GETSTRING( formatter ) );
+                formatter = "%1 - %2";  // TODO!
+
+                const QString firstRow = QString( formatter ).arg( artist ).arg( title );
+                LOG_FORMAT( "---firstRow--- %s", GETSTRING( firstRow ) );
+                list.append( firstRow );
+
+                const uint timeInSecs = record.value( RadioHistoryValue::Time ).toUInt();
+                QDateTime dateTime;
+                dateTime.setTime_t( timeInSecs );
+
+                QString time = dateTime.toString();
+                LOG_FORMAT( "---time--- %s", GETSTRING( time ) );
 
                 QString name = !station.isEmpty() ? station : parseFrequency( frequency );
-                list.append( qtTrId( "txt_rad_dblist_1_2" ).arg( time ).arg( name ) );
+                LOG_FORMAT( "---name--- %s", GETSTRING( name ) );
+                const QString secondRow = QString( formatter ).arg( time ).arg( name );
+                LOG_FORMAT( "---secondRow--- %s", GETSTRING( secondRow ) );
+
+                list.append( secondRow );
             } else {
                 list.append( artist );
                 list.append( title );
@@ -253,7 +268,6 @@ void RadioHistoryModelPrivate::setViewMode( ViewMode mode )
 
     mViewMode = mode;
     mQueryModel->setQuery( mode == ShowTagged ? SQL_SELECT_TAGGED : SQL_SELECT_ALL, *mDatabase );
-    q_ptr->reset();
 }
 
 /*!
@@ -267,7 +281,11 @@ void RadioHistoryModelPrivate::toggleTagging( const RadioHistoryItem& item, cons
     updateQuery.addBindValue( item.isTagged() ? 0 : 1 );
     updateQuery.addBindValue( item.id() );
 
-    commitTransaction( updateQuery, ChangeData, row );
+    Operation operation = ChangeData;
+    if ( mViewMode == ShowTagged && item.isTagged() ) {
+        operation = RemoveRows;
+    }
+    commitTransaction( updateQuery, operation, row );
 }
 
 /*!

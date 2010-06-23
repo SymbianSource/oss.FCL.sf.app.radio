@@ -14,19 +14,19 @@
 # Description:
 #
 
+TMP_DIR_NAME = app
 include(../buildflags.pri)
 
 TEMPLATE        = app
 TARGET          = fmradio
 TRANSLATIONS    += fmradio.ts 
-ICON            = resources/qtg_large_radio.svg
-#ICON            = qtg_large_radio.svg
 
 symbian: {
     TARGET.CAPABILITY       = CAP_APPLICATION MultimediaDD
     TARGET.UID3             = 0x2002FF4E
     TARGET.EPOCSTACKSIZE    = 0x14000
     TARGET.EPOCHEAPSIZE     = 0x020000 0x2400000
+    SKINICON                = qtg_large_radio
 }
 
 CONFIG      += hb service

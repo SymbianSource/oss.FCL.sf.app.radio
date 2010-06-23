@@ -93,7 +93,7 @@ private:
 
     void updateItemPrimitive( QGraphicsItem* itemToUpdate, int itemIndex );
     QGraphicsItem* createItemPrimitive( QGraphicsItem *parent );
-    void scrollPosChanged( QPointF newPosition );
+    void scrollPosChanged();
 
 // from base class QGraphicsWidget
 

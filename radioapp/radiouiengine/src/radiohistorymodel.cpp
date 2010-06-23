@@ -49,7 +49,6 @@ RadioHistoryModel::RadioHistoryModel( RadioUiEngine& uiEngine ) :
  */
 RadioHistoryModel::~RadioHistoryModel()
 {
-    delete d_ptr;
 }
 
 /*!
@@ -121,6 +120,7 @@ void RadioHistoryModel::setShowTagged( bool showTagged )
 {
     Q_D( RadioHistoryModel );
     d->setViewMode( showTagged ? RadioHistoryModelPrivate::ShowTagged : RadioHistoryModelPrivate::ShowAll );
+    reset();
 }
 
 /*!

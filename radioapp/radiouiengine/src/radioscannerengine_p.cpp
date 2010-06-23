@@ -61,7 +61,10 @@ void RadioScannerEnginePrivate::tunedToFrequency( uint frequency, int reason )
     if ( reason == TuneReason::StationScanInitialization ) {
         mUiEngine.wrapper().startSeeking( Seek::Up, TuneReason::StationScan );
     } else if ( reason == TuneReason::StationScan ) {
-        if ( frequency > mLastFoundFrequency ) {
+        if ( frequency == mLastFoundFrequency ) {
+            // Stop scanning
+            q->emitStationFound( RadioStation() );
+        } else if ( frequency > mLastFoundFrequency ) {
             // Station has been found normally
             mLastFoundFrequency = frequency;
             addFrequencyAndReport( frequency );

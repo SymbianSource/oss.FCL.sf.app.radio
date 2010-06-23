@@ -45,7 +45,7 @@
  * Constructor
  */
 RadioApplication::RadioApplication( int &argc, char *argv[] ) :
-    HbApplication( argc, argv )
+    HbApplication( argc, argv, Hb::NoSplash )
 {
     // Initializes the radio engine utils if UI logs are entered into the engine log
     INIT_COMBINED_LOGGER
@@ -67,7 +67,7 @@ RadioApplication::~RadioApplication()
 }
 
 /*!
- *Private slot
+ * Private slot
  *
  */
 void RadioApplication::init()

@@ -57,6 +57,7 @@ private slots:
     void skip( int skipMode );
     void openStationsView();
     void toggleScanning();
+    void toggleFavorite();
     void seekingStarted();
     void updateAntennaStatus( bool connected );
     void updateAudioRoute( bool loudspeaker );
@@ -77,6 +78,10 @@ private:
 // from base class QObject
 
     bool eventFilter( QObject* watched, QEvent* event );
+
+// New functions
+
+    void updateFavoriteButton();
 
 private: // data
 

@@ -358,7 +358,7 @@ void RadioStationsView::userAccepted()
         mModel->removeAll( favoriteMode ? RadioStationModel::RemoveFavorites : RadioStationModel::RemoveAll );
         updateVisibilities();
     } else if ( mCurrentQuestion == DeleteStation ) {
-        mModel->removeStation( mModel->currentStation() );
+        mModel->removeStation( *mSelectedStation );
     }
 
     mCurrentQuestion = NoQuestion;

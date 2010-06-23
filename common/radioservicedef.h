@@ -20,8 +20,13 @@
 
 #include <QLatin1String>
 
-static const QLatin1String RADIO_CONTROL_SERVICE( "com.nokia.services.Radio.IRadioControl" );
-static const QLatin1String RADIO_MONITOR_SERVICE( "com.nokia.services.Radio.IRadioMonitor" );
+static const QLatin1String RADIO_SERVICE( "fmradio" );
+static const QLatin1String RADIO_CONTROL_SERVICE( "com.nokia.symbian.IRadioControl" );
+static const QLatin1String RADIO_CONTROL_SERVICE_OPERATION( "command(int)" );
+static const QLatin1String RADIO_MONITOR_SERVICE( "com.nokia.symbian.IRadioMonitor" );
+static const QLatin1String RADIO_MONITOR_SERVICE_OPERATION( "requestNotifications()" );
+static const QLatin1String RADIO_MONITOR_SERVICE_REFRESH_OPERATION( "requestAllData()" );
+
 
 const long KRadioPSUid = 0x101FF976;
 const unsigned long KRadioStartupKey = 0x00000014;

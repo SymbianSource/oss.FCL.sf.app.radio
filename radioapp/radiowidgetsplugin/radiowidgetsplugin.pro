@@ -14,6 +14,7 @@
 # Description:
 #
 
+TMP_DIR_NAME = widgetsplugin
 include(../buildflags.pri)
 
 TEMPLATE    = lib

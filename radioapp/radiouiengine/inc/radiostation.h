@@ -19,9 +19,10 @@
 #define RADIOSTATION_H_
 
 // System includes
+#include <QObject>
+#include <QSharedDataPointer>
 #include <QString>
 #include <QMetaType>
-#include <QObject>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -49,7 +50,7 @@ class UI_ENGINE_DLL_EXPORT RadioStation : public QObject
     friend class RadioStationModelPrivate;
     friend class TestRadioUiEngine;
     friend class TestRadioPresetStorage;
-    
+
 public:
 
     /**
@@ -81,7 +82,7 @@ public:
        Favorite         = 1 << 0,
        LocalStation     = 1 << 1,
        PreDefined       = 1 << 2,
-       Temporary        = 1 << 3
+       ManualStation    = 1 << 3
     };
     Q_DECLARE_FLAGS( Type, TypeFlag )
 
@@ -101,6 +102,7 @@ public:
      * Magical values used as preset indexes to signify certain conditions.
      * NotFound means that a find function could not find a station
      * Invalid means that the station instance has not been initialized
+     * SharedNull identifies the empty "null" station that every newly created station points to
      */
     enum PresetFlag { NotFound = -1, Invalid = -100, SharedNull = -200 };
 
@@ -116,7 +118,7 @@ public:
 
     RadioStation& operator=( const RadioStation& other );
 
-public:
+private:
 
     explicit RadioStation( int presetIndex, uint frequency );
 
@@ -149,8 +151,7 @@ public: // Getters and setters
 
     int genre() const;
 
-    QString frequencyMhz() const;
-    QString nameOrFrequencyMhz() const;
+    QString frequencyString() const;
     uint frequency() const;
     int presetIndex() const;
 
@@ -178,12 +179,6 @@ public: // Getters and setters
 
 private:
 
-    /**
-     * Decrements the reference count of the implicitly shared data.
-     * Data is deleted if no instance uses it anymore.
-     */
-    void decrementReferenceCount();
-
     // Methods for converting PI code into call sign
     QString piCodeToCallSign( uint programmeIdentification );
     QString iterateCallSign( int piBase, int programmeIdentification );
@@ -196,14 +191,9 @@ private: // data
      * Pointer to the implicitly shared private implementation
      * Own.
      */
-    class RadioStationPrivate* mData;
+    QSharedDataPointer<RadioStationPrivate> mData;
 
 public:
-
-    /**
-     * Detach from the implicitly shared data
-     */
-    void detach();
 
     /**
      * Checks if the class is detached from implicitly shared data
@@ -211,8 +201,8 @@ public:
      */
     bool isDetached() const;
 
-    typedef RadioStationPrivate* DataPtr;
-    inline DataPtr &data_ptr() { return mData; }
+    typedef QSharedDataPointer<RadioStationPrivate> DataPtr;
+    inline DataPtr& data_ptr() { return mData; }
 
 };
 

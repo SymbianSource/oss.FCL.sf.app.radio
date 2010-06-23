@@ -19,6 +19,7 @@
 #define RADIOSTATIONINFO_P_H_
 
 // System includes
+#include <QSharedData>
 #include <QTime>
 
 // User includes
@@ -26,12 +27,13 @@
 #include "radiostationif.h"
 
 // Class declaration
-class RadioStationPrivate : public RadioStationIf
+class RadioStationPrivate : public QSharedData
+                          , public RadioStationIf
 {
 public:
 
     explicit RadioStationPrivate( int presetIndex = RadioStation::Invalid, uint frequency = 0 );
-    explicit RadioStationPrivate( RadioStation::PresetFlag flag );
+    explicit RadioStationPrivate( const RadioStationPrivate& other );
 
     virtual ~RadioStationPrivate();
 
@@ -62,22 +64,9 @@ private:
 
 public: // data
 
-    /**
-     * Reference count used for implicit sharing.
-     * Has to be named "ref" instead having the 'm' prefix like all other member variables in Radio
-     * This is because convenience functions like qAtomicAssign() expect it to be named "ref"
-     */
-    QAtomicInt                  ref;
-
     // ========================================================================
     // Persistent data. Saved to Central repository
     // ========================================================================
-
-    /**
-     * Station frequency. The most important bit of information about a radio station.
-     * Is checked to be non-null in the isValid() function
-     */
-    uint                        mFrequency;
 
     /**
      * Station index in the Preset Utility.
@@ -85,6 +74,12 @@ public: // data
      * Initialized to -100 by default to indicate and invalid station.
      */
     int                         mPresetIndex;
+
+    /**
+     * Station frequency. The most important bit of information about a radio station.
+     * Is checked to be non-null in the isValid() function
+     */
+    uint                        mFrequency;
 
     /**
      * Station name. Contains a name that is set in one of the following ways:

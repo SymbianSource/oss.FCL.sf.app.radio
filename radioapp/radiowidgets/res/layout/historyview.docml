@@ -26,18 +26,13 @@
     <object name="hv:ovi_store_action" type="HbAction">
         <string locid="txt_rad_menu_search_from_music_store" name="text"/>
     </object>
-    <object name="hv:search_from_other_store_action" type="HbAction">
-        <string locid="txt_rad_menu_search_from_other_store" name="text"/>
+    <object name="hv:other_store_action" type="HbAction">
+        <string value="Search from Amazon" name="text"/>
     </object>
+
     <widget name="view" type="HbView">
         <icon name="nonTaggedIcon" iconName=":/images/qtg_mono_tag.svg" />
         <icon name="taggedIcon" iconName=":/images/pri_small_tag.svg" />
-        <widget name="hv:menu" role="HbView:menu" type="HbMenu">
-            <ref object="hv:clear_list_action" role="HbMenu:addAction"/>
-            <ref object="hv:add_songs_action" role="HbMenu:addAction"/>
-            <ref object="loudspeaker_action" role="HbMenu:addAction"/>
-            <ref object="exit_action" role="HbMenu:addAction"/>
-        </widget>
         <widget name="hv:toolbar" role="HbView:toolBar" type="HbToolBar">
             <enums name="orientation" value="Horizontal"/>
             <ref object="hv:all_songs_button" role="HbToolBar:addAction"/>
@@ -50,38 +45,7 @@
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
                 <string name="heading" locid="txt_rad_subhead_play_history" />
             </widget>
-            <widget name="hv:stacked_widget" type="HbWidget">
-                <widget name="hv:history_list" type="HbListView">
-                    <sizehint height="320" type="PREFERRED" width="240"/>
-                    <bool name="visible" value="FALSE"/>
-                </widget>
-                <widget name="hv:empty_container" type="HbWidget">
-                    <widget name="hv:empty_title" type="HbLabel">
-                        <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                        <string locid="txt_rad_info_play_history_is_empty" name="plainText"/>
-                        <fontspec name="fontSpec" role="Title" textheight="33.5"/>
-                    </widget>
-                    <widget name="hv:empty_text" type="HbLabel">
-                        <enums name="textWrapping" value="TextWordWrap"/>
-                        <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                        <sizehint height="320" type="PREFERRED" width="240"/>
-                        <string locid="txt_rad_info_recently_played_songs_collects_song2" name="plainText"/>
-                        <fontspec name="fontSpec" role="Title" textheight="33.5"/>
-                    </widget>
-                    <layout orientation="Vertical" spacing="var(hb-param-margin-gene-middle-vertical)" type="linear">
-                        <contentsmargins bottom="var(hb-param-margin-gene-bottom)" left="var(hb-param-margin-gene-left)" right="var(hb-param-margin-gene-right)" top="var(hb-param-margin-gene-top)"/>
-                        <stretchitem stretchfactor="2"/>
-                        <linearitem itemname="hv:empty_title"/>
-                        <stretchitem stretchfactor="1"/>
-                        <linearitem itemname="hv:empty_text"/>
-                        <stretchitem stretchfactor="2"/>
-                    </layout>
-                </widget>
-                <layout type="stacked">
-                    <stackitem itemname="hv:history_list"/>
-                    <stackitem itemname="hv:empty_container"/>
-                </layout>
-            </widget>
+            <widget name="hv:stacked_widget" type="HbWidget" />
             <layout type="anchor">
                 <anchoritem dst="hv:heading_banner" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
                 <anchoritem dst="hv:heading_banner" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
@@ -97,7 +61,55 @@
     <widget name="hv:context_menu" type="HbMenu">
         <ref object="hv:toggle_tag_action" role="HbMenu:addAction"/>
         <ref object="hv:ovi_store_action" role="HbMenu:addAction"/>
+        <ref object="hv:other_store_action" role="HbMenu:addAction"/>
     </widget>
+    
+    <!-- Section to do lazy initialization of the view -->
+    <section name="lazy_load">
+        <widget name="view">
+            <widget name="hv:menu" role="HbView:menu" type="HbMenu">
+                <ref object="hv:clear_list_action" role="HbMenu:addAction"/>
+                <ref object="hv:add_songs_action" role="HbMenu:addAction"/>
+                <ref object="loudspeaker_action" role="HbMenu:addAction"/>
+                <ref object="exit_action" role="HbMenu:addAction"/>
+            </widget>
+        </widget>
+        
+        <widget name="hv:stacked_widget">
+            <widget name="hv:history_list" type="HbListView">
+                <sizehint height="320" type="PREFERRED" width="240"/>
+            </widget>
+            <widget name="hv:empty_container" type="HbWidget">
+                <bool name="visible" value="FALSE"/>
+                <widget name="hv:empty_title" type="HbLabel">
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    <string locid="txt_rad_info_play_history_is_empty" name="plainText"/>
+                    <fontspec name="fontSpec" role="Title" textheight="33.5"/>
+                </widget>
+                <widget name="hv:empty_text" type="HbLabel">
+                    <enums name="textWrapping" value="TextWordWrap"/>
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    <sizehint height="320" type="PREFERRED" width="240"/>
+                    <string locid="txt_rad_info_recently_played_songs_collects_song2" name="plainText"/>
+                    <fontspec name="fontSpec" role="Title" textheight="33.5"/>
+                </widget>
+                <layout orientation="Vertical" spacing="var(hb-param-margin-gene-middle-vertical)" type="linear">
+                    <contentsmargins bottom="var(hb-param-margin-gene-bottom)" left="var(hb-param-margin-gene-left)" 
+                                     right="var(hb-param-margin-gene-right)" top="var(hb-param-margin-gene-top)"/>
+                    <stretchitem stretchfactor="2"/>
+                    <linearitem itemname="hv:empty_title"/>
+                    <stretchitem stretchfactor="1"/>
+                    <linearitem itemname="hv:empty_text"/>
+                    <stretchitem stretchfactor="2"/>
+                </layout>
+            </widget>
+            <layout type="stacked">
+                <stackitem itemname="hv:history_list"/>
+                <stackitem itemname="hv:empty_container"/>
+            </layout>
+        </widget>
+    </section>
+    
     <section name="hv:show_list">
         <widget name="hv:history_list">
             <bool name="visible" value="TRUE"/>

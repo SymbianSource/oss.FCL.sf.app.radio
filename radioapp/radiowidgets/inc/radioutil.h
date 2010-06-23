@@ -19,7 +19,7 @@
 #define _RADIOUIUTILITIES_H_
 
 // System includes
-#include <QPointer>
+#include <QWeakPointer>
 
 // User includes
 #include "radio_global.h"
@@ -79,15 +79,15 @@ private:
 
 private: // data
 
-    QPointer<RadioFrequencyStrip>   mFrequencyStrip;
+    QWeakPointer<RadioFrequencyStrip>   mFrequencyStrip;
 
-    QPointer<RadioStationCarousel>  mCarousel;
+    QWeakPointer<RadioStationCarousel>  mCarousel;
 
-    QPointer<RadioFrequencyScanner> mScanner;
+    QWeakPointer<RadioFrequencyScanner> mScanner;
 
-    QPointer<HbNotificationDialog>  mNotificationDialog;
+    QWeakPointer<HbNotificationDialog>  mNotificationDialog;
 
-    Scan::Status                    mScanStatus;
+    Scan::Status                        mScanStatus;
 
 };
 

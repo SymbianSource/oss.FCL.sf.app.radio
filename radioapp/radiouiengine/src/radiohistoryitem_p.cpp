@@ -34,6 +34,20 @@ RadioHistoryItemPrivate::RadioHistoryItemPrivate()
 /*!
  *
  */
+RadioHistoryItemPrivate::RadioHistoryItemPrivate( const RadioHistoryItemPrivate& other ) :
+    QSharedData( other ),
+    mId( other.mId ),
+    mArtist( other.mArtist ),
+    mTitle( other.mTitle ),
+    mFrequency( other.mFrequency ),
+    mTagged( other.mTagged ),
+    mFromRds( other.mFromRds )
+{
+}
+
+/*!
+ *
+ */
 RadioHistoryItemPrivate::RadioHistoryItemPrivate( const QString& artist,
                                                   const QString& title )
 {
@@ -45,7 +59,6 @@ RadioHistoryItemPrivate::RadioHistoryItemPrivate( const QString& artist,
  */
 void RadioHistoryItemPrivate::init( const QString& artist, const QString& title )
 {
-    ref = 1;
     mId = -1;
     mArtist = artist;
     mTitle = title;

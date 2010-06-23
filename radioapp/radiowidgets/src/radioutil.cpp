@@ -53,9 +53,6 @@ bool RadioUtil::addEffects( QEffectList list )
     bool allAvailable = true;
     QEffectList added;
     foreach ( EffectInfo info, list ) {
-#ifdef USE_LAYOUT_FROM_E_DRIVE
-        info.mPath.replace( QString( ":/" ), QString( "e:/radiotest/" ) );
-#endif
         if ( HbEffect::add( info.mItem, info.mPath, info.mEvent ) ) {
             added.append( info );
         } else {
@@ -79,7 +76,7 @@ bool RadioUtil::addEffects( QEffectList list )
  */
 RadioFrequencyStrip* RadioUtil::frequencyStrip()
 {
-    return instance().mFrequencyStrip;
+    return instance().mFrequencyStrip.data();
 }
 
 /*!
@@ -87,7 +84,7 @@ RadioFrequencyStrip* RadioUtil::frequencyStrip()
  */
 RadioStationCarousel* RadioUtil::carousel()
 {
-    return instance().mCarousel;
+    return instance().mCarousel.data();
 }
 
 /*!
@@ -95,7 +92,7 @@ RadioStationCarousel* RadioUtil::carousel()
  */
 bool RadioUtil::isScannerAlive()
 {
-    RadioFrequencyScanner* scanner = instance().mScanner;
+    RadioFrequencyScanner* scanner = instance().mScanner.data();
     if ( scanner ) {
         return scanner->isAlive();
     }
@@ -176,9 +173,9 @@ void RadioUtil::showDiscreetNote( const QString& text )
     if ( !self.mNotificationDialog ) {
         self.mNotificationDialog = new HbNotificationDialog();
     }
-    self.mNotificationDialog->setAttribute( Qt::WA_DeleteOnClose );
-    self.mNotificationDialog->setTitle( text );
-    self.mNotificationDialog->show();
+    self.mNotificationDialog.data()->setAttribute( Qt::WA_DeleteOnClose );
+    self.mNotificationDialog.data()->setTitle( text );
+    self.mNotificationDialog.data()->show();
 }
 
 /*!

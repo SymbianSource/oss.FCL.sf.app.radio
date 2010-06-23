@@ -22,6 +22,8 @@
 // System includes
 #include <QObject>
 #include <QString>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -37,10 +39,12 @@ class RadioHistoryItem;
 class RadioScannerEngine;
 class RadioMonitorService;
 
+typedef QSharedPointer<RadioScannerEngine> RadioScannerEnginePtr;
+
 class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioUiEngine )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioUiEngine )
     Q_DISABLE_COPY( RadioUiEngine )
 
     friend class RadioScannerEngine;
@@ -72,7 +76,7 @@ public:
     RadioSettingsIf& settings();
     RadioStationModel& stationModel();
     RadioHistoryModel& historyModel();
-    RadioScannerEngine* createScannerEngine();
+    RadioScannerEnginePtr createScannerEngine();
     RadioScannerEngine* scannerEngine();
 
     bool isRadioOn() const;
@@ -101,6 +105,8 @@ public:
 
     enum MusicStore{ OviStore, OtherStore };
     void openMusicStore( const RadioHistoryItem& item, MusicStore store = OviStore );
+
+    void launchBrowser( const QString& url );
 
     void setManualSeekMode( bool manualSeek );
     bool isInManualSeekMode() const;
@@ -158,7 +164,7 @@ private: // data
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioUiEnginePrivate* const d_ptr;
+    const QScopedPointer<RadioUiEnginePrivate> d_ptr;
 
 };
 
