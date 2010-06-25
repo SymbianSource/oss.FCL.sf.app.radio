@@ -33,7 +33,6 @@ RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler ) 
  */
 RadioEngineWrapper::~RadioEngineWrapper()
 {
-    delete d_ptr;
 }
 
 /*!
@@ -167,7 +166,10 @@ void RadioEngineWrapper::setManualSeekMode( bool manualSeek )
 {
     Q_D( RadioEngineWrapper );
     d->mManualSeekMode = manualSeek;
-}    
+    if ( !manualSeek ) {
+        RUN_NOTIFY_LOOP( d->mObservers, tunedToFrequency( d->mFrequency, d->mTuneReason ) );
+    }
+}
 
 /*!
  * Checks if the engine is in manual seek mode

@@ -63,6 +63,14 @@ void RadioViewBase::setMembers( RadioWindow* mainWindow, RadioUiLoader* uiLoader
 /*!
  *
  */
+void RadioViewBase::preLazyLoadInit()
+{
+    // Default implementation does nothing
+}
+
+/*!
+ *
+ */
 void RadioViewBase::initialize( QSharedPointer<RadioUiEngine> uiEngine )
 {
     mUiEngine = uiEngine;

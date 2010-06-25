@@ -25,11 +25,8 @@
 #include "radio_global.h"
 
 // Constants
-const QString TAG_ARTIST = "artist";
-const QString TAG_TITLE = "title";
-const QString HTML_ARTIST = "<a href=\"" + TAG_ARTIST + "\">";
-const QString HTML_TITLE = "<a href=\"" + TAG_TITLE + "\">";
-const QString HTML_CLOSE = "</a>";
+const QLatin1String HTML_TAG_START( "<font color='cyan'><u>" );
+const QLatin1String HTML_TAG_END( "</u></font>" );
 
 const uint LAST_CALLSIGN_CHAR_CODE = 25;
 const uint THREE_LETTER_CALLSIGN_COUNT = 72;
@@ -64,10 +61,26 @@ const uint DISABLE_LOCAL_AREA_COVERAGE_MASK = 0x0800;
 
 const int PS_NAME_CHANGE_THRESHOLD_SECONDS = 10;
 
+// Macros to help protect shared null and manual station instances to help debugging
+// Enabled in emulator or win32 builds by default
+#if defined __WINS__ || defined BUILD_WIN32
+#   define PROTECT_SHAREDNULL_AND_MANUALSTATION
+#endif
+
+#ifdef PROTECT_SHAREDNULL_AND_MANUALSTATION
+#   define ASSERT_SHARED_NULL_IS_INTACT \
+        Q_ASSERT_X( mData->mPresetIndex != SharedNull, "RadioStation", "Shared null modified illegally!" );
+#   define ASSERT_MANUAL_STATION \
+        Q_ASSERT_X( mData->mPresetIndex != ManualStation, "RadioStation", "Illegally modifying manual station" );
+#else
+#   define ASSERT_SHARED_NULL_IS_INTACT
+#   define ASSERT_MANUAL_STATION
+#endif // PROTECT_SHAREDNULL_AND_MANUALSTATION
+
 /**
  * Static shared data instance that is used by all default-constructed RadioStation instances
  */
-Q_GLOBAL_STATIC_WITH_ARGS( RadioStationPrivate, shared_null, ( RadioStation::SharedNull ) )
+static RadioStationPrivate shared_null( RadioStation::SharedNull, 0 );
 
 /*!
  *
@@ -83,29 +96,24 @@ QString RadioStation::parseFrequency( uint frequency )
  *
  */
 RadioStation::RadioStation() :
-    QObject( 0 )
+    mData( &shared_null )
 {
-    mData = shared_null();
-    mData->ref.ref();
 }
 
 /*!
  *
  */
 RadioStation::RadioStation( const RadioStation& other ) :
-    QObject( 0 )
+    mData( other.mData )
 {
-    mData = other.mData;
-    mData->ref.ref();
 }
 
 /*!
  *
  */
 RadioStation::RadioStation( int presetIndex, uint frequency ) :
-    QObject( 0 )
+    mData( new RadioStationPrivate( presetIndex, frequency ) )
 {
-    mData = new RadioStationPrivate( presetIndex, frequency );
 }
 
 /*!
@@ -113,7 +121,6 @@ RadioStation::RadioStation( int presetIndex, uint frequency ) :
  */
 RadioStation::~RadioStation()
 {
-    decrementReferenceCount();
 }
 
 /*!
@@ -121,7 +128,7 @@ RadioStation::~RadioStation()
  */
 RadioStation& RadioStation::operator=( const RadioStation& other )
 {
-    qAtomicAssign( mData, other.mData );
+    mData = other.mData;
     return *this;
 }
 
@@ -130,9 +137,8 @@ RadioStation& RadioStation::operator=( const RadioStation& other )
  */
 void RadioStation::reset()
 {
-    decrementReferenceCount();
-    mData = shared_null();
-    mData->ref.ref();
+    mData = &shared_null;
+    ASSERT_SHARED_NULL_IS_INTACT
 }
 
 /*!
@@ -141,7 +147,6 @@ void RadioStation::reset()
 void RadioStation::setChangeFlags( RadioStation::Change flags )
 {
     if ( mData->mChangeFlags != flags ) {
-        detach();
         mData->mChangeFlags = flags;
     }
 }
@@ -152,7 +157,7 @@ void RadioStation::setChangeFlags( RadioStation::Change flags )
 void RadioStation::setPresetIndex( int presetIndex )
 {
     if ( mData->mPresetIndex != presetIndex ) {
-        detach();
+        ASSERT_MANUAL_STATION
         mData->mPresetIndex = presetIndex;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged;
     }
@@ -164,9 +169,9 @@ void RadioStation::setPresetIndex( int presetIndex )
 void RadioStation::setFrequency( uint frequency )
 {
     if ( mData->mFrequency != frequency ) {
-        detach();
         mData->mFrequency = frequency;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -178,7 +183,6 @@ void RadioStation::setName( const QString& name )
     // Name emptiness is checked because this name setter is used by incoming RDS PS name
     // and empty names should be ignored
     if ( !name.isEmpty() && !mData->mRenamedByUser && mData->mName.compare( name ) != 0 ) {
-        detach();
         mData->mName = name.trimmed();
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::NameChanged;
 
@@ -198,11 +202,13 @@ void RadioStation::setName( const QString& name )
 
         //TODO: This is a temporary thing to see some URL. Remove this
         if ( !mData->mName.isEmpty() ) {
-            mData->mUrl = "<a href=\"buu\">www." + mData->mName.toLower() + ".fi</a>";
+            QString url = mData->mName.toLower().remove( " " );
+            mData->mUrl = "www." + url + ".fi";
         } else {
             mData->mUrl = "";
         }
         mData->mChangeFlags |= RadioStation::UrlChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -212,9 +218,9 @@ void RadioStation::setName( const QString& name )
 void RadioStation::setGenre( const int genre )
 {
     if ( mData->mGenre != genre ) {
-        detach();
         mData->mGenre = genre;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::GenreChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -224,9 +230,9 @@ void RadioStation::setGenre( const int genre )
 void RadioStation::setUrl( const QString& url )
 {
     if ( mData->mUrl.compare( url ) != 0 ) {
-        detach();
         mData->mUrl = url;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::UrlChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -238,40 +244,33 @@ bool RadioStation::setPiCode( int piCode, RadioRegion::Region region )
 {
     LOG_FORMAT( "RadioStation::setPiCode new PI: %d", piCode );
     // toggling local area coverage bit code must not be interpreted as new PI code
-    if( region != RadioRegion::America )
-    {
+    if ( region != RadioRegion::America ) {
         piCode &= ~DISABLE_LOCAL_AREA_COVERAGE_MASK;
     }
 
     LOG_FORMAT( "stored PI: %d", mData->mPiCode );
     LOG_FORMAT( "call sign check done: %d", mData->mCallSignCheckDone );
     //prevent executing the below code when unnessesary
-    if ( mData->mPiCode != piCode || !mData->mCallSignCheckDone )
-	{
-        detach();
+    if ( mData->mPiCode != piCode || !mData->mCallSignCheckDone ) {
         mData->mPiCode = piCode;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::PiCodeChanged;
         // call sign not calculated for clear channel stations
 		//TODO: Remove magic numbers
-        if( ( (mData->mPiCode & 0xF000 ) >> 12 ) == 0x1 )
-        {
+        if ( ( (mData->mPiCode & 0xF000 ) >> 12 ) == 0x1 ) {
             LOG( "Clear channel station" );
             mData->mCallSignCheckDone = true;
-        }
-		// if America region, not PS name received and not user renamed station
-        else if ( region == RadioRegion::America && mData->mName.isEmpty() && !isRenamed() )
-        {
+        } else if ( region == RadioRegion::America && mData->mName.isEmpty() && !isRenamed() ) {
             LOG( "Calculate call sign" );
             mData->mName = piCodeToCallSign( mData->mPiCode );
             mData->mChangeFlags |= RadioStation::NameChanged;
         }
 
-        if ( mData->mChangeFlags.testFlag( RadioStation::PsTypeChanged ) )
-		{
+        if ( mData->mChangeFlags.testFlag( RadioStation::PsTypeChanged ) ) {
             LOG( "Call sign check done" );
             mData->mCallSignCheckDone = true;
         }
 
+        ASSERT_SHARED_NULL_IS_INTACT
         return true;
     }
     return false;
@@ -283,9 +282,9 @@ bool RadioStation::setPiCode( int piCode, RadioRegion::Region region )
 void RadioStation::setPsType( PsType psType )
 {
     if ( mData->mPsType != psType ) {
-        detach();
         mData->mPsType = psType;
         mData->mChangeFlags |= RadioStation::PsTypeChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -295,9 +294,9 @@ void RadioStation::setPsType( PsType psType )
 void RadioStation::setRadioText( const QString& radioText )
 {
     if ( mData->mRadioText.compare( radioText ) != 0 ) {
-        detach();
         mData->mRadioText = radioText.isEmpty() ? "" : radioText.trimmed();
         mData->mChangeFlags |= RadioStation::RadioTextChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -316,14 +315,7 @@ void RadioStation::setRadioTextPlus( const int rtPlusClass, const QString& rtPlu
             return;
         }
 
-        detach();
-        QString replacement = "";
-        if ( rtPlusClass == RtPlus::Artist ) {
-            replacement = HTML_ARTIST;
-        } else if ( rtPlusClass == RtPlus::Title ) {
-            replacement = HTML_TITLE;
-        }
-        replacement += rtPlusItem + HTML_CLOSE;
+        const QString replacement = HTML_TAG_START + rtPlusItem + HTML_TAG_END;
 
         mData->mRadioText.replace( rtPlusItem, replacement );
         mData->mChangeFlags |= RadioStation::RadioTextChanged;
@@ -336,9 +328,9 @@ void RadioStation::setRadioTextPlus( const int rtPlusClass, const QString& rtPlu
 void RadioStation::setDynamicPsText( const QString& dynamicPsText )
 {
     if ( mData->mDynamicPsText.compare( dynamicPsText ) != 0 ) {
-        detach();
         mData->mDynamicPsText = dynamicPsText;
         mData->mChangeFlags |= RadioStation::DynamicPsChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -347,7 +339,7 @@ void RadioStation::setDynamicPsText( const QString& dynamicPsText )
  */
 bool RadioStation::isValid() const
 {
-    return mData->mPresetIndex >= 0 && mData->mFrequency > 0;
+    return mData->mFrequency > 0 && ( isType( ManualStation ) || mData->mPresetIndex >= 0 );
 }
 
 /*!
@@ -366,7 +358,6 @@ void RadioStation::setUserDefinedName( const QString& name )
     // We don't check for name emptiness because this setter is used also to remove the renaming
     // of a station by setting an empty name
     if ( mData->mName.compare( name ) != 0 ) {
-        detach();
         mData->mName = name;
         mData->mRenamedByUser = !name.isEmpty();
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::NameChanged;
@@ -392,20 +383,9 @@ int RadioStation::genre() const
 /*!
  *
  */
-QString RadioStation::frequencyMhz() const
+QString RadioStation::frequencyString() const
 {
-    return qtTrId( "txt_rad_list_l1_mhz_big" ).arg( parseFrequency( mData->mFrequency ) );
-}
-
-/*!
- *
- */
-QString RadioStation::nameOrFrequencyMhz() const
-{
-    if ( !mData->mName.isEmpty() ) {
-        return mData->mName;
-    }
-    return frequencyMhz();
+    return parseFrequency( mData->mFrequency );
 }
 
 /*!
@@ -430,9 +410,9 @@ int RadioStation::presetIndex() const
 void RadioStation::setFavorite( bool favorite )
 {
     if ( isFavorite() != favorite ) {
-        detach();
         favorite ? setType( RadioStation::Favorite ) : unsetType( RadioStation::Favorite );
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::FavoriteChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -455,21 +435,9 @@ QString RadioStation::url() const
 /*!
  *
  */
-bool RadioStation::hasPiCode() const
+int RadioStation::piCode() const
 {
-    return mData->mPiCode != -1;
-}
-
-/*!
- *
- */
-bool RadioStation::hasRds() const
-{
-    return hasPiCode() ||
-            mData->mGenre != -1 ||
-            !mData->mDynamicPsText.isEmpty() ||
-            !mData->mRadioText.isEmpty() ||
-            ( !mData->mName.isEmpty() && !isRenamed() );
+    return mData->mPiCode;
 }
 
 /*!
@@ -478,7 +446,6 @@ bool RadioStation::hasRds() const
 void RadioStation::setType( RadioStation::Type type )
 {
     if ( !isType( type ) ) {
-        detach();
 
         // Check if favorite-status changed
         if ( mData->mType.testFlag( RadioStation::Favorite ) != type.testFlag( RadioStation::Favorite ) ) {
@@ -487,6 +454,7 @@ void RadioStation::setType( RadioStation::Type type )
 
         mData->mType |= type;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::TypeChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -496,7 +464,6 @@ void RadioStation::setType( RadioStation::Type type )
 void RadioStation::unsetType( RadioStation::Type type )
 {
     if ( isType( type ) ) {
-        detach();
 
         // Check if favorite-status changed
         if ( mData->mType.testFlag( RadioStation::Favorite ) != type.testFlag( RadioStation::Favorite ) ) {
@@ -505,6 +472,7 @@ void RadioStation::unsetType( RadioStation::Type type )
 
         mData->mType &= ~type;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::TypeChanged;
+        ASSERT_SHARED_NULL_IS_INTACT
     }
 }
 
@@ -570,19 +538,7 @@ bool RadioStation::hasChanged() const
 void RadioStation::resetChangeFlags()
 {
     if ( mData->mChangeFlags != RadioStation::NoChange ) {
-        detach();
         mData->mChangeFlags = RadioStation::NoChange;
-    }
-}
-
-/**
- * Decrements the reference count of the implicitly shared data.
- */
-void RadioStation::decrementReferenceCount()
-{
-    if ( !mData->ref.deref() ) {
-        delete mData;
-        mData = 0;
     }
 }
 
@@ -595,21 +551,19 @@ void RadioStation::decrementReferenceCount()
 
     LOG_FORMAT( "RadioStation::piCodeToCallSign PI: %d", programmeIdentification );
     // call signs beginning with 'K'
-    if( ( programmeIdentification>=KXXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification < WXXX_CALLSIGN_PI_FIRST ) ) {
+    if ( ( programmeIdentification>=KXXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification < WXXX_CALLSIGN_PI_FIRST ) ) {
         callSign += "K";
         callSign += iterateCallSign( KXXX_CALLSIGN_PI_FIRST, programmeIdentification );
     }
     // call signs beginning with 'W'
-    else if (( programmeIdentification >= WXXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification <= WXXX_CALLSIGN_PI_LAST )) {
+    else if ( ( programmeIdentification >= WXXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification <= WXXX_CALLSIGN_PI_LAST ) ) {
         callSign += "W";
         callSign += iterateCallSign( WXXX_CALLSIGN_PI_FIRST, programmeIdentification );
     }
     // 3 letter only call signs
-    else if(( programmeIdentification >= XXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification <= XXX_CALLSIGN_PI_LAST)) {
+    else if ( ( programmeIdentification >= XXX_CALLSIGN_PI_FIRST ) && ( programmeIdentification <= XXX_CALLSIGN_PI_LAST ) ) {
         callSign += callSignString( programmeIdentification );
-    }
-    else
-    {
+    } else {
         LOG( "RadioStation::piCodeToCallSign - Unhandled else" );
     }
 
@@ -626,10 +580,10 @@ QString RadioStation::iterateCallSign( int piBase, int programmeIdentification )
     QString callSign;
     LOG_FORMAT( "RadioStation::iterateCallSign base: %d", piBase );
 
-    int sum(0), i(0);
-
+    int sum = 0;
+    int i = 0;
     while( sum < programmeIdentification ) {
-        i++;
+        ++i;
         sum = piBase + i * 676 + 0 + 0;
     }
     callSign += callSignChar( i - 1 );
@@ -638,7 +592,7 @@ QString RadioStation::iterateCallSign( int piBase, int programmeIdentification )
     sum -= 676;
     i = 0;
     while( sum <= programmeIdentification ) {
-        i++;
+        ++i;
         sum = tmpSum + 0 + i * 26 + 0;
     }
     callSign += callSignChar( i - 1 );
@@ -647,7 +601,7 @@ QString RadioStation::iterateCallSign( int piBase, int programmeIdentification )
     sum -= 26;
     i = 0;
     while( sum <= programmeIdentification ) {
-        i++;
+        ++i;
         sum = tmpSum + 0 + 0 + i;
     }
     callSign += callSignChar( i - 1 );
@@ -668,7 +622,7 @@ QString RadioStation::callSignString( uint programmeIdentification )
 
     LOG_FORMAT( "RadioStation::callSignString, Not found PI: %d", programmeIdentification );
 
-    return QString("????");
+    return QString( "????" );
 }
 
 /*!
@@ -681,30 +635,6 @@ char RadioStation::callSignChar( uint decimalValue )
         return static_cast<char>( 'A' + decimalValue );
     }
     return '?';
-}
-
-/**
- * Detach from the implicitly shared data
- */
-void RadioStation::detach()
-{
-    if ( !isDetached() ) {
-        RadioStationPrivate* newData = new RadioStationPrivate( *mData );
-
-        decrementReferenceCount();
-
-        newData->ref = 1;
-        mData = newData;
-
-        // The shared null instance of the data has its preset index set to -200 (RadioStation::SharedNull).
-        // We change the preset index of the detached data to -100 (RadioStation::Invalid) just to ease
-        // debugging. This guarantees that the only instance that has value -200 is the actual shared null.
-        #ifdef _DEBUG
-        if ( mData->mPresetIndex == RadioStation::SharedNull ) {
-            mData->mPresetIndex = RadioStation::Invalid;
-        }
-        #endif
-    }
 }
 
 /**

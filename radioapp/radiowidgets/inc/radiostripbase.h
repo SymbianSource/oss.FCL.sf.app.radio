@@ -29,7 +29,7 @@ class QAbstractItemModel;
 class RadioStripBase : public HbScrollArea
 {
     Q_OBJECT
-    Q_PROPERTY( int autoScrollTime READ autoScrollTime WRITE setAutoScrollTime )
+    Q_PROPERTY(int autoScrollTime READ autoScrollTime WRITE setAutoScrollTime)
 
 public:
 
@@ -60,18 +60,18 @@ protected:
     void mousePressEvent( QGraphicsSceneMouseEvent* event );
     void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
 
-private slots:
-
-    void scrollPositionChanged( QPointF newPosition );
-
 private:
 
     Q_DISABLE_COPY( RadioStripBase )
 
+// from base class HbScrollArea
+
+    bool scrollByAmount( const QPointF& delta );
+
     virtual void updateItemPrimitive( QGraphicsItem* itemToUpdate, int itemIndex ) = 0;
     virtual QGraphicsItem* createItemPrimitive( QGraphicsItem *parent ) = 0;
 
-    virtual void scrollPosChanged( QPointF newPosition ) = 0;
+    virtual void scrollPosChanged() = 0;
 
     void moveAllItemsToPool();
 

@@ -32,7 +32,7 @@ VERSION                 10.0
 CAPABILITY              CAP_GENERAL_DLL
 VENDORID                VID_DEFAULT
 PAGED
-//LANGUAGE_IDS
+SMPSAFE
 LANG SC
 
 SOURCEPATH              ../data

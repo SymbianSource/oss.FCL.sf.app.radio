@@ -607,13 +607,14 @@ void CRadioEngineSettings::InitializeDataHolders()
     GetRepositoryValue( KRadioCRDefaultMinVolumeLevel, temp, temp );
     iDefaultMinVolume = temp;
 
-    temp = ERadioRegionNone;
+    temp = ERadioRegionDefault;
     GetRepositoryValue( KRadioCRDefaultRegion, temp, temp );
     iDefaultRegion = static_cast<TRadioRegion>( temp );
 
-    temp = ERadioRegionNone;
+    temp = iDefaultRegion;
     GetRepositoryValue( KRadioCRCurrentRegion, temp, temp );
     iRegionId = static_cast<TRadioRegion>( temp );
+    UpdateCurrentRegionIdx( iRegionId );
 
     temp = MinFrequency();
     GetRepositoryValue( KRadioCRTunedFrequency, temp, temp );
@@ -755,11 +756,11 @@ TBool CRadioEngineSettings::IsRegionAllowed( TRadioRegion aRegionId ) const
     if ( ERadioRegionJapan == aRegionId )
         {
         TInt err = iRepository->Get( KRadioCRRegionAllowedJapan, regionAllowed );
-        if ( KErrNone != err )
+        if ( err != KErrNone )
             {
             // In case the key is not found or otherwise unsuccessfully read,
-            // Japan region is not allowed by default.
-            regionAllowed = EFalse;
+            // Japan region is allowed by default.
+            regionAllowed = ETrue;
             }
         }
 

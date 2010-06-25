@@ -20,5 +20,5 @@ CONFIG += ordered
 symbian: {
     BLD_INF_RULES.prj_mmpfiles += $$LITERAL_HASH"include \"radioengine/group/bld.inf\""
     SUBDIRS += radioapp
-    SUBDIRS += hswidgetplugin
+    SUBDIRS += radiohswidget
 }

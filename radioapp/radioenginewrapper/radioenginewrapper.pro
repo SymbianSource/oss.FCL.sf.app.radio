@@ -14,6 +14,7 @@
 # Description:
 #
 
+TMP_DIR_NAME = enginewrapper
 include(../buildflags.pri)
 
 TEMPLATE    = lib
@@ -57,7 +58,7 @@ symbian: {
     LIBS *= -lfmradioenginesettings
     LIBS *= -lfmradioengine
 
-    HEADERS += cradioenginehandler.h
+    HEADERS += radioenginehandler.h
     HEADERS += mradioenginehandlerobserver.h
     HEADERS += radiocontroleventlistener.h
     HEADERS += radiordslistener.h
@@ -67,7 +68,7 @@ symbian: {
     SOURCES += radiosettings_p.cpp
     SOURCES += radioenginewrapper.cpp
     SOURCES += radioenginewrapper_p.cpp
-    SOURCES += cradioenginehandler.cpp
+    SOURCES += radioenginehandler.cpp
     SOURCES += radiocontroleventlistener.cpp
     SOURCES += radiordslistener.cpp
 }

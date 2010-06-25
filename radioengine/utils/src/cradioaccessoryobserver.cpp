@@ -24,7 +24,7 @@
 #include "cradioenginelogger.h"
 
 #ifdef ASW_CORE_AUDIO_PLATFORM_VERSION // Nokia specific adaptation
-#include <internal/accpolpropgenericid.h>
+#include <accpolpropgenericid.h>
 const TUint KPhysicalConnectionBitmask = KPCNokiaAV | KPCWired;
 #else
 const TUint KPhysicalConnectionBitmask = KPCWired;

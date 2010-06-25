@@ -100,15 +100,15 @@ void RadioFrequencyScanner::startScanning()
     } else {
         RadioUtil::setScanStatus( Scan::ScanningInStationsView );
         mScanningProgressNote = new HbProgressDialog( HbProgressDialog::ProgressDialog );
-        mScanningProgressNote->setModal( true );
-        mScanningProgressNote->setAutoClose( true );
+        mScanningProgressNote.data()->setModal( true );
+        mScanningProgressNote.data()->setAutoClose( true );
 
         // Add some extra to the maximum value to allow room for the station at the low band edge
-        mScanningProgressNote->setRange( mUiEngine.minFrequency(), mUiEngine.maxFrequency() + EXTRA_TO_PROGRESS_MAX_VALUE );
-        mScanningProgressNote->setProgressValue( mUiEngine.minFrequency() );
-        mScanningProgressNote->setText( hbTrId( "txt_rad_info_searching_local_stations_please_wait" ) );
-        mScanningProgressNote->setAttribute( Qt::WA_DeleteOnClose, true );
-        mScanningProgressNote->open();
+        mScanningProgressNote.data()->setRange( mUiEngine.minFrequency(), mUiEngine.maxFrequency() + EXTRA_TO_PROGRESS_MAX_VALUE );
+        mScanningProgressNote.data()->setProgressValue( mUiEngine.minFrequency() );
+        mScanningProgressNote.data()->setText( hbTrId( "txt_rad_info_searching_local_stations_please_wait" ) );
+        mScanningProgressNote.data()->setAttribute( Qt::WA_DeleteOnClose, true );
+        mScanningProgressNote.data()->open();
 
         Radio::connect( mScanningProgressNote.data(),   SIGNAL(cancelled()),
                         this,                           SLOT(cancelScanning()) );
@@ -170,7 +170,7 @@ void RadioFrequencyScanner::updateScanProgress( const RadioStation& station )
         // all of the higher frequencies. We don't update the progress value here because the value would
         // be lower than the previous one. The progress value is set to maximum when the scanner finishes.
         if ( frequency != mUiEngine.minFrequency() ) {
-            mScanningProgressNote->setProgressValue( frequency );
+            mScanningProgressNote.data()->setProgressValue( frequency );
         }
 
         mScannerEngine->continueScanning();
@@ -235,6 +235,8 @@ void RadioFrequencyScanner::finishScanning()
                             this,       SLOT(restoreUiControls()) );
 
             const uint frequency = model.stationAt( 0 ).frequency();
+
+            mUiEngine.setFrequency( frequency, TuneReason::StationScanFinalize );
             frequencyStrip->setFrequency( frequency, TuneReason::StationScanFinalize, Scroll::Right );
             carousel->setFrequency( frequency, TuneReason::StationScanFinalize, Scroll::Right );
 
@@ -260,8 +262,8 @@ void RadioFrequencyScanner::finishScanning()
     } else {
         if ( !mUserCanceled ) {
             if ( mScanningProgressNote ) {
-                mScanningProgressNote->setProgressValue( mScanningProgressNote->maximum() );
-                mScanningProgressNote->close();
+                mScanningProgressNote.data()->setProgressValue( mScanningProgressNote.data()->maximum() );
+                mScanningProgressNote.data()->close();
             }
 
             if ( stationCount == 0 ) {
@@ -273,6 +275,8 @@ void RadioFrequencyScanner::finishScanning()
                 box->open();
             }
         }
+        const uint frequency = model.stationAt( 0 ).frequency();
+        mUiEngine.setFrequency( frequency, TuneReason::StationScanFinalize );
     }
 
     mIsAlive = false;

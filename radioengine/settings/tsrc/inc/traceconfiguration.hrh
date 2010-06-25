@@ -1,0 +1,78 @@
+/*
+* Copyright (C) 2009 Nokia Corporation And/Or Its Subsidiary(-Ies).
+* All Rights Reserved.
+* This Component And The Accompanying Materials Are Made Available
+* Under The Terms Of The License "Symbian Foundation License V1.0"
+* Which Accompanies This Distribution, And Is Available
+* At The Url "Http://Www.Symbianfoundation.Org/Legal/Sfl-V10.Html".
+*
+* Initial Contributors:
+* Nokia Corporation - Initial Contribution.
+*
+* Contributors:
+*
+* Description:
+* Trace Macro Configurations.
+*
+*/
+
+#ifndef TRACECONFIGURATION_HRH
+#define TRACECONFIGURATION_HRH
+
+//-----------------------------------------------------------------------------
+// Trace definitions
+//-----------------------------------------------------------------------------
+//
+
+/**
+* Error trace enabled
+*/
+#ifdef _DEBUG
+    #define ERROR_TRACE
+#else
+    #undef ERROR_TRACE
+#endif
+
+/**
+* Info trace enabled
+*/
+#ifdef _DEBUG
+    #define INFO_TRACE
+#else
+    #undef INFO_TRACE
+#endif
+
+/**
+* Timestamp tracing on
+*/
+#ifdef _DEBUG
+    #define TIMESTAMP_TRACE
+#else
+    #undef TIMESTAMP_TRACE
+#endif
+
+/**
+* Tracing current client process and thread
+*/
+#ifdef _DEBUG
+    #define CLIENT_TRACE
+#else
+    #undef CLIENT_TRACE
+#endif
+
+/**
+* Function trace enabled
+*/
+#ifdef _DEBUG
+    #define FUNC_TRACE
+#else
+    #undef FUNC_TRACE
+#endif
+
+/**
+* Tracing into file enabled, default RDebug
+*/
+#undef TRACE_INTO_FILE
+
+#endif
+

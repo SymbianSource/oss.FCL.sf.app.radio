@@ -35,6 +35,7 @@ symbian: {
     INCLUDEPATH += ../../../radioengine/utils/api
     INCLUDEPATH += ../../../radioengine/settings/api
     INCLUDEPATH += ../../../radioengine/engine/api
+    MMP_RULES += SMPSAFE
 }
 
 win32: {

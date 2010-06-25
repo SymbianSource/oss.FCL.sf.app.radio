@@ -30,6 +30,7 @@ CAPABILITY              CAP_GENERAL_DLL
 VENDORID                VID_DEFAULT
 
 PAGED
+SMPSAFE
 
 SOURCEPATH              ../src
 SOURCE                  cradioengine.cpp

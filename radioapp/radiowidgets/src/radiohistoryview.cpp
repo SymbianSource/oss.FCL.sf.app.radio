@@ -217,8 +217,6 @@ void RadioHistoryView::openOviStore()
  */
 void RadioHistoryView::openOtherStore()
 {
-    QString msg = "To be implemented: Open other store. Artist: %1, Title: %2";
-    HbMessageBox::information( msg.arg( mSelectedItem->artist() ).arg( mSelectedItem->title() ) );
     mUiEngine->openMusicStore( *mSelectedItem, RadioUiEngine::OtherStore );
 }
 
@@ -253,6 +251,7 @@ void RadioHistoryView::addOneSong()
 void RadioHistoryView::init()
 {
     LOG_METHOD;
+    loadSection( DOCML::FILE_HISTORYVIEW, DOCML::SECTION_LAZY_LOAD );
 
     RadioHistoryModel* historyModel = &mUiEngine->historyModel();
     historyModel->setShowDetails( mOrientation == Qt::Horizontal );
@@ -294,6 +293,8 @@ void RadioHistoryView::init()
                        this,                                SLOT(toggleTagging()) );
     connectXmlElement( DOCML::HV_NAME_OVI_STORE_ACTION,     SIGNAL(triggered()),
                        this,                                SLOT(openOviStore()) );
+    connectXmlElement( DOCML::HV_NAME_OTHER_STORE_ACTION,   SIGNAL(triggered()),
+                       this,                                SLOT(openOtherStore()) );
     initBackAction();
 
     updateViewMode();

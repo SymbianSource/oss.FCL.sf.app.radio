@@ -20,6 +20,7 @@
 
 // System includes
 #include <QObject>
+#include <QScopedPointer>
 #include <QMap>
 
 // User includes
@@ -37,11 +38,11 @@ class RadioStation;
 class UI_ENGINE_DLL_EXPORT RadioScannerEngine : public QObject
     {
     Q_OBJECT
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioScannerEngine )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioScannerEngine )
     Q_DISABLE_COPY( RadioScannerEngine )
 
     friend class RadioUiEngine;
-    
+
 public:
 
     explicit RadioScannerEngine( RadioUiEnginePrivate& uiEngine );
@@ -88,7 +89,7 @@ private: // data
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioScannerEnginePrivate* const d_ptr;
+    const QScopedPointer<RadioScannerEnginePrivate> d_ptr;
 
     };
 

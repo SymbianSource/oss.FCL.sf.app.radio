@@ -53,9 +53,6 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
     // mItemParent is used to hold the unused QGraphicsItem's in the pool.  It's visibility is set to false
     // so the visibility of the items doesn't need to be modified.
     mItemPoolParent->setVisible( false );
-
-    Radio::connect( this,   SIGNAL(scrollPositionChanged(QPointF)),
-                    this,   SLOT(scrollPositionChanged(QPointF)));
 }
 
 /*!
@@ -217,15 +214,6 @@ void RadioStripBase::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 }
 
 /*!
- * Private slot
- */
-void RadioStripBase::scrollPositionChanged( QPointF newPosition )
-{
-    adjustItems();
-    scrollPosChanged( newPosition );
-}
-
-/*!
  *
  */
 void RadioStripBase::moveAllItemsToPool()
@@ -280,11 +268,7 @@ void RadioStripBase::populateAndLayout()
         }
     }
 
-    QRectF contentsRect(0,0,0,0);
-    contentsRect.setBottom( mItemSize.height() );
-    contentsRect.setRight( mContentsLength );
-
-    mStripContainer->setGeometry( contentsRect );
+    mStripContainer->setPreferredSize( mContentsLength, mItemSize.height() );
 
     if ( mCurrentIndex >= 0 )
     {
@@ -496,4 +480,17 @@ void RadioStripBase::adjustItems()
             }
         }
     }
+}
+
+/*!
+ * \reimp
+ */
+bool RadioStripBase::scrollByAmount( const QPointF& delta )
+{
+    bool ret = HbScrollArea::scrollByAmount( delta );
+
+    adjustItems();
+    scrollPosChanged();
+
+    return ret;
 }

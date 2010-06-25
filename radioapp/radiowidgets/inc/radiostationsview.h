@@ -21,7 +21,6 @@
 // System includes
 #include <HbIcon>
 #include <QScopedPointer>
-#include <QPointer>
 
 // User includes
 #include "radioviewbase.h"
@@ -66,6 +65,7 @@ private slots:
     void finishScanning();
     void updateVisibilities();
     void clearList();
+    void play();            // Called from context menu
     void rename();          // Called from context menu
     void toggleFavorite();  // Called from context menu
     void deleteStation();   // Called from context menu
@@ -86,7 +86,7 @@ private: //data
 
     RadioStationModel*                      mModel;
 
-    QPointer<QSortFilterProxyModel>         mFilterModel;
+    QSortFilterProxyModel*                  mFilterModel;
 
     HbAction*                               mScanStationsAction;
     HbAction*                               mClearListAction;

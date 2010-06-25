@@ -19,6 +19,8 @@
 #include <QTimer>
 #include <qsysteminfo.h>
 #include <HbDeviceMessageBox>
+#include <xqserviceutil.h>
+#include <HbSplashScreen>
 
 // User includes
 #include "radioapplication.h"
@@ -45,13 +47,17 @@
  * Constructor
  */
 RadioApplication::RadioApplication( int &argc, char *argv[] ) :
-    HbApplication( argc, argv )
+    HbApplication( argc, argv, Hb::NoSplash )
 {
     // Initializes the radio engine utils if UI logs are entered into the engine log
     INIT_COMBINED_LOGGER
 
     LOG_TIMESTAMP( "Start radio" );
     setApplicationName( hbTrId( "txt_rad_title_fm_radio" ) );
+
+    if ( !XQServiceUtil::isService() ) {
+        HbSplashScreen::start();
+    }
 
     QTimer::singleShot( 0, this, SLOT(init()) );
 }
@@ -67,14 +73,13 @@ RadioApplication::~RadioApplication()
 }
 
 /*!
- *Private slot
+ * Private slot
  *
  */
 void RadioApplication::init()
 {
     // If started as a service, there is no need for offline-check
-    const Hb::ActivationReason reason = activateReason();
-    bool okToStart = reason == Hb::ActivationReasonService;
+    bool okToStart = XQServiceUtil::isService();
     QScopedPointer<QtMobility::QSystemDeviceInfo> deviceInfo( new QtMobility::QSystemDeviceInfo() );
 
     if ( !okToStart ) {
@@ -91,9 +96,10 @@ void RadioApplication::init()
 
     if ( okToStart ) {
 
-        // MainWindow needs to be alive to be able to show the offline query dialog.
-        // The window is only constructed half-way at this point because we may need to shut down if
-        // offline usage is not allowed
+        // Try to optimize startup time by launching the radio server process as soon as possible.
+        // This way the server and UI are being initialized at the same time and the startup is faster.
+//        RadioUiEngine::launchRadioServer();
+
         mMainWindow.reset( new RadioWindow() );
 
         CREATE_WIN32_TEST_WINDOW

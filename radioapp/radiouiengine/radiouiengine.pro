@@ -14,6 +14,7 @@
 # Description:
 #
 
+TMP_DIR_NAME = uiengine
 include(../buildflags.pri)
 
 TEMPLATE    = lib
@@ -23,7 +24,7 @@ DEFINES     += BUILD_UI_ENGINE_DLL
 
 symbian:TARGET.UID3 = 0x2002EADA
 
-# Wrapper does not depend on QtGui or Orbit
+# UI engine does not depend on Orbit
 QT          = core gui network sql
 CONFIG      -= hb
 
@@ -41,15 +42,13 @@ symbian:LIBS += -lxqsettingsmanager
 
 DEPENDPATH += $$INCLUDEPATH src
 
-# $$_PRO_FILE_PWD_ points to the directory of the pro file
-MOC_DIR = $$_PRO_FILE_PWD_/tmp
-
 # Input
 HEADERS += radiouiengineexport.h
 HEADERS += radiostation.h
 HEADERS += radiostationmodel.h
 HEADERS += radiouiengine.h
 HEADERS += radiohistoryitem.h
+HEADERS += radiohistorydatabase.h
 HEADERS += radiohistorymodel.h
 HEADERS += radioscannerengine.h
 HEADERS += radioservicedef.h
@@ -75,6 +74,7 @@ SOURCES += radiouiengine.cpp
 SOURCES += radiouiengine_p.cpp
 SOURCES += radiohistoryitem.cpp
 SOURCES += radiohistoryitem_p.cpp
+SOURCES += radiohistorydatabase.cpp
 SOURCES += radiohistorymodel.cpp
 SOURCES += radiohistorymodel_p.cpp
 SOURCES += radioscannerengine.cpp

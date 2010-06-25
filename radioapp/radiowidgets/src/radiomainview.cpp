@@ -17,11 +17,14 @@
 
 // System includes
 #include <QTimer>
-#include <HbLabel>
 #include <HbPushButton>
 #include <HbAction>
 #include <HbMenu>
-#include <QApplication>
+#include <HbApplication>
+#include <HbActivityManager>
+#include <QPixmap>
+#include <HbLabel>
+#include <HbFrameItem>          // Temporarily here until docml supports frame items
 
 // User includes
 #include "radiowindow.h"
@@ -36,6 +39,22 @@
 #include "radiofrequencyscanner.h"
 
 // Constants
+const QLatin1String RADIO_MAINVIEW_ACTIVITY_ID( "FMRadioMainView" );
+
+/*!
+ * Temporary convenience function to set frame background until DOCML supports frame items
+ */
+static void initFrameBackground( RadioUiLoader& uiLoader,
+                                 const QString backgroundName,
+                                 HbFrameDrawer::FrameType frameType )
+{
+    if ( HbLabel* backgroundLabel = uiLoader.findObject<HbLabel>( backgroundName ) ) {
+        QString backgroundName = backgroundLabel->icon().iconName();
+        HbFrameItem* frameItem = new HbFrameItem( backgroundName, frameType, backgroundLabel );
+        backgroundLabel->setBackgroundItem( frameItem );
+    }
+}
+
 
 /*!
  *
@@ -66,9 +85,11 @@ void RadioMainView::setScanningMode( bool scanning )
         loadSection( DOCML::FILE_MAINVIEW, DOCML::MV_SECTION_SCANNING );
     } else {
         loadSection( DOCML::FILE_MAINVIEW, DOCML::MV_SECTION_NORMAL );
+        updateFavoriteButton();
         mFrequencyScanner.take();
 
-        const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+//        const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+        const bool firsTimeStart = false; // TODO! RadioServer terminates. Fix available in NCP 25 or 27.
         const int rowCount = mUiEngine->stationModel().rowCount();
         if ( firsTimeStart && rowCount != 0 ) {
             mUiEngine->setFirstTimeStartPerformed( true );
@@ -80,14 +101,26 @@ void RadioMainView::setScanningMode( bool scanning )
  * \reimp
  *
  */
+void RadioMainView::preLazyLoadInit()
+{
+    initFrameBackground( *mUiLoader, DOCML::MV_NAME_FREQUENCY_BACKGROUND, HbFrameDrawer::NinePieces );
+
+    initFrameBackground( *mUiLoader, DOCML::MV_NAME_CAROUSEL_BACKGROUND, HbFrameDrawer::NinePieces );
+}
+
+/*!
+ * \reimp
+ *
+ */
 void RadioMainView::init()
 {
     LOG_METHOD;
     loadSection( DOCML::FILE_MAINVIEW, DOCML::SECTION_LAZY_LOAD );
+    initFrameBackground( *mUiLoader, DOCML::MV_NAME_CAROUSEL_OVERLAY, HbFrameDrawer::NinePieces );
+
     mCarousel = mUiLoader->findObject<RadioStationCarousel>( DOCML::MV_NAME_STATION_CAROUSEL );
     mCarousel->init( *mUiLoader, mUiEngine.data() );
 
-    // Note! UI connections are already made in the DocML file. Here we need to connect UI to engine
     mFrequencyStrip = mUiLoader->findObject<RadioFrequencyStrip>( DOCML::MV_NAME_FREQUENCY_STRIP );
     mFrequencyStrip->init( mUiEngine.data(), *mUiLoader );
 
@@ -122,11 +155,16 @@ void RadioMainView::init()
     connectXmlElement( DOCML::MV_NAME_STATIONS_BUTTON,  SIGNAL(clicked()),
                        mMainWindow,                     SLOT(activateStationsView()) );
 
-    connectXmlElement( DOCML::MV_NAME_SCAN_BUTTON,      SIGNAL(clicked()),
-                       this,                            SLOT(toggleScanning()) );
+    connectXmlElement( DOCML::MV_NAME_FAVORITE_BUTTON,  SIGNAL(clicked()),
+                       this,                            SLOT(toggleFavorite()) );
 
     connectXmlElement( DOCML::MV_NAME_SPEAKER_BUTTON,   SIGNAL(clicked()),
                        mUiEngine.data(),                SLOT(toggleAudioRoute()) );
+
+    connectXmlElement( DOCML::MV_NAME_SCAN_ACTION,      SIGNAL(triggered()),
+                       this,                            SLOT(toggleScanning()) );
+
+    updateFavoriteButton();
 
     connectCommonMenuItem( MenuItem::Exit );
 
@@ -135,7 +173,7 @@ void RadioMainView::init()
 
     //TODO: REMOVE. THIS IS TEMPORARY TEST CODE
     toggleSkippingMode();
-    menu()->addAction( "Reset start count", this, SLOT(resetFirstTimeCount()) );
+    menu()->addAction( "-- Reset start count", this, SLOT(resetFirstTimeCount()) );
     // END TEMPORARY TEST CODE
 
     updateAudioRoute( mUiEngine->isUsingLoudspeaker() );
@@ -151,11 +189,15 @@ void RadioMainView::init()
 #endif // BUILD_WIN32
     setNavigationAction( backAction );
 
-    const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+//    const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+    const bool firsTimeStart = false; // TODO! RadioServer terminates. Fix available in NCP 25 or 27.
     const int rowCount = mUiEngine->stationModel().rowCount();
     if ( firsTimeStart && rowCount == 0 ){
         QTimer::singleShot( 100, this, SLOT(toggleScanning()) );
     }
+
+    Radio::connect( static_cast<HbApplication*>( qApp ),    SIGNAL(aboutToQuit()),
+                    this,                                   SLOT(saveActivity()) );
 
     emit applicationReady();
 }
@@ -223,8 +265,9 @@ void RadioMainView::setFrequencyFromWidget( uint frequency, int reason, int dire
 void RadioMainView::setFrequencyFromEngine( uint frequency, int reason )
 {
     LOG_FORMAT( "RadioMainView::setFrequencyFromEngine reason: %d", reason );
-    if ( !RadioUtil::isScannerAlive() && !mFrequencyStrip->isInManualSeekMode() ) {
+    if ( RadioUtil::scanStatus() != Scan::ScanningInMainView && !mFrequencyStrip->isInManualSeekMode() ) {
         mCarousel->clearInfoText();
+        updateFavoriteButton();
         if ( reason != TuneReason::FrequencyStrip &&
              reason != TuneReason::StationCarousel &&
              reason != TuneReason::Skip ) {
@@ -304,6 +347,18 @@ void RadioMainView::toggleScanning()
 /*!
  * Private slot
  */
+void RadioMainView::toggleFavorite()
+{
+    if ( RadioUtil::isScannerAlive() ) {
+        toggleScanning();
+    } else {
+        mUiEngine->stationModel().setData( QModelIndex(), mFrequencyStrip->frequency(), RadioRole::ToggleFavoriteRole );
+    }
+}
+
+/*!
+ * Private slot
+ */
 void RadioMainView::seekingStarted()
 {
     if ( !RadioUtil::isScannerAlive() ) {
@@ -320,8 +375,8 @@ void RadioMainView::updateAntennaStatus( bool connected )
         mFrequencyStrip->cancelManualSeek();
     }
 
-    HbPushButton* scanButton = mUiLoader->findWidget<HbPushButton>( DOCML::MV_NAME_SCAN_BUTTON );
-    scanButton->setEnabled( connected );
+    HbAction* scanAction = mUiLoader->findObject<HbAction>( DOCML::MV_NAME_SCAN_ACTION );
+    scanAction->setEnabled( connected );
     mCarousel->updateAntennaStatus( connected );
 }
 
@@ -347,8 +402,12 @@ void RadioMainView::setManualSeekMode( bool manualSeekActive )
 {
     if ( manualSeekActive ) {
         qApp->installEventFilter( this );
+
+        mUiLoader->findWidget<HbPushButton>( DOCML::MV_NAME_FAVORITE_BUTTON )->setText( hbTrId( "txt_rad_button_add_to_favourites" ) );
     } else {
         qApp->removeEventFilter( this );
+
+        updateFavoriteButton();
     }
 
     mUiEngine->setManualSeekMode( manualSeekActive );
@@ -362,11 +421,43 @@ void RadioMainView::setManualSeekMode( bool manualSeekActive )
 void RadioMainView::handleFavoriteChange( const RadioStation& station )
 {
     mFrequencyStrip->updateFavorite( station );
-    if ( station.isFavorite() ) {
-        RadioUtil::showDiscreetNote( "Station added to Favourites." );
-    } else {
-        RadioUtil::showDiscreetNote( "Station removed from Favourites." );
-    }
+    updateFavoriteButton();
+}
+
+/*!
+ * Private slot
+ */
+void RadioMainView::saveActivity()
+{
+    HbActivityManager* activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
+
+    // Get a screenshot for saving to the activity manager
+    QSize screenShotSize = mCarousel->size().toSize();
+    QPixmap screenShot( screenShotSize );
+    QPainter painter( &screenShot );
+
+    // Draw the background and overlay
+    HbLabel* backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_BACKGROUND );
+    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+    backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_OVERLAY );
+    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+
+    mCarousel->drawOffScreen( painter );
+
+    QVariantHash metadata;
+    metadata.insert( "screenshot", screenShot );
+
+    #ifdef __WINS__
+        screenShot.save( "c:\\radio.bmp" );
+    #elif defined BUILD_WIN32
+        screenShot.save( "radio.bmp" );
+    #endif
+
+    // Update the activity to the activity manager
+    bool ok = activityManager->removeActivity( RADIO_MAINVIEW_ACTIVITY_ID );
+    LOG_ASSERT( ok, LOG( "Failed to remove old activity from Activity Manager!" ) );
+    ok = activityManager->addActivity( RADIO_MAINVIEW_ACTIVITY_ID, QVariant(), metadata );
+    LOG_ASSERT( ok, LOG( "Failed to update activity to Activity Manager!" ) );
 }
 
 /*!
@@ -381,9 +472,9 @@ void RadioMainView::toggleSkippingMode()
     mAlternateSkipping = !mAlternateSkipping;
     mCarousel->setAlternateSkippingMode( mAlternateSkipping );
     if ( mAlternateSkipping ) {
-        mSkippingAction->setText( "Normal skipping mode" );
+        mSkippingAction->setText( "-- Normal skipping mode" );
     } else {
-        mSkippingAction->setText( "Alternate skipping mode" );
+        mSkippingAction->setText( "-- Alternate skipping mode" );
     }
 }
 
@@ -393,4 +484,22 @@ void RadioMainView::toggleSkippingMode()
 void RadioMainView::resetFirstTimeCount()
 {
     mUiEngine->setFirstTimeStartPerformed( false );
+}
+
+/*!
+ *
+ */
+void RadioMainView::updateFavoriteButton()
+{
+    RadioStation station;
+    RadioStationModel& model = mUiEngine->stationModel();
+    model.findFrequency( mUiEngine->currentFrequency(), station );
+    HbPushButton* favoriteButton = mUiLoader->findWidget<HbPushButton>( DOCML::MV_NAME_FAVORITE_BUTTON );
+    if ( station.isFavorite() ) {
+        favoriteButton->setText( hbTrId( "txt_fmradio_button_remove_from_favourites" ) );
+        favoriteButton->setIcon( HbIcon( "qtg_mono_favourites_remove" ) );
+    } else {
+        favoriteButton->setText( hbTrId( "txt_rad_button_add_to_favourites" ) );
+        favoriteButton->setIcon( HbIcon( "qtg_mono_add_to_favourites" ) );
+    }
 }

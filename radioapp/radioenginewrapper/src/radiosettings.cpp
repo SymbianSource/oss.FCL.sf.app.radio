@@ -45,7 +45,6 @@ RadioSettings::RadioSettings() :
  */
 RadioSettings::~RadioSettings()
 {
-    delete d_ptr;
 }
 
 /*!

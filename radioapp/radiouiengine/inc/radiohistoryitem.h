@@ -19,8 +19,8 @@
 #define RADIOHISTORYITEM_H
 
 // System includes
+#include <QSharedDataPointer>
 #include <QMetaType>
-#include <QObject>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -30,12 +30,8 @@ class RadioHistoryItemPrivate;
 
 /*!
  * Radio history item implements a song recognized from the radio broadcast
- *
- * Note! It is derived from QObject even though architecturally it shouldn't be.
- * It is done only to satisfy the WINSCW build which doesn't export the destructor in UREL
- * build. This causes mismatching def files and annoying warnings. Deriving from QObject fixes this
  */
-class UI_ENGINE_DLL_EXPORT RadioHistoryItem : public QObject
+class UI_ENGINE_DLL_EXPORT RadioHistoryItem
 {
 public:
 
@@ -71,28 +67,15 @@ public:
 
     bool isRecognizedByRds() const;
 
-private:
-
-    /**
-     * Decrements the reference count of the implicitly shared data.
-     * Data is deleted if no instance uses it anymore.
-     */
-    void decrementReferenceCount();
-
 private: // data
 
-    /**
+    /*!
      * Pointer to the implicitly shared private implementation
      * Own.
      */
-    class RadioHistoryItemPrivate* mData;
+    QSharedDataPointer<RadioHistoryItemPrivate> mData;
 
 public:
-
-    /**
-     * Detach from the implicitly shared data
-     */
-    void detach();
 
     /**
      * Checks if the class is detached from implicitly shared data
@@ -100,7 +83,7 @@ public:
      */
     bool isDetached() const;
 
-    typedef RadioHistoryItemPrivate* DataPtr;
+    typedef QSharedDataPointer<RadioHistoryItemPrivate> DataPtr;
     inline DataPtr &data_ptr() { return mData; }
 
 };

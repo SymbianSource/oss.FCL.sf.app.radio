@@ -44,7 +44,7 @@ void CRadioRegion::ConstructL( TResourceReader& aRr )
     {
     LEVEL3( LOG_METHOD_AUTO );
     iId = static_cast<TRadioRegion>( aRr.ReadUint16());
-    iStepSize = static_cast<TUint16>( aRr.ReadUint16() ) * KRadioThousand;
+    iStepSize =  aRr.ReadUint32() * KRadioThousand;
     iMinFreq = aRr.ReadUint32() * KRadioThousand;
     iMaxFreq = aRr.ReadUint32() * KRadioThousand;
     iDecimalCount = aRr.ReadInt16();
@@ -56,9 +56,6 @@ void CRadioRegion::ConstructL( TResourceReader& aRr )
         code.Set( aRr.ReadTPtrC());
         User::LeaveIfError( iCountryCodes.Append( code.AllocL()));
         }
-
-    iName = aRr.ReadHBufC16L();
-    iSettingName = aRr.ReadHBufC16L();
     }
 
 // ---------------------------------------------------------------------------
@@ -87,8 +84,6 @@ CRadioRegion::~CRadioRegion()
     LEVEL3( LOG_METHOD_AUTO );
     iCountryCodes.ResetAndDestroy();
     iCountryCodes.Close();
-    delete iName;
-    delete iSettingName;
     }
 
 // ---------------------------------------------------------
@@ -149,24 +144,4 @@ EXPORT_C const RRadioCountryCodeArray& CRadioRegion::CountryCodes()
     {
     LEVEL3( LOG_METHOD_AUTO );
     return iCountryCodes;
-    }
-
-// ---------------------------------------------------------
-// Get the name of region
-// ---------------------------------------------------------
-//
-EXPORT_C const TDesC16& CRadioRegion::Name() const
-    {
-    LEVEL3( LOG_METHOD_AUTO );
-    return *iName;
-    }
-
-// ---------------------------------------------------------
-// Get the name of region
-// ---------------------------------------------------------
-//
-EXPORT_C const TDesC16& CRadioRegion::SettingItemName() const
-    {
-    LEVEL3( LOG_METHOD_AUTO );
-    return *iSettingName;
     }

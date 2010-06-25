@@ -30,13 +30,10 @@ const int SERVICE_POWEROFF_DELAY = 5000;
  *
  */
 RadioControlService::RadioControlService( RadioUiEngine& engine ) :
-    XQServiceProvider( RADIO_CONTROL_SERVICE, &engine ),
+    XQServiceProvider( RADIO_SERVICE +"."+ RADIO_CONTROL_SERVICE, &engine ),
     mUiEngine( engine )
 {
     publishAll();
-    if ( XQServiceUtil::isService() ) {
-        XQServiceUtil::toBackground( true );
-    }
 }
 
 /*!

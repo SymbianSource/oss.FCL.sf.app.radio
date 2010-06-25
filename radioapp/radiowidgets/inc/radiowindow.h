@@ -21,7 +21,7 @@
 // System includes
 #include <HbMainWindow>
 #include <HbEffect>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <qsysteminfo.h>
@@ -39,11 +39,11 @@ class HbMessageBox;
 typedef QScopedPointer<HbVolumeSliderPopup> VolumeSliderPtr;
 
 /**
- * QPointer is used to store the views because it tracks the deletion of the object and nulls
+ * QWeakPointer is used to store the views because it tracks the deletion of the object and nulls
  * the reference. Transient view like RadioHistoryView is destroyed after they are closed
- * and QPointer will notice it.
+ * and QWeakPointer will notice it.
  */
-typedef QPointer<RadioViewBase> ViewPtr;
+typedef QWeakPointer<RadioViewBase> ViewPtr;
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioWindow : public HbMainWindow

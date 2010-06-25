@@ -29,9 +29,8 @@ Q_GLOBAL_STATIC( RadioHistoryItemPrivate, shared_null )
  *
  */
 RadioHistoryItem::RadioHistoryItem() :
-    QObject( 0 )
+    mData( shared_null() )
 {
-    mData = shared_null();
     mData->ref.ref();
 }
 
@@ -39,19 +38,16 @@ RadioHistoryItem::RadioHistoryItem() :
  *
  */
 RadioHistoryItem::RadioHistoryItem( const QString& artist, const QString& title ) :
-    QObject( 0 )
+    mData( new RadioHistoryItemPrivate( artist, title ) )
 {
-    mData = new RadioHistoryItemPrivate( artist, title );
 }
 
 /*!
  *
  */
 RadioHistoryItem::RadioHistoryItem( const RadioHistoryItem& other ) :
-    QObject( 0 )
+    mData( other.mData )
 {
-    mData = other.mData;
-    mData->ref.ref();
 }
 
 /*!
@@ -59,7 +55,6 @@ RadioHistoryItem::RadioHistoryItem( const RadioHistoryItem& other ) :
  */
 RadioHistoryItem::~RadioHistoryItem()
 {
-    decrementReferenceCount();
 }
 
 /*!
@@ -67,7 +62,7 @@ RadioHistoryItem::~RadioHistoryItem()
  */
 RadioHistoryItem& RadioHistoryItem::operator=( const RadioHistoryItem& other )
 {
-    qAtomicAssign( mData, other.mData );
+    mData = other.mData;
     return *this;
 }
 
@@ -84,9 +79,7 @@ bool RadioHistoryItem::isValid() const
  */
 void RadioHistoryItem::reset()
 {
-    decrementReferenceCount();
     mData = shared_null();
-    mData->ref.ref();
 }
 
 /*!
@@ -111,7 +104,6 @@ QString RadioHistoryItem::artist() const
 void RadioHistoryItem::setArtist( const QString& artist )
 {
     if ( artist.compare( mData->mArtist ) != 0 ) {
-        detach();
         mData->mArtist = artist;
     }
 }
@@ -130,7 +122,6 @@ QString RadioHistoryItem::title() const
 void RadioHistoryItem::setTitle( const QString& title )
 {
     if ( title.compare( mData->mTitle ) != 0 ) {
-        detach();
         mData->mTitle = title;
     }
 }
@@ -149,7 +140,6 @@ QString RadioHistoryItem::station() const
 void RadioHistoryItem::setStation( const QString& station )
 {
     if ( station.compare( mData->mStation ) != 0 ) {
-        detach();
         mData->mStation = station;
     }
 }
@@ -168,7 +158,6 @@ uint RadioHistoryItem::frequency() const
 void RadioHistoryItem::setFrequency( uint frequency )
 {
     if ( frequency != mData->mFrequency ) {
-        detach();
         mData->mFrequency = frequency;
     }
 }
@@ -186,10 +175,8 @@ QString RadioHistoryItem::time() const
  */
 void RadioHistoryItem::setCurrentTime()
 {
-    detach();
-    mData->mTime.currentDateTime();
+    mData->mTime = QDateTime::currentDateTime();
 }
-
 
 /*!
  *
@@ -207,34 +194,8 @@ bool RadioHistoryItem::isRecognizedByRds() const
     return mData->mFromRds;
 }
 
-/**
- * Decrements the reference count of the implicitly shared data.
- */
-void RadioHistoryItem::decrementReferenceCount()
-{
-    if ( !mData->ref.deref() ) {
-        delete mData;
-        mData = 0;
-    }
-}
-
-/**
- * Detach from the implicitly shared data
- */
-void RadioHistoryItem::detach()
-{
-    if ( !isDetached() ) {
-        RadioHistoryItemPrivate* newData = new RadioHistoryItemPrivate( *mData );
-
-        decrementReferenceCount();
-
-        newData->ref = 1;
-        mData = newData;
-    }
-}
-
-/**
- * Checks if the class is detached from implicitly shared data
+/*!
+ *
  */
 bool RadioHistoryItem::isDetached() const
 {

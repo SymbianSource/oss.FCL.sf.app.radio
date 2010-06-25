@@ -44,6 +44,7 @@ typedef QList<RadioStation> StationList;
 class WIDGETS_DLL_EXPORT RadioFrequencyStrip : public RadioStripBase
 {
     Q_OBJECT
+    Q_PROPERTY(int itemHeight READ itemHeight WRITE setItemHeight)
     Q_PROPERTY(uint frequency READ frequency)
 
     friend class RadioFrequencyItem;
@@ -51,6 +52,9 @@ class WIDGETS_DLL_EXPORT RadioFrequencyStrip : public RadioStripBase
 public:
 
     RadioFrequencyStrip();
+
+    void setItemHeight( int itemHeight );
+    int itemHeight() const;
 
     void init( RadioUiEngine* engine, RadioUiLoader& uiLoader );
 
@@ -93,7 +97,7 @@ private:
 
     void updateItemPrimitive( QGraphicsItem* itemToUpdate, int itemIndex );
     QGraphicsItem* createItemPrimitive( QGraphicsItem *parent );
-    void scrollPosChanged( QPointF newPosition );
+    void scrollPosChanged();
 
 // from base class QGraphicsWidget
 
@@ -131,6 +135,8 @@ private:
 
     QPixmap drawPixmap( uint frequency, QList<RadioStation> stations, RadioFrequencyItem* item );
 
+    QLineF makeTab( qreal pos, int height );
+
     void emitFrequencyChanged( uint frequency );
 
     int selectorPos() const;
@@ -162,6 +168,8 @@ private: // data
     };
 
     RadioUiEngine*              mUiEngine;
+
+    int                         mItemHeight;
 
     uint                        mMinFrequency;
 

@@ -29,6 +29,7 @@ VERSION                 10.0
 CAPABILITY              CAP_GENERAL_DLL
 VENDORID                VID_DEFAULT
 PAGED
+SMPSAFE
 
 USERINCLUDE             ../api
 USERINCLUDE             ../inc

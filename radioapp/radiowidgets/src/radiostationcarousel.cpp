@@ -22,6 +22,8 @@
 #include <HbPanGesture>
 #include <HbSwipeGesture>
 #include <HbFontSpec>
+#include <HbMenu>
+#include <QPainter>
 
 // User includes
 #include "radiostationcarousel.h"
@@ -43,6 +45,11 @@ const int SET_FREQUENCY_TIMEOUT = 500;
 const int FAVORITE_HINT_SHOW_DELAY = 1000;
 const int FAVORITE_HINT_HIDE_DELAY = 2000;
 
+// Matti testing constants
+const QLatin1String LEFT_ITEM_NAME      ( "carousel_left" );
+const QLatin1String CENTER_ITEM_NAME    ( "carousel_center" );
+const QLatin1String RIGHT_ITEM_NAME     ( "carousel_right" );
+
 #ifdef BUILD_WIN32
 #   define SCROLLBAR_POLICY ScrollBarAlwaysOn
 #else
@@ -63,8 +70,8 @@ RadioStationCarousel::RadioStationCarousel( QGraphicsItem* parent ) :
     mAutoScrollTime( 300 ),
     mGenericTimer( new QTimer( this ) ),
     mTimerMode( NoTimer ),
-    mAnimator( NULL ),
     mInfoText( NULL ),
+    mRadiotextPopup( NULL ),
     mContainer( new HbWidget( this ) ),
     mMidScrollPos( 0 ),
     mMaxScrollPos( 0 ),
@@ -143,9 +150,14 @@ void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngin
     mUiEngine = uiEngine;
     RadioUtil::setCarousel( this );
 
-    mItems[LeftItem] = new RadioCarouselItem( *this );
-    mItems[CenterItem] = new RadioCarouselItem( *this );
-    mItems[RightItem] = new RadioCarouselItem( *this );
+    mItems[CenterItem] = new RadioCarouselItem( *this, this, true );
+    mItems[LeftItem] = new RadioCarouselItem( *this, this );
+    mItems[RightItem] = new RadioCarouselItem( *this, this );
+
+    // Matti testing needs the objects to have names
+    mItems[LeftItem]->setObjectName( LEFT_ITEM_NAME );
+    mItems[CenterItem]->setObjectName( CENTER_ITEM_NAME );
+    mItems[RightItem]->setObjectName( RIGHT_ITEM_NAME );
 
     QGraphicsLinearLayout* layout = new QGraphicsLinearLayout( Qt::Horizontal );
     layout->setContentsMargins( 0, 0, 0, 0 );
@@ -166,6 +178,8 @@ void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngin
     mInfoText = uiLoader.findWidget<HbLabel>( DOCML::MV_NAME_INFO_TEXT );
     mInfoText->setTextWrapping( Hb::TextWordWrap );
 
+    mRadiotextPopup = uiLoader.findObject<HbMenu>( DOCML::MV_NAME_CAROUSEL_RT_MENU );
+
 #ifdef BUILD_WIN32
     HbFontSpec spec = mInfoText->fontSpec();
     spec.setRole( HbFontSpec::Secondary );
@@ -173,10 +187,7 @@ void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngin
 #endif
 
     setScrollDirections( Qt::Horizontal );
-//    grabGesture( Qt::SwipeGesture );
 
-//    Radio::connect( this,           SIGNAL(scrollPositionChanged(QPointF)),
-//                    this,           SLOT(scrollPosChanged(QPointF)) );
     Radio::connect( this,           SIGNAL(scrollingEnded()),
                     this,           SLOT(adjustAfterScroll()) );
 
@@ -290,10 +301,10 @@ void RadioStationCarousel::setScanningMode( bool scanning )
         if ( !mAnimator ) {
             mAnimator = new RadioCarouselAnimator( *this );
         }
-        mAnimator->startFlashingText();
+        mAnimator.data()->startFlashingText();
     } else {
         if ( mAnimator ) {
-            mAnimator->stopFlashingText();
+            mAnimator.data()->stopFlashingText();
         }
         clearInfoText();
         setCenterIndex( 0 );
@@ -331,7 +342,7 @@ void RadioStationCarousel::animateNewStation( const RadioStation& station )
         mItems[RightItem]->setFrequency( previousFrequency );
         mCurrentIndex = mModel->indexFromFrequency( station.frequency() );
 
-        mAnimator->startNumberScroll( previousFrequency, station.frequency() );
+        mAnimator.data()->startNumberScroll( previousFrequency, station.frequency() );
     }
 }
 
@@ -341,7 +352,7 @@ void RadioStationCarousel::animateNewStation( const RadioStation& station )
 void RadioStationCarousel::cancelAnimation()
 {
     if ( mAnimator ) {
-        mAnimator->stopAll();
+        mAnimator.data()->stopAll();
     }
 }
 
@@ -364,7 +375,7 @@ void RadioStationCarousel::setInfoText( CarouselInfoText::Type type )
         if ( !mAnimator ) {
             mAnimator = new RadioCarouselAnimator( *this );
         }
-        mAnimator->startFlashingIcon();
+        mAnimator.data()->startFlashingIcon();
 
     } else if ( type == CarouselInfoText::ConnectAntenna ) {
         cleanRdsData();
@@ -393,7 +404,7 @@ void RadioStationCarousel::clearInfoText()
 {
     if ( mInfoTextType != CarouselInfoText::None ) {
         if ( mAnimator ) {
-            mAnimator->stopFlashingIcon();
+            mAnimator.data()->stopFlashingIcon();
         }
 
         mGenericTimer->stop();
@@ -419,6 +430,14 @@ void RadioStationCarousel::setManualSeekMode( bool manualSeekActive )
         clearInfoText();
         setFrequency( mUiEngine->currentFrequency(), TuneReason::Unspecified );
     }
+}
+
+/*!
+ *
+ */
+void RadioStationCarousel::drawOffScreen( QPainter& painter )
+{
+    mItems[CenterItem]->drawOffScreen( painter );
 }
 
 /*!
@@ -525,26 +544,6 @@ void RadioStationCarousel::timerFired()
     }
 }
 
-/*!
- * Private slot
- */
-void RadioStationCarousel::toggleFavorite()
-{
-    if ( mModel ) {
-        mModel->setData( QModelIndex(), mItems[CenterItem]->frequency(), RadioRole::ToggleFavoriteRole );
-    }
-}
-
-/*!
- * Private slot
- */
-//void RadioStationCarousel::openContextMenu( HbAbstractViewItem* item, const QPointF& coords )
-//{
-//    if ( item ) {
-//        static_cast<RadioStationItem*>( item )->handleLongPress( coords );
-//    }
-//}
-
 #ifdef USE_DEBUGGING_CONTROLS
 /*!
  * Public slot
@@ -641,6 +640,57 @@ void RadioStationCarousel::gestureEvent( QGestureEvent* event )
             adjustPos( (int)gesture->offset().x() );
         }
     }
+}
+
+/*!
+ * \reimp
+ */
+void RadioStationCarousel::handleIconClicked( const RadioStation& station )
+{
+    if ( mModel ) {
+        mModel->setData( QModelIndex(), station.frequency(), RadioRole::ToggleFavoriteRole );
+    }
+}
+
+/*!
+ * \reimp
+ */
+void RadioStationCarousel::handleRadiotextClicked( const RadioStation& station )
+{
+    Q_UNUSED( station );
+    mRadiotextPopup->show();
+}
+
+/*!
+ * \reimp
+ */
+void RadioStationCarousel::handleUrlClicked( const RadioStation& station )
+{
+    mUiEngine->launchBrowser( station.url() );
+}
+
+/*!
+ * \reimp
+ */
+QString RadioStationCarousel::localizeGenre( int genre )
+{
+    return mUiEngine->genreToString( genre, GenreTarget::Carousel );
+}
+
+/*!
+ * \reimp
+ */
+bool RadioStationCarousel::isInManualSeek() const
+{
+    return mManualSeekMode;
+}
+
+/*!
+ *
+ */
+RadioStation RadioStationCarousel::findStation( uint frequency )
+{
+    return mModel->findStation( frequency, FindCriteria::IncludeManualStation );
 }
 
 /*!

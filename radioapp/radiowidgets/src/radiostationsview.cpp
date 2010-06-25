@@ -119,10 +119,19 @@ void RadioStationsView::handleLongPress( HbAbstractViewItem* item, const QPointF
     *mSelectedStation = mFilterModel->data( item->modelIndex(), RadioRole::RadioStationRole ).value<RadioStation>();
 
     HbAction* favoriteAction = mUiLoader->findObject<HbAction>( DOCML::NAME_CONTEXT_FAVORITE );
+
     if ( mSelectedStation->isFavorite() ) {
         favoriteAction->setText( hbTrId( "txt_rad_menu_remove_favourite" ) );
     } else {
         favoriteAction->setText( hbTrId( "txt_rad_menu_add_to_favourites" ) );
+    }
+
+    HbAction* playAction = mUiLoader->findObject<HbAction>( DOCML::SV_NAME_PLAY_ACTION );
+
+    if ( mSelectedStation->frequency() == mUiEngine->currentFrequency() ) {
+        playAction->setVisible( false );
+    } else {
+        playAction->setVisible( true );
     }
 
     menu->setPreferredPos( QPointF( size().width() / 2 - menu->size().width() / 2, coords.y() - menu->size().height() / 2 ) );
@@ -224,6 +233,16 @@ void RadioStationsView::clearList()
  * Private slot
  *
  */
+void RadioStationsView::play()
+{
+    LOG("Play from context menu");
+    mUiEngine->setFrequency( mSelectedStation->frequency(), TuneReason::StationsList );
+}
+
+/*!
+ * Private slot
+ *
+ */
 void RadioStationsView::rename()
 {
     HbInputDialog* nameQuery = new HbInputDialog();
@@ -315,6 +334,8 @@ void RadioStationsView::init()
                        this,                            SLOT(startScanning()) );
 
     // Context menu actions
+    connectXmlElement( DOCML::SV_NAME_PLAY_ACTION,      SIGNAL(triggered()),
+                       this,                            SLOT(play()) );
     connectXmlElement( DOCML::SV_NAME_RENAME_ACTION,    SIGNAL(triggered()),
                        this,                            SLOT(rename()) );
     connectXmlElement( DOCML::SV_NAME_FAVORITE_ACTION,  SIGNAL(triggered()),
@@ -358,7 +379,7 @@ void RadioStationsView::userAccepted()
         mModel->removeAll( favoriteMode ? RadioStationModel::RemoveFavorites : RadioStationModel::RemoveAll );
         updateVisibilities();
     } else if ( mCurrentQuestion == DeleteStation ) {
-        mModel->removeStation( mModel->currentStation() );
+        mModel->removeStation( *mSelectedStation );
     }
 
     mCurrentQuestion = NoQuestion;

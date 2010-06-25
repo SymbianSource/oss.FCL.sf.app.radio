@@ -14,6 +14,7 @@
 # Description:
 #
 
+TMP_DIR_NAME = widgets
 include(../buildflags.pri)
 
 TEMPLATE    = lib
@@ -50,6 +51,7 @@ HEADERS     += radiofrequencyscanner.h
 HEADERS     += radiofadinglabel.h
 HEADERS     += radiostationcarousel.h
 HEADERS     += radiocarouselitem.h
+HEADERS     += radiocarouselitemobserver.h
 HEADERS     += radiocarouselanimator.h
 HEADERS     += radiohistoryview.h
 

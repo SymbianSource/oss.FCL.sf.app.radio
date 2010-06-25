@@ -17,107 +17,70 @@
 
 // System includes
 #include <HbStyleLoader>
-#include <HbPushButton>
-#include <HbAnchorLayout>
-#include <HbMessageBox>
+#include <HbTextItem>
+#include <HbRichTextItem>
+#include <HbIconItem>
+#include <HbTouchArea>
+#include <HbTapGesture>
+#include <QPainter>
 
 // User includes
 #include "radiocarouselitem.h"
+#include "radiocarouselitemobserver.h"
 #include "radiostation.h"
-#include "radiostationcarousel.h"
-#include "radiouiengine.h"
-#include "radiofadinglabel.h"
-#include "radiostationmodel.h"
 #include "radiologger.h"
 
-//static const char* FILE_PATH_WIDGETML   = ":/layout/radiostationitem.widgetml";
-//static const char* FILE_PATH_CSS        = ":/layout/radiostationitem.css";
-static const char* GENRE_LABEL            = "tv:genre_label";
-static const char* NAME_LABEL             = "tv:name_label";
-static const char* RADIOTEXT_LABEL        = "tv:radiotext_label";
-static const char* URL_LABEL              = "tv:url_label";
-//static const char* FAVORITE_BUTTON      = "favorite_button";
+const QLatin1String FILE_PATH_WIDGETML   ( ":/layout/radiocarouselitem.widgetml" );
+const QLatin1String FILE_PATH_CSS        ( ":/layout/radiocarouselitem.css" );
+const QLatin1String ICON_BUTTON          ( "star_button" );
+const QLatin1String GENRE_LABEL          ( "genre_label" );
+const QLatin1String FAVORITE_TOUCH_AREA  ( "favorite_touch_area" );
+const QLatin1String NAME_LABEL           ( "name_label" );
+const QLatin1String RT_LABEL             ( "rt_label" );
+const QLatin1String URL_LABEL            ( "url_label" );
 
-const char* SEEKING_TEXT = "txt_rad_list_tuning";
-const char* CONNECT_HEADSET_TEXT = "txt_rad_list_connect_wireless_antenna_headset_with";
+const QLatin1String SEEKING_TEXT        ( "txt_rad_list_tuning" );
+const QLatin1String CONNECT_HEADSET_TEXT( "txt_rad_list_connect_wireless_antenna_headset_with" );
 
 /*!
  *
  */
-RadioCarouselItem::RadioCarouselItem( RadioStationCarousel& carousel ) :
-    HbWidget( &carousel ),
-    mCarousel( carousel ),
-    mData( new Data() )
+static void registerAndCheck( const QString& file ) {
+    bool registered = HbStyleLoader::registerFilePath( file );
+    Q_ASSERT_X( registered, "RadioCarouselItem", "Failed to register CSS or WIDGETML!" );
+}
+
+/*!
+ *
+ */
+RadioCarouselItem::RadioCarouselItem( RadioCarouselItemObserver& observer, QGraphicsItem* parent, bool registerCss ) :
+    HbWidget( parent ),
+    mObserver( observer ),
+    mFavoriteItem( NULL ),
+    mGenreItem( NULL ),
+    mFavoriteTouchArea( NULL ),
+    mNameItem( NULL ),
+    mRadiotextItem( NULL ),
+    mUrlItem( NULL ),
+    mAppearance( Default ),
+    mOwnsCss( registerCss ),
+    mFlags( DefaultFlags )
 {
-    mData->mStation.reset( new RadioStation() );
+    mStation.reset( new RadioStation() );
 
-    mData->mIconButton.reset( new HbPushButton( this ) );
-    QPixmap background( QSize( 70, 70 ) );
-    background.fill( Qt::transparent );
-    mData->mIconButton->setBackground( HbIcon( background ) );
-    mData->mIconButton->setIcon( mCarousel.nonFavoriteIcon() );
+    if ( mOwnsCss ) {
+        registerAndCheck( FILE_PATH_CSS );
+        registerAndCheck( FILE_PATH_WIDGETML );
+    }
 
-    Radio::connect( mData->mIconButton.data(),  SIGNAL(clicked()),
-                    &mCarousel,                 SLOT(toggleFavorite()));
+    createPrimitives();
+    updatePrimitives();
 
-    mData->mNameLabel.reset( new RadioFadingLabel( this ) );
-    mData->mNameLabel->setAlignment( Qt::AlignCenter );
-    mData->mNameLabel->setObjectName( NAME_LABEL );
-    HbFontSpec spec = mData->mNameLabel->fontSpec();
-    spec.setRole( HbFontSpec::Primary );
-    spec.setTextHeight( 40 );
-    mData->mNameLabel->setFontSpec( spec );
+    updateFavoriteIcon( false );
 
-    spec.setRole( HbFontSpec::Secondary );
+    updateVisibilities();
 
-    mData->mGenreLabel.reset( new RadioFadingLabel( this ) );
-    mData->mGenreLabel->setAlignment( Qt::AlignCenter );
-    mData->mGenreLabel->setObjectName( GENRE_LABEL );
-    mData->mGenreLabel->setTextColor( Qt::white );
-
-    mData->mRadiotextLabel.reset( new RadioFadingLabel( this ) );
-    mData->mRadiotextLabel->setAlignment( Qt::AlignCenter );
-    mData->mRadiotextLabel->setObjectName( RADIOTEXT_LABEL );
-    mData->mRadiotextLabel->setTextWrapping( Hb::TextWordWrap );
-//        mRadiotextLabel->setFadingEnabled( true );    TODO
-//        mRadiotextLabel->setFontSpec( spec );
-    mData->mRadiotextLabel->setTextColor( Qt::white );
-
-    mData->mUrlLabel.reset( new RadioFadingLabel( this ) );
-    mData->mUrlLabel->setAlignment( Qt::AlignCenter );
-    mData->mUrlLabel->setObjectName( URL_LABEL );
-    mData->mUrlLabel->setTextColor( Qt::white );
-
-    mData->mLayout = new HbAnchorLayout();
-    HbAnchorLayout* layout = mData->mLayout;
-
-    HbPushButton* iconButton = mData->mIconButton.data();
-    RadioFadingLabel* nameLabel = mData->mNameLabel.data();
-    RadioFadingLabel* genreLabel = mData->mGenreLabel.data();
-    RadioFadingLabel* urlLabel = mData->mUrlLabel.data();
-    RadioFadingLabel* radiotextLabel = mData->mRadiotextLabel.data();
-
-    layout->setAnchor( layout, Hb::TopEdge, iconButton, Hb::TopEdge, 20.0 );
-    layout->setAnchor( layout, Hb::LeftEdge, iconButton, Hb::LeftEdge, 20.0 );
-
-    layout->setAnchor( iconButton, Hb::CenterVEdge, genreLabel, Hb::CenterVEdge, 0.0 );
-    layout->setAnchor( iconButton, Hb::RightEdge, genreLabel, Hb::LeftEdge, 20.0 );
-    layout->setAnchor( layout, Hb::RightEdge, genreLabel, Hb::RightEdge, -70.0 );
-
-    layout->setAnchor( genreLabel, Hb::BottomEdge, nameLabel, Hb::TopEdge, 0.0 );
-    layout->setAnchor( layout, Hb::LeftEdge, nameLabel, Hb::LeftEdge, 10.0 );
-    layout->setAnchor( layout, Hb::RightEdge, nameLabel, Hb::RightEdge, -10.0 );
-
-    layout->setAnchor( nameLabel, Hb::BottomEdge, radiotextLabel, Hb::TopEdge, 10.0 );
-    layout->setAnchor( layout, Hb::LeftEdge, radiotextLabel, Hb::LeftEdge, 10.0 );
-    layout->setAnchor( layout, Hb::RightEdge, radiotextLabel, Hb::RightEdge, -10.0 );
-
-    layout->setAnchor( radiotextLabel, Hb::BottomEdge, urlLabel, Hb::TopEdge, 10.0 );
-    layout->setAnchor( layout, Hb::LeftEdge, urlLabel, Hb::LeftEdge, 10.0 );
-    layout->setAnchor( layout, Hb::RightEdge, urlLabel, Hb::RightEdge, -10.0 );
-    layout->setAnchor( layout, Hb::BottomEdge, urlLabel, Hb::BottomEdge, -10.0 );
-
-    setLayout( layout );
+    grabGesture( Qt::TapGesture );
 }
 
 /*!
@@ -125,6 +88,172 @@ RadioCarouselItem::RadioCarouselItem( RadioStationCarousel& carousel ) :
  */
 RadioCarouselItem::~RadioCarouselItem()
 {
+    if ( mOwnsCss ) {
+        HbStyleLoader::unregisterFilePath( FILE_PATH_CSS );
+        HbStyleLoader::unregisterFilePath( FILE_PATH_WIDGETML );
+    }
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::createPrimitives()
+{
+    mFavoriteItem = new HbIconItem( this );
+    HbStyle::setItemName( mFavoriteItem, ICON_BUTTON );
+
+    mGenreItem = new HbTextItem( this );
+    HbStyle::setItemName( mGenreItem, GENRE_LABEL );
+
+    mNameItem = new HbTextItem( this );
+    HbStyle::setItemName( mNameItem, NAME_LABEL );
+
+    mRadiotextItem = new HbRichTextItem( this );
+    HbStyle::setItemName( mRadiotextItem, RT_LABEL );
+
+    mUrlItem = new HbTextItem( this );
+    HbStyle::setItemName( mUrlItem, URL_LABEL );
+
+    mFavoriteTouchArea = new HbTouchArea( this );
+    HbStyle::setItemName( mFavoriteTouchArea, FAVORITE_TOUCH_AREA );
+
+    // Matti testing needs these
+    mFavoriteItem->setObjectName( ICON_BUTTON );
+    mGenreItem->setObjectName( GENRE_LABEL );
+    mNameItem->setObjectName( NAME_LABEL );
+    mRadiotextItem->setObjectName( RT_LABEL );
+    mUrlItem->setObjectName( URL_LABEL );
+    mFavoriteTouchArea->setObjectName( FAVORITE_TOUCH_AREA );
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::drawOffScreen( QPainter& painter )
+{
+    QStyleOptionGraphicsItem option;
+
+    foreach ( QGraphicsItem* child, childItems() ) {
+        QGraphicsWidget* childWidget = static_cast<QGraphicsWidget*>( child );
+        option.exposedRect = childWidget->rect();
+        painter.save();
+        painter.translate( childWidget->pos() );
+        childWidget->paint( &painter, &option, NULL );
+        painter.restore();
+    }
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::updatePrimitives()
+{
+    update();
+}
+
+/*!
+ * \reimp
+ */
+void RadioCarouselItem::gestureEvent( QGestureEvent* event )
+{
+    if ( HbTapGesture* gesture = qobject_cast<HbTapGesture*>( event->gesture( Qt::TapGesture ) ) ) {
+        if ( gesture->state() == Qt::GestureFinished ) {
+            const QPointF mappedHotSpot = event->mapToGraphicsScene( gesture->hotSpot() );
+
+            if ( mFlags.testFlag( FavoriteTouchable ) &&
+                    mFavoriteTouchArea->sceneBoundingRect().contains( mappedHotSpot ) ) {
+
+                mObserver.handleIconClicked( *mStation );
+
+            } else if ( mFlags.testFlag( RadiotextTouchable ) &&
+                    mRadiotextItem->sceneBoundingRect().contains( mappedHotSpot ) ) {
+
+                mObserver.handleRadiotextClicked( *mStation );
+
+            } else if ( mFlags.testFlag( UrlTouchable ) &&
+                    mUrlItem->sceneBoundingRect().contains( mappedHotSpot ) ) {
+
+                mObserver.handleUrlClicked( *mStation );
+
+            }
+        }
+    }
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::setFlags( CarouselItemFlags flags )
+{
+    mFlags |= flags;
+    updateVisibilities();
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::clearFlags( CarouselItemFlags flags )
+{
+    for ( int i = 1; i < LastFlagMarker; i = i << 1 ) {
+        if ( flags.testFlag( static_cast<ItemFlag>( i ) ) ) {
+            mFlags &= ~i;
+        }
+    }
+    updateVisibilities();
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::updateVisibilities()
+{
+    mFavoriteItem->setVisible( mFlags.testFlag( FavoriteVisible ) );
+    mGenreItem->setVisible( mFlags.testFlag( GenreVisible ) );
+    mRadiotextItem->setVisible( mFlags.testFlag( RadiotextVisible ) );
+    mUrlItem->setVisible( mFlags.testFlag( UrlVisible ) );
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::setAppearance( Appearance appearance )
+{
+    mAppearance = appearance;
+
+    if ( mAppearance == ManualSeek ) {
+        mFlags = ManualSeekFlags;
+        mGenreItem->setText( "" );
+        mRadiotextItem->setText( "" );
+        mUrlItem->setText( "" );
+        mNameItem->setText( mStation->frequencyString() );
+        updateFavoriteIcon( false );
+    } else {
+        mFlags = DefaultFlags;
+    }
+
+    updateVisibilities();
+
+    repolish();
+}
+
+/*!
+ *
+ */
+RadioCarouselItem::Appearance RadioCarouselItem::appearance() const
+{
+    return mAppearance;
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::setSeekLayout( bool seekLayout )
+{
+    if ( seekLayout ) {
+        setAppearance( ManualSeek );
+    } else {
+        setAppearance( mStation->radioText().isEmpty() ? Default : Full );
+    }
 }
 
 /*!
@@ -132,21 +261,11 @@ RadioCarouselItem::~RadioCarouselItem()
  */
 void RadioCarouselItem::setStation( const RadioStation& station )
 {
-    *mData->mStation = station;
+    *mStation = station;
+
+    updateLayout();
+
     update();
-}
-
-/*!
- *
- */
-void RadioCarouselItem::swapData( RadioCarouselItem& other )
-{
-    RadioCarouselItem::Data* tempData = mData.take();
-    mData.reset( other.mData.data() );
-    other.mData.reset( tempData );
-
-    other.setLayout( other.mData->mLayout );
-    setLayout( mData->mLayout );
 }
 
 /*!
@@ -154,7 +273,7 @@ void RadioCarouselItem::swapData( RadioCarouselItem& other )
  */
 uint RadioCarouselItem::frequency() const
 {
-    return mData->mStation->frequency();
+    return mStation->frequency();
 }
 
 /*!
@@ -163,29 +282,43 @@ uint RadioCarouselItem::frequency() const
 void RadioCarouselItem::update( const RadioStation* station )
 {
     if ( station ) {
-        *mData->mStation = *station;
+        *mStation = *station;
+        updateLayout();
     }
 
-    if ( mData->mStation->isValid() ) {
-        mData->mNameLabel->setTextWithoutFading( mData->mStation->nameOrFrequencyMhz() );
+    if ( mStation->isValid() ) {
+        mGenreItem->setText( mObserver.localizeGenre( mStation->genre() ) );
 
-//        mData->mGenreLabel->setText( "Rock Music" );
-//        mData->mRadiotextLabel->setText( "This is a bit of radio text that should span many lines" );
-//        mData->mUrlLabel->setText( "www.radiorock.fi" );
-
-        mData->mGenreLabel->setText( mCarousel.uiEngine()->genreToString( mData->mStation->genre(), GenreTarget::Carousel ) );
-
-        if ( !mData->mStation->radioText().isEmpty() ) {
-            mData->mRadiotextLabel->setText( mData->mStation->radioText() );
-        } else if ( !mData->mStation->dynamicPsText().isEmpty() ) {
-            mData->mRadiotextLabel->setText( mData->mStation->dynamicPsText() );
+        const bool hasName = mStation->hasName();
+        if ( hasName ) {
+            mNameItem->setText( mStation->name() );
         } else {
-            mData->mRadiotextLabel->setText( "" );
+            mNameItem->setText( mStation->frequencyString() );
         }
 
-        mData->mUrlLabel->setText( mData->mStation->url() );
+        if ( mStation->hasRadiotext() ) {
+            mRadiotextItem->setText( mStation->radioText() );
+        } else {
+            if ( mStation->hasDynamicPs() ) {
+                mRadiotextItem->setText( mStation->dynamicPsText() );
+            } else if ( hasName ) {
+                const QString loc = "%L1 Mhz"; //hbTrId( "txt_rad_list_l1_mhz_small" );
+                mRadiotextItem->setText( loc.arg( mStation->frequencyString() ) );
+            } else {
+                mRadiotextItem->setText( "" );
+            }
+        }
 
-        updateFavoriteIcon( mData->mStation->isFavorite() );
+        mUrlItem->setText( mStation->url() );
+        if ( mStation->hasUrl() ) {
+            HbStyle::setItemName( mUrlItem, URL_LABEL );
+            setFlags( UrlVisible | UrlTouchable );
+        } else {
+            HbStyle::setItemName( mUrlItem, "" ); // Clear the name so the item disappears from layout
+            clearFlags( UrlVisible | UrlTouchable );
+        }
+
+        updateFavoriteIcon( mStation->isFavorite() );
     } else {
         cleanRdsData();
     }
@@ -196,17 +329,12 @@ void RadioCarouselItem::update( const RadioStation* station )
  */
 void RadioCarouselItem::setFrequency( uint frequency )
 {
-//    LOG_FORMAT( "RadioCarouselItem::setFrequency: %d", frequency );
+    LOG_FORMAT( "RadioCarouselItem::setFrequency: %d", frequency );
 
-    if ( !mCarousel.mManualSeekMode ) {
-        mData->mStation->setFrequency( frequency );
-        mData->mNameLabel->setTextWithoutFading( parseFrequency( frequency ) );
-        mData->mGenreLabel->setTextWithoutFading( "" );
-        mData->mRadiotextLabel->setTextWithoutFading( "" );
-        mData->mUrlLabel->setTextWithoutFading( "" );
-        updateFavoriteIcon( false );
-    } else {
-        mData->mNameLabel->setTextWithoutFading( parseFrequency( frequency ) );
+    mNameItem->setText( RadioStation::parseFrequency( frequency ) );
+
+    if ( !mObserver.isInManualSeek() ) {
+        *mStation = mObserver.findStation( frequency );
     }
 }
 
@@ -215,22 +343,9 @@ void RadioCarouselItem::setFrequency( uint frequency )
  */
 void RadioCarouselItem::cleanRdsData()
 {
-    if ( !mCarousel.mManualSeekMode ) {
-        mData->mNameLabel->setTextWithoutFading( "" );
-    }
-    mData->mGenreLabel->setTextWithoutFading( "" );
-    mData->mRadiotextLabel->setTextWithoutFading( "" );
-    mData->mUrlLabel->setTextWithoutFading( "" );
-    mData->mIconButton->setIcon( HbIcon( "" ) );
-}
-
-/*!
- *
- */
-void RadioCarouselItem::handleLongPress( const QPointF& /*coords*/ )
-{
-//    QString text = QString( "Selected frequency: %1" ).arg( mFrequency );
-//    HbMessageBox::information( text );
+    mGenreItem->setText( "" );
+    mRadiotextItem->setText( "" );
+    mUrlItem->setText( "" );
 }
 
 /*!
@@ -238,23 +353,7 @@ void RadioCarouselItem::handleLongPress( const QPointF& /*coords*/ )
  */
 void RadioCarouselItem::setRadioText( const QString& text )
 {
-    mData->mRadiotextLabel->setHtml( text );
-}
-
-/*!
- *
- */
-void RadioCarouselItem::setSeekLayout( bool seekLayout )
-{
-    HbFontSpec spec = mData->mNameLabel->fontSpec();
-    mData->mSeekLayout = seekLayout;
-    if ( seekLayout ) {
-        cleanRdsData();
-        spec.setTextHeight( 60 );
-    } else {
-        spec.setTextHeight( 40 );
-    }
-    mData->mNameLabel->setFontSpec( spec );
+    mRadiotextItem->setText( text );
 }
 
 /*!
@@ -262,27 +361,16 @@ void RadioCarouselItem::setSeekLayout( bool seekLayout )
  */
 void RadioCarouselItem::setItemVisibility( ItemVisibility visibility )
 {
-    mData->mIconButton->setEnabled( true );
+    CarouselItemFlags flags = 0;
     if ( visibility == AllVisible ) {
-        mData->mNameLabel->setVisible( true );
-        mData->mGenreLabel->setVisible( true );
-        mData->mRadiotextLabel->setVisible( true );
-        mData->mUrlLabel->setVisible( true );
-        mData->mIconButton->setVisible( true );
+        flags = DefaultFlags;
     } else if ( visibility == AllHidden ) {
-        mData->mNameLabel->setVisible( false );
-        mData->mGenreLabel->setVisible( false );
-        mData->mRadiotextLabel->setVisible( false );
-        mData->mUrlLabel->setVisible( false );
-        mData->mIconButton->setVisible( false );
+
     } else if ( visibility == IconVisible ) {
-        mData->mNameLabel->setVisible( false );
-        mData->mGenreLabel->setVisible( false );
-        mData->mRadiotextLabel->setVisible( false );
-        mData->mUrlLabel->setVisible( false );
-        mData->mIconButton->setVisible( true );
-        mData->mIconButton->setEnabled( false );
+        flags = FavoriteVisible;
     }
+
+    setFlags( flags );
 }
 
 /*!
@@ -290,7 +378,7 @@ void RadioCarouselItem::setItemVisibility( ItemVisibility visibility )
  */
 void RadioCarouselItem::setIconOpacity( qreal opacity )
 {
-    mData->mIconButton->setOpacity( opacity );
+    mFavoriteItem->setOpacity( opacity );
 }
 
 /*!
@@ -298,57 +386,18 @@ void RadioCarouselItem::setIconOpacity( qreal opacity )
  */
 void RadioCarouselItem::updateFavoriteIcon( bool isFavorite )
 {
-    if ( !mData->mSeekLayout ) {
-        if ( isFavorite ) {
-            mData->mIconButton->setIcon( mCarousel.favoriteIcon() );
-        } else {
-            mData->mIconButton->setIcon( mCarousel.nonFavoriteIcon() );
-        }
+    if ( isFavorite ) {
+        mFavoriteItem->setIcon( mObserver.favoriteIcon() );
     } else {
-        mData->mIconButton->setIcon( HbIcon( "" ) );
+        mFavoriteItem->setIcon( mObserver.nonFavoriteIcon() );
     }
 }
 
 /*!
  *
  */
-QString RadioCarouselItem::parseFrequency( const uint frequency )
+void RadioCarouselItem::updateLayout()
 {
-    QString loc = "%L1 MHz";// hbTrId( "txt_rad_list_l1_mhz_big" );
-    return loc.arg( RadioStation::parseFrequency( frequency ) );
+    setAppearance( mStation->hasName() || mStation->hasRadiotext() || mStation->hasUrl() ? Full : Default );
 }
 
-/*!
- *
- */
-QString RadioCarouselItem::nameOrFrequency( const RadioStation& station, uint frequency )
-{
-    if ( frequency == 0 ) {
-        frequency = station.frequency();
-    }
-
-    QString text = "";
-    if ( station.isValid() && !station.name().isEmpty() ) {
-        text = station.name();
-    } else {
-        text = parseFrequency( frequency );
-    }
-
-    return text;
-}
-
-/*!
- *
- */
-RadioCarouselItem::Data::Data() :
-    mLayout( NULL ),
-    mSeekLayout( false )
-{
-}
-
-/*!
- *
- */
-RadioCarouselItem::Data::~Data()
-{
-}

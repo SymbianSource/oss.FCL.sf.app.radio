@@ -26,14 +26,36 @@
 RadioStationPrivate::RadioStationPrivate( int presetIndex, uint frequency )
 {
     init( presetIndex, frequency );
+
+    if ( presetIndex == RadioStation::SharedNull ) {
+        ref = 2;
+    }
 }
 
 /*!
  *
  */
-RadioStationPrivate::RadioStationPrivate( RadioStation::PresetFlag flag )
+RadioStationPrivate::RadioStationPrivate( const RadioStationPrivate& other ) :
+    QSharedData( other ),
+    mPresetIndex( other.mPresetIndex ),
+    mFrequency( other.mFrequency ),
+    mName( other.mName ),
+    mRenamedByUser( other.mRenamedByUser ),
+    mGenre( other.mGenre ),
+    mUrl( other.mUrl ),
+    mPiCode( other.mPiCode ),
+    mType( other.mType ),
+    mPsType( other.mPsType ),
+    mRadioText( other.mRadioText ),
+    mDynamicPsText( other.mDynamicPsText ),
+    mChangeFlags( other.mChangeFlags ),
+    mCallSignCheckDone( other.mCallSignCheckDone ),
+    mLastPsNameChangeTime( other.mLastPsNameChangeTime )
 {
-    init( flag );
+    // Protect the shared null preset index to make debugging easier
+    if ( mPresetIndex == RadioStation::SharedNull ) {
+        mPresetIndex = RadioStation::Invalid;
+    }
 }
 
 /*!
@@ -48,9 +70,8 @@ RadioStationPrivate::~RadioStationPrivate()
  */
 void RadioStationPrivate::init( int presetIndex, uint frequency )
 {
-    ref                = 1;
-    mFrequency         = frequency;
     mPresetIndex       = presetIndex;
+    mFrequency         = frequency;
     mRenamedByUser     = false;
     mGenre             = -1;
     mPiCode            = -1;

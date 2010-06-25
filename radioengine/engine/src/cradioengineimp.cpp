@@ -1647,12 +1647,13 @@ void CRadioEngineImp::HandlePowerEvent( TBool aPowerOn, TInt aErrorCode )
     if ( iSeekingState != RadioEngine::ERadioNotSeeking && iSettings->EngineSettings().IsPowerOn() )
         {
         // Reset seeking state to enable seeking start
+        LOG( "PowerOn event in seekingstate. Restart seeking" );
         RadioEngine::TRadioSeeking oldSeeking = iSeekingState;
         iSeekingState = RadioEngine::ERadioNotSeeking;
         Seek( oldSeeking == RadioEngine::ERadioSeekingUp ? RadioEngine::ERadioUp : RadioEngine::ERadioDown );
         }
 
-    if ( !powerState != !aPowerOn )
+    if ( !powerState != !aPowerOn || aErrorCode )
         {
         NotifyRadioEvent( ERadioEventPower, aErrorCode );
         }

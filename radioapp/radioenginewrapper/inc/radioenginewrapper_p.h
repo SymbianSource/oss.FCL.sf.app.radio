@@ -28,7 +28,7 @@
 #include "mradioenginehandlerobserver.h"
 
 // Forward declarations
-class CRadioEngineHandler;
+class RadioEngineHandler;
 class RadioControlEventListener;
 class RadioRdsListener;
 class RadioSettingsIf;
@@ -74,7 +74,7 @@ public:
     * Getter for CRadioEngineHandler instance.
     * Returns reference to the CRadioEngineHandler
     */
-    CRadioEngineHandler& RadioEnginehandler();
+    RadioEngineHandler& radioEnginehandler();
 
     /**
      * Tunes to given frequency
@@ -137,7 +137,7 @@ private: // data
      * Radio engine handler.
      * Own.
      */
-    QScopedPointer<CRadioEngineHandler>             mEngineHandler;
+    QScopedPointer<RadioEngineHandler>              mEngineHandler;
 
     /**
      * RemCon listener.

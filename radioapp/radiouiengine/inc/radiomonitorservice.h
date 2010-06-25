@@ -20,7 +20,6 @@
 
 // System includes
 #include <xqserviceprovider.h>
-#include <QPointer>
 
 // User includes
 #include "radioservicedef.h"
@@ -67,6 +66,8 @@ private:
 
     void checkIfCurrentStationIsFavorite();
 
+    QString trimHtmlTags( const QString& html );
+
     void notify( const QVariant& notification );
     void notifyList( const QVariantList& list );
 
@@ -80,7 +81,7 @@ private: // data
 
     QVariantList            mNotificationList;
 
-    QPointer<QTimer>        mNotificationTimer;
+    QTimer*                 mNotificationTimer;
 
 };
 

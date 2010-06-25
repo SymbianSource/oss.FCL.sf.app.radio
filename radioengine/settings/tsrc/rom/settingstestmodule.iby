@@ -1,0 +1,13 @@
+
+#ifndef __SETTINGSTESTMODULE_IBY__
+#define __SETTINGSTESTMODULE_IBY__
+
+// Use standard macros
+#include <data_caging_paths_for_iby.hrh>
+
+
+file=ABI_DIR\BUILD_DIR\settingstestmodule.dll         SHARED_LIB_DIR\settingstestmodule.dll	PAGED
+
+#endif
+
+

@@ -21,9 +21,10 @@
 // System includes
 #include <HbScrollArea>
 #include <HbIcon>
-#include <QPointer>
+#include <QWeakPointer>
 
 // User includes
+#include "radiocarouselitemobserver.h"
 #include "radiowidgetsexport.h"
 #include "radio_global.h"
 
@@ -36,6 +37,7 @@ class RadioStationModel;
 class RadioStationCarousel;
 class RadioCarouselAnimator;
 class HbLabel;
+class HbMenu;
 
 namespace CarouselInfoText
 {
@@ -53,6 +55,7 @@ namespace CarouselInfoText
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioStationCarousel : public HbScrollArea
+                                              , public RadioCarouselItemObserver
 {
     Q_OBJECT
     Q_PROPERTY(HbIcon favoriteIcon READ favoriteIcon WRITE setFavoriteIcon)
@@ -108,6 +111,8 @@ public:
 
     void setManualSeekMode( bool manualSeekActive );
 
+    void drawOffScreen( QPainter& painter );
+
     void setAlternateSkippingMode( bool alternateSkipping ); //TODO: Remove this! This is test code
 
 signals:
@@ -128,8 +133,6 @@ private slots:
     void updateRadioText( const RadioStation& station );
     void updateStations();
     void timerFired();
-    void toggleFavorite();
-//    void openContextMenu( HbAbstractViewItem* item, const QPointF& coords );
 
 #ifdef USE_DEBUGGING_CONTROLS
     void setRdsAvailable( bool available );
@@ -143,6 +146,15 @@ private:
     void resizeEvent( QGraphicsSceneResizeEvent* event );
     void showEvent( QShowEvent* event );
     void gestureEvent( QGestureEvent* event );
+
+// from base class RadioCarouselItemObserver
+
+    void handleIconClicked( const RadioStation& station );
+    void handleRadiotextClicked( const RadioStation& station );
+    void handleUrlClicked( const RadioStation& station );
+    QString localizeGenre( int genre );
+    bool isInManualSeek() const;
+    RadioStation findStation( uint frequency );
 
 // New functions
 
@@ -182,9 +194,11 @@ private: // data
 
     QString                             mRadioTextHolder;
 
-    QPointer<RadioCarouselAnimator>     mAnimator;
+    QWeakPointer<RadioCarouselAnimator> mAnimator;
 
     HbLabel*                            mInfoText;
+
+    HbMenu*                             mRadiotextPopup;
 
     HbWidget*                           mContainer;
 
@@ -209,7 +223,7 @@ private: // data
     bool                                mManualSeekMode;
 
     bool                                mAlternateSkipping;
-	
+
 #ifdef USE_DEBUGGING_CONTROLS
     RadioFadingLabel*                   mRdsLabel;
 #endif

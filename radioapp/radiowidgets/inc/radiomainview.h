@@ -57,11 +57,13 @@ private slots:
     void skip( int skipMode );
     void openStationsView();
     void toggleScanning();
+    void toggleFavorite();
     void seekingStarted();
     void updateAntennaStatus( bool connected );
     void updateAudioRoute( bool loudspeaker );
     void setManualSeekMode( bool manualSeekActive );
     void handleFavoriteChange( const RadioStation& station );
+    void saveActivity();
 
     void toggleSkippingMode();  //TODO: Remove. Temporary test code
     void resetFirstTimeCount(); //TODO: Remove. Temporary test code
@@ -70,6 +72,7 @@ private:
 
 // from base class RadioViewBase
 
+    void preLazyLoadInit();
     void init();
     void setOrientation();
     void userAccepted();
@@ -77,6 +80,10 @@ private:
 // from base class QObject
 
     bool eventFilter( QObject* watched, QEvent* event );
+
+// New functions
+
+    void updateFavoriteButton();
 
 private: // data
 

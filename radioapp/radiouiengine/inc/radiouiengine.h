@@ -22,6 +22,8 @@
 // System includes
 #include <QObject>
 #include <QString>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -37,20 +39,37 @@ class RadioHistoryItem;
 class RadioScannerEngine;
 class RadioMonitorService;
 
+typedef QSharedPointer<RadioScannerEngine> RadioScannerEnginePtr;
+
+// Constants
+const uint DEFAULT_MIN_FREQUENCY = 87500000;
+
 class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioUiEngine )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioUiEngine )
     Q_DISABLE_COPY( RadioUiEngine )
 
     friend class RadioScannerEngine;
 
-public:
+public: // Static functions that are used before the ui engine is created
 
-    /**
-     * Static functions that are used before the ui engine is created
+    /*!
+     * Gets the last tuned frequency from central repository
      */
-    static uint lastTunedFrequency();
+    static uint lastTunedFrequency( uint defaultFrequency = DEFAULT_MIN_FREQUENCY );
+
+    /*!
+     * Gets the last used volume level
+     */
+    static int lastVolume();
+
+    /*!
+     * Launches the radio server process
+     */
+    static void launchRadioServer();
+
+public:
 
     RadioUiEngine( QObject* parent = 0 );
     ~RadioUiEngine();
@@ -72,7 +91,7 @@ public:
     RadioSettingsIf& settings();
     RadioStationModel& stationModel();
     RadioHistoryModel& historyModel();
-    RadioScannerEngine* createScannerEngine();
+    RadioScannerEnginePtr createScannerEngine();
     RadioScannerEngine* scannerEngine();
 
     bool isRadioOn() const;
@@ -101,6 +120,8 @@ public:
 
     enum MusicStore{ OviStore, OtherStore };
     void openMusicStore( const RadioHistoryItem& item, MusicStore store = OviStore );
+
+    void launchBrowser( const QString& url );
 
     void setManualSeekMode( bool manualSeek );
     bool isInManualSeekMode() const;
@@ -158,7 +179,7 @@ private: // data
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioUiEnginePrivate* const d_ptr;
+    const QScopedPointer<RadioUiEnginePrivate> d_ptr;
 
 };
 

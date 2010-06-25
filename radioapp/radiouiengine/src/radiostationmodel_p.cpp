@@ -46,6 +46,7 @@ RadioStationModelPrivate::RadioStationModelPrivate( RadioStationModel* model,
     mCurrentStation( &mManualStation ),
     mDynamicPsTimer( new QTimer() )
 {
+    mManualStation.setType( RadioStation::ManualStation );
     Radio::connect( mDynamicPsTimer.data(), SIGNAL(timeout()),
                     q_ptr,                  SLOT(dynamicPsCheckEnded()) );
     mDynamicPsTimer->setInterval( DYNAMIC_PS_CHECK_TIMEOUT );
@@ -89,6 +90,7 @@ void RadioStationModelPrivate::setCurrentStation( uint frequency )
         mCurrentStation = &mStations[ frequency ];
     } else {
         mManualStation.reset();
+        mManualStation.setType( RadioStation::ManualStation );
         mManualStation.setFrequency( frequency );
         mCurrentStation = &mManualStation;
     }
@@ -107,7 +109,7 @@ void RadioStationModelPrivate::setCurrentStation( uint frequency )
 void RadioStationModelPrivate::setCurrentGenre( uint frequency, int genre )
 {
     Q_Q( RadioStationModel );
-    RadioStation station = q->findCurrentStation( frequency );
+    RadioStation station = q->findStation( frequency, FindCriteria::IncludeManualStation );
     if ( !station.isValid() ) {
         LOG( "Unable to find current station. Ignoring RDS" );
         return;
@@ -191,7 +193,7 @@ void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& 
 {
     Q_Q( RadioStationModel );
     LOG_FORMAT( "void RadioStationModelPrivate::setCurrentPsName: %s", GETSTRING( name ) );
-    RadioStation station = q->findCurrentStation( frequency );
+    RadioStation station = q->findStation( frequency, FindCriteria::IncludeManualStation );
     if ( !station.isValid() ) {
         LOG( "Unable to find current station. Ignoring RDS" );
         return;
@@ -252,7 +254,7 @@ void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& 
 void RadioStationModelPrivate::setCurrentRadioText( uint frequency, const QString& radioText )
 {
     Q_Q( RadioStationModel );
-    RadioStation station = q->findCurrentStation( frequency );
+    RadioStation station = q->findStation( frequency, FindCriteria::IncludeManualStation );
     if ( !station.isValid() ) {
         LOG( "Unable to find current station. Ignoring RDS" );
         return;
@@ -269,7 +271,7 @@ void RadioStationModelPrivate::setCurrentRadioText( uint frequency, const QStrin
 void RadioStationModelPrivate::setCurrentRadioTextPlus( uint frequency, int rtClass, const QString& rtItem )
 {
     Q_Q( RadioStationModel );
-    RadioStation station = q->findCurrentStation( frequency );
+    RadioStation station = q->findStation( frequency, FindCriteria::IncludeManualStation );
     if ( !station.isValid() ) {
         LOG( "Unable to find current station. Ignoring RDS" );
         return;
@@ -286,7 +288,7 @@ void RadioStationModelPrivate::setCurrentRadioTextPlus( uint frequency, int rtCl
 void RadioStationModelPrivate::setCurrentPiCode( uint frequency, int piCode )
 {
     Q_Q( RadioStationModel );
-    RadioStation station = q->findCurrentStation( frequency );
+    RadioStation station = q->findStation( frequency, FindCriteria::IncludeManualStation );
     if ( !station.isValid() ) {
         LOG( "Unable to find current station. Ignoring RDS" );
         return;
