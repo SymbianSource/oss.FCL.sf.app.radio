@@ -268,6 +268,7 @@ void Win32Window::toggleOffline()
  */
 void Win32Window::changeTheme( const QString& theme )
 {
+    LOG_FORMAT( "Changing to theme %s", GETSTRING( theme ) );
     QLocalSocket socket;
     socket.connectToServer( "hbthemeserver" );
     if ( socket.waitForConnected( 3000 ) ) {
@@ -342,7 +343,11 @@ QStringList Win32Window::themeRootPaths()
         rootDirs << envDir;
     }
 
-    rootDirs << HB_RESOURCES_DIR;
+    QString resourcesDir = HB_RESOURCES_DIR;
+    if ( resourcesDir.isEmpty() ) {
+        resourcesDir = "/hb_dev/src/hbcore/resources";
+    }
+    rootDirs << resourcesDir;
 
     return rootDirs;
 }

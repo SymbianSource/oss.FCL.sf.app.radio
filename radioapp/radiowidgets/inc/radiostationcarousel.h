@@ -111,6 +111,8 @@ public:
 
     void setManualSeekMode( bool manualSeekActive );
 
+    void drawOffScreen( QPainter& painter );
+
     void setAlternateSkippingMode( bool alternateSkipping ); //TODO: Remove this! This is test code
 
 signals:

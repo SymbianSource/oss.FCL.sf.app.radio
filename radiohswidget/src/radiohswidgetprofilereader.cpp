@@ -71,6 +71,9 @@ RadioHsWidgetProfileReader::RadioHsWidgetProfileReader(
 RadioHsWidgetProfileReader::~RadioHsWidgetProfileReader()
 {
     LOG_METHOD;
+    XQSettingsKey radioRunningKey(XQSettingsKey::TargetPublishAndSubscribe,
+        KRadioPSUid, KRadioStartupKey);
+    mSettingsManager->stopMonitoring(radioRunningKey);
 }
 
 /*!
@@ -94,7 +97,7 @@ void RadioHsWidgetProfileReader::startMonitoringRadioRunningStatus()
  */
 bool RadioHsWidgetProfileReader::isCurrentProfileOffline()
 {
-    LOG_METHOD;
+    LOG_METHOD_RET("%d");
     XQSettingsKey profileKey(XQSettingsKey::TargetCentralRepository,
         KCRUidProfileEngine.iUid, KProEngActiveProfile);
     // Read current value.
@@ -112,13 +115,7 @@ bool RadioHsWidgetProfileReader::isCurrentProfileOffline()
  */
 void RadioHsWidgetProfileReader::handleDeletedItem(const XQSettingsKey &key)
 {
-    LOG_METHOD;
-    // Profile information will be used for offline query.
-/*
-    if (key.uid() == KCRUidProfileEngine.iUid && key.key()
-        == KProEngActiveProfile) {
-    }
-*/
+    LOG_METHOD_ENTER;
     if (key.uid() == KRadioPSUid && key.key() == KRadioStartupKey) {
         LOG("KRadioStartupKey deleted");
         startMonitoringRadioRunningStatus();
@@ -137,34 +134,12 @@ void RadioHsWidgetProfileReader::handleChanges(const XQSettingsKey &key,
 {
     LOG_SLOT_CALLER;
 
-    // Profile information will be used for offline query.
-    /*
-    if (key.uid() == KCRUidProfileEngine.iUid && key.key()
-        == KProEngActiveProfile) {
-        currentProfileStatus(value);
-    }
-    */
-    
     if (key.uid() == KRadioPSUid && key.key()
         == KRadioStartupKey) {
         LOG("KRadioStartupKey changed");
         radioRunningStatus(value);
     }
 }
-
-/*
- Handling changes in profile information.
- 
- \param value
- */
-/*
-void RadioHsWidgetProfileReader::currentProfileStatus(QVariant value)
-{
-    if (value.canConvert(QVariant::Int)) {
-        emit profileChanged(value.toInt());
-    }
-}
-*/
 
 /*!
     Handling changes in radio running P&S key.
@@ -175,7 +150,7 @@ void RadioHsWidgetProfileReader::currentProfileStatus(QVariant value)
 void RadioHsWidgetProfileReader::radioRunningStatus(
     const QVariant &value)
 {
-    LOG_METHOD;
+    LOG_METHOD_ENTER;
     if (value.canConvert(QVariant::Int)) {
         mRadioStatus = value.toInt();
         // Notify the observer that radio is running.

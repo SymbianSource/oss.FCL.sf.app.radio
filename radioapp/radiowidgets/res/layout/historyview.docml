@@ -14,10 +14,12 @@
     </object>
     <object name="hv:all_songs_button" type="HbAction">
         <bool name="checkable" value="TRUE"/>
+        <icon iconName="qtg_mono_radio_stations" name="icon"/>
         <string locid="txt_rad_button_recently_played_songs" name="text"/>
     </object>
     <object name="hv:tagged_songs_button" type="HbAction">
         <bool name="checkable" value="TRUE"/>
+        <icon iconName="qtg_mono_favourites" name="icon"/>
         <string locid="txt_rad_button_tagged_songs" name="text"/>
     </object>
     <object name="hv:toggle_tag_action" type="HbAction">
@@ -31,8 +33,8 @@
     </object>
 
     <widget name="view" type="HbView">
-        <icon name="nonTaggedIcon" iconName=":/images/qtg_mono_tag.svg" />
-        <icon name="taggedIcon" iconName=":/images/pri_small_tag.svg" />
+        <icon name="nonTaggedIcon" iconName="qtg_mono_tag" />
+        <icon name="taggedIcon" iconName="qtg_small_tag_inactive" />
         <widget name="hv:toolbar" role="HbView:toolBar" type="HbToolBar">
             <enums name="orientation" value="Horizontal"/>
             <ref object="hv:all_songs_button" role="HbToolBar:addAction"/>

@@ -20,6 +20,7 @@ TARGET = t_radiopresetstorage
 symbian: {
     TARGET.CAPABILITY = CAP_GENERAL_DLL
     TARGET.SID = 0x101FF976 # Old visual radio uid
+    MMP_RULES += SMPSAFE
 }
 
 DEPENDPATH += . \

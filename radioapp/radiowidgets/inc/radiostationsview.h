@@ -65,6 +65,7 @@ private slots:
     void finishScanning();
     void updateVisibilities();
     void clearList();
+    void play();            // Called from context menu
     void rename();          // Called from context menu
     void toggleFavorite();  // Called from context menu
     void deleteStation();   // Called from context menu

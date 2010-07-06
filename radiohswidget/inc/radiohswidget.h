@@ -24,7 +24,6 @@
 // Forward declarations
 class HbLabel;
 class HbPushButton;
-class HbMarqueeItem;
 class XQSettingsManager;
 class XQSettingsKey;
 class RadioHsWidgetProfileReader;
@@ -44,8 +43,6 @@ namespace FmRadio
         StateNotRunning,
         StateStarting,
         StateRunning,
-        //StateControllingAudio, // TODO: Remove, this is not needed anymore.
-        //StateNotControllingAudio,// TODO: Remove, this is not needed anymore.
         StateSeeking,
         StateAntennaNotConnected,
         StateClosing

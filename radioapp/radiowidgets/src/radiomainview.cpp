@@ -20,7 +20,11 @@
 #include <HbPushButton>
 #include <HbAction>
 #include <HbMenu>
-#include <QApplication>
+#include <HbApplication>
+#include <HbActivityManager>
+#include <QPixmap>
+#include <HbLabel>
+#include <HbFrameItem>          // Temporarily here until docml supports frame items
 
 // User includes
 #include "radiowindow.h"
@@ -35,6 +39,22 @@
 #include "radiofrequencyscanner.h"
 
 // Constants
+const QLatin1String RADIO_MAINVIEW_ACTIVITY_ID( "FMRadioMainView" );
+
+/*!
+ * Temporary convenience function to set frame background until DOCML supports frame items
+ */
+static void initFrameBackground( RadioUiLoader& uiLoader,
+                                 const QString backgroundName,
+                                 HbFrameDrawer::FrameType frameType )
+{
+    if ( HbLabel* backgroundLabel = uiLoader.findObject<HbLabel>( backgroundName ) ) {
+        QString backgroundName = backgroundLabel->icon().iconName();
+        HbFrameItem* frameItem = new HbFrameItem( backgroundName, frameType, backgroundLabel );
+        backgroundLabel->setBackgroundItem( frameItem );
+    }
+}
+
 
 /*!
  *
@@ -68,7 +88,8 @@ void RadioMainView::setScanningMode( bool scanning )
         updateFavoriteButton();
         mFrequencyScanner.take();
 
-        const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+//        const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+        const bool firsTimeStart = false; // TODO! RadioServer terminates. Fix available in NCP 25 or 27.
         const int rowCount = mUiEngine->stationModel().rowCount();
         if ( firsTimeStart && rowCount != 0 ) {
             mUiEngine->setFirstTimeStartPerformed( true );
@@ -80,10 +101,23 @@ void RadioMainView::setScanningMode( bool scanning )
  * \reimp
  *
  */
+void RadioMainView::preLazyLoadInit()
+{
+    initFrameBackground( *mUiLoader, DOCML::MV_NAME_FREQUENCY_BACKGROUND, HbFrameDrawer::NinePieces );
+
+    initFrameBackground( *mUiLoader, DOCML::MV_NAME_CAROUSEL_BACKGROUND, HbFrameDrawer::NinePieces );
+}
+
+/*!
+ * \reimp
+ *
+ */
 void RadioMainView::init()
 {
     LOG_METHOD;
     loadSection( DOCML::FILE_MAINVIEW, DOCML::SECTION_LAZY_LOAD );
+    initFrameBackground( *mUiLoader, DOCML::MV_NAME_CAROUSEL_OVERLAY, HbFrameDrawer::NinePieces );
+
     mCarousel = mUiLoader->findObject<RadioStationCarousel>( DOCML::MV_NAME_STATION_CAROUSEL );
     mCarousel->init( *mUiLoader, mUiEngine.data() );
 
@@ -155,11 +189,15 @@ void RadioMainView::init()
 #endif // BUILD_WIN32
     setNavigationAction( backAction );
 
-    const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+//    const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+    const bool firsTimeStart = false; // TODO! RadioServer terminates. Fix available in NCP 25 or 27.
     const int rowCount = mUiEngine->stationModel().rowCount();
     if ( firsTimeStart && rowCount == 0 ){
         QTimer::singleShot( 100, this, SLOT(toggleScanning()) );
     }
+
+    Radio::connect( static_cast<HbApplication*>( qApp ),    SIGNAL(aboutToQuit()),
+                    this,                                   SLOT(saveActivity()) );
 
     emit applicationReady();
 }
@@ -389,6 +427,42 @@ void RadioMainView::handleFavoriteChange( const RadioStation& station )
 /*!
  * Private slot
  */
+void RadioMainView::saveActivity()
+{
+    HbActivityManager* activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
+
+    // Get a screenshot for saving to the activity manager
+    QSize screenShotSize = mCarousel->size().toSize();
+    QPixmap screenShot( screenShotSize );
+    QPainter painter( &screenShot );
+
+    // Draw the background and overlay
+    HbLabel* backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_BACKGROUND );
+    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+    backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_OVERLAY );
+    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+
+    mCarousel->drawOffScreen( painter );
+
+    QVariantHash metadata;
+    metadata.insert( "screenshot", screenShot );
+
+    #ifdef __WINS__
+        screenShot.save( "c:\\radio.bmp" );
+    #elif defined BUILD_WIN32
+        screenShot.save( "radio.bmp" );
+    #endif
+
+    // Update the activity to the activity manager
+    bool ok = activityManager->removeActivity( RADIO_MAINVIEW_ACTIVITY_ID );
+    LOG_ASSERT( ok, LOG( "Failed to remove old activity from Activity Manager!" ) );
+    ok = activityManager->addActivity( RADIO_MAINVIEW_ACTIVITY_ID, QVariant(), metadata );
+    LOG_ASSERT( ok, LOG( "Failed to update activity to Activity Manager!" ) );
+}
+
+/*!
+ * Private slot
+ */
 void RadioMainView::toggleSkippingMode()
 {
     if ( !mSkippingAction ) {
@@ -422,11 +496,10 @@ void RadioMainView::updateFavoriteButton()
     model.findFrequency( mUiEngine->currentFrequency(), station );
     HbPushButton* favoriteButton = mUiLoader->findWidget<HbPushButton>( DOCML::MV_NAME_FAVORITE_BUTTON );
     if ( station.isFavorite() ) {
-        //TODO: Get localized text
-        favoriteButton->setText( "Remove from favourites" );
-//        favoriteButton->setIcon( HbIcon( ":/images/pri_small_star_inactive.svg" ) );
+        favoriteButton->setText( hbTrId( "txt_fmradio_button_remove_from_favourites" ) );
+        favoriteButton->setIcon( HbIcon( "qtg_mono_favourites_remove" ) );
     } else {
         favoriteButton->setText( hbTrId( "txt_rad_button_add_to_favourites" ) );
-//        favoriteButton->setIcon( HbIcon( ":/images/pri_small_star.svg" ) );
+        favoriteButton->setIcon( HbIcon( "qtg_mono_add_to_favourites" ) );
     }
 }

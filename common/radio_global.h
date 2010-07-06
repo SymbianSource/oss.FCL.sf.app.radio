@@ -36,6 +36,14 @@ const int ONE_HERTZ = FREQUENCY_MULTIPLIER;
  */
 const int MAXIMUM_VOLUME_LEVEL = 20;
 
+/**
+ * Default volume level that is used when no previous setting exists
+ */
+const int DEFAULT_VOLUME_LEVEL = 4;
+
+/**
+ * Roles used when interacting with the radio station model
+ */
 namespace RadioRole
 {
     enum Role

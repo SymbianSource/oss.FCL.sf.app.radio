@@ -34,9 +34,6 @@ RadioControlService::RadioControlService( RadioUiEngine& engine ) :
     mUiEngine( engine )
 {
     publishAll();
-    if ( XQServiceUtil::isService() ) {
-        XQServiceUtil::toBackground( true );
-    }
 }
 
 /*!

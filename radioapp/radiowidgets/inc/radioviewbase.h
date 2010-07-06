@@ -55,6 +55,8 @@ public:
 
     void setMembers( RadioWindow* mainWindow, RadioUiLoader* uiLoader );
 
+    virtual void preLazyLoadInit();
+
     void initialize( QSharedPointer<RadioUiEngine> uiEngine );
 
     bool isInitialized() const;

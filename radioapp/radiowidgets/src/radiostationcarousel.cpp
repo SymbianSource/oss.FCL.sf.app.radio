@@ -23,6 +23,7 @@
 #include <HbSwipeGesture>
 #include <HbFontSpec>
 #include <HbMenu>
+#include <QPainter>
 
 // User includes
 #include "radiostationcarousel.h"
@@ -43,6 +44,11 @@ const int INFOTEXT_NOFAVORITES_TIMEOUT = 5000;
 const int SET_FREQUENCY_TIMEOUT = 500;
 const int FAVORITE_HINT_SHOW_DELAY = 1000;
 const int FAVORITE_HINT_HIDE_DELAY = 2000;
+
+// Matti testing constants
+const QLatin1String LEFT_ITEM_NAME      ( "carousel_left" );
+const QLatin1String CENTER_ITEM_NAME    ( "carousel_center" );
+const QLatin1String RIGHT_ITEM_NAME     ( "carousel_right" );
 
 #ifdef BUILD_WIN32
 #   define SCROLLBAR_POLICY ScrollBarAlwaysOn
@@ -147,6 +153,11 @@ void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngin
     mItems[CenterItem] = new RadioCarouselItem( *this, this, true );
     mItems[LeftItem] = new RadioCarouselItem( *this, this );
     mItems[RightItem] = new RadioCarouselItem( *this, this );
+
+    // Matti testing needs the objects to have names
+    mItems[LeftItem]->setObjectName( LEFT_ITEM_NAME );
+    mItems[CenterItem]->setObjectName( CENTER_ITEM_NAME );
+    mItems[RightItem]->setObjectName( RIGHT_ITEM_NAME );
 
     QGraphicsLinearLayout* layout = new QGraphicsLinearLayout( Qt::Horizontal );
     layout->setContentsMargins( 0, 0, 0, 0 );
@@ -419,6 +430,14 @@ void RadioStationCarousel::setManualSeekMode( bool manualSeekActive )
         clearInfoText();
         setFrequency( mUiEngine->currentFrequency(), TuneReason::Unspecified );
     }
+}
+
+/*!
+ *
+ */
+void RadioStationCarousel::drawOffScreen( QPainter& painter )
+{
+    mItems[CenterItem]->drawOffScreen( painter );
 }
 
 /*!

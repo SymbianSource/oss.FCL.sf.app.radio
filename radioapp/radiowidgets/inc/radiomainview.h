@@ -63,6 +63,7 @@ private slots:
     void updateAudioRoute( bool loudspeaker );
     void setManualSeekMode( bool manualSeekActive );
     void handleFavoriteChange( const RadioStation& station );
+    void saveActivity();
 
     void toggleSkippingMode();  //TODO: Remove. Temporary test code
     void resetFirstTimeCount(); //TODO: Remove. Temporary test code
@@ -71,6 +72,7 @@ private:
 
 // from base class RadioViewBase
 
+    void preLazyLoadInit();
     void init();
     void setOrientation();
     void userAccepted();

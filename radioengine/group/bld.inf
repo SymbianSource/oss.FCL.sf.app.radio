@@ -15,6 +15,7 @@
 *
 */
 
+PRJ_MMPFILES
 #include "../utils/group/bld.inf"
 #include "../settings/group/bld.inf"
 #include "../engine/group/bld.inf"

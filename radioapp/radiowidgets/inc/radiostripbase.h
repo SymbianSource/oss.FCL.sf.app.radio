@@ -29,7 +29,7 @@ class QAbstractItemModel;
 class RadioStripBase : public HbScrollArea
 {
     Q_OBJECT
-    Q_PROPERTY( int autoScrollTime READ autoScrollTime WRITE setAutoScrollTime )
+    Q_PROPERTY(int autoScrollTime READ autoScrollTime WRITE setAutoScrollTime)
 
 public:
 

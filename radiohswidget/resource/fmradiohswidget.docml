@@ -104,9 +104,9 @@
         </widget>
         <widget name="background" type="HbLabel">
             <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-            <icon iconName=":/ui/resource/qtg_graf_hsradio_bg.png" name="icon"/>
             <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
             <sizehint height="26.5un" type="FIXED" width="37un"/>
+            <icon iconName="qtg_graf_hsradio_bg" name="icon"/>
         </widget>
         <real name="z" value="1"/>
         <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>

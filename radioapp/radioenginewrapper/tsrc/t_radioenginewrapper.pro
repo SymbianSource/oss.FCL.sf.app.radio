@@ -14,6 +14,7 @@ TARGET = t_radioenginewrapper
 symbian: { 
     TARGET.CAPABILITY = CAP_GENERAL_DLL
     TARGET.SID = 0x101FF976  # Tried testUids(0x01000111 and 0x01001005) but failed
+    MMP_RULES += SMPSAFE    
 }
 DEPENDPATH += . \
     inc \

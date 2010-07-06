@@ -88,6 +88,8 @@ public:
 
     void createPrimitives();
 
+    void drawOffScreen( QPainter& painter );
+
 public slots:
 
     void updatePrimitives();
@@ -103,6 +105,8 @@ private:
 
     void updateFavoriteIcon( bool isFavorite );
 
+    void updateLayout();
+
 private: // data
 
     RadioCarouselItemObserver&          mObserver;
@@ -114,7 +118,7 @@ private: // data
     HbTouchArea*                        mFavoriteTouchArea;
     HbTextItem*                         mNameItem;
     HbRichTextItem*                     mRadiotextItem;
-    HbRichTextItem*                     mUrlItem;
+    HbTextItem*                         mUrlItem;
 
     Appearance                          mAppearance;
     bool                                mOwnsCss;

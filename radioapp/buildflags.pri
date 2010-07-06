@@ -101,7 +101,13 @@ symbian: {
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.VID              = VID_DEFAULT
     TARGET.CAPABILITY       = CAP_GENERAL_DLL
+    INCLUDEPATH             += $$APP_LAYER_SYSTEMINCLUDE
+    SYMBIAN_PLATFORMS       = WINSCW ARMV5
+    MMP_RULES               += SMPSAFE
 }
+
+# QT 4.7 changes the def file location so force them to stay where they are
+defFilePath     = ..
 
 win32: {
     DEFINES     += BUILD_WIN32

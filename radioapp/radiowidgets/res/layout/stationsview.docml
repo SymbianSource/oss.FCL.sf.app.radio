@@ -35,8 +35,8 @@
         <string name="text" locid="txt_rad_button_favourites" />
     </object>
     <widget name="view" type="HbView">
-        <icon name="nowPlayingIcon" iconName=":/images/nowplayingicon.png" />
-        <icon name="favoriteIcon" iconName="qtg_mono_favourites" />
+        <icon name="nowPlayingIcon" iconName="qtg_mono_play" />
+        <icon name="favoriteIcon" iconName="qtg_small_favorite" />
         <widget name="mMenu" role="HbView:menu" type="HbMenu">
             <ref object="sv:scan_action" role="HbMenu:addAction"/>
             <ref object="sv:clear_list_action" role="HbMenu:addAction"/>

@@ -20,7 +20,6 @@
 
 // System includes
 #include <QObject>
-#include <xqservicerequest.h>
 #include <xqappmgr.h>
 
 // User includes
@@ -40,6 +39,7 @@ public:
     void startMonitoring(
         const FmRadio::VisibiltyAfterRequest visibility);
     void stopMonitoring();
+    QVariant createRadioNotificationData(int type, const QVariant& data);
 
 private slots:
     void handleError(const int errorCode, const QString &errorMessage);

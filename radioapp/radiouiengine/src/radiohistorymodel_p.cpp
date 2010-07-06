@@ -33,33 +33,32 @@
 #include "radiostation.h"
 #include "radiologger.h"
 
-const char* DATABASE_NAME       = "radioplayhistory.db";
-const char* DATABASE_DRIVER     = "QSQLITE";
-const char* HISTORY_TABLE       = "history";
-const char* SQL_CREATE_TABLE    = "CREATE TABLE history ("
-                                  "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                  "artist TEXT NOT NULL, "
-                                  "title TEXT NOT NULL, "
-                                  "station TEXT NOT NULL, "
-                                  "frequency INTEGER NOT NULL, "
-                                  "tagged INTEGER NOT NULL DEFAULT 0, "
-                                  "fromRds INTEGER NOT NULL DEFAULT 1, "
-                                  "time INTEGER NOT NULL)";
+static const QLatin1String DATABASE_NAME    ( "radioplayhistory.db" );
+static const QLatin1String DATABASE_DRIVER  ( "QSQLITE" );
+static const QLatin1String HISTORY_TABLE    ( "history" );
+static const QLatin1String SQL_CREATE_TABLE ( "CREATE TABLE history ("
+                                                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                                "artist TEXT NOT NULL, "
+                                                "title TEXT NOT NULL, "
+                                                "station TEXT NOT NULL, "
+                                                "frequency INTEGER NOT NULL, "
+                                                "tagged INTEGER NOT NULL DEFAULT 0, "
+                                                "fromRds INTEGER NOT NULL DEFAULT 1, "
+                                                "time INTEGER NOT NULL)" );
 
-const char* SQL_ADD_ITEM         = "INSERT INTO history (artist,title,station,frequency,fromRds,time) "
-                                            "VALUES ( ?,?,?,?,?,? )";
+static const QLatin1String SQL_ADD_ITEM     ( "INSERT INTO history (artist,title,station,frequency,fromRds,time) "
+                                                "VALUES ( ?,?,?,?,?,? )" );
 
-const char* SQL_SELECT_ALL       = "SELECT * FROM history ORDER BY id DESC";
-const char* SQL_SELECT_TAGGED    = "SELECT * FROM history WHERE tagged=1";// ORDER BY id DESC";
+static const QLatin1String SQL_SELECT_ALL   ( "SELECT * FROM history ORDER BY id DESC" );
+static const QLatin1String SQL_SELECT_TAGGED( "SELECT * FROM history WHERE tagged=1" );// ORDER BY id DESC";
 
-//const char* SQL_DELETE_ALL       = "DELETE FROM history";
-const char* SQL_DELETE_RECENT    = "DELETE FROM history WHERE tagged=0";
-//const char* SQL_DELETE_TAGGED    = "DELETE FROM history WHERE tagged=1";
-const char* SQL_CLEAR_TAGS       = "UPDATE history SET tagged = 0 WHERE tagged = 1";
+static const QLatin1String SQL_DELETE_ALL   ( "DELETE FROM history" );
+static const QLatin1String SQL_DELETE_RECENT( "DELETE FROM history WHERE tagged=0" );
+//static const QLatin1String SQL_DELETE_TAGGED    = "DELETE FROM history WHERE tagged=1";
+static const QLatin1String SQL_CLEAR_TAGS   ( "UPDATE history SET tagged = 0 WHERE tagged = 1" );
 
-//static const char* SQL_FIND_ITEM_BY_ID = "SELECT * FROM history WHERE id = ?";
-const char* SQL_TOGGLE_TAG       = "UPDATE history SET tagged = ? WHERE id = ?";
-
+//static static const QLatin1String SQL_FIND_ITEM_BY_ID( "SELECT * FROM history WHERE id = ?" );
+static const QLatin1String SQL_TOGGLE_TAG   ( "UPDATE history SET tagged = ? WHERE id = ?" );
 
 #ifdef LOGGING_ENABLED
 #   define GET_ERR( param ) GETSTRING( param.lastError().text() )
@@ -207,7 +206,7 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
                 QDateTime dateTime;
                 dateTime.setTime_t( timeInSecs );
 
-                QString time = dateTime.toString();
+                QString time = dateTime.toString( Qt::SystemLocaleShortDate );
                 LOG_FORMAT( "---time--- %s", GETSTRING( time ) );
 
                 QString name = !station.isEmpty() ? station : parseFrequency( frequency );
@@ -248,7 +247,7 @@ void RadioHistoryModelPrivate::removeAll( bool removeTagged )
 
     QSqlQuery query = beginTransaction();
 
-    query.prepare( removeTagged ? SQL_CLEAR_TAGS : SQL_DELETE_RECENT );
+    query.prepare( removeTagged ? SQL_CLEAR_TAGS : SQL_DELETE_ALL );
 
     // Commented out because rowsRemoved() seems to crash HbListView
 //    commitTransaction( query, RemoveRows, 0, rowCount() - 1 );

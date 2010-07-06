@@ -3,7 +3,7 @@
     <uri>fmradiohswidget</uri>
     <title>txt_fmradiohswidget_list_fm_radio_homescreen_widget</title>
     <description>txt_fmradiohswidget_list_quick_access_for_fm_radio_in_your</description>
-    <icon>radiohswidget.png</icon>
+    <icon>qtg_large_radio</icon>
     <hidden>false</hidden>
-    <servicexml>radiohswidget.xml</servicexml>
+    <servicexml>fmradiohswidget.xml</servicexml>
 </hswidgetmanifest>

@@ -39,7 +39,10 @@ namespace DOCML
 
     // RadioMainView
     static const QLatin1String MV_NAME_HISTORYVIEW_ACTION       ( "mv:historyview_action" );
+    static const QLatin1String MV_NAME_CAROUSEL_BACKGROUND      ( "mv:carousel_background" );
+    static const QLatin1String MV_NAME_CAROUSEL_OVERLAY         ( "mv:carousel_overlay" );
     static const QLatin1String MV_NAME_STATION_CAROUSEL         ( "mv:station_carousel" );
+    static const QLatin1String MV_NAME_FREQUENCY_BACKGROUND     ( "mv:frequency_background" );
     static const QLatin1String MV_NAME_FREQUENCY_STRIP          ( "mv:frequency_strip" );
     static const QLatin1String MV_NAME_STATIONS_BUTTON          ( "mv:stations_button" );
     static const QLatin1String MV_NAME_FAVORITE_BUTTON          ( "mv:favorite_button" );
@@ -62,6 +65,7 @@ namespace DOCML
     static const QLatin1String SV_NAME_SCAN_ACTION              ( "sv:scan_action" );
     static const QLatin1String SV_NAME_CLEAR_LIST_ACTION        ( "sv:clear_list_action" );
     static const QLatin1String SV_NAME_SCAN_BUTTON              ( "sv:scan_button" );
+    static const QLatin1String SV_NAME_PLAY_ACTION              ( "sv:play_action" );
     static const QLatin1String SV_NAME_RENAME_ACTION            ( "sv:rename_action" );
     static const QLatin1String SV_NAME_FAVORITE_ACTION          ( "sv:toggle_favorite_action" );
     static const QLatin1String SV_NAME_DELETE_ACTION            ( "sv:delete_action" );

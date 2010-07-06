@@ -272,6 +272,7 @@ void RadioWindow::activateView( RadioViewBase* aMember, const QString& docmlFile
         }
 
         aMember->setMembers( this, uiLoader.take() );
+        aMember->preLazyLoadInit();
 
         addView( aMember );
     }

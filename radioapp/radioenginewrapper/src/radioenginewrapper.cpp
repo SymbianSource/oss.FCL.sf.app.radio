@@ -109,11 +109,11 @@ uint RadioEngineWrapper::frequencyStepSize() const
 }
 
 /*!
- * Returns the frequency step size from the selected region
+ * Returns true if frequency is valid, otherwise false
  */
 bool RadioEngineWrapper::isFrequencyValid( uint frequency ) const
 {
-    return frequency >= minFrequency() && frequency <= maxFrequency() && frequency % frequencyStepSize() == 0;
+    return frequency >= minFrequency() && frequency <= maxFrequency();
 }
 
 /*!

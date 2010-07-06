@@ -42,40 +42,84 @@
 #include "radiologger.h"
 
 // Constants
-const uint DEFAULT_MIN_FREQUENCY = 87500000;
 const uint RADIO_CENREP_UID = 0x2002FF52;
 const uint RADIO_CENREP_FREQUENCY_KEY = 0x207;
+const uint RADIO_CENREP_HEADSET_VOLUME = 0x200;
 
+const QLatin1String OVI_STORE_URL( "http://www.music.nokia.co.uk/Touch/Search.aspx?artistsearch=#artist#&titlesearch=#title#" );
 const QLatin1String OTHER_STORE_URL( "http://www.amazon.com/gp/search/ref=sr_adv_m_digital/?search-alias=digital-music&field-author=#artist#&field-title=#title#" );
 const QLatin1String OTHER_STORE_ARTIST_TAG( "#artist#" );
 const QLatin1String OTHER_STORE_TITLE_TAG( "#title#" );
 const char WHITESPACE = ' ';
 const char WHITESPACE_REPLACEMENT = '+';
 
+// Constants used when launching radio server
+const QLatin1String RADIO_SERVER_NAME( "radioserver.exe" );
+const QLatin1String RADIO_RANGE_USEURO( "useuro" );
+const QLatin1String RADIO_RANGE_JAPAN( "japan" );
+
+// ====== STATIC FUNCTIONS ========
+
 /*!
- *
+ * Gets the last tuned frequency from central repository
  */
-uint RadioUiEngine::lastTunedFrequency()
+uint RadioUiEngine::lastTunedFrequency( uint defaultFrequency )
 {
-    uint frequency = DEFAULT_MIN_FREQUENCY;
+    uint frequency = defaultFrequency;
 
 #ifdef BUILD_WIN32
     QScopedPointer<QSettings> settings( new QSettings( "Nokia", "QtFmRadio" ) );
     frequency = settings->value( "CurrentFreq", DEFAULT_MIN_FREQUENCY ).toUInt();
     if ( frequency == 0 ) {
-        frequency = DEFAULT_MIN_FREQUENCY;
+        frequency = defaultFrequency;
     }
 #else
     QScopedPointer<XQSettingsManager> settings( new XQSettingsManager() );
     XQSettingsKey key( XQSettingsKey::TargetCentralRepository, RADIO_CENREP_UID, RADIO_CENREP_FREQUENCY_KEY );
     frequency = settings->readItemValue( key, XQSettingsManager::TypeInt ).toUInt();
     if ( frequency == 0 ) {
-        frequency = DEFAULT_MIN_FREQUENCY;
+        frequency = defaultFrequency;
     }
 #endif
 
     return frequency;
 }
+
+/*!
+ * Gets the last used volume level
+ */
+int RadioUiEngine::lastVolume()
+{
+    int volume = DEFAULT_VOLUME_LEVEL;
+
+#ifndef BUILD_WIN32
+    QScopedPointer<XQSettingsManager> settings( new XQSettingsManager() );
+    XQSettingsKey key( XQSettingsKey::TargetCentralRepository, RADIO_CENREP_UID, RADIO_CENREP_HEADSET_VOLUME );
+    volume = settings->readItemValue( key, XQSettingsManager::TypeInt ).toInt();
+    if ( volume == 0 ) {
+        volume = DEFAULT_VOLUME_LEVEL;
+    }
+#endif
+
+    return volume;
+}
+
+/*!
+ * Launches the radio server process
+ */
+void RadioUiEngine::launchRadioServer()
+{
+    QStringList args;
+    args << RADIO_RANGE_USEURO; //TODO: Determine current region
+    args << QString::number( lastTunedFrequency( 0 ) );
+    args << QString::number( lastVolume() );
+
+    QProcess serverProcess;
+    bool success = serverProcess.startDetached( RADIO_SERVER_NAME, args );
+    LOG_ASSERT( success, LOG( "Failed to start radio server!" ) );
+}
+
+// ====== MEMBER FUNCTIONS ========
 
 /*!
  *
@@ -210,10 +254,14 @@ RadioHistoryModel& RadioUiEngine::historyModel()
 RadioScannerEnginePtr RadioUiEngine::createScannerEngine()
 {
     Q_D( RadioUiEngine );
-    if ( !d->mScannerEngine ) {
-        d->mScannerEngine = RadioScannerEnginePtr( new RadioScannerEngine( *d ) );
-    }
-    return d->mScannerEngine;
+#if defined BUILD_WIN32 || defined __WINS__
+    Q_ASSERT_X( !d->mScannerEngine, "RadioUiEngine::createScannerEngine", "Previous scanner instance not freed" );
+#endif
+
+    RadioScannerEnginePtr enginePtr( new RadioScannerEngine( *d ) );
+    d->mScannerEngine = enginePtr;
+
+    return enginePtr;
 }
 
 /*!
@@ -376,20 +424,16 @@ uint RadioUiEngine::skipStation( StationSkip::Mode mode, uint startFrequency )
  */
 void RadioUiEngine::openMusicStore( const RadioHistoryItem& item, MusicStore store )
 {
-    if ( store == OviStore ) {
-        //TODO: Integrate to music store
-    } else if ( store == OtherStore ) {
-        QString artist = item.artist();
-        artist.replace( WHITESPACE, WHITESPACE_REPLACEMENT );
-        QString title = item.title();
-        title.replace( WHITESPACE, WHITESPACE_REPLACEMENT );
+    QString artist = item.artist();
+    artist.replace( WHITESPACE, WHITESPACE_REPLACEMENT );
+    QString title = item.title();
+    title.replace( WHITESPACE, WHITESPACE_REPLACEMENT );
 
-        QString url( OTHER_STORE_URL );
-        url.replace( OTHER_STORE_ARTIST_TAG, artist );
-        url.replace( OTHER_STORE_TITLE_TAG, title );
+    QString url = store == OviStore ? OVI_STORE_URL : OTHER_STORE_URL;
+    url.replace( OTHER_STORE_ARTIST_TAG, artist );
+    url.replace( OTHER_STORE_TITLE_TAG, title );
 
-        launchBrowser( url );
-    }
+    launchBrowser( url );
 }
 
 /*!

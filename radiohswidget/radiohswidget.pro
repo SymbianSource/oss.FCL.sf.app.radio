@@ -22,8 +22,6 @@ CONFIG += plugin
 CONFIG += hb
 CONFIG += mobility
 MOBILITY = serviceframework
-# Traslations is waiting for the widget specific ts
-#TRANSLATIONS += $${TARGET}.ts
 
 LIBS += -lxqsettingsmanager
 LIBS += -lxqservice
@@ -39,7 +37,6 @@ INCLUDEPATH += ../common
 UID = 2002E6D6
 
 RESOURCES = resources.qrc
-#exportResources(./resource/$${TARGET}_icon*.png, $$PLUGIN_SUBDIR)
 
 symbian: {
 
@@ -56,8 +53,6 @@ symbian: {
     widgetResources.path = $${DESTDIR}
     widgetResources.sources += resource/$${TARGET}.xml
     widgetResources.sources += resource/$${TARGET}.manifest
-    # icon is now removed to be able to unistall the widget more easily.
-    #widgetResources.sources += resource/$${TARGET}_icon*.png
 	
     localisedFiles.path = /resource/qt/translations
     localisedFiles.sources += ./locales/*.qm
@@ -65,6 +60,8 @@ symbian: {
     DEPLOYMENT += plugins
     DEPLOYMENT += widgetResources
     DEPLOYMENT += localisedFiles
+    
+    MMP_RULES += SMPSAFE
     
     include(radiohswidget_exports_to_rom.pri)
 }
@@ -82,7 +79,7 @@ win32: {
     DESTDIR = $$PWD/../../../../../bin/$${SUBDIRPART}/$${PLUGIN_SUBDIR}
 
     manifest.path = $${DESTDIR}
-    manifest.files = ./resource/*.manifest ./resource/*.xml ./resource/*.css #./resource/*.png
+    manifest.files = ./resource/*.manifest ./resource/*.xml ./resource/*.css
     
     widgetLocalisation.path = $$PWD/../../../../../bin/$${SUBDIRPART}/resource/qt/translations
     widgetLocalisation.files += ./locales/*.qm

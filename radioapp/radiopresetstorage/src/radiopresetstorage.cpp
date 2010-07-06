@@ -103,11 +103,11 @@ bool RadioPresetStorage::savePreset( const RadioStationIf& station )
     Q_D( RadioPresetStorage );
     TPreset preset;
     preset.SetFrequency( station.frequency() );
-    TPresetName name( station.name().utf16() );
+    TPresetName name( station.name().left( KPresetNameLength ).utf16() );
     preset.SetName( name );
     preset.SetRenamedByUser( station.isRenamedByUser() );
     preset.SetGenre( station.genre() );
-    TRadioUrl url( station.url().utf16() );
+    TRadioUrl url( station.url().left( KUrlMaxLength ).utf16() );
     preset.SetUrl( url );
     preset.SetPiCode( station.piCode() );
     preset.SetFavorite( station.isFavorite() );

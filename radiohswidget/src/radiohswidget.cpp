@@ -20,7 +20,6 @@
 #include <HbLabel>
 #include <HbDocumentLoader>
 #include <HbFrameDrawer>
-#include <HbFrameItem>
 #include <HbIcon>
 #include <HbIconAnimationManager>
 #include <HbIconAnimationDefinition>
@@ -42,8 +41,6 @@
 // Constants
 /** Path to docml file */
 const QString DOCML(":/ui/resource/fmradiohswidget.docml");
-/** Path to css file */
-const QString CSS(":/ui/resource/fmradiohswidget.css");
 
 /**  DOCML object name for mainLayout */
 const QString DOCML_OBJECT_NAME_MAIN_LAYOUT("mainLayout");
@@ -80,6 +77,10 @@ const QString DOCML_OBJECT_NAME_ANIMATION_ICON("animationIcon");
 const int FAVORITE_STATION_COUNT_UNDEFINED(-1);
 /** One favorite station set. */
 const int FAVORITE_STATION_COUNT_ONE(1);
+/** Favorite station count lower boundary including this number. */
+const int FAVORITE_STATION_COUNT_LOWER_BOUNDARY(0);
+/** Favorite station count upper boundary including this number. */
+const int FAVORITE_STATION_COUNT_UPPER_BOUNDARY(100);
 
 // Graphics identifiers for different push button states
 const QString CONTROL_BUTTON_GRAPHICS_NORMAL  ("qtg_fr_hsbutton_normal");
@@ -167,35 +168,33 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
     const QVariant &information)
 {
     LOG_METHOD;
-    LEVEL2(LOG_SLOT_CALLER);
-    if (!information.isValid()) {
-        // informationValue is not valid so return.
-        return;
-    }
     switch (informationType) {
 
     case RadioServiceNotification::FavoriteCount:
-        LEVEL2(LOG("FavoriteCount"));
-        if (information.canConvert(QVariant::Int)) {
+        LOG("FavoriteCount");
+        if (information.canConvert(QVariant::Int) &&
+            information.toInt() >= FAVORITE_STATION_COUNT_LOWER_BOUNDARY &&
+            information.toInt() <= FAVORITE_STATION_COUNT_UPPER_BOUNDARY) {
             mFavoriteStationCount = information.toInt();
             // If there are favorite stations, enable the next/previous
             // buttons.
-            LEVEL2(LOG_FORMAT("favoriteCount: %d, mFavoriteStations: %d",
-                    mFavoriteStationCount, mFavoriteStations));
+            LOG_FORMAT("mFavoriteStationCount: %d", mFavoriteStationCount);
             // Enable or disable buttons only if favoriteCount differs
             // from 1. CurrentIsFavorite case handles situation when there
             // is only one favorite station.
             if (mFavoriteStationCount != FAVORITE_STATION_COUNT_ONE) {
                 enableStationButtons();
             }
+        } else {
+            mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
         }
         break;
 
     case RadioServiceNotification::CurrentIsFavorite:
-        LEVEL2(LOG("CurrentIsFavorite"));
+        LOG("CurrentIsFavorite");
         if (information.canConvert(QVariant::Bool)) {
             mCurrentStationIsFavorite = information.toBool();
-            LEVEL2(LOG_FORMAT("currentIsFavorite: %d", mCurrentStationIsFavorite));
+            LOG_FORMAT("currentIsFavorite: %d", mCurrentStationIsFavorite);
             // If current station is favorite disable next/prev buttons.
             // Radio sends this information only when there is only one
             // favorite station set.
@@ -204,18 +203,15 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
         break;
 
     case RadioServiceNotification::RadioStatus:
-        LEVEL2(LOG("RadioStatus"));
+        LOG("RadioStatus");
         if (information.canConvert(QVariant::Int)) {
             const int status = information.toInt();
             switch (status) {
             case RadioStatus::Playing:
                 LOG("Playing");
-                //handleRadioStateChange(FmRadio::StateControllingAudio);
-                //handleRadioStateChange(FmRadio::StateRunning);
                 break;
             case RadioStatus::Muted:
                 LOG("Muted");
-                //handleRadioStateChange(FmRadio::StateNotControllingAudio);
                 break;
             case RadioStatus::Seeking:
                 LEVEL2(LOG("Seeking"));
@@ -237,9 +233,10 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
         break;
 
     case RadioServiceNotification::Frequency:
-        LEVEL2(LOG("Frequency"));
+        LOG("Frequency");
+        // TODO: Should information.toString() be checked for too many characters? What's the limit?
         if (information.canConvert(QVariant::String)) {
-            LEVEL2(LOG_FORMAT("frequency: %s", GETSTRING(information.toString())));
+            LOG_FORMAT("frequency: %s", GETSTRING(information.toString()));
             // TODO: Remove comment when localisation is working on device.
             //frequencyString = hbTrId("txt_fmradiohswidget_rad_list_l1_mhz").arg(freqString);
             bool frequencyCleared = false;
@@ -262,17 +259,17 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
         break;
 
     case RadioServiceNotification::Name:
-        LEVEL2(LOG("Name"));
+        LOG("Name");
         handleSimilarRadioInformation(StationName, information);
         break;
 
     case RadioServiceNotification::Genre:
-        LEVEL2(LOG("Genre"));
+        LOG("Genre");
         handleSimilarRadioInformation(Pty, information);
         break;
 
     case RadioServiceNotification::RadioText:
-        LEVEL2(LOG("RadioText"));
+        LOG("RadioText");
         handleSimilarRadioInformation(RadioText, information);
         break;
 
@@ -309,12 +306,12 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
 
     switch (state) {
     case FmRadio::StateUndefined:
-        LEVEL2(LOG("FmRadio::StateUndefined"));
+        LOG("FmRadio::StateUndefined");
         // Something went wrong. Widget should not be in this state after onInitialize().
         mFmRadioState = FmRadio::StateUndefined;
         break;
     case FmRadio::StateNotRunning:
-        LEVEL2(LOG("FmRadio::StateNotRunning"));
+        LOG("FmRadio::StateNotRunning");
         mFmRadioState = FmRadio::StateNotRunning;
         mRadioServiceClient->stopMonitoring();
         changePowerButtonOn(false);
@@ -328,7 +325,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         changeInformationAreaLayout(OneRow);
         break;
     case FmRadio::StateStarting:
-        LEVEL2(LOG("FmRadio::StateStarting"));
+        LOG("FmRadio::StateStarting");
         mFmRadioState = FmRadio::StateStarting;
         changePowerButtonOn(true);
         mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
@@ -337,7 +334,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         changeInformationAreaLayout(Animation);
         break;
     case FmRadio::StateRunning:
-        LEVEL2(LOG("FmRadio::StateRunning"));
+        LOG("FmRadio::StateRunning");
         mFmRadioState = FmRadio::StateRunning;
         // Stop timer if it is running because radio is now running.
         mRadioServiceClient->startMonitoring(
@@ -346,22 +343,8 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         enableStationButtons();
         changeInformationAreaLayout(OneRow);
         break;
-/*        
-    case FmRadio::StateControllingAudio:
-        LEVEL2(LOG("FmRadio::StateControllingAudio"));
-        mFmRadioState = FmRadio::StateControllingAudio;
-        enableStationButtons();
-        changeInRadioInformation();
-        break;
-    case FmRadio::StateNotControllingAudio:
-        LEVEL2(LOG("FmRadio::StateNotControllingAudio"));
-        mFmRadioState = FmRadio::StateNotControllingAudio;
-        enableStationButtons();
-        changeInRadioInformation();
-        break;
-*/
     case FmRadio::StateSeeking:
-        LEVEL2(LOG("FmRadio::StateSeeking"));
+        LOG("FmRadio::StateSeeking");
         mFmRadioState = FmRadio::StateSeeking;
         mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
         mCurrentStationIsFavorite = false;
@@ -369,7 +352,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         changeInformationAreaLayout(Animation);
         break;
     case FmRadio::StateAntennaNotConnected:
-        LEVEL2(LOG("FmRadio::StateAntennaNotConnected"));
+        LOG("FmRadio::StateAntennaNotConnected");
         mFmRadioState = FmRadio::StateAntennaNotConnected;
         mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
         mCurrentStationIsFavorite = false;
@@ -381,7 +364,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         changeInformationAreaLayout(OneRow);
         break;
     case FmRadio::StateClosing:
-        LEVEL2(LOG("FmRadio::StateClosing"));
+        LOG("FmRadio::StateClosing");
         mFmRadioState = FmRadio::StateClosing;
         changePowerButtonOn(false);
         mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
@@ -395,7 +378,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         changeInformationAreaLayout(OneRow);
         break;
     default:
-        LOG("default case at state");
+        LOG_FORMAT("default case at state. State: %d", state);
         break;
     }
 }
@@ -464,7 +447,7 @@ void RadioHsWidget::onHide()
  */
 void RadioHsWidget::changeButtonToPressed(int hsButtonIdentifier)
 {
-    LOG_METHOD;
+    LEVEL2(LOG_METHOD);
     buttonEvent(static_cast<ControlButtonIdentifier>(hsButtonIdentifier), Pressed);
 }
 
@@ -476,7 +459,7 @@ void RadioHsWidget::changeButtonToPressed(int hsButtonIdentifier)
  */
 void RadioHsWidget::changeButtonToReleased(int hsButtonIdentifier)
 {
-    LOG_METHOD;
+    LEVEL2(LOG_METHOD);
     buttonEvent(static_cast<ControlButtonIdentifier>(hsButtonIdentifier), Normal);
 }
 
@@ -577,8 +560,6 @@ void RadioHsWidget::changeRadioToBackground()
 
 /*!
     Powering off or on the radio.
-    
-    \param isToggled Whether the button is togled (\c true) or not (\c false).
  */
 void RadioHsWidget::toggleRadioPower()
 {
@@ -607,7 +588,6 @@ void RadioHsWidget::load(const QString &docml)
     QScopedPointer<HbDocumentLoader> documentLoader(new HbDocumentLoader());
     bool loaded = false;
     documentLoader->load(docml, &loaded);
-    RADIO_ASSERT( loaded , "FMRadioHsWidget", "invalid DocML file" );
     if (loaded) {
         // Find mainLayout
         HbWidget *mainLayout = qobject_cast<HbWidget*> (
@@ -696,10 +676,6 @@ void RadioHsWidget::load(const QString &docml)
                 documentLoader->findWidget(
                     DOCML_OBJECT_NAME_TUNER_BACKGROUND_BUTTON));
             if (mInformationAreaBackgroundButton) {
-                // Try css for controlling the appearance.
-                //bool b = QFile::exists(CSS);
-                //bool cssLoaded = HbStyleLoader::registerFilePath(CSS);
-                //HbStyle::setItemName(mInformationAreaBackgroundButton, DOCML_OBJECT_NAME_TUNER_BACKGROUND_BUTTON);
                 // Use the frame background.
                 HbFrameDrawer *tunerBackgroundButtonFrameDrawer =
                     new HbFrameDrawer("qtg_fr_tuner",
@@ -780,10 +756,11 @@ void RadioHsWidget::load(const QString &docml)
 void RadioHsWidget::handleSimilarRadioInformation(
     const FmRadioInformationType informationType, const QVariant &information)
 {
-    LOG_METHOD;
+    LOG_METHOD_ENTER;
+    // TODO: Should information.toString() be checked for too many characters? What's the limit?
     if (information.canConvert(QVariant::String) && updateRadioInformation(
         informationType, information.toString())) {
-        LEVEL2(LOG_FORMAT("informationType: %d, information: %s", informationType, GETSTRING(information)));
+        LOG_FORMAT("informationType: %d, information: %s", informationType, GETSTRING(information.toString()));
         changeInRadioInformation();
     }
 }
@@ -897,7 +874,7 @@ void RadioHsWidget::clearRadioInformation()
  */
 void RadioHsWidget::changeInformationAreaLayout(const InformationAreaLayout layout)
 {
-    LOG_METHOD;
+    LOG_METHOD_ENTER;
     mInformationLonelyRowLabel->setVisible(layout == OneRow);
     mInformationAreaTwoRowsLayout->setVisible(layout == TwoRows);
     mAnimationIcon->setVisible(layout == Animation);
@@ -910,16 +887,16 @@ void RadioHsWidget::changeInformationAreaLayout(const InformationAreaLayout layo
  */
 void RadioHsWidget::changePowerButtonOn(const bool isPowerOn)
 {
-    LOG_METHOD;
+    LEVEL2(LOG_METHOD);
     if (isPowerOn) {
         LEVEL2(LOG("Power on"));
-        // Temporarily set the text to clarify the action it performs.
+        // TODO: Temporarily set the text to clarify the action it performs.
         // Remove when graphics displays the difference.
         mPowerButton->setText("Off");
         buttonEvent(Power, Latched);
     } else {
         LEVEL2(LOG("Power off"));
-        // Temporarily set the text to clarify the action it performs.
+        // TODO: Temporarily set the text to clarify the action it performs.
         // Remove when graphics displays the difference.
         mPowerButton->setText("On");
         buttonEvent(Power, Normal);
@@ -931,7 +908,7 @@ void RadioHsWidget::changePowerButtonOn(const bool isPowerOn)
  */
 void RadioHsWidget::enableStationButtons()
 {
-    LOG_METHOD_ENTER;
+    LEVEL2(LOG_METHOD_ENTER);
     if ((mFavoriteStationCount > 1) || (mFavoriteStationCount == 1
         && !mCurrentStationIsFavorite)) {
         changeButtonToEnabled(Next);
@@ -956,7 +933,7 @@ void RadioHsWidget::enableStationButtons()
 void RadioHsWidget::defineButton(HbPushButton &target, const QString &graphicsId,
     const QStringList &suffix, const QString &icon, const QString &iconColor)
 {
-    LOG_METHOD;
+    LEVEL2(LOG_METHOD);
     HbFrameDrawer* drawer = NULL;
 
     // First check if the drawer is already created for this push button
@@ -1004,7 +981,7 @@ void RadioHsWidget::defineButton(HbPushButton &target, const QString &graphicsId
 void RadioHsWidget::buttonEvent(ControlButtonIdentifier buttonId,
     const ControlButtonState state)
 {
-    LOG_METHOD;
+    LEVEL2(LOG_METHOD);
     HbPushButton* target = NULL;
     QStringList suffix;
     QString icon;
@@ -1074,7 +1051,7 @@ void RadioHsWidget::buttonEvent(ControlButtonIdentifier buttonId,
  */
 void RadioHsWidget::changeButtonToDisabled(int hsButtonIdentifier)
 {
-    LOG_METHOD;
+    LEVEL2(LOG_METHOD_ENTER);
     buttonEvent(static_cast<ControlButtonIdentifier>(hsButtonIdentifier), Disabled);
 }
 
@@ -1085,9 +1062,8 @@ void RadioHsWidget::changeButtonToDisabled(int hsButtonIdentifier)
  */
 void RadioHsWidget::changeButtonToEnabled(int hsButtonIdentifier)
 {
-    LOG_METHOD;
+    LEVEL2(LOG_METHOD_ENTER);
     changeButtonToReleased(hsButtonIdentifier);
-    //buttonEvent(static_cast<ControlButtonIdentifier>(hsButtonIdentifier), Normal);
 }
 
 /*!
@@ -1108,7 +1084,7 @@ bool RadioHsWidget::radioStartPermission()
     if (mProfileMonitor->isCurrentProfileOffline()) {
         // Device is in offline profile, ask the user for permission to start
         HbDeviceMessageBox box(hbTrId(
-            "txt_radiohswidget_rad_info_activate_radio_in_offline_mode_hs"),
+            "txt_fmradiohswidget_rad_info_activate_radio_in_offline_mode_hs"),
             HbMessageBox::MessageTypeQuestion);
         box.setTimeout(HbPopup::NoTimeout);
         box.exec();

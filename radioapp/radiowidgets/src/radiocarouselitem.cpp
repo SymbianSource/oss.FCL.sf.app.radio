@@ -22,6 +22,7 @@
 #include <HbIconItem>
 #include <HbTouchArea>
 #include <HbTapGesture>
+#include <QPainter>
 
 // User includes
 #include "radiocarouselitem.h"
@@ -110,11 +111,36 @@ void RadioCarouselItem::createPrimitives()
     mRadiotextItem = new HbRichTextItem( this );
     HbStyle::setItemName( mRadiotextItem, RT_LABEL );
 
-    mUrlItem = new HbRichTextItem( this );
+    mUrlItem = new HbTextItem( this );
     HbStyle::setItemName( mUrlItem, URL_LABEL );
 
     mFavoriteTouchArea = new HbTouchArea( this );
     HbStyle::setItemName( mFavoriteTouchArea, FAVORITE_TOUCH_AREA );
+
+    // Matti testing needs these
+    mFavoriteItem->setObjectName( ICON_BUTTON );
+    mGenreItem->setObjectName( GENRE_LABEL );
+    mNameItem->setObjectName( NAME_LABEL );
+    mRadiotextItem->setObjectName( RT_LABEL );
+    mUrlItem->setObjectName( URL_LABEL );
+    mFavoriteTouchArea->setObjectName( FAVORITE_TOUCH_AREA );
+}
+
+/*!
+ *
+ */
+void RadioCarouselItem::drawOffScreen( QPainter& painter )
+{
+    QStyleOptionGraphicsItem option;
+
+    foreach ( QGraphicsItem* child, childItems() ) {
+        QGraphicsWidget* childWidget = static_cast<QGraphicsWidget*>( child );
+        option.exposedRect = childWidget->rect();
+        painter.save();
+        painter.translate( childWidget->pos() );
+        childWidget->paint( &painter, &option, NULL );
+        painter.restore();
+    }
 }
 
 /*!
@@ -236,6 +262,9 @@ void RadioCarouselItem::setSeekLayout( bool seekLayout )
 void RadioCarouselItem::setStation( const RadioStation& station )
 {
     *mStation = station;
+
+    updateLayout();
+
     update();
 }
 
@@ -254,36 +283,34 @@ void RadioCarouselItem::update( const RadioStation* station )
 {
     if ( station ) {
         *mStation = *station;
+        updateLayout();
     }
 
     if ( mStation->isValid() ) {
         mGenreItem->setText( mObserver.localizeGenre( mStation->genre() ) );
 
-        const bool stationHasName = !mStation->name().isEmpty();
-        const bool stationHasRadiotext = !mStation->radioText().isEmpty();
-        const bool stationHasUrl = !mStation->url().isEmpty();
-        setAppearance( stationHasName || stationHasRadiotext || stationHasUrl ? Full : Default );
-
-        if ( stationHasName ) {
+        const bool hasName = mStation->hasName();
+        if ( hasName ) {
             mNameItem->setText( mStation->name() );
         } else {
             mNameItem->setText( mStation->frequencyString() );
         }
 
-        if ( stationHasRadiotext ) {
+        if ( mStation->hasRadiotext() ) {
             mRadiotextItem->setText( mStation->radioText() );
         } else {
-            if ( !mStation->dynamicPsText().isEmpty() ) {
+            if ( mStation->hasDynamicPs() ) {
                 mRadiotextItem->setText( mStation->dynamicPsText() );
-            } else if ( stationHasName ) {
-                mRadiotextItem->setText( mStation->frequencyString() );
+            } else if ( hasName ) {
+                const QString loc = "%L1 Mhz"; //hbTrId( "txt_rad_list_l1_mhz_small" );
+                mRadiotextItem->setText( loc.arg( mStation->frequencyString() ) );
             } else {
                 mRadiotextItem->setText( "" );
             }
         }
 
         mUrlItem->setText( mStation->url() );
-        if ( stationHasUrl ) {
+        if ( mStation->hasUrl() ) {
             HbStyle::setItemName( mUrlItem, URL_LABEL );
             setFlags( UrlVisible | UrlTouchable );
         } else {
@@ -365,3 +392,12 @@ void RadioCarouselItem::updateFavoriteIcon( bool isFavorite )
         mFavoriteItem->setIcon( mObserver.nonFavoriteIcon() );
     }
 }
+
+/*!
+ *
+ */
+void RadioCarouselItem::updateLayout()
+{
+    setAppearance( mStation->hasName() || mStation->hasRadiotext() || mStation->hasUrl() ? Full : Default );
+}
+

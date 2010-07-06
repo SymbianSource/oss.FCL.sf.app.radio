@@ -84,18 +84,6 @@ public:
     */
     IMPORT_C const RRadioCountryCodeArray& CountryCodes();
 
-    /**
-    * Name Get the name of region
-    * @return Name of region
-    */
-    IMPORT_C const TDesC16& Name() const;
-
-    /**
-    * SettingItemName Get the name of region for setting item
-    * @return Name of region
-    */
-    IMPORT_C const TDesC16& SettingItemName() const;
-
 private:
 
     CRadioRegion();
@@ -107,7 +95,7 @@ private: // data
     /** Id of the region*/
     TRadioRegion            iId;
     /** Step interval*/
-    TUint16                 iStepSize;
+    TUint32                 iStepSize;
     /** Min frequency */
     TUint32                 iMinFreq;
     /** Max frequency */
@@ -116,10 +104,6 @@ private: // data
     TInt                    iDecimalCount;
     /** Country code*/
     RRadioCountryCodeArray  iCountryCodes;
-    /** Region name*/
-    HBufC*                  iName;
-    /** Region name for setting item*/
-    HBufC*                  iSettingName;
 
     };
 

@@ -39,17 +39,10 @@ public:
     
     bool isCurrentProfileOffline();
 
-signals:
-    //void profileChanged(int profile);
-    //void radioRunning(const QVariant &state);
-
 public slots:
     void handleDeletedItem(const XQSettingsKey &key);
     void handleChanges(const XQSettingsKey &key, const QVariant &value);
     
-private slots:
-    //void currentProfileStatus(const QVariant &value);
-
 private:
     void radioRunningStatus(const QVariant &value);
     

@@ -98,7 +98,7 @@ private: // data
 
     QScopedPointer<RadioMonitorService>     mMonitorService;
 
-    QSharedPointer<RadioScannerEngine>      mScannerEngine;
+    QWeakPointer<RadioScannerEngine>        mScannerEngine;
 
     /**
      * Power off timer

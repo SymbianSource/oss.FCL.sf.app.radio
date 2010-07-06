@@ -25,11 +25,8 @@
 #include "radio_global.h"
 
 // Constants
-const QString TAG_ARTIST = "artist";
-const QString TAG_TITLE = "title";
-const QString HTML_ARTIST = "<a href=\"" + TAG_ARTIST + "\">";
-const QString HTML_TITLE = "<a href=\"" + TAG_TITLE + "\">";
-const QString HTML_CLOSE = "</a>";
+const QLatin1String HTML_TAG_START( "<font color='cyan'><u>" );
+const QLatin1String HTML_TAG_END( "</u></font>" );
 
 const uint LAST_CALLSIGN_CHAR_CODE = 25;
 const uint THREE_LETTER_CALLSIGN_COUNT = 72;
@@ -205,7 +202,8 @@ void RadioStation::setName( const QString& name )
 
         //TODO: This is a temporary thing to see some URL. Remove this
         if ( !mData->mName.isEmpty() ) {
-            mData->mUrl = "<a href=\"buu\">www." + mData->mName.toLower() + ".fi</a>";
+            QString url = mData->mName.toLower().remove( " " );
+            mData->mUrl = "www." + url + ".fi";
         } else {
             mData->mUrl = "";
         }
@@ -317,13 +315,7 @@ void RadioStation::setRadioTextPlus( const int rtPlusClass, const QString& rtPlu
             return;
         }
 
-        QString replacement = "";
-        if ( rtPlusClass == RtPlus::Artist ) {
-            replacement = HTML_ARTIST;
-        } else if ( rtPlusClass == RtPlus::Title ) {
-            replacement = HTML_TITLE;
-        }
-        replacement += rtPlusItem + HTML_CLOSE;
+        const QString replacement = HTML_TAG_START + rtPlusItem + HTML_TAG_END;
 
         mData->mRadioText.replace( rtPlusItem, replacement );
         mData->mChangeFlags |= RadioStation::RadioTextChanged;
@@ -443,21 +435,9 @@ QString RadioStation::url() const
 /*!
  *
  */
-bool RadioStation::hasPiCode() const
+int RadioStation::piCode() const
 {
-    return mData->mPiCode != -1;
-}
-
-/*!
- *
- */
-bool RadioStation::hasRds() const
-{
-    return hasPiCode() ||
-        mData->mGenre != -1 ||
-        !mData->mDynamicPsText.isEmpty() ||
-        !mData->mRadioText.isEmpty() ||
-        ( !mData->mName.isEmpty() && !isRenamed() );
+    return mData->mPiCode;
 }
 
 /*!

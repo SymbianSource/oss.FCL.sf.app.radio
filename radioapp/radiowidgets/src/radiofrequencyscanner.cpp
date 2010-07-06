@@ -275,6 +275,8 @@ void RadioFrequencyScanner::finishScanning()
                 box->open();
             }
         }
+        const uint frequency = model.stationAt( 0 ).frequency();
+        mUiEngine.setFrequency( frequency, TuneReason::StationScanFinalize );
     }
 
     mIsAlive = false;

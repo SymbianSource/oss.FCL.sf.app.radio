@@ -160,12 +160,22 @@ public: // Getters and setters
 
     QString url() const;
 
-    bool hasPiCode() const;
-    bool hasRds() const;
+    int piCode() const;
 
     void setType( RadioStation::Type type );
     void unsetType( RadioStation::Type type );
     bool isType( RadioStation::Type type ) const;
+
+    // Convenience checkers
+
+    inline bool hasPiCode() const       { return piCode() != -1; }
+    inline bool hasName() const         { return !name().isEmpty(); }
+    inline bool hasUrl() const          { return !url().isEmpty(); }
+    inline bool hasRadiotext() const    { return !radioText().isEmpty(); }
+    inline bool hasDynamicPs() const    { return !dynamicPsText().isEmpty(); }
+    inline bool hasGenre() const        { return genre() != -1; }
+    inline bool hasRds() const          { return hasPiCode() || hasGenre() || hasDynamicPs() ||
+                                                 hasRadiotext() || hasUrl() || ( !hasName() && !isRenamed() ); }
 
     // Getters for non-persistent data
 

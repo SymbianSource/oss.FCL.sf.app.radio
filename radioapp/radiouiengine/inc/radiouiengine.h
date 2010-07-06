@@ -41,6 +41,9 @@ class RadioMonitorService;
 
 typedef QSharedPointer<RadioScannerEngine> RadioScannerEnginePtr;
 
+// Constants
+const uint DEFAULT_MIN_FREQUENCY = 87500000;
+
 class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 {
     Q_OBJECT
@@ -49,12 +52,24 @@ class UI_ENGINE_DLL_EXPORT RadioUiEngine : public QObject
 
     friend class RadioScannerEngine;
 
-public:
+public: // Static functions that are used before the ui engine is created
 
-    /**
-     * Static functions that are used before the ui engine is created
+    /*!
+     * Gets the last tuned frequency from central repository
      */
-    static uint lastTunedFrequency();
+    static uint lastTunedFrequency( uint defaultFrequency = DEFAULT_MIN_FREQUENCY );
+
+    /*!
+     * Gets the last used volume level
+     */
+    static int lastVolume();
+
+    /*!
+     * Launches the radio server process
+     */
+    static void launchRadioServer();
+
+public:
 
     RadioUiEngine( QObject* parent = 0 );
     ~RadioUiEngine();
