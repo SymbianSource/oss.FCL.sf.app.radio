@@ -179,6 +179,14 @@ void RadioStationModel::initialize( RadioPresetStorage* storage, RadioEngineWrap
         RadioStationIf* stationInterface = static_cast<RadioStationIf*>( station.data_ptr() );
         if ( d->mPresetStorage->readPreset( index, *stationInterface ) ) {
             if ( station.isValid() && d->mWrapper->isFrequencyValid( station.frequency() ) ) {
+
+                // Check if the station seems to send RDS or not.
+                // Note that radiotext is not checked because it is not saved to cenrep
+                // TODO: Consider saving this state flag to cenrep
+                if ( ( station.hasName() && !station.isRenamed() ) || station.hasUrl() ) {
+                    static_cast<RadioStationIf*>( station.data_ptr() )->setStationHasSentRds( true );
+                }
+
                 d->mStations.insert( station.frequency(), station );
             } else {
                 LOG( "RadioStationModel::initialize: Invalid station!" );

@@ -265,6 +265,8 @@ void RadioHistoryView::init()
     mHistoryList->setModel( historyModel );
     mHistoryList->setSelectionMode( HbListView::NoSelection );
     mHistoryList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    //TODO: Uncomment after MCL wk28 release to improve scrolling FPS rate
+    //mHistoryList->setItemPixmapCacheEnabled( true );
 
     mAllSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_ALL_SONGS_BUTTON );
     mTaggedSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_TAGGED_SONGS_BUTTON );

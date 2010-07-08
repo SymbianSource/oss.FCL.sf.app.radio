@@ -92,7 +92,7 @@
                     <enums name="textWrapping" value="TextWordWrap"/>
                     <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
                     <sizehint height="320" type="PREFERRED" width="240"/>
-                    <string locid="txt_rad_info_recently_played_songs_collects_song2" name="plainText"/>
+                    <string locid="txt_rad_info_song_information_is_collected_automat" name="plainText"/>
                     <fontspec name="fontSpec" role="Title" textheight="33.5"/>
                 </widget>
                 <layout orientation="Vertical" spacing="var(hb-param-margin-gene-middle-vertical)" type="linear">
@@ -142,7 +142,7 @@
             <bool name="checked" value="FALSE"/>
         </object>
         <widget name="hv:empty_text">
-            <string locid="txt_rad_info_recently_played_songs_collects_song2" name="plainText"/>
+            <string locid="txt_rad_info_song_information_is_collected_automat" name="plainText"/>
         </widget>
         <widget name="hv:heading_banner">
             <string name="heading" locid="txt_rad_subhead_play_history" />

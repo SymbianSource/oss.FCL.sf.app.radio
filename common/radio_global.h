@@ -142,7 +142,8 @@ namespace TuneReason
         StationScan,
         StationScanFinalize,
         StationScanNoStationsFound,
-        SkipFromEngine
+        SkipFromEngine,
+        SkipFromWidget
     };
 }
 

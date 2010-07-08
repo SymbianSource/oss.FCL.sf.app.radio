@@ -32,14 +32,23 @@ class RadioStationPrivate : public QSharedData
 {
 public:
 
+    /**
+     * Flags to indicate various on/off type information of the radio station
+     */
+    enum StationInfoFlag
+    {
+       RenamedByUser        = 1 << 0,
+       StationSendsRds      = 1 << 1,
+       CallSignCheckDone    = 1 << 2
+    };
+    Q_DECLARE_FLAGS( StationInfo, StationInfoFlag )
+
     explicit RadioStationPrivate( int presetIndex = RadioStation::Invalid, uint frequency = 0 );
     explicit RadioStationPrivate( const RadioStationPrivate& other );
 
     virtual ~RadioStationPrivate();
 
     void init( int presetIndex, uint frequency = 0 );
-
-private:
 
 // from base class RadioStationIf
 
@@ -61,6 +70,13 @@ private:
     void setFavorite( bool favorite );
     bool isLocalStation() const;
     void setLocalStation( bool localStation );
+    bool hasStationSentRds() const;
+    void setStationHasSentRds( bool hasSentRds );
+
+// New functions
+
+    bool isCallSignCheckDone() const;
+    void setCallSignCheckDone( bool checkDone );
 
 public: // data
 
@@ -90,11 +106,6 @@ public: // data
      *     does not send RDS information and the current region is America
      */
     QString                     mName;
-
-    /**
-     * Flag to indicate whether or not the user has renamed the station
-     */
-    bool                        mRenamedByUser;
 
     /**
      * Station genre received through RDS
@@ -161,17 +172,19 @@ public: // data
     RadioStation::Change        mChangeFlags;
 
     /**
-     * Keeps track of station call sign calculation state
-     */
-    bool                        mCallSignCheckDone;
-
-    /**
      * Time of the last PS name change. Used to check if the station changes its PS name too often.
      * In bad RDS coverage a station using dynamic PS might be incorrectly determined to use static PS.
      * This is a corrective effort to change that decision if the name changes too often.
      */
     QTime                       mLastPsNameChangeTime;
 
+    /**
+     * Flags to indicate various on/off type information of the radio station
+     */
+    StationInfo                 mStationInfo;
+
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( RadioStationPrivate::StationInfo )
 
 #endif // RADIOSTATIONINFO_P_H_

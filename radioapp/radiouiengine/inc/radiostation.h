@@ -174,8 +174,6 @@ public: // Getters and setters
     inline bool hasRadiotext() const    { return !radioText().isEmpty(); }
     inline bool hasDynamicPs() const    { return !dynamicPsText().isEmpty(); }
     inline bool hasGenre() const        { return genre() != -1; }
-    inline bool hasRds() const          { return hasPiCode() || hasGenre() || hasDynamicPs() ||
-                                                 hasRadiotext() || hasUrl() || ( !hasName() && !isRenamed() ); }
 
     // Getters for non-persistent data
 
@@ -186,6 +184,7 @@ public: // Getters and setters
     bool hasDataChanged( Change flags ) const;
     bool hasChanged() const;
     void resetChangeFlags();
+    bool hasSentRds() const;
 
 private:
 

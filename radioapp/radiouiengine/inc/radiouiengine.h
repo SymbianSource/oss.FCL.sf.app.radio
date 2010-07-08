@@ -116,7 +116,7 @@ public:
 
     void addRecognizedSong( const QString& artist, const QString& title, const RadioStation& station );
 
-    uint skipStation( StationSkip::Mode mode, uint startFrequency = 0 );
+    uint skipStation( StationSkip::Mode mode, uint startFrequency = 0, const int reason = TuneReason::Skip );
 
     enum MusicStore{ OviStore, OtherStore };
     void openMusicStore( const RadioHistoryItem& item, MusicStore store = OviStore );

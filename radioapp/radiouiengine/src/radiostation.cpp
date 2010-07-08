@@ -182,9 +182,10 @@ void RadioStation::setName( const QString& name )
 {
     // Name emptiness is checked because this name setter is used by incoming RDS PS name
     // and empty names should be ignored
-    if ( !name.isEmpty() && !mData->mRenamedByUser && mData->mName.compare( name ) != 0 ) {
+    if ( !name.isEmpty() && !mData->isRenamedByUser() && mData->mName.compare( name ) != 0 ) {
         mData->mName = name.trimmed();
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::NameChanged;
+        mData->setStationHasSentRds( true );
 
         // Save the time when PS name changed and if the last change was too close to the current time
         // change the PS type to dynamic if it has already been incorrectly determined to be static.
@@ -197,13 +198,13 @@ void RadioStation::setName( const QString& name )
             mData->mDynamicPsText = mData->mName;
             mData->mName = "";
             mData->mChangeFlags |= RadioStation::PsTypeChanged | RadioStation::DynamicPsChanged;
-            mData->mCallSignCheckDone = false;
+            mData->setCallSignCheckDone( false );
         }
 
         //TODO: This is a temporary thing to see some URL. Remove this
         if ( !mData->mName.isEmpty() ) {
             QString url = mData->mName.toLower().remove( " " );
-            mData->mUrl = "www." + url + ".fi";
+            mData->mUrl = "http://www." + url + ".fi";
         } else {
             mData->mUrl = "";
         }
@@ -220,6 +221,9 @@ void RadioStation::setGenre( const int genre )
     if ( mData->mGenre != genre ) {
         mData->mGenre = genre;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::GenreChanged;
+
+        // Note that setStationHasSentRds() is not set when genre or pi code arrives.
+
         ASSERT_SHARED_NULL_IS_INTACT
     }
 }
@@ -232,6 +236,7 @@ void RadioStation::setUrl( const QString& url )
     if ( mData->mUrl.compare( url ) != 0 ) {
         mData->mUrl = url;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::UrlChanged;
+        mData->setStationHasSentRds( true );
         ASSERT_SHARED_NULL_IS_INTACT
     }
 }
@@ -249,16 +254,18 @@ bool RadioStation::setPiCode( int piCode, RadioRegion::Region region )
     }
 
     LOG_FORMAT( "stored PI: %d", mData->mPiCode );
-    LOG_FORMAT( "call sign check done: %d", mData->mCallSignCheckDone );
+    LOG_FORMAT( "call sign check done: %d", mData->isCallSignCheckDone() );
     //prevent executing the below code when unnessesary
-    if ( mData->mPiCode != piCode || !mData->mCallSignCheckDone ) {
+    if ( mData->mPiCode != piCode || !mData->isCallSignCheckDone() ) {
         mData->mPiCode = piCode;
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::PiCodeChanged;
+        // Note that setStationHasSentRds() is not set when genre or pi code arrives.
+
         // call sign not calculated for clear channel stations
 		//TODO: Remove magic numbers
         if ( ( (mData->mPiCode & 0xF000 ) >> 12 ) == 0x1 ) {
             LOG( "Clear channel station" );
-            mData->mCallSignCheckDone = true;
+            mData->setCallSignCheckDone( true );
         } else if ( region == RadioRegion::America && mData->mName.isEmpty() && !isRenamed() ) {
             LOG( "Calculate call sign" );
             mData->mName = piCodeToCallSign( mData->mPiCode );
@@ -267,7 +274,7 @@ bool RadioStation::setPiCode( int piCode, RadioRegion::Region region )
 
         if ( mData->mChangeFlags.testFlag( RadioStation::PsTypeChanged ) ) {
             LOG( "Call sign check done" );
-            mData->mCallSignCheckDone = true;
+            mData->setCallSignCheckDone( true );
         }
 
         ASSERT_SHARED_NULL_IS_INTACT
@@ -296,6 +303,7 @@ void RadioStation::setRadioText( const QString& radioText )
     if ( mData->mRadioText.compare( radioText ) != 0 ) {
         mData->mRadioText = radioText.isEmpty() ? "" : radioText.trimmed();
         mData->mChangeFlags |= RadioStation::RadioTextChanged;
+        mData->setStationHasSentRds( true );
         ASSERT_SHARED_NULL_IS_INTACT
     }
 }
@@ -359,7 +367,7 @@ void RadioStation::setUserDefinedName( const QString& name )
     // of a station by setting an empty name
     if ( mData->mName.compare( name ) != 0 ) {
         mData->mName = name;
-        mData->mRenamedByUser = !name.isEmpty();
+        mData->setRenamedByUser( !name.isEmpty() );
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::NameChanged;
     }
 }
@@ -369,7 +377,7 @@ void RadioStation::setUserDefinedName( const QString& name )
  */
 bool RadioStation::isRenamed() const
 {
-    return mData->mRenamedByUser;
+    return mData->isRenamedByUser();
 }
 
 /*!
@@ -540,6 +548,14 @@ void RadioStation::resetChangeFlags()
     if ( mData->mChangeFlags != RadioStation::NoChange ) {
         mData->mChangeFlags = RadioStation::NoChange;
     }
+}
+
+/*!
+ *
+ */
+bool RadioStation::hasSentRds() const
+{
+    return mData->hasStationSentRds();
 }
 
 /*!

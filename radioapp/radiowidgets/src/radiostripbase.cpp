@@ -181,7 +181,7 @@ void RadioStripBase::setIndex( int index, bool animateToCenter )
  */
 void RadioStripBase::resizeEvent( QGraphicsSceneResizeEvent* event )
 {
-    Q_UNUSED( event );
+    HbScrollArea::resizeEvent( event );
     populateAndLayout();
 }
 

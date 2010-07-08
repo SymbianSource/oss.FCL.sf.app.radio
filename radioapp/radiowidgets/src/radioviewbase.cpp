@@ -227,7 +227,7 @@ void RadioViewBase::loadSection( const QString& docml, const QString& section )
  */
 void RadioViewBase::askQuestion( const QString& question )
 {
-    HbMessageBox::question( question, this, SLOT(handleUserAnswer(HbAction*)) );
+    HbMessageBox::question( question, this, SLOT(handleUserAnswer(HbAction*)), HbMessageBox::Yes | HbMessageBox::No );
 }
 
 /*!

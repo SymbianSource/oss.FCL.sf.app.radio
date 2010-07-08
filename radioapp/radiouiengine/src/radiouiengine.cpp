@@ -413,10 +413,10 @@ void RadioUiEngine::addRecognizedSong( const QString& artist, const QString& tit
 /*!
  *
  */
-uint RadioUiEngine::skipStation( StationSkip::Mode mode, uint startFrequency )
+uint RadioUiEngine::skipStation( StationSkip::Mode mode, uint startFrequency, const int reason )
 {
     Q_D( RadioUiEngine );
-    return d->skip( mode, startFrequency );
+    return d->skip( mode, startFrequency, reason );
 }
 
 /*!

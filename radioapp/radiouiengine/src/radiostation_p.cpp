@@ -20,6 +20,16 @@
 // User includes
 #include "radiostation_p.h"
 
+/**
+ * Convenience macro to set and unset flag values
+ */
+#define SET_FLAG_VALUE(member,flag,value) \
+    if ( value ) { \
+        member |= flag; \
+    } else { \
+        member &= ~flag; \
+    }
+
 /*!
  *
  */
@@ -40,7 +50,6 @@ RadioStationPrivate::RadioStationPrivate( const RadioStationPrivate& other ) :
     mPresetIndex( other.mPresetIndex ),
     mFrequency( other.mFrequency ),
     mName( other.mName ),
-    mRenamedByUser( other.mRenamedByUser ),
     mGenre( other.mGenre ),
     mUrl( other.mUrl ),
     mPiCode( other.mPiCode ),
@@ -49,9 +58,12 @@ RadioStationPrivate::RadioStationPrivate( const RadioStationPrivate& other ) :
     mRadioText( other.mRadioText ),
     mDynamicPsText( other.mDynamicPsText ),
     mChangeFlags( other.mChangeFlags ),
-    mCallSignCheckDone( other.mCallSignCheckDone ),
     mLastPsNameChangeTime( other.mLastPsNameChangeTime )
 {
+    setRenamedByUser( other.isRenamedByUser() );
+    setCallSignCheckDone( other.isCallSignCheckDone() );
+    setStationHasSentRds( other.hasStationSentRds() );
+
     // Protect the shared null preset index to make debugging easier
     if ( mPresetIndex == RadioStation::SharedNull ) {
         mPresetIndex = RadioStation::Invalid;
@@ -70,15 +82,14 @@ RadioStationPrivate::~RadioStationPrivate()
  */
 void RadioStationPrivate::init( int presetIndex, uint frequency )
 {
-    mPresetIndex       = presetIndex;
-    mFrequency         = frequency;
-    mRenamedByUser     = false;
-    mGenre             = -1;
-    mPiCode            = -1;
-    mType              = 0;
-    mPsType            = RadioStation::Unknown;
-    mChangeFlags       = RadioStation::NoChange;
-    mCallSignCheckDone = false;
+    mPresetIndex    = presetIndex;
+    mFrequency      = frequency;
+    mGenre          = -1;
+    mPiCode         = -1;
+    mType           = 0;
+    mPsType         = RadioStation::Unknown;
+    mChangeFlags    = RadioStation::NoChange;
+    mStationInfo    = 0;
 }
 
 /*!
@@ -134,7 +145,7 @@ void RadioStationPrivate::setName( QString name )
  */
 bool RadioStationPrivate::isRenamedByUser() const
 {
-    return mRenamedByUser;
+    return mStationInfo.testFlag( RenamedByUser );
 }
 
 /*!
@@ -142,7 +153,7 @@ bool RadioStationPrivate::isRenamedByUser() const
  */
 void RadioStationPrivate::setRenamedByUser( bool renamed )
 {
-    mRenamedByUser = renamed;
+    SET_FLAG_VALUE( mStationInfo, RenamedByUser, renamed );
 }
 
 /*!
@@ -206,11 +217,7 @@ bool RadioStationPrivate::isFavorite() const
  */
 void RadioStationPrivate::setFavorite( bool favorite )
 {
-    if ( favorite ) {
-        mType |= RadioStation::Favorite;
-    } else {
-        mType &= ~RadioStation::Favorite;
-    }
+    SET_FLAG_VALUE( mType, RadioStation::Favorite, favorite );
 }
 
 /*!
@@ -226,9 +233,37 @@ bool RadioStationPrivate::isLocalStation() const
  */
 void RadioStationPrivate::setLocalStation( bool localStation )
 {
-    if ( localStation ) {
-        mType |= RadioStation::LocalStation;
-    } else {
-        mType &= ~RadioStation::LocalStation;
-    }
+    SET_FLAG_VALUE( mType, RadioStation::LocalStation, localStation );
+}
+
+/*!
+ * \reimp
+ */
+bool RadioStationPrivate::hasStationSentRds() const
+{
+    return mStationInfo.testFlag( StationSendsRds );
+}
+
+/*!
+ * \reimp
+ */
+void RadioStationPrivate::setStationHasSentRds( bool hasSentRds )
+{
+    SET_FLAG_VALUE( mStationInfo, StationSendsRds, hasSentRds );
+}
+
+/*!
+ *
+ */
+bool RadioStationPrivate::isCallSignCheckDone() const
+{
+    return mStationInfo.testFlag( CallSignCheckDone );
+}
+
+/*!
+ *
+ */
+void RadioStationPrivate::setCallSignCheckDone( bool checkDone )
+{
+    SET_FLAG_VALUE( mStationInfo, CallSignCheckDone, checkDone );
 }

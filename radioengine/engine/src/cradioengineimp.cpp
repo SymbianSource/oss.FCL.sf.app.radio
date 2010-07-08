@@ -1412,12 +1412,14 @@ void CRadioEngineImp::MrpoVolumeChange( TInt aVolume )
 void CRadioEngineImp::MrpoMuteChange( TBool aMute )
     {
     LEVEL3( LOG_METHOD_AUTO );
-    TBool muted = iSettings->EngineSettings().IsVolMuted();
-    if ( !aMute != !muted )
-        {
-        iSettings->RadioSetter().SetVolMuted( aMute );
-        NotifyRadioEvent( ERadioEventMute );
-        }
+    LOG_FORMAT( "CRadioEngineImp::MrpoMuteChange muted: %d", aMute );
+
+//    TBool muted = iSettings->EngineSettings().IsVolMuted();
+//    if ( !aMute != !muted )
+//        {
+//        iSettings->RadioSetter().SetVolMuted( aMute );
+//        NotifyRadioEvent( ERadioEventMute );
+//        }
     }
 
 // ---------------------------------------------------------------------------

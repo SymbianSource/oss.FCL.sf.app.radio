@@ -25,6 +25,6 @@ PRJ_EXTENSIONS
 #ifdef MARM
     START EXTENSION app-services/buildstubsis
         OPTION SRCDIR .
-        OPTION SISNAME qtfmradio_stub
+        OPTION SISNAME fmradio_stub
     END
 #endif

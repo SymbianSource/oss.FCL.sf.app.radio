@@ -394,4 +394,6 @@ void RadioStationsView::initListView()
     mStationsList->setModel( mFilterModel );
     mStationsList->setSelectionMode( HbListView::NoSelection );
     mStationsList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    //TODO: Uncomment after MCL wk28 release to improve scrolling FPS rate
+    //mStationsList->setItemPixmapCacheEnabled( true );
 }

@@ -209,6 +209,7 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
             switch (status) {
             case RadioStatus::Playing:
                 LOG("Playing");
+                handleRadioStateChange(FmRadio::StateRunning);
                 break;
             case RadioStatus::Muted:
                 LOG("Muted");
@@ -240,11 +241,9 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
             // TODO: Remove comment when localisation is working on device.
             //frequencyString = hbTrId("txt_fmradiohswidget_rad_list_l1_mhz").arg(freqString);
             bool frequencyCleared = false;
-            // If widget has some frequency information and new frequency
-            // differs from that
-            if (mRadioInformation.contains(Frequency)
-                && mRadioInformation[Frequency].compare(information.toString()) != 0) {
-                // Clear all infromation from widget because station has changed.
+
+            if (mRadioInformation.contains(Frequency)) {
+                // Clear all infromation.
                 clearRadioInformation();
                 frequencyCleared = true;
             }
@@ -254,6 +253,7 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
             if (frequencyCleared || frequencyUpdated) {
                 // Information changed, update the UI.
                 changeInRadioInformation();
+                mFmRadioState = FmRadio::StateRunning;
             }
         }
         break;
@@ -339,6 +339,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         // Stop timer if it is running because radio is now running.
         mRadioServiceClient->startMonitoring(
             FmRadio::VisibiltyDoNotChange);
+        changeInRadioInformation();
         changePowerButtonOn(true);
         enableStationButtons();
         changeInformationAreaLayout(OneRow);
@@ -346,7 +347,6 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
     case FmRadio::StateSeeking:
         LOG("FmRadio::StateSeeking");
         mFmRadioState = FmRadio::StateSeeking;
-        mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
         mCurrentStationIsFavorite = false;
         enableStationButtons();
         changeInformationAreaLayout(Animation);
@@ -354,7 +354,6 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
     case FmRadio::StateAntennaNotConnected:
         LOG("FmRadio::StateAntennaNotConnected");
         mFmRadioState = FmRadio::StateAntennaNotConnected;
-        mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
         mCurrentStationIsFavorite = false;
         enableStationButtons();
         mInformationFirstRowLabel->setPlainText("");
@@ -909,7 +908,12 @@ void RadioHsWidget::changePowerButtonOn(const bool isPowerOn)
 void RadioHsWidget::enableStationButtons()
 {
     LEVEL2(LOG_METHOD_ENTER);
-    if ((mFavoriteStationCount > 1) || (mFavoriteStationCount == 1
+    LOG_FORMAT("RadioHsWidget::enableStationButtons count: %d", mFavoriteStationCount);
+    if (mFmRadioState == FmRadio::StateAntennaNotConnected){
+        changeButtonToDisabled(Next);
+        changeButtonToDisabled(Previous);
+    }
+    else if ((mFavoriteStationCount > 1) || (mFavoriteStationCount == 1
         && !mCurrentStationIsFavorite)) {
         changeButtonToEnabled(Next);
         changeButtonToEnabled(Previous);

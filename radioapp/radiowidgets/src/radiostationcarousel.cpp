@@ -552,8 +552,8 @@ void RadioStationCarousel::setRdsAvailable( bool available )
 {
     QColor color = Qt::green;
     if ( !available && mUiEngine ) {
-        LOG_FORMAT( "No RDS signal: Station has sent RDS earlier: %d", mUiEngine.model().currentStation().hasRds() );
-        color = mUiEngine.model().currentStation().hasRds() ? Qt::yellow : Qt::gray;
+        LOG_FORMAT( "No RDS signal: Station has sent RDS earlier: %d", mUiEngine.model().currentStation().hasSentRds() );
+        color = mUiEngine.model().currentStation().hasSentRds() ? Qt::yellow : Qt::gray;
         mRdsLabel->setText( "RDS" );
     } else {
         mRdsLabel->setText( "-RDS-" );

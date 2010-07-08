@@ -51,7 +51,7 @@ bool RadioEngineWrapper::init()
 void RadioEngineWrapper::addObserver( RadioEngineWrapperObserver* observer )
 {
     Q_D( RadioEngineWrapper );
-    d->mObservers.append( observer );
+    d->mObservers.prepend( observer );
 }
 
 /*!

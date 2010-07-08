@@ -398,6 +398,6 @@ void RadioCarouselItem::updateFavoriteIcon( bool isFavorite )
  */
 void RadioCarouselItem::updateLayout()
 {
-    setAppearance( mStation->hasName() || mStation->hasRadiotext() || mStation->hasUrl() ? Full : Default );
+    setAppearance( mStation->hasSentRds() ? Full : Default );
 }
 

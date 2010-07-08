@@ -52,6 +52,9 @@ public:
     virtual bool isLocalStation() const = 0;
     virtual void setLocalStation( bool localStation ) = 0;
 
+    virtual bool hasStationSentRds() const = 0;
+    virtual void setStationHasSentRds( bool hasSentRds ) = 0;
+
 };
 
 
