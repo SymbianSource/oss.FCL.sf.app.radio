@@ -953,7 +953,7 @@ void CFMRadioAppUi::HandleForegroundEventL( TBool aForeground )
             // Restores all resources that were released with a call to Release().
             // After this the Hitchcock user interface should be in the same state
             // in terms of resources as it was prior to the Release() call.
-            //iAlfEnv->RestoreL();
+            iAlfEnv->RestoreL();
             
             // Check if offline profile is activated after/when playing e.g. music player.
             // In that case we didn't show the offline query as global, so we need
@@ -998,7 +998,7 @@ void CFMRadioAppUi::HandleForegroundEventL( TBool aForeground )
     else 
         {
         // Releases as many resources of the Hitchcock as possible. 
-        //iAlfEnv->Release( ETrue );
+        iAlfEnv->Release();
         }
     }
 
@@ -2345,7 +2345,7 @@ void CFMRadioAppUi::TryToResumeAudioL()
          region != EFMRadioRegionNone )
         {
         iAudioLost = EFalse;
-        iRadioEngine->InitializeRadio();
+        TurnRadioOn();
         }
     }
     

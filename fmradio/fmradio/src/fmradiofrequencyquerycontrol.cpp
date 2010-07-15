@@ -351,6 +351,8 @@ void CFMRadioFrequencyQueryControl::StartKeypress()
     iLongPressAccelerationTimer->Cancel();
     iLongPressAccelerationTimer->Start(KFMRadioButtonRepeatAccelerationDelay, 0,
                                         TCallBack(LongPressAccelerateCallBack, this));
+    
+    iLongPressTimer->Cancel();
     iLongPressTimer->Start(KFMRadioButtonRepeatDelayMicroseconds,
                         KFMRadioButtonRepeatDelayMicroseconds,
                         TCallBack(LongPressTimerCallBack, this));
