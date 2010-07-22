@@ -18,7 +18,7 @@
 #include "radiocontroleventlistener.h"
 #include "radioenginewrapper_p.h"
 #include "radioenginewrapperobserver.h"
-#include "cradioenginehandler.h"
+#include "radioenginehandler.h"
 #include "radiologger.h"
 #include "cradioremcontarget.h"
 /*!
@@ -41,10 +41,12 @@ RadioControlEventListener::~RadioControlEventListener()
  */
 void RadioControlEventListener::init()
 {
-    TRAPD( err, mRemCon.reset( CRadioRemConTarget::NewL() ) );
+    CRadioRemConTarget* target = NULL;
+    TRAPD( err, target = CRadioRemConTarget::NewL() );
     LOG_ASSERT( !err, LOG_FORMAT( "RadioControlEventListener::init Failed with err, %d", err ) );
 
     if ( !err ) {
+        mRemCon.reset( target );
         mRemCon->SetControlEventObserver( this );
     }
 }
@@ -71,7 +73,7 @@ void RadioControlEventListener::SetChannelL( TInt DEBUGVAR( aChannelId ) )
 void RadioControlEventListener::SeekL( RadioEngine::TRadioTuneDirection aDirection )
 {
     LOG_FORMAT( "RadioControlEventListener::SeekL: Direction: %d", aDirection );
-    mEngine.startSeeking( aDirection == RadioEngine::ERadioDown ? Seeking::Down : Seeking::Up );
+    mEngine.startSeeking( aDirection == RadioEngine::ERadioDown ? Seek::Down : Seek::Up );
 }
 
 /*!
@@ -104,7 +106,7 @@ void RadioControlEventListener::AdjustVolumeL( RadioEngine::TRadioVolumeSetDirec
 void RadioControlEventListener::MuteL( TBool aMute )
 {
     LOG_FORMAT( "RadioControlEventListener::MuteL: Mute: %d", aMute );
-    mEngine.RadioEnginehandler().SetMuted( aMute );
+    mEngine.radioEnginehandler().setMute( aMute );
 }
 
 /*!
@@ -112,10 +114,9 @@ void RadioControlEventListener::MuteL( TBool aMute )
  */
 void RadioControlEventListener::PlayL( TBool aDownPressed )
 {
-    if( aDownPressed )
-        {
-        mEngine.RadioEnginehandler().SetMuted( false );
-        }
+    if ( aDownPressed ) {
+        mEngine.radioEnginehandler().setMute( false );
+    }
 }
 
 /*!
@@ -123,10 +124,9 @@ void RadioControlEventListener::PlayL( TBool aDownPressed )
  */
 void RadioControlEventListener::PauseL( TBool aDownPressed )
 {
-    if( aDownPressed )
-        {
-        mEngine.RadioEnginehandler().SetMuted( true );
-        }
+    if ( aDownPressed ) {
+        mEngine.radioEnginehandler().setMute( true );
+    }
 }
 
 /*!
@@ -134,11 +134,10 @@ void RadioControlEventListener::PauseL( TBool aDownPressed )
  */
 void RadioControlEventListener::PausePlayL( TBool aDownPressed )
 {
-    if( aDownPressed )
-        {
-        const TBool muted = !mEngine.RadioEnginehandler().IsMuted();
-        mEngine.RadioEnginehandler().SetMuted( muted );
-        }
+    if ( aDownPressed ) {
+        const bool muted = !mEngine.radioEnginehandler().isMuted();
+        mEngine.radioEnginehandler().setMute( muted );
+    }
 }
 
 /*!
@@ -146,10 +145,9 @@ void RadioControlEventListener::PausePlayL( TBool aDownPressed )
  */
 void RadioControlEventListener::StopL( TBool aDownPressed )
 {
-    if( aDownPressed )
-        {
-        mEngine.RadioEnginehandler().SetMuted( ETrue );
-        }
+    if ( aDownPressed ) {
+        mEngine.radioEnginehandler().setMute( true );
+    }
 }
 
 /*!
@@ -157,7 +155,7 @@ void RadioControlEventListener::StopL( TBool aDownPressed )
  */
 void RadioControlEventListener::ForwardL( TBool aDownPressed )
 {
-    if( aDownPressed ) {
+    if ( aDownPressed ) {
         RUN_NOTIFY_LOOP( mEngine.observers(), skipNext() );
     }
 }
@@ -167,9 +165,8 @@ void RadioControlEventListener::ForwardL( TBool aDownPressed )
  */
 void RadioControlEventListener::FastForwardL( TBool aDownPressed )
 {
-    if( aDownPressed )
-    {
-        mEngine.startSeeking( Seeking::Up );
+    if ( aDownPressed ) {
+        mEngine.startSeeking( Seek::Up );
     }
 }
 
@@ -178,7 +175,7 @@ void RadioControlEventListener::FastForwardL( TBool aDownPressed )
  */
 void RadioControlEventListener::BackwardL( TBool aDownPressed )
 {
-    if( aDownPressed ) {
+    if ( aDownPressed ) {
         RUN_NOTIFY_LOOP( mEngine.observers(), skipPrevious() );
     }
 }
@@ -188,8 +185,8 @@ void RadioControlEventListener::BackwardL( TBool aDownPressed )
  */
 void RadioControlEventListener::RewindL( TBool aDownPressed )
 {
-    if( aDownPressed ) {
-        mEngine.startSeeking( Seeking::Down );
+    if ( aDownPressed ) {
+        mEngine.startSeeking( Seek::Down );
     }
 }
 
@@ -215,7 +212,7 @@ void RadioControlEventListener::ChannelDownL( TBool DEBUGVAR( aDownPressed ) )
 void RadioControlEventListener::VolumeUpL( TBool aDownPressed )
 {
     if ( aDownPressed ) {
-        mEngine.RadioEnginehandler().IncreaseVolume();
+        RUN_NOTIFY_LOOP( mEngine.observers(), increaseVolume() );
     }
 }
 
@@ -225,7 +222,7 @@ void RadioControlEventListener::VolumeUpL( TBool aDownPressed )
 void RadioControlEventListener::VolumeDownL( TBool aDownPressed )
 {
     if ( aDownPressed ) {
-        mEngine.RadioEnginehandler().DecreaseVolume();
+        RUN_NOTIFY_LOOP( mEngine.observers(), decreaseVolume() );
     }
 }
 

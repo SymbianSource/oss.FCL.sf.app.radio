@@ -30,11 +30,6 @@
 #include <publicruntimeids.hrh>
 #include <sacls.h>
 
-#ifdef COMPILE_IN_IVALO
-#   include <voiceuidomainpskeys.h>
-#endif //COMPILE_IN_IVALO
-#include <featmgr.h>
-
 // User includes
 #include "cradioenginelogger.h"
 #include "cradiosystemeventdetector.h"
@@ -61,11 +56,10 @@ const TInt KVRAudioCategoryArrayGranularity = 3;
 CRadioSystemEventDetector::CRadioSystemEventDetector( MRadioSystemEventDetectorObserver&  aObserver )
     : iObserver( aObserver )
     , iIsMobileNetworkCoverage( EFalse )
-    , iIsWlanCoverage( EFalse )
     , iIsCallActive( EFalse )
     , iIsAudioResourcesAvailable( ETrue )
-    , iIsVoiceUiActive( EFalse )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -74,11 +68,7 @@ CRadioSystemEventDetector::CRadioSystemEventDetector( MRadioSystemEventDetectorO
 //
 void CRadioSystemEventDetector::ConstructL()
     {
-//    FeatureManager::InitializeLibL();
-//    TBool wlanSupported = FeatureManager::FeatureSupported( KFeatureIdProtocolWlan );
-//    FeatureManager::UnInitializeLib();
-    TBool wlanSupported = EFalse; //TODO: Check if we have any need for this
-
+    LOG_METHOD_AUTO;
     iNetworkStatusObserver = CRadioPropertyObserver::NewL( *this,
                                                            KUidSystemCategory,
                                                            KUidNetworkStatusValue,
@@ -87,12 +77,6 @@ void CRadioSystemEventDetector::ConstructL()
 
     iIsMobileNetworkCoverage = iNetworkStatusObserver->ValueInt() == ESANetworkAvailable;
 
-    // On S60 platform, there is no guaranteed way of seeing whether WLAN is explicitly turned off
-    // in the settings, or whether the network is available. For now, we only check the existence of
-    // the WLAN support in the feature manager. We might also want to check whether WLAN access points
-    // have been configured.
-    iIsWlanCoverage = wlanSupported;
-
     // Initialize call state observer.
     iCallStatusObserver = CRadioPropertyObserver::NewL( *this,
                                                         KPSUidCtsyCallInformation,
@@ -100,15 +84,6 @@ void CRadioSystemEventDetector::ConstructL()
                                                         CRadioPropertyObserver::ERadioPropertyInt );
     iCallStatusObserver->ActivateL();
     iIsCallActive = iCallStatusObserver->ValueInt() != EPSCTsyCallStateNone;
-
-#ifdef COMPILE_IN_IVALO
-    // Initialize voice ui observer.
-    iVoiceUiObserver = CRadioPropertyObserver::NewL( *this,
-                                                     KPSUidVoiceUiAccMonitor,
-                                                     KVoiceUiOpenKey,
-                                                     CRadioPropertyObserver::ERadioPropertyInt );
-    iVoiceUiObserver->ActivateL();
-#endif //COMPILE_IN_IVALO
 
 #ifndef __WINS__
     // Define audio types for not resuming.
@@ -129,10 +104,9 @@ void CRadioSystemEventDetector::ConstructL()
 //
 CRadioSystemEventDetector::~CRadioSystemEventDetector()
     {
-    FeatureManager::UnInitializeLib();
+    LEVEL3( LOG_METHOD_AUTO );
     delete iCallStatusObserver;
     delete iNetworkStatusObserver;
-    delete iVoiceUiObserver;
     delete iAudioPolicyObserver;
 
     iNoAutoResumeAudioCategories.Close();
@@ -144,6 +118,7 @@ CRadioSystemEventDetector::~CRadioSystemEventDetector()
 //
 CRadioSystemEventDetector* CRadioSystemEventDetector::NewL( MRadioSystemEventDetectorObserver&  aObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioSystemEventDetector* self = new ( ELeave ) CRadioSystemEventDetector( aObserver );
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -161,28 +136,8 @@ void CRadioSystemEventDetector::HandlePropertyChangeL( const TUid& aCategory,
                                                        const TUint aKey,
                                                        const TInt aValue )
     {
-    //TODO: Refactor
-    if ( aCategory == KUidSystemCategory && aKey == KUidNetworkStatusValue )
-        {
-        switch ( aValue )
-            {
-            case ESANetworkAvailable:
-                {
-                SetNetworkCoverageL( ETrue, iIsWlanCoverage );
-                break;
-                }
-            case ESANetworkUnAvailable:
-                {
-                SetNetworkCoverageL( EFalse, iIsWlanCoverage );
-                break;
-                }
-            default:
-                {
-                break;
-                }
-            }
-        }
-    else if ( aCategory == KPSUidCtsyCallInformation && aKey == KCTsyCallState )
+    LEVEL2( LOG_METHOD_AUTO );
+    if ( aCategory == KPSUidCtsyCallInformation && aKey == KCTsyCallState )
         {
         if ( (!iIsCallActive ) && ( aValue > EPSCTsyCallStateNone ))
             {
@@ -194,48 +149,6 @@ void CRadioSystemEventDetector::HandlePropertyChangeL( const TUid& aCategory,
             iIsCallActive = EFalse;
             iObserver.CallDeactivatedCallbackL();
             }
-        else
-            {
-            // No change
-            }
-        }
-#ifdef COMPILE_IN_IVALO
-    else if ( aCategory == KPSUidVoiceUiAccMonitor && aKey == KVoiceUiOpenKey )
-        {
-        switch ( aValue )
-            {
-            case KVoiceUiIsClose:
-                {
-                if ( iIsVoiceUiActive )
-                    {
-                    iIsVoiceUiActive = EFalse;
-                    LOG( "Voice UI not active." );
-                    if ( iIsAudioResourcesAvailable )
-                        {
-                        LOG( "Audio resources available. Change informed." );
-                        iObserver.AudioResourcesAvailableL();
-                        }
-                    }
-                break;
-                }
-            case KVoiceUiIsOpen:
-                {
-                if ( !iIsVoiceUiActive )
-                    {
-                    iIsVoiceUiActive = ETrue;
-                    LOG( "Voice UI active." );
-                    }
-                break;
-                }
-            default:
-                {
-                break;
-                }
-            }
-        }
-#endif //COMPILE_IN_IVALO
-    else // NOP
-        {
         }
     }
 
@@ -251,7 +164,7 @@ void CRadioSystemEventDetector::HandlePropertyChangeL( const TUid& aCategory,
                                                        const TDesC8& aValue )
     {
 #if 0
-    LOG_METHOD_AUTO;
+    LEVEL2( LOG_METHOD_AUTO );
     LOG_FORMAT( "Category: %d, Key: %d", aCategory, aKey );
     if ( aCategory == KPSUidMMFAudioServer )
         {
@@ -349,24 +262,10 @@ void CRadioSystemEventDetector::HandlePropertyChangeL( const TUid& /*aCategory*/
 // an error
 // ---------------------------------------------------------------------------
 //
-void CRadioSystemEventDetector::HandlePropertyChangeErrorL( const TUid& aCategory,
-                                                            const TUint aKey,
-                                                            TInt aError )
+void CRadioSystemEventDetector::HandlePropertyChangeErrorL( const TUid& /*aCategory*/,
+                                                            const TUint /*aKey*/,
+                                                            TInt /*aError*/ )
     {
-#ifdef COMPILE_IN_IVALO
-    if ( aCategory == KPSUidVoiceUiAccMonitor && aKey == KVoiceUiOpenKey && aError == KErrNotFound )
-        {
-        HandlePropertyChangeL( KPSUidVoiceUiAccMonitor, KVoiceUiOpenKey, KVoiceUiIsClose );
-        }
-    else
-        {
-        iObserver.ErrorCallbackL( aError );
-        }
-#else
-    (void)aCategory;
-    (void)aKey;
-    (void)aError;
-#endif //COMPILE_IN_IVALO
     }
 
 // ---------------------------------------------------------------------------
@@ -375,6 +274,7 @@ void CRadioSystemEventDetector::HandlePropertyChangeErrorL( const TUid& aCategor
 //
 TBool CRadioSystemEventDetector::IsMobileNetworkCoverage() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iIsMobileNetworkCoverage;
     }
 
@@ -384,7 +284,8 @@ TBool CRadioSystemEventDetector::IsMobileNetworkCoverage() const
 //
 TBool CRadioSystemEventDetector::IsNetworkCoverage() const
     {
-    return iIsWlanCoverage || iIsMobileNetworkCoverage;
+    LEVEL3( LOG_METHOD_AUTO );
+    return iIsMobileNetworkCoverage;
     }
 
 // ---------------------------------------------------------------------------
@@ -393,6 +294,7 @@ TBool CRadioSystemEventDetector::IsNetworkCoverage() const
 //
 TBool CRadioSystemEventDetector::IsCallActive() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iIsCallActive;
     }
 
@@ -402,41 +304,6 @@ TBool CRadioSystemEventDetector::IsCallActive() const
 //
 TBool CRadioSystemEventDetector::IsAudioResourcesAvailable() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iIsAudioResourcesAvailable;
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
-TBool CRadioSystemEventDetector::IsVoiceUiActive() const
-    {
-    return iIsVoiceUiActive;
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
-void CRadioSystemEventDetector::SetNetworkCoverageL( const TBool aIsMobileNetworkCoverage,
-                                                     const TBool aIsWlanCoverage )
-    {
-    LOG_FORMAT( "CRadioSystemEventDetector::SetNetworkCoverageL ( mobile = %d wlan = %d )", aIsMobileNetworkCoverage, aIsWlanCoverage );
-
-    TBool wasCoverage = IsNetworkCoverage();
-    iIsMobileNetworkCoverage = aIsMobileNetworkCoverage;
-    iIsWlanCoverage = aIsWlanCoverage;
-    TBool isCoverage = IsNetworkCoverage();
-
-    if ( isCoverage != wasCoverage )
-        {
-        if ( isCoverage )
-            {
-            iObserver.NetworkUpCallbackL();
-            }
-        else
-            {
-            iObserver.NetworkDownCallbackL();
-            }
-        }
     }

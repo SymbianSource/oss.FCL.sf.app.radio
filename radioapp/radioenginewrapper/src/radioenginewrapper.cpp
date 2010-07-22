@@ -17,8 +17,9 @@
 
 // User includes
 #include "radioenginewrapper.h"
+#include "radioenginewrapperobserver.h"
 #include "radioenginewrapper_p.h"
-#include "cradioenginehandler.h"
+#include "radioenginehandler.h"
 
 /*!
  * Constructor
@@ -26,8 +27,6 @@
 RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler ) :
     d_ptr( new RadioEngineWrapperPrivate( this, stationHandler ) )
 {
-    Q_D( RadioEngineWrapper );
-    d->init();
 }
 
 /*!
@@ -35,7 +34,15 @@ RadioEngineWrapper::RadioEngineWrapper( RadioStationHandlerIf& stationHandler ) 
  */
 RadioEngineWrapper::~RadioEngineWrapper()
 {
-    delete d_ptr;
+}
+
+/*!
+ *
+ */
+bool RadioEngineWrapper::init()
+{
+    Q_D( RadioEngineWrapper );
+    return d->init();
 }
 
 /*!
@@ -57,15 +64,6 @@ void RadioEngineWrapper::removeObserver( RadioEngineWrapperObserver* observer )
 }
 
 /*!
- * Checks if the radio engine has been constructed properly
- */
-bool RadioEngineWrapper::isEngineConstructed()
-{
-    Q_D( RadioEngineWrapper );
-    return d->isEngineConstructed();
-}
-
-/*!
  * Returns the settings handler owned by the engine
  */
 RadioSettingsIf& RadioEngineWrapper::settings()
@@ -80,7 +78,7 @@ RadioSettingsIf& RadioEngineWrapper::settings()
 RadioRegion::Region RadioEngineWrapper::region() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->Region();
+    return d->mEngineHandler->region();
 }
 
 /*!
@@ -89,7 +87,7 @@ RadioRegion::Region RadioEngineWrapper::region() const
 uint RadioEngineWrapper::minFrequency() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->MinFrequency();
+    return d->mEngineHandler->minFrequency();
 }
 
 /*!
@@ -98,7 +96,7 @@ uint RadioEngineWrapper::minFrequency() const
 uint RadioEngineWrapper::maxFrequency() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->MaxFrequency();
+    return d->mEngineHandler->maxFrequency();
 }
 
 /*!
@@ -107,16 +105,15 @@ uint RadioEngineWrapper::maxFrequency() const
 uint RadioEngineWrapper::frequencyStepSize() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->FrequencyStepSize();
+    return d->mEngineHandler->frequencyStepSize();
 }
 
 /*!
- * Returns the frequency step size from the selected region
+ * Returns true if frequency is valid, otherwise false
  */
-bool RadioEngineWrapper::isFrequencyValid( uint frequency )
+bool RadioEngineWrapper::isFrequencyValid( uint frequency ) const
 {
-    Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->IsFrequencyValid( frequency );
+    return frequency >= minFrequency() && frequency <= maxFrequency();
 }
 
 /*!
@@ -125,7 +122,7 @@ bool RadioEngineWrapper::isFrequencyValid( uint frequency )
 bool RadioEngineWrapper::isRadioOn() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->IsRadioOn();
+    return d->mEngineHandler->isRadioOn();
 }
 
 /*!
@@ -134,7 +131,7 @@ bool RadioEngineWrapper::isRadioOn() const
 uint RadioEngineWrapper::currentFrequency() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->TunedFrequency();
+    return d->mEngineHandler->currentFrequency();
 }
 
 /*!
@@ -143,7 +140,7 @@ uint RadioEngineWrapper::currentFrequency() const
 bool RadioEngineWrapper::isMuted() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->IsMuted();
+    return d->mEngineHandler->isMuted();
 }
 
 /*!
@@ -152,7 +149,7 @@ bool RadioEngineWrapper::isMuted() const
 bool RadioEngineWrapper::isAntennaAttached() const
 {
     Q_D( const RadioEngineWrapper );
-    return d->mEngineHandler->IsAntennaAttached();
+    return d->mEngineHandler->isAntennaAttached();
 }
 
 /*!
@@ -165,21 +162,60 @@ bool RadioEngineWrapper::isUsingLoudspeaker() const
 }
 
 /*!
- * Tunes to the given frequency
+ * Sets or unsets the engine to manual seek mode
  */
-void RadioEngineWrapper::tuneFrequency( uint frequency, const int reason )
+void RadioEngineWrapper::setManualSeekMode( bool manualSeek )
 {
     Q_D( RadioEngineWrapper );
-    d->tuneFrequency( frequency, reason );
+    d->mEngineHandler->setManualSeekMode( manualSeek );
+    if ( !manualSeek ) {
+        RUN_NOTIFY_LOOP( d->observers(), tunedToFrequency( currentFrequency(), TuneReason::ManualSeekTune ) );
+    }
 }
 
 /*!
- * Tunes to the given frequency after a delay
+ * Checks if the engine is in manual seek mode
  */
-void RadioEngineWrapper::tuneWithDelay( uint frequency, const int reason )
+bool RadioEngineWrapper::isInManualSeekMode() const
+{
+    Q_D( const RadioEngineWrapper );
+    return d->mEngineHandler->isInManualSeekMode();
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapper::setRdsEnabled( bool rdsEnabled )
 {
     Q_D( RadioEngineWrapper );
-    d->tuneWithDelay( frequency, reason );
+    d->mEngineHandler->setRdsEnabled( rdsEnabled );
+}
+
+/*!
+ * Tunes to the given frequency
+ */
+void RadioEngineWrapper::setFrequency( uint frequency, const int reason )
+{
+    Q_D( RadioEngineWrapper );
+    d->setFrequency( frequency, reason );
+}
+
+/*!
+ * volume increase command for the engine
+ */
+void RadioEngineWrapper::increaseVolume()
+{
+    Q_D( RadioEngineWrapper );
+    d->mEngineHandler->increaseVolume();
+}
+
+/*!
+ * volume decrease command for the engine
+ */
+void RadioEngineWrapper::decreaseVolume()
+{
+    Q_D( RadioEngineWrapper );
+    d->mEngineHandler->decreaseVolume();
 }
 
 /*!
@@ -188,16 +224,16 @@ void RadioEngineWrapper::tuneWithDelay( uint frequency, const int reason )
 void RadioEngineWrapper::setVolume( int volume )
 {
     Q_D( RadioEngineWrapper );
-    d->mEngineHandler->SetVolume( volume );
+    d->mEngineHandler->setVolume( volume );
 }
 
 /*!
  *
  */
-void RadioEngineWrapper::setMute( bool muted )
+void RadioEngineWrapper::setMute( bool muted, bool updateSettings )
 {
     Q_D( RadioEngineWrapper );
-    d->mEngineHandler->SetMuted( muted );
+    d->mEngineHandler->setMute( muted, updateSettings );
 }
 
 /*!
@@ -207,13 +243,13 @@ void RadioEngineWrapper::toggleAudioRoute()
 {
     Q_D( RadioEngineWrapper );
     d->mUseLoudspeaker = !d->mUseLoudspeaker;
-    d->mEngineHandler->SetAudioRouteToLoudspeaker( d->mUseLoudspeaker );
+    d->mEngineHandler->setAudioRouteToLoudspeaker( d->mUseLoudspeaker );
 }
 
 /*!
  *
  */
-void RadioEngineWrapper::startSeeking( Seeking::Direction direction, const int reason )
+void RadioEngineWrapper::startSeeking( Seek::Direction direction, const int reason )
 {
     Q_D( RadioEngineWrapper );
     d->startSeeking( direction, reason );
@@ -225,5 +261,5 @@ void RadioEngineWrapper::startSeeking( Seeking::Direction direction, const int r
 void RadioEngineWrapper::cancelSeeking()
 {
     Q_D( RadioEngineWrapper );
-    d->mEngineHandler->CancelSeek();
+    d->mEngineHandler->cancelSeek();
 }

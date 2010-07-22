@@ -58,6 +58,14 @@ bool RadioSettingsPrivate::isFirstTimeStart()
 /*!
  *
  */
+void RadioSettingsPrivate::setFirstTimeStartPerformed( bool firstTimeStartPerformed )
+{
+    Q_UNUSED( firstTimeStartPerformed );
+}
+
+/*!
+ *
+ */
 bool RadioSettingsPrivate::isFlagSet( ToggleFlag flag ) const
 {
     return mFlags.testFlag( flag );

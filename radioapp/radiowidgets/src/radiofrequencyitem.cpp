@@ -21,12 +21,13 @@
 #include "radiofrequencyitem.h"
 #include "radiofrequencystrip.h"
 #include "radio_global.h"
+#include "radiologger.h"
 
 /*!
  *
  */
 RadioFrequencyItem::RadioFrequencyItem( QString frequency ) :
-    mFrequency( frequency.isEmpty() ? 0 : frequency.toInt() * KOneHertz ),
+    mFrequency( frequency.isEmpty() ? 0 : frequency.toInt() * ONE_HERTZ ),
     mGraphicsItem( 0 )
 {
 }

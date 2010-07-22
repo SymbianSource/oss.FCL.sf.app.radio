@@ -51,6 +51,22 @@ void RadioEngineWrapperObserver::rdsAvailabilityChanged( bool available )
 
 /*!
  *
+ */
+void RadioEngineWrapperObserver::increaseVolume()
+{
+    // Default implementation does nothing
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapperObserver::decreaseVolume()
+{
+    // Default implementation does nothing
+}
+
+/*!
+ *
  * @param volume
  */
 void RadioEngineWrapperObserver::volumeChanged( int volume )

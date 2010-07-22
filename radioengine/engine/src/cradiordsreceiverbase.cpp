@@ -16,7 +16,6 @@
 */
 
 // User includes
-#include "cradiopubsub.h"
 #include "cradiordsreceiverbase.h"
 #include "cradioenginelogger.h"
 
@@ -29,6 +28,7 @@
 CRadioRdsReceiverBase::CRadioRdsReceiverBase( MRadioEngineSettings& aSettings )
     : iSettings( aSettings )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -37,6 +37,7 @@ CRadioRdsReceiverBase::CRadioRdsReceiverBase( MRadioEngineSettings& aSettings )
 //
 void CRadioRdsReceiverBase::BaseConstructL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iPsName = HBufC::NewL( TRdsPSName().MaxLength() );
     }
 
@@ -46,6 +47,7 @@ void CRadioRdsReceiverBase::BaseConstructL()
 //
 CRadioRdsReceiverBase::~CRadioRdsReceiverBase()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iObservers.Close();
     delete iPsName;
     iRadioText.Close();
@@ -57,6 +59,7 @@ CRadioRdsReceiverBase::~CRadioRdsReceiverBase()
 //
 void CRadioRdsReceiverBase::AddObserverL( MRadioRdsDataObserver* aObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TInt index = iObservers.FindInAddressOrder( aObserver );
     if ( index == KErrNotFound )
         {
@@ -70,6 +73,7 @@ void CRadioRdsReceiverBase::AddObserverL( MRadioRdsDataObserver* aObserver )
 //
 void CRadioRdsReceiverBase::RemoveObserver( MRadioRdsDataObserver* aObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TInt index = iObservers.FindInAddressOrder( aObserver );
 
     if ( index >= 0 )
@@ -84,6 +88,7 @@ void CRadioRdsReceiverBase::RemoveObserver( MRadioRdsDataObserver* aObserver )
 //
 TBool CRadioRdsReceiverBase::AutomaticSwitchingEnabled() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iAfEnabled;
     }
 
@@ -93,6 +98,7 @@ TBool CRadioRdsReceiverBase::AutomaticSwitchingEnabled() const
 //
 const TDesC& CRadioRdsReceiverBase::ProgrammeService() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iPsName;
     }
 
@@ -102,6 +108,7 @@ const TDesC& CRadioRdsReceiverBase::ProgrammeService() const
 //
 const TDesC& CRadioRdsReceiverBase::RadioText() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iRadioText;
     }
 
@@ -111,6 +118,7 @@ const TDesC& CRadioRdsReceiverBase::RadioText() const
 //
 TBool CRadioRdsReceiverBase::SignalAvailable() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iSignalAvailable;
     }
 
@@ -120,6 +128,7 @@ TBool CRadioRdsReceiverBase::SignalAvailable() const
 //
 void CRadioRdsReceiverBase::SetAutomaticSwitchingL( TBool aEnable )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iAfEnabled = aEnable;
     for ( TInt i = 0 ; i < iObservers.Count(); i++ )
         {
@@ -133,14 +142,9 @@ void CRadioRdsReceiverBase::SetAutomaticSwitchingL( TBool aEnable )
 //
 void CRadioRdsReceiverBase::ClearRdsInformation()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iPsName->Des().Zero();
     iRadioText.Close();
-
-    if ( iPubSub )
-        {
-        iPubSub->PublishRdsProgramService( *iPsName );
-        }
-
     MrroRdsEventSignalChange( EFalse );
     }
 
@@ -148,70 +152,77 @@ void CRadioRdsReceiverBase::ClearRdsInformation()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroStationSeekByPTYComplete( TInt DEBUGVAR( aError ),
-                                                          TInt DEBUGVAR( aFrequency ) )
+void CRadioRdsReceiverBase::MrroStationSeekByPTYComplete( TInt DEBUGVAR3( aError ),
+                                                          TInt DEBUGVAR3( aFrequency ) )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroStationSeekByPTYComplete: err: %d, frequency: %d ", aError, aFrequency );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d, aFrequency: %d ", aError, aFrequency ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroStationSeekByTAComplete( TInt DEBUGVAR( aError ),
-                                                         TInt DEBUGVAR( aFrequency ) )
+void CRadioRdsReceiverBase::MrroStationSeekByTAComplete( TInt DEBUGVAR3( aError ),
+                                                         TInt DEBUGVAR3( aFrequency ) )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroStationSeekByTAComplete: err: %d, frequency: %d ", aError, aFrequency );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d, aFrequency: %d ", aError, aFrequency ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroStationSeekByTPComplete( TInt DEBUGVAR( aError ),
-                                                         TInt DEBUGVAR( aFrequency ) )
+void CRadioRdsReceiverBase::MrroStationSeekByTPComplete( TInt DEBUGVAR3( aError ),
+                                                         TInt DEBUGVAR3( aFrequency ) )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroStationSeekByTPComplete: err: %d, frequency: %d ", aError, aFrequency );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d, aFrequency: %d ", aError, aFrequency ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroGetFreqByPTYComplete( TInt DEBUGVAR( aError ),
+void CRadioRdsReceiverBase::MrroGetFreqByPTYComplete( TInt DEBUGVAR3( aError ),
                                                       RArray<TInt>& /*aFreqList*/ )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroGetFreqByPTYComplete: err: %d", aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d", aError ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroGetFreqByTAComplete( TInt DEBUGVAR( aError ),
+void CRadioRdsReceiverBase::MrroGetFreqByTAComplete( TInt DEBUGVAR3( aError ),
                                                      RArray<TInt>& /*aFreqList*/ )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroGetFreqByTAComplete: err: %d", aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d", aError ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroGetPSByPTYComplete( TInt DEBUGVAR( aError ),
+void CRadioRdsReceiverBase::MrroGetPSByPTYComplete( TInt DEBUGVAR3( aError ),
                                                     RArray<TRdsPSName>& /*aPsList*/ )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroGetPSByPTYComplete: err: %d", aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d", aError ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroGetPSByTAComplete( TInt DEBUGVAR( aError ),
+void CRadioRdsReceiverBase::MrroGetPSByTAComplete( TInt DEBUGVAR3( aError ),
                                                    RArray<TRdsPSName>& /*aPsList*/ )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroGetPSByTAComplete: err: %d", aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d", aError ) );
     }
 
 // ---------------------------------------------------------------------------
@@ -220,7 +231,8 @@ void CRadioRdsReceiverBase::MrroGetPSByTAComplete( TInt DEBUGVAR( aError ),
 //
 void CRadioRdsReceiverBase::MrroRdsDataPI( TInt aPi )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsDataPI: PI: %d", aPi );
+    LEVEL2( LOG_METHOD_AUTO );
+    LEVEL2( LOG_FORMAT( "aPi: %d", aPi ) );
     const TInt observerCount = iObservers.Count();
     const TUint32 frequency = iSettings.TunedFrequency();
     for ( TInt i = 0; i < observerCount; ++i )
@@ -235,7 +247,8 @@ void CRadioRdsReceiverBase::MrroRdsDataPI( TInt aPi )
 //
 void CRadioRdsReceiverBase::MrroRdsDataPTY( TRdsProgrammeType aPty )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsDataPTY: PTY: %d", aPty );
+    LEVEL2( LOG_METHOD_AUTO );
+    LEVEL2( LOG_FORMAT( "aPty: %d", aPty ) );
     const TInt observerCount = iObservers.Count();
     const TUint32 frequency = iSettings.TunedFrequency();
     for ( TInt i = 0; i < observerCount; ++i )
@@ -250,13 +263,9 @@ void CRadioRdsReceiverBase::MrroRdsDataPTY( TRdsProgrammeType aPty )
 //
 void CRadioRdsReceiverBase::MrroRdsDataPS( TRdsPSName& aPs )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsDataPS: PS: %S", &aPs );
+    LEVEL2( LOG_METHOD_AUTO );
+    LEVEL2( LOG_FORMAT( "aPs: %S", &aPs ) );
     const TUint32 frequency = iSettings.TunedFrequency();
-    if ( iPubSub )
-        {
-        iPubSub->PublishRdsProgramService( aPs );
-        }
-
     iPsName->Des().Copy( aPs );
     const TInt observerCount = iObservers.Count();
     for ( TInt i = 0; i < observerCount; ++i )
@@ -271,16 +280,12 @@ void CRadioRdsReceiverBase::MrroRdsDataPS( TRdsPSName& aPs )
 //
 void CRadioRdsReceiverBase::MrroRdsDataRT( TRdsRadioText& aRt )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsDataRT: RT: %S", &aRt );
+    LEVEL2( LOG_METHOD_AUTO );
+    LEVEL2( LOG_FORMAT( "aRt: %S", &aRt ) );
     iRadioText.Close();
     iRadioText.Create( aRt );
 
     const TUint32 frequency = iSettings.TunedFrequency();
-    if ( iPubSub )
-        {
-        iPubSub->PublishRdsRadioText( iRadioText );
-        }
-
     const TInt observerCount = iObservers.Count();
     for ( TInt i = 0; i < observerCount; ++i )
         {
@@ -294,16 +299,17 @@ void CRadioRdsReceiverBase::MrroRdsDataRT( TRdsRadioText& aRt )
 //
 void CRadioRdsReceiverBase::MrroRdsDataCT( TDateTime& /*aCt*/ )
     {
-    LOG( "CRadioRdsReceiverBase::MrroRdsDataCT" );
+    LEVEL2( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroRdsDataTA( TBool DEBUGVAR( aTaOn ) )
+void CRadioRdsReceiverBase::MrroRdsDataTA( TBool DEBUGVAR2( aTaOn ) )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsDataTA: aTaOn: %d", aTaOn );
+    LEVEL2( LOG_METHOD_AUTO );
+    LEVEL2( LOG_FORMAT( "aTaOn: %d", aTaOn ) );
     }
 
 // ---------------------------------------------------------------------------
@@ -313,7 +319,8 @@ void CRadioRdsReceiverBase::MrroRdsDataTA( TBool DEBUGVAR( aTaOn ) )
 void CRadioRdsReceiverBase::MrroRdsDataRTplus( TRdsRTplusClass aRtPlusClass,
                                                TRdsRadioText& aRtPlusData )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsDataRTplus: Class: %d, data: %S", aRtPlusClass, &aRtPlusData );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "Class: %d, data: %S", aRtPlusClass, &aRtPlusData );
     const TUint32 frequency = iSettings.TunedFrequency();
     const TInt observerCount = iObservers.Count();
     for ( TInt i = 0; i < observerCount; ++i )
@@ -328,7 +335,7 @@ void CRadioRdsReceiverBase::MrroRdsDataRTplus( TRdsRTplusClass aRtPlusClass,
 //
 void CRadioRdsReceiverBase::MrroRdsSearchBeginAF()
     {
-    LOG( "CRadioRdsReceiverBase::MrroRdsSearchBeginAF" );
+    LEVEL3( LOG_METHOD_AUTO );
     const TInt observerCount = iObservers.Count();
     for ( TInt i = 0; i < observerCount; ++i )
         {
@@ -342,7 +349,8 @@ void CRadioRdsReceiverBase::MrroRdsSearchBeginAF()
 //
 void CRadioRdsReceiverBase::MrroRdsSearchEndAF( TInt aError, TInt aFrequency )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsSearchEndAF: err: %d, Frequency: %d", aError, aFrequency );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError: %d, aFrequency: %d", aError, aFrequency ) );
     const TInt observerCount = iObservers.Count();
     for ( TInt i = 0; i < observerCount; ++i )
         {
@@ -355,27 +363,30 @@ void CRadioRdsReceiverBase::MrroRdsSearchEndAF( TInt aError, TInt aFrequency )
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroRdsStationChangeTA( TInt DEBUGVAR( aFrequency ) )
+void CRadioRdsReceiverBase::MrroRdsStationChangeTA( TInt DEBUGVAR3( aFrequency ) )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsStationChangeTA: Frequency: %d", aFrequency );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aFrequency: %d", aFrequency ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroRdsEventAutomaticSwitchingChange( TBool DEBUGVAR( aAuto ) )
+void CRadioRdsReceiverBase::MrroRdsEventAutomaticSwitchingChange( TBool DEBUGVAR3( aAuto ) )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsEventAutomaticSwitchingChange: aAuto: %d", aAuto );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aAuto: %d", aAuto ) );
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRdsReceiverBase::MrroRdsEventAutomaticTrafficAnnouncement( TBool DEBUGVAR( aAuto ) )
+void CRadioRdsReceiverBase::MrroRdsEventAutomaticTrafficAnnouncement( TBool DEBUGVAR3( aAuto ) )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsEventAutomaticTrafficAnnouncement: aAuto: %d", aAuto );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aAuto: %d", aAuto ) );
     }
 
 // ---------------------------------------------------------------------------
@@ -384,7 +395,8 @@ void CRadioRdsReceiverBase::MrroRdsEventAutomaticTrafficAnnouncement( TBool DEBU
 //
 void CRadioRdsReceiverBase::MrroRdsEventSignalChange( TBool aSignal )
     {
-    LOG_FORMAT( "CRadioRdsReceiverBase::MrroRdsEventSignalChange: aSignal: %d", aSignal );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aSignal: %d", aSignal ) );
     iSignalAvailable = aSignal;
     const TUint32 frequency = iSettings.TunedFrequency();
     const TInt observerCount = iObservers.Count();

@@ -35,9 +35,9 @@ RadioHistoryModel::RadioHistoryModel( RadioUiEngine& uiEngine ) :
     QAbstractListModel( &uiEngine ),
     d_ptr( new RadioHistoryModelPrivate( this, uiEngine ) )
 {
-    connectAndTest( &uiEngine,  SIGNAL(tunedToFrequency(uint,int)),
+    Radio::connect( &uiEngine,  SIGNAL(tunedToFrequency(uint,int)),
                     this,       SLOT(resetCurrentSong()) );
-    connectAndTest( &uiEngine,  SIGNAL(seekingStarted(int)),
+    Radio::connect( &uiEngine,  SIGNAL(seekingStarted(int)),
                     this,       SLOT(resetCurrentSong()) );
 
     Q_D( RadioHistoryModel );
@@ -49,8 +49,6 @@ RadioHistoryModel::RadioHistoryModel( RadioUiEngine& uiEngine ) :
  */
 RadioHistoryModel::~RadioHistoryModel()
 {
-    Q_D( RadioHistoryModel );
-    delete d_ptr;
 }
 
 /*!
@@ -84,15 +82,6 @@ void RadioHistoryModel::resetCurrentSong()
     Q_D( RadioHistoryModel );
     d->mTopItemIsPlaying = false;
     emit currentSongReset();
-}
-
-/*!
- * Public slot
- */
-void RadioHistoryModel::removeAll()
-{
-    Q_D( RadioHistoryModel );
-    d->removeAll();
 }
 
 /*!
@@ -131,6 +120,7 @@ void RadioHistoryModel::setShowTagged( bool showTagged )
 {
     Q_D( RadioHistoryModel );
     d->setViewMode( showTagged ? RadioHistoryModelPrivate::ShowTagged : RadioHistoryModelPrivate::ShowAll );
+    reset();
 }
 
 /*!
@@ -149,6 +139,15 @@ RadioHistoryItem RadioHistoryModel::itemAtIndex( const QModelIndex& index ) cons
 {
     Q_D( const RadioHistoryModel );
     return d->itemAtIndex( index );
+}
+
+/*!
+ *
+ */
+void RadioHistoryModel::removeAll( bool removeTagged )
+{
+    Q_D( RadioHistoryModel );
+    d->removeAll( removeTagged );
 }
 
 /*!

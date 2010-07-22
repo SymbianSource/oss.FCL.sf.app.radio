@@ -37,6 +37,7 @@ const TInt KVRVolumeTimerInitialDelay = 1000000; // Initial timer for headset vo
 //
 CRadioRemConTargetImp::CRadioRemConTargetImp()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -45,6 +46,7 @@ CRadioRemConTargetImp::CRadioRemConTargetImp()
 //
 void CRadioRemConTargetImp::ConstructL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     RadioEngineUtils::InitializeL();
     // Create interface selector.
     iInterfaceSelector = CRemConInterfaceSelector::NewL();
@@ -64,6 +66,7 @@ void CRadioRemConTargetImp::ConstructL()
 //
 CRadioRemConTargetImp* CRadioRemConTargetImp::NewL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioRemConTargetImp* self = new ( ELeave ) CRadioRemConTargetImp();
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -77,6 +80,7 @@ CRadioRemConTargetImp* CRadioRemConTargetImp::NewL()
 //
 CRadioRemConTargetImp::~CRadioRemConTargetImp()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( iRepeatTimer )
         {
         iRepeatTimer->Cancel();
@@ -94,6 +98,7 @@ CRadioRemConTargetImp::~CRadioRemConTargetImp()
 //
 void CRadioRemConTargetImp::SetControlEventObserver( MRadioControlEventObserver* aControlEventObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iObserver = aControlEventObserver;
     }
 
@@ -104,7 +109,8 @@ void CRadioRemConTargetImp::SetControlEventObserver( MRadioControlEventObserver*
 void CRadioRemConTargetImp::MrccatoCommand( TRemConCoreApiOperationId aOperationId,
                                          TRemConCoreApiButtonAction aButtonAct )
     {
-    LOG_FORMAT( "CRadioRemConTargetImp::MrccatoCommand ( aOperationId = %d, aButtonAct = %d )", aOperationId, aButtonAct );
+    LOG_METHOD_AUTO;
+    LOG_FORMAT( "aOperationId = %d, aButtonAct = %d", aOperationId, aButtonAct );
     //TODO: Refactor
     if ( iObserver )
         {
@@ -261,7 +267,7 @@ void CRadioRemConTargetImp::MrccatoCommand( TRemConCoreApiOperationId aOperation
 void CRadioRemConTargetImp::MrccatoPlay( TRemConCoreApiPlaybackSpeed /*aSpeed*/,
                                       TRemConCoreApiButtonAction aButtonAct )
     {
-    LOG( "CRadioRemConTargetImp::MrccatoPlay" );
+    LOG_METHOD_AUTO;
     if ( iObserver )
         {
         if ( aButtonAct == ERemConCoreApiButtonClick )
@@ -280,7 +286,7 @@ void CRadioRemConTargetImp::MrccatoTuneFunction( TBool /*aTwoPart*/,
                                               TUint /*aMinorChannel*/,
                                               TRemConCoreApiButtonAction /*aButtonAct*/)
     {
-    LOG( "CRadioRemConTargetImp::MrccatoTuneFunction ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -290,7 +296,7 @@ void CRadioRemConTargetImp::MrccatoTuneFunction( TBool /*aTwoPart*/,
 void CRadioRemConTargetImp::MrccatoSelectDiskFunction( TUint /*aDisk*/,
                                                     TRemConCoreApiButtonAction /*aButtonAct*/)
     {
-    LOG( "CRadioRemConTargetImp::MrccatoSelectDiskFunction ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -300,7 +306,7 @@ void CRadioRemConTargetImp::MrccatoSelectDiskFunction( TUint /*aDisk*/,
 void CRadioRemConTargetImp::MrccatoSelectAvInputFunction( TUint8 /*aAvInputSignalNumber*/,
                                                        TRemConCoreApiButtonAction /*aButtonAct*/)
     {
-    LOG( "CRadioRemConTargetImp::MrccatoSelectAvInputFunction ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -310,7 +316,7 @@ void CRadioRemConTargetImp::MrccatoSelectAvInputFunction( TUint8 /*aAvInputSigna
 void CRadioRemConTargetImp::MrccatoSelectAudioInputFunction( TUint8 /*aAudioInputSignalNumber*/,
                                                           TRemConCoreApiButtonAction /*aButtonAct*/)
     {
-    LOG( "CRadioRemConTargetImp::MrccatoSelectAudioInputFunction ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -319,7 +325,7 @@ void CRadioRemConTargetImp::MrccatoSelectAudioInputFunction( TUint8 /*aAudioInpu
 //
 TInt CRadioRemConTargetImp::RepeatTimerCallback( TAny* aPtr )
     {
-    LOG( "CRadioRemConTargetImp::RepeatTimerCallback" );
+    LEVEL3( LOG_METHOD_AUTO );
 
     CRadioRemConTargetImp* self = reinterpret_cast<CRadioRemConTargetImp*>( aPtr );
 
@@ -356,7 +362,8 @@ TInt CRadioRemConTargetImp::RepeatTimerCallback( TAny* aPtr )
 //
 void CRadioRemConTargetImp::AnswerCall()
     {
-    LOG( "CRadioRemConTargetImp::AnswerCall() ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
+    LOG( "This function currently unsupported." );
     }
 
 // ---------------------------------------------------------------------------
@@ -365,7 +372,7 @@ void CRadioRemConTargetImp::AnswerCall()
 //
 void CRadioRemConTargetImp::AnswerEndCall()
     {
-    LOG( "CRadioRemConTargetImp::AnswerEndCall() " );
+    LEVEL3( LOG_METHOD_AUTO );
     if ( iObserver )
         {
         TRAP_IGNORE( iObserver->AnswerEndCallL())
@@ -378,7 +385,7 @@ void CRadioRemConTargetImp::AnswerEndCall()
 //
 void CRadioRemConTargetImp::DialCall( const TDesC8& /*aTelNumber*/ )
     {
-    LOG( "CRadioRemConTargetImp::DialCall ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -387,7 +394,7 @@ void CRadioRemConTargetImp::DialCall( const TDesC8& /*aTelNumber*/ )
 //
 void CRadioRemConTargetImp::EndCall()
     {
-    LOG( "CRadioRemConTargetImp::EndCall() ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -396,7 +403,7 @@ void CRadioRemConTargetImp::EndCall()
 //
 void CRadioRemConTargetImp::GenerateDTMF( const TChar /*aChar*/ )
     {
-    LOG( "CRadioRemConTargetImp::GenerateDTMF ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -405,7 +412,7 @@ void CRadioRemConTargetImp::GenerateDTMF( const TChar /*aChar*/ )
 //
 void CRadioRemConTargetImp::LastNumberRedial()
     {
-    LOG( "CRadioRemConTargetImp::LastNumberRedial ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -414,7 +421,7 @@ void CRadioRemConTargetImp::LastNumberRedial()
 //
 void CRadioRemConTargetImp::MultipartyCalling( const TDesC8& /*aData*/ )
     {
-    LOG( "CRadioRemConTargetImp::MultipartyCalling ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -423,7 +430,7 @@ void CRadioRemConTargetImp::MultipartyCalling( const TDesC8& /*aData*/ )
 //
 void CRadioRemConTargetImp::SpeedDial( const TInt /*aIndex*/ )
     {
-    LOG( "CRadioRemConTargetImp::SpeedDial ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -432,5 +439,5 @@ void CRadioRemConTargetImp::SpeedDial( const TInt /*aIndex*/ )
 //
 void CRadioRemConTargetImp::VoiceDial( const TBool /*aActivate*/ )
     {
-    LOG( "CRadioRemConTargetImp::VoiceDial ( currently unsupported in Visual Radio )" );
+    LEVEL3( LOG_METHOD_AUTO );
     }

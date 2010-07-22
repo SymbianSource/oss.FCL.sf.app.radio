@@ -36,7 +36,6 @@ class CRadioNetworkInfoListener;
 class MRadioEngineSettings;
 class MRadioSettingsSetter;
 class MRadioEngineObserver;
-class MRadioScanObserver;
 
 /**
  * Radio class takes care of the FM-radio side.
@@ -56,7 +55,6 @@ public:
 
     void SetSystemEventCollector( CRadioSystemEventCollector* aCollector );
     void SetRadioSettings( CRadioSettings* aSettings );
-    void SetRadioPubSub( CRadioPubSub* aPubSub );
 
 private:
 
@@ -67,9 +65,8 @@ private:
     CRadioAudioRouter& AudioRouter() const;
     CRadioSystemEventCollector& SystemEventCollector() const;
     CRadioSettings& Settings() const;
-    CRadioPubSub* PubSub() const;
     TRadioRegion DetermineRegion();
-    void InitRadioL( TInt aRegionId, CRadioPubSub* aPubSub = 0 );
+    void InitRadioL( TInt aRegionId );
     TBool RadioInitialized() const;
     void EnableAudio( TBool aEnable, TBool aDelay = ETrue );
     TBool RadioAudioEnabled() const;
@@ -78,19 +75,16 @@ private:
     void RemoveObserver( MRadioEngineObserver* aObserver );
     void SetAudioMode( TInt aAudioMode );
     TBool IsFrequencyValid( TUint32 aFrequency = 0 ) const;
+    void SetManualSeekMode( TBool aManualSeekActive );
+    TBool IsInManualSeekMode() const;
     void SetFrequency( TUint32 aFrequency,
             RadioEngine::TRadioFrequencyEventReason aReason = RadioEngine::ERadioFrequencyEventReasonUnknown );
-    void SetFrequencyFast( TUint32 aFrequency,
-            RadioEngine::TRadioFrequencyEventReason aReason = RadioEngine::ERadioFrequencyEventReasonUnknown );
-    void StepToFrequency( RadioEngine::TRadioTuneDirection aDirection );
     void Seek( RadioEngine::TRadioTuneDirection aDirection );
     void CancelSeek();
     RadioEngine::TRadioSeeking Seeking() const;
-    void StartScan( MRadioScanObserver& aObserver );
-    void StopScan( TInt aError = KErrCancel );
     void AdjustVolume( RadioEngine::TRadioVolumeSetDirection aDirection );
     void SetVolume( TInt aVolume );
-    void SetVolumeMuted( TBool aMute );
+    void SetVolumeMuted( TBool aMute, TBool aUpdateSettings = ETrue );
     TBool IsAntennaAttached();
     TBool IsFmTransmitterActive() const;
     void SetAntennaAttached( TBool aAntennaAttached );
@@ -199,26 +193,6 @@ private:
      * @param aErrorCode error code related to state change
      */
     void DoNotifyRadioEventL( TInt aRadioEvent, TInt aErrorCode = KErrNone );
-
-    /**
-     * Notifies the observer of a radio scan event.
-     *
-     * @param   aEvent      Event to notify.
-     * @param   aObserver   Scan observer.
-     * @param   aError      Error code the event completed with.
-     */
-    void NotifyRadioScanEvent( TRadioScanEvent aEvent, MRadioScanObserver& aObserver,
-                               TInt aError = KErrNone );
-
-    /**
-     * Notifies the observer of a radio scan event.
-     *
-     * @param   aEvent      Event to notify.
-     * @param   aObserver   Scan observer.
-     * @param   aError      Error code the event completed with.
-     */
-    void DoNotifyRadioScanEventL( TRadioScanEvent aEvent, MRadioScanObserver& aObserver,
-                                  TInt aError );
 
     /**
      * Handles the change in audio routing
@@ -401,18 +375,6 @@ private: // data
     RadioEngine::TRadioFrequencyEventReason     iFreqEventReason;
 
     /**
-     * Publish&Subscribe object. Can be NULL.
-     * Owned if set
-     */
-    CRadioPubSub*                               iPubSub;
-
-    /**
-     * Radio scan observer. NULL when scanning is not ongoing
-     * Not owned.
-     */
-    MRadioScanObserver*                         iScanObserver;
-
-    /**
      * The previously scanned frequency, or <code>KErrNotFound</code> if none.
      */
     TUint32                                     iPreviousScannedFrequency;
@@ -421,6 +383,11 @@ private: // data
      * The state of mute before scan has been started.
      */
     TBool                                       iPreviousMuteState;
+
+    /**
+     * Manual seek mode flag
+     */
+    TBool                                       iManualSeekMode;
 
     };
 

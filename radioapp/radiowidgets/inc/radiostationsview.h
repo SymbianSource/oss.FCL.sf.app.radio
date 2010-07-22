@@ -24,22 +24,21 @@
 
 // User includes
 #include "radioviewbase.h"
-#include "radiowidgetsexport.h"
 
 // Forward declarations
 class RadioWindow;
 class RadioStationModel;
 class HbListView;
 class HbPushButton;
-class RadioBannerLabel;
 class HbAbstractViewItem;
 class RadioUiLoader;
 class RadioStation;
 class RadioStationFilterModel;
 class RadioFrequencyScanner;
+class QSortFilterProxyModel;
 
 // Class declaration
-class WIDGETS_DLL_EXPORT RadioStationsView : public RadioViewBase
+class RadioStationsView : public RadioViewBase
 {
     Q_OBJECT
     Q_PROPERTY(HbIcon nowPlayingIcon READ nowPlayingIcon WRITE setNowPlayingIcon)
@@ -58,15 +57,15 @@ public:
 
 private slots:
 
-    void listItemClicked( const QModelIndex& index );
-    void listItemLongPressed( HbAbstractViewItem* item, const QPointF& coords );
+    void handleClick( const QModelIndex& index );
+    void handleLongPress( HbAbstractViewItem* item, const QPointF& coords );
     void updateAntennaStatus( bool connected );
-    void updateCurrentStation();
-    void deckButtonPressed();
+    void updateViewMode();
     void startScanning();
     void finishScanning();
-    void updateControlVisibilities();
+    void updateVisibilities();
     void clearList();
+    void play();            // Called from context menu
     void rename();          // Called from context menu
     void toggleFavorite();  // Called from context menu
     void deleteStation();   // Called from context menu
@@ -79,10 +78,6 @@ private:
     void init();
     void userAccepted();
 
-// from base class QGraphicsWidget
-
-    void showEvent( QShowEvent* event );
-
 // New functions
 
     void initListView();
@@ -91,14 +86,12 @@ private: //data
 
     RadioStationModel*                      mModel;
 
-    RadioStationFilterModel*                mFilterModel;
+    QSortFilterProxyModel*                  mFilterModel;
 
     HbAction*                               mScanStationsAction;
     HbAction*                               mClearListAction;
 
     HbListView*                             mStationsList;
-
-    RadioBannerLabel*                       mHeadingBanner;
 
     HbAction*                               mFavoritesButton;
     HbAction*                               mLocalStationsButton;

@@ -14,28 +14,25 @@
 # Description:
 #
 
-TEMPLATE    = lib
-TARGET      = radiowidgetsplugin
+TMP_DIR_NAME = widgetsplugin
+include(../buildflags.pri)
 
-win32: {
-    DESTDIR = ../bin
-    LIBS    += -L../bin
-}
+TEMPLATE    = lib
+TARGET      = fmradiowidgetsplugin
+symbian:TARGET.UID3 = 0x2002FF4D
 
 CONFIG      += hb plugin
 QT          += core
 
 INCLUDEPATH += ../radiowidgets/inc
-INCLUDEPATH += ../commoninc
+INCLUDEPATH += ../../common
 
 symbian: {
-    TARGET.EPOCALLOWDLLDATA = 1
-    TARGET.CAPABILITY       = CAP_GENERAL_DLL
-    pluginstub.sources      = radiowidgetsplugin.dll
+    pluginstub.sources      = fmradiowidgetsplugin.dll
     pluginstub.path         = /resource/plugins
     DEPLOYMENT              += pluginstub
 }
 
 SOURCES     += main.cpp
 
-LIBS        += -lradiowidgets
+LIBS        += -lfmradiowidgets

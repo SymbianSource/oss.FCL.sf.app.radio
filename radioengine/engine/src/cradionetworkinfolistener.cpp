@@ -36,6 +36,7 @@ using namespace CommsDat;
 CRadioNetworkInfoListener* CRadioNetworkInfoListener::NewL( MRadioSettingsSetter& aSetter,
                                                             MRadioNetworkChangeObserver* aObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioNetworkInfoListener* self = new ( ELeave ) CRadioNetworkInfoListener( aSetter, aObserver );
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -55,6 +56,7 @@ CRadioNetworkInfoListener::CRadioNetworkInfoListener( MRadioSettingsSetter& aSet
     , iSubscriberIdPckg( iSubscriberId )
     , iNetworkInfoPckg( iNetworkInfo )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CActiveScheduler::Add( this );
     }
 
@@ -170,27 +172,6 @@ void CRadioNetworkInfoListener::ConstructL()
         User::Leave( KErrNotSupported );
         }
 
-    if ( identityCaps & RMobilePhone::KCapsGetSubscriberId )
-        {
-        TRequestStatus stat;
-        RMobilePhone::TMobilePhoneSubscriberId subscriberId;
-        mobilePhone.GetSubscriberId( stat, subscriberId );
-        User::WaitForRequest( stat );
-
-        CTelephony::TSubscriberIdV1 telephonySubscriberId;
-
-        if ( stat == KErrNone )
-            {
-            telephonySubscriberId.iSubscriberId = subscriberId;
-            }
-        else
-            {
-            telephonySubscriberId.iSubscriberId = iSetter.SubscriberId();
-            }
-
-        iSubscriberIdPckg() = telephonySubscriberId;
-        }
-
     CleanupStack::PopAndDestroy( 2, &telServer );
 #endif
     // At the end, update the local variables by simulating the "netid changed" event.
@@ -203,6 +184,7 @@ void CRadioNetworkInfoListener::ConstructL()
 //
 CRadioNetworkInfoListener::~CRadioNetworkInfoListener()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     Cancel();
 
 #ifndef __WINS__
@@ -216,7 +198,8 @@ CRadioNetworkInfoListener::~CRadioNetworkInfoListener()
 //
 TInt CRadioNetworkInfoListener::CompoundNetworkId() const
     {
-    LOG_FORMAT( "CRadioNetworkInfoListener::CompoundNetworkId() - %d", iCompoundNetworkId );
+    LEVEL3( LOG_METHOD_AUTO );
+    LOG_FORMAT( "Returning iCompoundNetworkId: %d", iCompoundNetworkId );
     return iCompoundNetworkId;
     }
 
@@ -226,8 +209,9 @@ TInt CRadioNetworkInfoListener::CompoundNetworkId() const
 //
 TPtrC CRadioNetworkInfoListener::SubscriberId() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TPtrC id = iSubscriberId.iSubscriberId;
-    LOG_FORMAT( "CRadioNetworkInfoListener::SubscriberId() - %S", &id );
+    LOG_FORMAT( "SubscriberId: %S", &id );
     return id;
     }
 
@@ -237,8 +221,9 @@ TPtrC CRadioNetworkInfoListener::SubscriberId() const
 //
 TPtrC CRadioNetworkInfoListener::CountryCode() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TPtrC countryCode = iSetter.CountryCode();
-    LOG_FORMAT( "CRadioNetworkInfoListener::CountryCode() - %S", &countryCode );
+    LOG_FORMAT( "CountryCode: %S", &countryCode );
     return countryCode;
     }
 
@@ -248,12 +233,13 @@ TPtrC CRadioNetworkInfoListener::CountryCode() const
 //
 void CRadioNetworkInfoListener::SaveNetworkInfoL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
 #ifdef __WINS__
     iNetworkInfo.iCountryCode.Copy( _L("244") );
     iNetworkInfo.iNetworkId.Zero();
 #endif
 
-    LOG_FORMAT( "CRadioNetworkInfoListener::SaveNetworkInfoL() - iNetworkInfo.iCountryCode = %S",
+    LOG_FORMAT( "iNetworkInfo.iCountryCode = %S",
                   &iNetworkInfo.iCountryCode );
 
     User::LeaveIfError( iSetter.SetCountryCode( iNetworkInfo.iCountryCode ) );
@@ -288,6 +274,7 @@ void CRadioNetworkInfoListener::SaveNetworkInfoL()
 //
 void CRadioNetworkInfoListener::DoCancel()
     {
+    LEVEL3( LOG_METHOD_AUTO );
 #ifndef __WINS__
     iTelephony->CancelAsync( CTelephony::ECurrentNetworkInfoChangeCancel );
 #endif
@@ -299,7 +286,8 @@ void CRadioNetworkInfoListener::DoCancel()
 //
 void CRadioNetworkInfoListener::RunL()
     {
-    LOG_FORMAT( "CRadioNetworkInfoListener::RunL() - iStatus.Int() = %d", iStatus.Int() );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "iStatus.Int() = %d", iStatus.Int() ) );
 #ifndef __WINS__
     iTelephony->NotifyChange( iStatus, CTelephony::ECurrentNetworkInfoChange, iNetworkInfoPckg );
     SetActive();

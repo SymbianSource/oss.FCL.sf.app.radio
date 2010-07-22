@@ -37,9 +37,10 @@
 #include "radio_global.h"
 #include "radioenginewrapper_win32_p.h"
 
-const int KWindowWidth = 360;
-const int KWindowHeight = 640;
-const int KToolbarHeight = 140;
+const int WINDOW_WIDTH = 360;
+const int WINDOW_HEIGHT = 640;
+const int TOOLBAR_HEIGHT = 120;
+const int WINDOW_EXTRA_WIDTH = 5;
 
 const QString KBtnDisconnectHeadset = "Disconnect Headset";
 const QString KBtnConnectHeadset = "Connect Headset";
@@ -87,14 +88,14 @@ Win32Window::Win32Window() :
     mThemeBox->setEditable( false );
     initThemes();    
 
-    connectAndTest( mOrientationButton, SIGNAL(clicked()), this, SLOT(changeOrientation()) );
-    connectAndTest( mVolUpButton, SIGNAL(clicked()), this, SLOT(volumeUp()) );
-    connectAndTest( mVolDownButton, SIGNAL(clicked()), this, SLOT(volumeDown()) );
-    connectAndTest( mHeadsetButton, SIGNAL(clicked()), this, SLOT(toggleHeadsetStatus()) );
-    connectAndTest( mAddSongButton, SIGNAL(clicked()), this, SLOT(addSong()) );
-    connectAndTest( mClearSongButton, SIGNAL(clicked()), this, SLOT(clearSong()) );
-    connectAndTest( mOfflineButton, SIGNAL(clicked()), this, SLOT(toggleOffline()) );
-    connectAndTest( mThemeBox, SIGNAL(activated(QString)), this, SLOT(changeTheme(QString)) );
+    Radio::connect( mOrientationButton, SIGNAL(clicked()), this, SLOT(changeOrientation()) );
+    Radio::connect( mVolUpButton, SIGNAL(clicked()), this, SLOT(volumeUp()) );
+    Radio::connect( mVolDownButton, SIGNAL(clicked()), this, SLOT(volumeDown()) );
+    Radio::connect( mHeadsetButton, SIGNAL(clicked()), this, SLOT(toggleHeadsetStatus()) );
+    Radio::connect( mAddSongButton, SIGNAL(clicked()), this, SLOT(addSong()) );
+    Radio::connect( mClearSongButton, SIGNAL(clicked()), this, SLOT(clearSong()) );
+    Radio::connect( mOfflineButton, SIGNAL(clicked()), this, SLOT(toggleOffline()) );
+    Radio::connect( mThemeBox, SIGNAL(activated(QString)), this, SLOT(changeTheme(QString)) );
 
     QTimer::singleShot( 0, this, SLOT(updateWindowSize()) );
 }
@@ -186,8 +187,8 @@ void Win32Window::changeOrientation()
  */
 void Win32Window::volumeUp()
 {
-    if ( ++mVolume > KMaximumVolumeLevel ) {
-        mVolume = KMaximumVolumeLevel;
+    if ( ++mVolume > MAXIMUM_VOLUME_LEVEL ) {
+        mVolume = MAXIMUM_VOLUME_LEVEL;
     }
     RadioEngineWrapperPrivate::instance()->setVolume( mVolume );
 }
@@ -223,9 +224,9 @@ void Win32Window::toggleHeadsetStatus()
 void Win32Window::updateWindowSize()
 {
     if ( mOrientation == Qt::Horizontal ) {
-        resize( KWindowHeight, KWindowWidth + KToolbarHeight );
+        resize( WINDOW_HEIGHT + WINDOW_EXTRA_WIDTH, WINDOW_WIDTH + TOOLBAR_HEIGHT );
     } else {
-        resize( KWindowWidth, KWindowHeight + KToolbarHeight );
+        resize( WINDOW_WIDTH + WINDOW_EXTRA_WIDTH, WINDOW_HEIGHT + TOOLBAR_HEIGHT );
     }
 }
 
@@ -267,6 +268,7 @@ void Win32Window::toggleOffline()
  */
 void Win32Window::changeTheme( const QString& theme )
 {
+    LOG_FORMAT( "Changing to theme %s", GETSTRING( theme ) );
     QLocalSocket socket;
     socket.connectToServer( "hbthemeserver" );
     if ( socket.waitForConnected( 3000 ) ) {
@@ -341,7 +343,11 @@ QStringList Win32Window::themeRootPaths()
         rootDirs << envDir;
     }
 
-    rootDirs << HB_RESOURCES_DIR;
+    QString resourcesDir = HB_RESOURCES_DIR;
+    if ( resourcesDir.isEmpty() ) {
+        resourcesDir = "/hb_dev/src/hbcore/resources";
+    }
+    rootDirs << resourcesDir;
 
     return rootDirs;
 }

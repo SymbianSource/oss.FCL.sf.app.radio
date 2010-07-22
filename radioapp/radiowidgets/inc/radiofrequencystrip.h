@@ -21,7 +21,6 @@
 // System includes
 #include <QMap>
 #include <QHash>
-#include <HbIcon>
 #include <HbEffect>
 #include <QColor>
 
@@ -37,13 +36,16 @@ class RadioStation;
 class HbPushButton;
 class QTimer;
 class QModelIndex;
+class RadioUiLoader;
+
+typedef QList<RadioStation> StationList;
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioFrequencyStrip : public RadioStripBase
 {
     Q_OBJECT
-    Q_PROPERTY( HbIcon leftButtonIcon READ leftButtonIcon WRITE setLeftButtonIcon )
-    Q_PROPERTY( HbIcon rightButtonIcon READ rightButtonIcon WRITE setRightButtonIcon )
+    Q_PROPERTY(int itemHeight READ itemHeight WRITE setItemHeight)
+    Q_PROPERTY(uint frequency READ frequency)
 
     friend class RadioFrequencyItem;
 
@@ -51,38 +53,43 @@ public:
 
     RadioFrequencyStrip();
 
-    void setLeftButtonIcon( const HbIcon& leftButtonIcon );
-    HbIcon leftButtonIcon() const;
+    void setItemHeight( int itemHeight );
+    int itemHeight() const;
 
-    void setRightButtonIcon( const HbIcon& rightButtonIcon );
-    HbIcon rightButtonIcon() const;
+    void init( RadioUiEngine* engine, RadioUiLoader& uiLoader );
 
-    void init( RadioUiEngine* engine );
-
-    void setFrequency( const uint frequency, int reason = 0 );
+    void setFrequency( const uint frequency, int reason, Scroll::Direction direction = Scroll::Shortest );
     uint frequency() const;
+
+    bool isInManualSeekMode() const;
+    void cancelManualSeek();
+
+    void addScannedStation( const RadioStation& station );
+
+    void updateFavorite( const RadioStation& station );
 
 public slots:
 
-    void updateFavorite( const RadioStation& station );
     void setScanningMode( bool isScanning );
 
 signals:
 
-    void frequencyChanged( uint frequency, int reason ); // reason is always CommandSender::RadioFrequencyStrip
+    void frequencyChanged( uint frequency, int reason, int direction );
     void skipRequested( int skipMode );
     void seekRequested( int seekDirection );
+    void manualSeekChanged( bool manualSeek );
 
 private slots:
 
+    void removeStation( const QModelIndex& parent, int first, int last );
     void updateStation( const QModelIndex& parent, int first, int last );
     void initEmptyItems();
     void handleLeftButton();
     void handleLongLeftButton();
     void handleRightButton();
     void handleLongRightButton();
-    void toggleButtons();
-    void checkIllegalPos();
+    void toggleManualSeek();
+    void handleScrollingEnd();
 
 private:
 
@@ -90,12 +97,12 @@ private:
 
     void updateItemPrimitive( QGraphicsItem* itemToUpdate, int itemIndex );
     QGraphicsItem* createItemPrimitive( QGraphicsItem *parent );
-    void scrollPosChanged( QPointF newPosition );
+    void scrollPosChanged();
 
 // from base class QGraphicsWidget
 
     void resizeEvent ( QGraphicsSceneResizeEvent* event );
-    void showEvent( QShowEvent* event );
+//    void showEvent( QShowEvent* event );
     void changeEvent( QEvent* event );
 
 // from base class HbScrollArea
@@ -103,6 +110,10 @@ private:
     void mousePressEvent( QGraphicsSceneMouseEvent* event );
     void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
     void gestureEvent( QGestureEvent* event );
+
+// from base class QObject
+
+    void timerEvent( QTimerEvent* event );
 
 // New functions
 
@@ -116,17 +127,24 @@ private:
 
     void addFrequencyPos( int pos, uint frequency, RadioFrequencyItem* item );
 
-    void updateFavorites( RadioFrequencyItem* item );
+    void updateStationsInRange( int first, int last, bool stationRemoved = false );
 
-    void updateItems();
+    void updateItem( RadioFrequencyItem* item, uint upperRange = 0, uint ignoredFrequency = 0 );
+
+    void updateAllItems();
 
     QPixmap drawPixmap( uint frequency, QList<RadioStation> stations, RadioFrequencyItem* item );
+
+    QLineF makeTab( qreal pos, int height );
 
     void emitFrequencyChanged( uint frequency );
 
     int selectorPos() const;
 
-    void scrollToFrequency( uint frequency, int time = 0 );
+    void scrollToFrequency( uint frequency,
+                            Scroll::Direction direction = Scroll::Shortest,
+                            int time = 0,
+                            TuneReason::Reason reason = TuneReason::Unspecified );
 
     void hideButtons();
     void showButtons();
@@ -150,6 +168,8 @@ private: // data
     };
 
     RadioUiEngine*              mUiEngine;
+
+    int                         mItemHeight;
 
     uint                        mMinFrequency;
 
@@ -184,18 +204,17 @@ private: // data
      */
     QHash<int,uint>             mPositions;
 
-    HbIcon                      mLeftButtonIcon;
-
-    HbIcon                      mRightButtonIcon;
-
     HbPushButton*               mLeftButton;
 
     HbPushButton*               mRightButton;
 
-    QTimer*                     mButtonTimer;
-    bool                        mButtonsVisible;
+    QTimer*                     mManualSeekTimer;
 
-    bool                        mUserIsScrolling;
+    bool                        mManualSeekMode;
+
+    uint                        mLastReportedFrequency;
+
+    int                         mManualSeekTimerId;
 
     QColor                      mForegroundColor;
 

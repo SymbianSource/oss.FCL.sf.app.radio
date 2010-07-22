@@ -19,12 +19,7 @@
 #define RADIOCONTROLSERVICE_H
 
 // System includes
-#ifndef BUILD_WIN32
-#   include <xqserviceprovider.h>
-#else
-#   include <QObject>
-typedef QObject XQServiceProvider;
-#endif
+#include <xqserviceprovider.h>
 
 // User includes
 

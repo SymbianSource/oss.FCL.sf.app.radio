@@ -51,14 +51,6 @@ public:
     static MRadioEngineLogger* Logger();
 
     /**
-     * Return the eikon environment
-     *
-     * @since Live TV UI v1.0
-     * @return Pointer to CEikonEnv
-     */
-    static CCoeEnv* Env();
-
-    /**
      * Returns the file server session
      *
      * @since Live TV UI v1.0
@@ -79,9 +71,9 @@ public:
 
 private:
 
-    static void InitializeL( CCoeEnv* aEnv = NULL, RFs* aFs = NULL );
+    static void InitializeL( RFs* aFs = NULL );
 
-    CRadioEngineTls( CCoeEnv* aEnv, RFs* aFs );
+    CRadioEngineTls( RFs* aFs );
 
     ~CRadioEngineTls();
 
@@ -94,12 +86,6 @@ private:
      */
     CRadioEngineLogger* iLogger;
 #endif
-
-    /**
-     * Pointer to the eikon environment
-     * Not own.
-     */
-    CCoeEnv*    iEnv;
 
     /**
      * Flag to indicate whether or not the file server session is owned

@@ -18,7 +18,7 @@
 &EN
 
 ; Header
-#{"fmradio"}, (0xE6fe9aac), 1, 0, 0, TYPE=SA
+#{"fmradio"}, (0x2002FF53), 1, 0, 0, TYPE=SA
 
 ; Localised Vendor name
 %{"Nokia"}

@@ -18,6 +18,7 @@
 // User includes
 #include "cradiosettings.h"
 #include "cradiosettingsimp.h"
+#include "cradioenginelogger.h"
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -25,15 +26,17 @@
 //
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CRadioSettings* CRadioSettings::NewL( CCoeEnv* aCoeEnv )
-{
-    return CRadioSettingsImp::NewL( aCoeEnv );
-}
+EXPORT_C CRadioSettings* CRadioSettings::NewL()
+    {
+    LEVEL3( LOG_METHOD_AUTO );
+    return CRadioSettingsImp::NewL();
+    }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CRadioSettings::~CRadioSettings()
-{
-}
+    {
+    LEVEL3( LOG_METHOD_AUTO );
+    }

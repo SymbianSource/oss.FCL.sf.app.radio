@@ -14,17 +14,20 @@
 # Description:
 #
 
+TMP_DIR_NAME = enginewrapper
 include(../buildflags.pri)
 
 TEMPLATE    = lib
-TARGET      = radioenginewrapper
+TARGET      = fmradioenginewrapper
 CONFIG      += dll
 DEFINES     += BUILD_WRAPPER_DLL
 
+symbian:TARGET.UID3 = 0x2002EAD8
+    
 USE_DUMMY_RADIO_DATA:QT += xml
 
 INCLUDEPATH += inc
-INCLUDEPATH += ../commoninc
+INCLUDEPATH += ../../common
 
 # Common headers
 HEADERS     += radiowrapperexport.h
@@ -51,11 +54,11 @@ symbian: {
     INCLUDEPATH += ../../radioengine/settings/api
     INCLUDEPATH += ../../radioengine/engine/api
 
-    LIBS *= -lradioengineutils
-    LIBS *= -lradioenginesettings
-    LIBS *= -lradioengine
+    LIBS *= -lfmradioengineutils
+    LIBS *= -lfmradioenginesettings
+    LIBS *= -lfmradioengine
 
-    HEADERS += cradioenginehandler.h
+    HEADERS += radioenginehandler.h
     HEADERS += mradioenginehandlerobserver.h
     HEADERS += radiocontroleventlistener.h
     HEADERS += radiordslistener.h
@@ -65,7 +68,7 @@ symbian: {
     SOURCES += radiosettings_p.cpp
     SOURCES += radioenginewrapper.cpp
     SOURCES += radioenginewrapper_p.cpp
-    SOURCES += cradioenginehandler.cpp
+    SOURCES += radioenginehandler.cpp
     SOURCES += radiocontroleventlistener.cpp
     SOURCES += radiordslistener.cpp
 }

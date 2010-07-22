@@ -18,15 +18,18 @@
 #ifndef C_RADIOSETTINGSIMP_H
 #define C_RADIOSETTINGSIMP_H
 
+// System includes
+#include <barsc.h>
 // User includes
 #include "cradiosettings.h"
 
 // Forward declarations
-class CCoeEnv;
 class CRadioApplicationSettings;
 class CRadioEngineSettings;
-class CRadioRepositoryManager;
 class RConeResourceLoader;
+
+// The name of the radio settings resource file.
+_LIT( KRadioSettingsResourceFile, "fmradioenginesettings.rsc" );
 
 /**
  * Manages persistent application settings.
@@ -38,43 +41,27 @@ NONSHARABLE_CLASS( CRadioSettingsImp ) : public CRadioSettings
 
 public:
 
-    static CRadioSettingsImp* NewL( CCoeEnv* aCoeEnv = NULL );
+    static CRadioSettingsImp* NewL();
 
     ~CRadioSettingsImp();
 
+    RFs& FsSession();
+    
 // from base class CRadioSettings
 
     TBool IsRegionAllowed( TRadioRegion aRegionId ) const;
     MRadioApplicationSettings& ApplicationSettings() const;
     MRadioEngineSettings& EngineSettings() const;
     MRadioSettingsSetter& RadioSetter() const;
-    CRadioRepositoryManager& Repository() const;
     void ResolveDriveL( TFileName& aFileName, const TDesC& aPath );
 
 private:
 
     CRadioSettingsImp();
 
-    void ConstructL( CCoeEnv* aCoeEnv );
-
-    /**
-     * Loads the resources required by the settings.
-     */
-    void LoadResourcesL();
+    void ConstructL();
 
 private: // data
-
-    /**
-     * The central repository manager.
-     * Own.
-     */
-    CRadioRepositoryManager*    iRepositoryManager;
-
-    /**
-     * Resource loader for the settings resources.
-     * Own.
-     */
-    RConeResourceLoader*        iResourceLoader;
 
     /**
      * Implementation of the application settings.
@@ -87,6 +74,12 @@ private: // data
      * Own
      */
     CRadioEngineSettings*       iEngineSettings;
+    
+    /**
+     * File session.
+     * Own
+     */
+    RFs*                        iFsSession; 
 
     };
 

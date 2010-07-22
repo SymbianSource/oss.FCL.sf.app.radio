@@ -28,7 +28,7 @@
 #include "mradioenginehandlerobserver.h"
 
 // Forward declarations
-class CRadioEngineHandler;
+class RadioEngineHandler;
 class RadioControlEventListener;
 class RadioRdsListener;
 class RadioSettingsIf;
@@ -63,8 +63,7 @@ public:
     /**
      * Initialization and startup
      */
-    void init();
-    bool isEngineConstructed();
+    bool init();
 
     /**
      * Returns the radio settings
@@ -75,17 +74,16 @@ public:
     * Getter for CRadioEngineHandler instance.
     * Returns reference to the CRadioEngineHandler
     */
-    CRadioEngineHandler& RadioEnginehandler();
+    RadioEngineHandler& radioEnginehandler();
 
     /**
-     * Functions called from slots to tune to given frequency or preset
+     * Tunes to given frequency
      */
-    void tuneFrequency( uint frequency, const int reason );
-    void tuneWithDelay( uint frequency, const int reason );
+    void setFrequency( uint frequency, const int reason );
 
     ObserverList& observers();
 
-    void startSeeking( Seeking::Direction direction, const int reason = TuneReason::Unspecified );
+    void startSeeking( Seek::Direction direction, const int reason = TuneReason::Unspecified );
 
 private:
 
@@ -109,13 +107,6 @@ private:
 // from base class MRadioSystemEventObserver
 
     void HandleSystemEventL( TRadioSystemEventType aEventType );
-
-// from base class MRadioRepositoryEntityObserver
-
-    void HandleRepositoryValueChangeL( const TUid& aUid, TUint32 aKey, TInt aValue, TInt aError );
-    void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TReal& /*aValue*/, TInt /*aError*/ ) {}
-    void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TDesC8& /*aValue*/, TInt /*aError*/ ) {}
-    void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TDesC16& /*aValue*/, TInt /*aError*/ ) {}
 
 private: // data
 
@@ -146,7 +137,7 @@ private: // data
      * Radio engine handler.
      * Own.
      */
-    QScopedPointer<CRadioEngineHandler>             mEngineHandler;
+    QScopedPointer<RadioEngineHandler>              mEngineHandler;
 
     /**
      * RemCon listener.

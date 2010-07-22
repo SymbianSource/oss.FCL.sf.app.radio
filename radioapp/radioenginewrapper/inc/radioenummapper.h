@@ -31,7 +31,7 @@
  */
 #define BEGIN_ENUM_MAP(name) const RadioEnumMapper::EnumMap name[] = {
 #define ENUM_MAP_ITEM(ui_enum, engine_enum ) { ui_enum, engine_enum }
-#define END_ENUM_MAP(name) }; const TInt name ## Count = sizeof ( name ) / sizeof ( name[0] );
+#define END_ENUM_MAP(name) }; const int name ## Count = sizeof ( name ) / sizeof ( name[0] );
 
 /*!
  * Convenience macros to do the mappings

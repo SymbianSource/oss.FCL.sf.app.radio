@@ -57,7 +57,6 @@ private:
     TBool IsCallActive() const;
     TBool IsAudioResourcesAvailable() const;
     TBool IsHeadsetConnectedL() const;
-    TBool IsVoiceUiActive() const;
 
     void NotifyObserversL( TRadioSystemEventType aEvent );
 

@@ -27,6 +27,7 @@
 #include "radiostationhandlerif.h"
 #include "radiostationmodel.h"
 #include "radiostation.h"
+#include "radiologger.h"
 
 /*!
  *
@@ -43,7 +44,6 @@ RadioScannerEngine::RadioScannerEngine( RadioUiEnginePrivate& uiEngine ) :
 RadioScannerEngine::~RadioScannerEngine()
 {
     cancel();
-    delete d_ptr;
 }
 
 /*!
@@ -54,6 +54,8 @@ void RadioScannerEngine::startScanning()
     Q_D( RadioScannerEngine );
     d->mUiEngine.cancelSeeking();
 
+//    d->mUiEngine.wrapper().setRdsEnabled( false );
+
     d->mIsScanning = true;
 
     if ( !d->mUiEngine.api().isMuted() ) {
@@ -61,17 +63,17 @@ void RadioScannerEngine::startScanning()
         d->mMutedByScanner = true;
     }
 
-    d->mUiEngine.api().emitSeekingStarted( Seeking::Up );
+    d->mUiEngine.api().emitSeekingStarted( Seek::Up );
 
     d->mUiEngine.api().stationModel().removeAll( RadioStationModel::RemoveLocalStations );
     d->mLastFoundFrequency = d->mUiEngine.api().minFrequency();
 
     if ( d->mUiEngine.wrapper().currentFrequency() == d->mLastFoundFrequency ) {
         // Engine was already at the minimun frequency so start scanning
-        d->mUiEngine.wrapper().startSeeking( Seeking::Up, TuneReason::StationScan );
+        d->mUiEngine.wrapper().startSeeking( Seek::Up, TuneReason::StationScan );
     } else {
         // Engine must be initialized to minimum frequency before scanning can start
-        d->mUiEngine.wrapper().tuneFrequency( d->mLastFoundFrequency, TuneReason::StationScanInitialization );
+        d->mUiEngine.wrapper().setFrequency( d->mLastFoundFrequency, TuneReason::StationScanInitialization );
     }
 }
 
@@ -81,7 +83,7 @@ void RadioScannerEngine::startScanning()
 void RadioScannerEngine::continueScanning()
 {
     Q_D( RadioScannerEngine );
-    d->mUiEngine.wrapper().startSeeking( Seeking::Up, TuneReason::StationScan );
+    d->mUiEngine.wrapper().startSeeking( Seek::Up, TuneReason::StationScan );
 }
 
 /*!
@@ -108,6 +110,8 @@ void RadioScannerEngine::cancel()
         d->mUiEngine.api().setMute( false );
         d->mMutedByScanner = false;
     }
+
+//    d->mUiEngine.wrapper().setRdsEnabled( true );
 }
 
 /*!

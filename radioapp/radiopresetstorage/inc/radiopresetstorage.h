@@ -20,6 +20,8 @@
 
 // System includes
 #include <QtGlobal>
+#include <QList>
+#include <QScopedPointer>
 
 #include "radiopresetstorageexport.h"
 
@@ -29,7 +31,7 @@ class RadioPresetStoragePrivate;
 
 class STORAGE_DLL_EXPORT RadioPresetStorage
 {
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioPresetStorage )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioPresetStorage )
     Q_DISABLE_COPY( RadioPresetStorage )
 
 public:
@@ -44,13 +46,14 @@ public:
     bool deletePreset( int presetIndex );
     bool savePreset( const RadioStationIf& station );
     bool readPreset( int index, RadioStationIf& station );
+    void readFrequencies( QList<uint>& frequencyList );
 
 private: // data
 
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioPresetStoragePrivate* const d_ptr;
+    const QScopedPointer<RadioPresetStoragePrivate> d_ptr;
 
 };
 

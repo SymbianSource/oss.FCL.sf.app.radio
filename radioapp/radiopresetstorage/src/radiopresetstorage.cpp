@@ -16,13 +16,8 @@
 */
 
 // System includes
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
 #include <presetutility.h>
 #include <preset.h>
-#else
-#   include <RadioFmPresetUtility.h>
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
-
 #include <QString>
 
 // User includes
@@ -35,7 +30,7 @@
  */
 static QString convertString( const TDesC& aDesc )
 {
-    return QString( (QChar*)aDesc.Ptr(), aDesc.Length() );
+    return QString::fromUtf16( aDesc.Ptr(), aDesc.Length() );
 }
 
 /*!
@@ -53,7 +48,6 @@ RadioPresetStorage::RadioPresetStorage() :
  */
 RadioPresetStorage::~RadioPresetStorage()
 {
-    delete d_ptr;
 }
 
 /*!
@@ -62,13 +56,7 @@ RadioPresetStorage::~RadioPresetStorage()
 int RadioPresetStorage::maxNumberOfPresets() const
 {
     Q_D( const RadioPresetStorage );
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     return d->mPresetUtility->MaxNumberOfPresets();
-#else
-    TInt maxPresets = 0;
-    d->mPresetUtility->GetMaxNumberOfPresets( maxPresets );
-    return maxPresets;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 }
 
 /*!
@@ -77,13 +65,7 @@ int RadioPresetStorage::maxNumberOfPresets() const
 int RadioPresetStorage::presetCount() const
 {
     Q_D( const RadioPresetStorage );
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     return d->mPresetUtility->PresetCount();
-#else
-    TInt presetCount = 0;
-    d->mPresetUtility->GetNumberOfPresets( presetCount );
-    return presetCount;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 }
 
 /*!
@@ -92,16 +74,7 @@ int RadioPresetStorage::presetCount() const
 int RadioPresetStorage::firstPreset() const
 {
     Q_D( const RadioPresetStorage );
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     return d->mPresetUtility->FirstPreset();
-#else
-    TInt firstIndex = -1;
-    TRAPD( err, d->mPresetUtility->GetFirstPresetL( firstIndex ) );
-    if ( err ) {
-        firstIndex = -1;
-    }
-    return firstIndex;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 }
 
 /*!
@@ -110,16 +83,7 @@ int RadioPresetStorage::firstPreset() const
 int RadioPresetStorage::nextPreset( int fromIndex ) const
 {
     Q_D( const RadioPresetStorage );
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     return d->mPresetUtility->NextPreset( fromIndex );
-#else
-    TInt nextIndex = -1;
-    TRAPD( err, d->mPresetUtility->GetNextPresetL( fromIndex, nextIndex ) );
-    if ( err ) {
-        nextIndex = -1;
-    }
-    return nextIndex;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 }
 
 /*!
@@ -128,12 +92,7 @@ int RadioPresetStorage::nextPreset( int fromIndex ) const
 bool RadioPresetStorage::deletePreset( int presetIndex )
 {
     Q_D( RadioPresetStorage );
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     return d->mPresetUtility->DeletePreset( presetIndex ) == KErrNone;
-#else
-    TRAPD( err, d->mPresetUtility->DeletePresetL( presetIndex ) );
-    return err;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 }
 
 /*!
@@ -142,14 +101,13 @@ bool RadioPresetStorage::deletePreset( int presetIndex )
 bool RadioPresetStorage::savePreset( const RadioStationIf& station )
 {
     Q_D( RadioPresetStorage );
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     TPreset preset;
     preset.SetFrequency( station.frequency() );
-    TPresetName name( station.name().utf16() );
+    TPresetName name( station.name().left( KPresetNameLength ).utf16() );
     preset.SetName( name );
     preset.SetRenamedByUser( station.isRenamedByUser() );
     preset.SetGenre( station.genre() );
-    TRadioUrl url( station.url().utf16() );
+    TRadioUrl url( station.url().left( KUrlMaxLength ).utf16() );
     preset.SetUrl( url );
     preset.SetPiCode( station.piCode() );
     preset.SetFavorite( station.isFavorite() );
@@ -157,11 +115,6 @@ bool RadioPresetStorage::savePreset( const RadioStationIf& station )
 
     TRAPD( err, d->mPresetUtility->SavePresetL( preset, station.presetIndex() ) );
     return err == KErrNone;
-#else
-    TFmPresetName name( station.name().utf16() );
-    TRAPD( err, d->mPresetUtility->SetPresetL( station.presetIndex(), name, station.frequency() ) );
-    return err == KErrNone;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 }
 
 /*!
@@ -170,7 +123,6 @@ bool RadioPresetStorage::savePreset( const RadioStationIf& station )
 bool RadioPresetStorage::readPreset( int index, RadioStationIf& station )
 {
     Q_D( RadioPresetStorage );
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     TPreset preset;
     TRAPD( err, d->mPresetUtility->ReadPresetL( index, preset ) );
     if ( !err ) {
@@ -188,19 +140,25 @@ bool RadioPresetStorage::readPreset( int index, RadioStationIf& station )
         return true;
     }
     return false;
-#else
-    TFmPresetName nameDesc;
-    TInt frequency = 0;
-    TRAPD( err, d->mPresetUtility->GetPresetL( index, nameDesc, frequency ) );
-    if ( !err )
-    {
-        station.setPresetIndex( index );
-        station.setName( convertString( nameDesc ) );
-        station.setFrequency( static_cast<TUint>( frequency ) );
-        station.setLocalStation( true );
+}
+
+/*!
+ *
+ */
+void RadioPresetStorage::readFrequencies( QList<uint>& frequencyList )
+{
+    Q_D( RadioPresetStorage );
+
+    TPreset preset;
+    int index = firstPreset();
+    while ( index >= 0 ) {
+        TRAPD( err, d->mPresetUtility->ReadPresetL( index, preset ) );
+        if ( !err ) {
+            frequencyList.append( preset.Frequency() );
+        }
+
+        index = nextPreset( index );
     }
-    return err == KErrNone;
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
 }
 
 /*!
@@ -222,11 +180,6 @@ RadioPresetStoragePrivate::~RadioPresetStoragePrivate()
  */
 bool RadioPresetStoragePrivate::init()
 {
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     TRAPD( err, mPresetUtility.reset( CPresetUtility::NewL() ) );
-    
-#else
-    TRAPD( err, mPresetUtility.reset( CRadioFmPresetUtility::NewL( *this ) ) );
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
     return err == KErrNone;
 }

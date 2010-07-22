@@ -31,6 +31,8 @@ public:
 
     virtual void rdsAvailabilityChanged( bool available );
 
+    virtual void increaseVolume();
+    virtual void decreaseVolume();
     virtual void volumeChanged( int volume );
     virtual void muteChanged( bool muted );
 

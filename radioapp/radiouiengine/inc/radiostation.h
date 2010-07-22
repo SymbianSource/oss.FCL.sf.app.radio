@@ -19,22 +19,16 @@
 #define RADIOSTATION_H_
 
 // System includes
+#include <QObject>
+#include <QSharedDataPointer>
 #include <QString>
 #include <QMetaType>
-#include <QObject>
 
 // User includes
 #include "radiouiengineexport.h"
 #include "radio_global.h"
 
 // Constants
-const int KLastCallSignCharCode = 25;
-const uint KThreeLetterCallSignCount = 72;
-const uint KKxxxCallSignPiFirst = 0x1000;
-const uint KWxxxCallSignPiFirst = 0x54A8;
-const uint KWxxxCallSignPiLast = 0x994F;
-const uint KxxxCallSignPiFirst = 0x9950;
-const uint KxxxCallSignPiLast = 0x99B9;
 
 // Forward declarations
 class RadioStationPrivate;
@@ -56,7 +50,7 @@ class UI_ENGINE_DLL_EXPORT RadioStation : public QObject
     friend class RadioStationModelPrivate;
     friend class TestRadioUiEngine;
     friend class TestRadioPresetStorage;
-    
+
 public:
 
     /**
@@ -88,7 +82,7 @@ public:
        Favorite         = 1 << 0,
        LocalStation     = 1 << 1,
        PreDefined       = 1 << 2,
-       Temporary        = 1 << 3
+       ManualStation    = 1 << 3
     };
     Q_DECLARE_FLAGS( Type, TypeFlag )
 
@@ -108,6 +102,7 @@ public:
      * Magical values used as preset indexes to signify certain conditions.
      * NotFound means that a find function could not find a station
      * Invalid means that the station instance has not been initialized
+     * SharedNull identifies the empty "null" station that every newly created station points to
      */
     enum PresetFlag { NotFound = -1, Invalid = -100, SharedNull = -200 };
 
@@ -123,7 +118,7 @@ public:
 
     RadioStation& operator=( const RadioStation& other );
 
-public:
+private:
 
     explicit RadioStation( int presetIndex, uint frequency );
 
@@ -156,7 +151,7 @@ public: // Getters and setters
 
     int genre() const;
 
-    QString frequencyMhz() const;
+    QString frequencyString() const;
     uint frequency() const;
     int presetIndex() const;
 
@@ -165,12 +160,22 @@ public: // Getters and setters
 
     QString url() const;
 
-    bool hasPiCode() const;
-    bool hasRds() const;
+    int piCode() const;
 
     void setType( RadioStation::Type type );
     void unsetType( RadioStation::Type type );
     bool isType( RadioStation::Type type ) const;
+
+    // Convenience checkers
+
+    inline bool hasPiCode() const       { return piCode() != -1; }
+    inline bool hasName() const         { return !name().isEmpty(); }
+    inline bool hasUrl() const          { return !url().isEmpty(); }
+    inline bool hasRadiotext() const    { return !radioText().isEmpty(); }
+    inline bool hasDynamicPs() const    { return !dynamicPsText().isEmpty(); }
+    inline bool hasGenre() const        { return genre() != -1; }
+    inline bool hasRds() const          { return hasPiCode() || hasGenre() || hasDynamicPs() ||
+                                                 hasRadiotext() || hasUrl() || ( !hasName() && !isRenamed() ); }
 
     // Getters for non-persistent data
 
@@ -184,12 +189,6 @@ public: // Getters and setters
 
 private:
 
-    /**
-     * Decrements the reference count of the implicitly shared data.
-     * Data is deleted if no instance uses it anymore.
-     */
-    void decrementReferenceCount();
-
     // Methods for converting PI code into call sign
     QString piCodeToCallSign( uint programmeIdentification );
     QString iterateCallSign( int piBase, int programmeIdentification );
@@ -202,14 +201,9 @@ private: // data
      * Pointer to the implicitly shared private implementation
      * Own.
      */
-    class RadioStationPrivate* mData;
+    QSharedDataPointer<RadioStationPrivate> mData;
 
 public:
-
-    /**
-     * Detach from the implicitly shared data
-     */
-    void detach();
 
     /**
      * Checks if the class is detached from implicitly shared data
@@ -217,8 +211,8 @@ public:
      */
     bool isDetached() const;
 
-    typedef RadioStationPrivate* DataPtr;
-    inline DataPtr &data_ptr() { return mData; }
+    typedef QSharedDataPointer<RadioStationPrivate> DataPtr;
+    inline DataPtr& data_ptr() { return mData; }
 
 };
 

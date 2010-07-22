@@ -21,14 +21,15 @@
 
 #include <data_caging_paths.hrh>
 
-TARGET                  radioengineutils.dll
+TARGET                  fmradioengineutils.dll
 TARGETTYPE              DLL
-UID                     0x1000008D 0x10281CB8
+UID                     0x1000008D 0x2002FF51
 VERSION                 10.0
 
 CAPABILITY              CAP_GENERAL_DLL
 VENDORID                VID_DEFAULT
 PAGED
+SMPSAFE
 
 USERINCLUDE             ../api
 USERINCLUDE             ../inc
@@ -46,13 +47,9 @@ SOURCE                  cradioroutableaudio.cpp
 SOURCE                  cradioaudiorouter.cpp
 SOURCE                  cradioaccessoryobserver.cpp
 SOURCE                  cradiopropertyobserver.cpp
-SOURCE                  cradiopubsub.cpp
-SOURCE                  cradiopubsubimp.cpp
 SOURCE                  cradioremcontarget.cpp
 SOURCE                  cradioremcontargetimp.cpp
 SOURCE                  cradiorepositoryentitybase.cpp
-SOURCE                  cradiorepositorymanager.cpp
-SOURCE                  cradiorepositorymanagerimp.cpp
 SOURCE                  cradiosystemeventdetector.cpp
 SOURCE                  cradiosystemeventcollector.cpp
 SOURCE                  cradiosystemeventcollectorimp.cpp

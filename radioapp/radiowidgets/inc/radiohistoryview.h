@@ -24,7 +24,6 @@
 
 // User includes
 #include "radioviewbase.h"
-#include "radiowidgetsexport.h"
 
 // Forward declarations
 class RadioXmlUiLoader;
@@ -35,7 +34,7 @@ class RadioHistoryModel;
 class RadioHistoryItem;
 
 // Class declaration
-class WIDGETS_DLL_EXPORT RadioHistoryView : public RadioViewBase
+class RadioHistoryView : public RadioViewBase
 {
     Q_OBJECT
     Q_PROPERTY(HbIcon nonTaggedIcon READ nonTaggedIcon WRITE setNonTaggedIcon)
@@ -54,10 +53,11 @@ public:
 
 private slots:
 
-    void deckButtonPressed();
+    void updateViewMode();
     void clearList();
     void updateVisibilities();
     void showContextMenu( const QModelIndex& index );
+    void handleLongPress( HbAbstractViewItem* item );
     void toggleTagging();
     void openOviStore();
     void openOtherStore();

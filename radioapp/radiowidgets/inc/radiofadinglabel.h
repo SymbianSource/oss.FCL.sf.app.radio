@@ -25,7 +25,7 @@
 // User includes
 #include "radiowidgetsexport.h"
 
-class WIDGETS_DLL_EXPORT RadioFadingLabel : public HbLabel //TODO: Derive from HbLineEdit
+class WIDGETS_DLL_EXPORT RadioFadingLabel : public HbLabel
 {
     Q_OBJECT
 

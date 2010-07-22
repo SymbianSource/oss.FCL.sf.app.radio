@@ -34,7 +34,7 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
     mModel( 0 ),
     mIsCyclic( true ),
     mAutoCenter( false ),
-    mSpacing( 0 ),
+    mOverlap( 0 ),
     mItemPoolParent( new QGraphicsWidget( NULL ) ),
     mCurrentIndex( 0 ),
     mPressedIndex( 0 ),
@@ -53,9 +53,6 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
     // mItemParent is used to hold the unused QGraphicsItem's in the pool.  It's visibility is set to false
     // so the visibility of the items doesn't need to be modified.
     mItemPoolParent->setVisible( false );
-
-    connectAndTest( this,   SIGNAL(scrollPositionChanged(QPointF)),
-                    this,   SLOT(scrollPositionChanged(QPointF)));
 }
 
 /*!
@@ -124,19 +121,9 @@ void RadioStripBase::setCyclic( bool isCyclic )
 /*!
  *
  */
-void RadioStripBase::setSpacing( qreal spacing )
+void RadioStripBase::setOverlap( qreal overlap )
 {
-    if ( mSpacing != spacing )
-    {
-        mSpacing = spacing;
-
-        prepareGeometryChange();
-
-        populateAndLayout();
-
-        update();
-        updateGeometry();
-    }
+    mOverlap = overlap;
 }
 
 /*!
@@ -227,15 +214,6 @@ void RadioStripBase::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 }
 
 /*!
- * Private slot
- */
-void RadioStripBase::scrollPositionChanged( QPointF newPosition )
-{
-    adjustItems();
-    scrollPosChanged( newPosition );
-}
-
-/*!
  *
  */
 void RadioStripBase::moveAllItemsToPool()
@@ -266,17 +244,16 @@ void RadioStripBase::populateAndLayout()
 
     mStripLength = boundingRect().width();
     qreal itemSize = mItemSize.width();
-    mContentsLength = mModel->rowCount() * (itemSize + mSpacing) + mSpacing;
+    mContentsLength = mModel->rowCount() * (itemSize - mOverlap);
 
     if ( mIsCyclic )
     {
         // if treating the items cyclically, double the content area so it can
         // be shifted back and forth as you scroll
-        mContentsLength = mModel->rowCount() * (itemSize + mSpacing);
-        mContentsLength *= 2.0;
+        mContentsLength *= 2;
     }
 
-    qreal currPos = mSpacing;
+    qreal currPos = -mOverlap;
     for ( int i = 0; i < mModel->rowCount(); ++i ) {
         if ( currPos > mStripLength )
         {
@@ -286,16 +263,12 @@ void RadioStripBase::populateAndLayout()
         QGraphicsItem* item = constructItem( i, true );
         if ( item )
         {
-            item->setPos( QPointF( currPos, mSpacing ) );
-            currPos += itemSize + mSpacing;
+            item->setPos( QPointF( currPos, 0 ) );
+            currPos += itemSize - mOverlap;
         }
     }
 
-    QRectF contentsRect(0,0,0,0);
-    contentsRect.setBottom( itemSize + 2 * mSpacing );
-    contentsRect.setRight( mContentsLength );
-
-    mStripContainer->setGeometry( contentsRect );
+    mStripContainer->setPreferredSize( mContentsLength, mItemSize.height() );
 
     if ( mCurrentIndex >= 0 )
     {
@@ -373,7 +346,7 @@ void RadioStripBase::returnToPool( QGraphicsItem* item )
  */
 qreal RadioStripBase::indexToOffset( int index )
 {
-    return index * ( mItemSize.width() + mSpacing ) + mSpacing;
+    return index * ( mItemSize.width() - mOverlap ) - mOverlap;
 }
 
 /*!
@@ -382,7 +355,7 @@ qreal RadioStripBase::indexToOffset( int index )
 int RadioStripBase::offsetToIndex( qreal offset )
 {
     const int rows = mModel->rowCount();
-    int index = (int)( ( offset - mSpacing) / ( mItemSize.width() + mSpacing ) );
+    int index = (int)( offset / ( mItemSize.width() - mOverlap ) );
 
     if ( mIsCyclic )
     {
@@ -479,7 +452,7 @@ void RadioStripBase::adjustItems()
             QGraphicsItem* item = constructItem( i, true );
             if ( item )
             {
-                item->setPos( QPointF( indexToOffset( i ), mSpacing ) );
+                item->setPos( QPointF( indexToOffset( i ), 0 ) );
             }
         }
     }
@@ -492,7 +465,7 @@ void RadioStripBase::adjustItems()
             QGraphicsItem* item = constructItem( i, false );
             if ( item )
             {
-                item->setPos( QPointF( indexToOffset( i ), mSpacing ) );
+                item->setPos( QPointF( indexToOffset( i ), 0 ) );
             }
         }
 
@@ -503,8 +476,21 @@ void RadioStripBase::adjustItems()
             QGraphicsItem* item = constructItem( i, true );
             if ( item )
             {
-                item->setPos( QPointF( indexToOffset( i ), mSpacing ) );
+                item->setPos( QPointF( indexToOffset( i ), 0 ) );
             }
         }
     }
+}
+
+/*!
+ * \reimp
+ */
+bool RadioStripBase::scrollByAmount( const QPointF& delta )
+{
+    bool ret = HbScrollArea::scrollByAmount( delta );
+
+    adjustItems();
+    scrollPosChanged();
+
+    return ret;
 }

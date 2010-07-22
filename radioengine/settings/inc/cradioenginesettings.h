@@ -22,23 +22,36 @@
 #include "mradioenginesettings.h"
 #include "mradiosettingssetter.h"
 #include "cradioregion.h"
-#include "mradiorepositoryentityobserver.h"
-#include "cradiosettingsbase.h"
 
 // Forward declarations
 class MRadioSettingsObserver;
+class CRepository;
+class CRadioSettingsImp;
+
+// Constants
+
+/**
+ * Maximum size of the network country code. 
+ * From CTelephony::TNetworkInfoV1 in etel3rdparty.h
+ */
+enum { KNetworkCountryCodeSize  = 4  };
+
+/**
+ * Maximum size of the network identity.
+ * From CTelephony::TNetworkInfoV1 in etel3rdparty.h
+ */
+enum { KNetworkIdentitySize     = 8  };
 
 /**
  * Concrete implementation of radio settings.
  */
-NONSHARABLE_CLASS( CRadioEngineSettings ) : public CRadioSettingsBase
+NONSHARABLE_CLASS( CRadioEngineSettings ) : public CBase
                                           , public MRadioSettingsSetter
-                                          , public MRadioRepositoryEntityObserver
     {
 
 public:
 
-    static CRadioEngineSettings* NewL( CRadioRepositoryManager& aRepositoryManager, CCoeEnv& aCoeEnv );
+    static CRadioEngineSettings* NewL( CRadioSettingsImp& aRadioSettingsImp );
 
     ~CRadioEngineSettings();
 
@@ -49,7 +62,7 @@ public:
 
 private:
 
-    CRadioEngineSettings( CRadioRepositoryManager& aRepositoryManager, CCoeEnv& aCoeEnv );
+    CRadioEngineSettings( CRadioSettingsImp& aRadioSettingsImp );
 
     void ConstructL();
 
@@ -73,10 +86,8 @@ private:
     TUint32 MaxFrequency() const;
     TUint32 MinFrequency() const;
     TInt DecimalCount() const;
-    TBool RdsAfSearchEnabled() const;
     TRadioRegion DefaultRegion() const;
     TPtrC NetworkId() const;
-    TPtrC SubscriberId() const;
     TPtrC CountryCode() const;
 
 // from base class MRadioSettingsSetter
@@ -93,25 +104,31 @@ private:
     TInt SetPowerOn( TBool aPowerState );
     TInt SetTunedFrequency( TUint32 aFrequency );
     TInt SetRegionId( TInt aRegion );
-    TInt SetRdsAfSearch( TBool aEnabled );
     TInt SetNetworkId( const TDesC& aNetworkId );
-    TInt SetSubscriberId( const TDesC& aSubscriberId );
     TInt SetCountryCode( const TDesC& aCountryCode );
-
-// from base class MRadioRepositoryEntityObserver
-
-    void HandleRepositoryValueChangeL( const TUid& aUid, TUint32 aKey, TInt aValue, TInt aError );
-    void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TReal& /*aValue*/, TInt /*aError*/ ) {}
-    void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TDesC8& /*aValue*/, TInt /*aError*/ ) {}
-    void HandleRepositoryValueChangeL( const TUid& /*aUid*/, TUint32 /*aKey*/, const TDesC16& /*aValue*/, TInt /*aError*/ ) {}
 
 // New functions
 
     /**
+     * Initializes the data holders
+     */
+    void InitializeDataHolders();
+
+    /**
+     * Gets a repository value and sets the default value if the key is not found
+     */
+    TBool GetRepositoryValue( int aKey, TInt& aValue, TInt aDefault );
+    
+    /**
+     * Sets a boolean value to cenrep and data holder
+     */
+    TInt SetFlagValue( int aKey, int aFlagId, TInt aValue );
+    
+    /**
      * Initializes the regions as defined in the resource file.
      */
     void InitializeRegionsL();
-
+    
     /**
      * Converts Region ID to index
      *
@@ -133,17 +150,34 @@ private: // data
      * The observer for the setting changes.
      * Not own.
      */
-    MRadioSettingsObserver* iObserver;
+    MRadioSettingsObserver*         iObserver;
 
     /**
      * The available regions.
      */
-    RRadioRegionArray       iRegions;
+    RRadioRegionArray               iRegions;
 
     /**
      * The current region.
      */
-    TInt                    iCurrentRegionIdx;
+    TInt                            iCurrentRegionIdx;
+    
+    CRadioSettingsImp&              iRadioSettingsImp;
+
+    RResourceFile                   iResFile;
+
+    CRepository*                    iRepository;
+
+    // Data holders for quick access   
+    TBitFlags                       iFlags;
+    TBuf<KNetworkIdentitySize>      iNetworkId;
+    TBuf<KNetworkCountryCodeSize>   iCountryCode;
+    TInt                            iHeadsetVolume;
+    TInt                            iSpeakerVolume;
+    TUint32                         iFrequency;
+    TInt                            iDefaultMinVolume;
+    TRadioRegion                    iDefaultRegion;
+    TRadioRegion                    iRegionId;
 
     };
 

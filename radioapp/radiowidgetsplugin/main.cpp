@@ -20,12 +20,8 @@
 #include <hbdocumentloaderplugin>
 
 // User includes
-#include "radiostationsview.h"
-#include "radiomainview.h"
-#include "radiohistoryview.h"
 #include "radiostationcarousel.h"
 #include "radiofrequencystrip.h"
-#include "radiobannerlabel.h"
 #include "radiofadinglabel.h"
 
 // Class declaration
@@ -47,18 +43,10 @@ QObject* RadioWidgetsPlugin::createObject( const QString& type, const QString& n
 {
     QObject* object = 0;
 
-    if ( type == RadioMainView::staticMetaObject.className() ) {
-        object = new RadioMainView();
-    } else if ( type == RadioStationsView::staticMetaObject.className() ) {
-        object = new RadioStationsView();
-    } else if ( type == RadioHistoryView::staticMetaObject.className() ) {
-        object = new RadioHistoryView();
-    } else if ( type == RadioStationCarousel::staticMetaObject.className() ) {
+    if ( type == RadioStationCarousel::staticMetaObject.className() ) {
         object = new RadioStationCarousel();
     } else if ( type == RadioFrequencyStrip::staticMetaObject.className() ) {
         object = new RadioFrequencyStrip();
-    } else if ( type == RadioBannerLabel::staticMetaObject.className() ) {
-        object = new RadioBannerLabel();
     } else if ( type == RadioFadingLabel::staticMetaObject.className() ) {
         object = new RadioFadingLabel();
     }
@@ -76,10 +64,6 @@ QObject* RadioWidgetsPlugin::createObject( const QString& type, const QString& n
 QList<const QMetaObject *> RadioWidgetsPlugin::supportedObjects()
 {
     QList<const QMetaObject *> result;
-    result.append( &RadioMainView::staticMetaObject );
-    result.append( &RadioStationsView::staticMetaObject );
-    result.append( &RadioHistoryView::staticMetaObject );
-    result.append( &RadioBannerLabel::staticMetaObject );
     result.append( &RadioFadingLabel::staticMetaObject );
     result.append( &RadioFrequencyStrip::staticMetaObject );
     result.append( &RadioStationCarousel::staticMetaObject );

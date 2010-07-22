@@ -19,6 +19,7 @@
 #define RADIOENGINEWRAPPER_H
 
 // System includes
+#include <QScopedPointer>
 
 // User includes
 #include "radiowrapperexport.h"
@@ -33,7 +34,7 @@ class RadioEngineWrapperObserver;
 // Class declaration
 class WRAPPER_DLL_EXPORT RadioEngineWrapper
 {
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioEngineWrapper )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioEngineWrapper )
     Q_DISABLE_COPY( RadioEngineWrapper )
 
 public:
@@ -44,13 +45,10 @@ public:
     RadioEngineWrapper( RadioStationHandlerIf& stationHandler );
     ~RadioEngineWrapper();
 
+    bool init();
+
     void addObserver( RadioEngineWrapperObserver* observer );
     void removeObserver( RadioEngineWrapperObserver* observer );
-
-    /**
-     * Checks if the radio engine has been constructed properly
-     */
-    bool isEngineConstructed();
 
     /**
      * Getters for things owned by the engine
@@ -64,7 +62,7 @@ public:
     uint minFrequency() const;
     uint maxFrequency() const;
     uint frequencyStepSize() const;
-    bool isFrequencyValid( uint frequency );
+    bool isFrequencyValid( uint frequency ) const;
 
     /**
      * Getters for current radio status
@@ -75,20 +73,26 @@ public:
     bool isAntennaAttached() const;
     bool isUsingLoudspeaker() const;
 
+    void setManualSeekMode( bool manualSeek );
+    bool isInManualSeekMode() const;
+
+    void setRdsEnabled( bool rdsEnabled );
+
     /**
-     * Functions to tune to given frequency or preset
+     * Tunes to the given frequency
      */
-    void tuneFrequency( uint frequency, const int reason = TuneReason::Unspecified );
-    void tuneWithDelay( uint frequency, const int reason = TuneReason::Unspecified );
+    void setFrequency( uint frequency, const int reason = TuneReason::Unspecified );
 
     /*!
      * Audio update command functions for the engine
      */
+    void increaseVolume();
+    void decreaseVolume();
     void setVolume( int volume );
-    void setMute( bool muted );
+    void setMute( bool muted, bool updateSettings = true );
     void toggleAudioRoute();
 
-    void startSeeking( Seeking::Direction direction, const int reason = TuneReason::Unspecified );
+    void startSeeking( Seek::Direction direction, const int reason = TuneReason::Unspecified );
     void cancelSeeking();
 
 private: // data
@@ -96,7 +100,7 @@ private: // data
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioEngineWrapperPrivate* const d_ptr;
+     const QScopedPointer<RadioEngineWrapperPrivate> d_ptr;
 
 };
 

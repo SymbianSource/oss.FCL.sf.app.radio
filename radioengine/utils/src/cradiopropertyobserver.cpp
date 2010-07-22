@@ -35,6 +35,7 @@ CRadioPropertyObserver::CRadioPropertyObserver( MRadioPropertyChangeObserver& aO
     , iKey( aKey )
     , iPropertyType( aPropertyType )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // -----------------------------------------------------------------------------
@@ -43,6 +44,7 @@ CRadioPropertyObserver::CRadioPropertyObserver( MRadioPropertyChangeObserver& aO
 //
 void CRadioPropertyObserver::ConstructL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     switch ( iPropertyType )
         {
         case ERadioPropertyInt:
@@ -79,6 +81,7 @@ EXPORT_C CRadioPropertyObserver* CRadioPropertyObserver::NewL( MRadioPropertyCha
                                                                const TUint aKey,
                                                                const TRadioPropertyType aPropertyType )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioPropertyObserver* self = new( ELeave )CRadioPropertyObserver( aObserver,
                                             aCategory, aKey, aPropertyType );
     CleanupStack::PushL( self );
@@ -93,6 +96,7 @@ EXPORT_C CRadioPropertyObserver* CRadioPropertyObserver::NewL( MRadioPropertyCha
 //
 CRadioPropertyObserver::~CRadioPropertyObserver()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     Cancel();
     iProperty.Close();
     delete iValueByteArray;
@@ -105,6 +109,7 @@ CRadioPropertyObserver::~CRadioPropertyObserver()
 //
 EXPORT_C void CRadioPropertyObserver::ActivateL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     if ( !IsActive() )
         {
         RunL();
@@ -117,7 +122,7 @@ EXPORT_C void CRadioPropertyObserver::ActivateL()
 //
 void CRadioPropertyObserver::RunL()
     {
-    LOG_METHOD_AUTO;
+    LEVEL3( LOG_METHOD_AUTO );
 
     iProperty.Subscribe( iStatus );
     SetActive();
@@ -173,6 +178,7 @@ void CRadioPropertyObserver::RunL()
 //
 void CRadioPropertyObserver::DoCancel()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iProperty.Cancel();
     }
 
@@ -182,6 +188,7 @@ void CRadioPropertyObserver::DoCancel()
 //
 EXPORT_C TInt CRadioPropertyObserver::ValueInt() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iValueInt;
     }
 
@@ -191,6 +198,7 @@ EXPORT_C TInt CRadioPropertyObserver::ValueInt() const
 //
 EXPORT_C const TDesC8& CRadioPropertyObserver::ValueDes8() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iValueByteArray;
     }
 
@@ -200,5 +208,6 @@ EXPORT_C const TDesC8& CRadioPropertyObserver::ValueDes8() const
 //
 EXPORT_C const TDesC& CRadioPropertyObserver::ValueDes() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return *iValueText;
     }

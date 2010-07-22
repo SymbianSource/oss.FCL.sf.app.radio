@@ -33,30 +33,32 @@
 #include "radiostation.h"
 #include "radiologger.h"
 
-const char* DATABASE_NAME       = "radioplayhistory.db";
-const char* DATABASE_DRIVER     = "QSQLITE";
-const char* HISTORY_TABLE       = "history";
-const char* SQL_CREATE_TABLE    = "CREATE TABLE history ("
-                                  "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                  "artist TEXT NOT NULL, "
-                                  "title TEXT NOT NULL, "
-                                  "station TEXT NOT NULL, "
-                                  "frequency INTEGER NOT NULL, "
-                                  "tagged INTEGER NOT NULL DEFAULT 0, "
-                                  "fromRds INTEGER NOT NULL DEFAULT 1, "
-                                  "time TIMESTAMP NOT NULL)";
+static const QLatin1String DATABASE_NAME    ( "radioplayhistory.db" );
+static const QLatin1String DATABASE_DRIVER  ( "QSQLITE" );
+static const QLatin1String HISTORY_TABLE    ( "history" );
+static const QLatin1String SQL_CREATE_TABLE ( "CREATE TABLE history ("
+                                                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                                "artist TEXT NOT NULL, "
+                                                "title TEXT NOT NULL, "
+                                                "station TEXT NOT NULL, "
+                                                "frequency INTEGER NOT NULL, "
+                                                "tagged INTEGER NOT NULL DEFAULT 0, "
+                                                "fromRds INTEGER NOT NULL DEFAULT 1, "
+                                                "time INTEGER NOT NULL)" );
 
-const char* SQL_ADD_ITEM         = "INSERT INTO history (artist,title,station,frequency,fromRds,time) "
-                                            "VALUES ( ?,?,?,?,?,? )";
+static const QLatin1String SQL_ADD_ITEM     ( "INSERT INTO history (artist,title,station,frequency,fromRds,time) "
+                                                "VALUES ( ?,?,?,?,?,? )" );
 
-const char* SQL_SELECT_ALL       = "SELECT * FROM history ORDER BY id DESC";
-const char* SQL_SELECT_TAGGED    = "SELECT * FROM history WHERE tagged=1";// ORDER BY id DESC";
+static const QLatin1String SQL_SELECT_ALL   ( "SELECT * FROM history ORDER BY id DESC" );
+static const QLatin1String SQL_SELECT_TAGGED( "SELECT * FROM history WHERE tagged=1" );// ORDER BY id DESC";
 
-const char* SQL_DELETE_ALL       = "DELETE FROM history";
+static const QLatin1String SQL_DELETE_ALL   ( "DELETE FROM history" );
+static const QLatin1String SQL_DELETE_RECENT( "DELETE FROM history WHERE tagged=0" );
+//static const QLatin1String SQL_DELETE_TAGGED    = "DELETE FROM history WHERE tagged=1";
+static const QLatin1String SQL_CLEAR_TAGS   ( "UPDATE history SET tagged = 0 WHERE tagged = 1" );
 
-//static const char* SQL_FIND_ITEM_BY_ID = "SELECT * FROM history WHERE id = ?";
-const char* SQL_TOGGLE_TAG       = "UPDATE history SET tagged = ? WHERE id = ?";
-
+//static static const QLatin1String SQL_FIND_ITEM_BY_ID( "SELECT * FROM history WHERE id = ?" );
+static const QLatin1String SQL_TOGGLE_TAG   ( "UPDATE history SET tagged = ? WHERE id = ?" );
 
 #ifdef LOGGING_ENABLED
 #   define GET_ERR( param ) GETSTRING( param.lastError().text() )
@@ -79,10 +81,10 @@ RadioHistoryModelPrivate::RadioHistoryModelPrivate( RadioHistoryModel* model,
                                                     RadioUiEngine& uiEngine ) :
     q_ptr( model ),
     mUiEngine( uiEngine ),
+    mRtItemClass( -1 ),
     mTopItemIsPlaying( false ),
     mShowDetails( true ),
-    mViewMode( ShowAll ),
-    mRtItemClass( -1 )
+    mViewMode( ShowAll )
 {
 }
 
@@ -192,12 +194,27 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
 
             QStringList list;
             if ( mShowDetails ) {
-                list.append( qtTrId( "txt_rad_dblist_1_2" ).arg( artist ).arg( title ) );
-                QDateTime dateTime = record.value( RadioHistoryValue::Time ).toDateTime();
-                const QString time = dateTime.toLocalTime().toString();
+                QString formatter = qtTrId( "txt_rad_dblist_1_2" );
+                LOG_FORMAT( "---formatter--- %s", GETSTRING( formatter ) );
+                formatter = "%1 - %2";  // TODO!
+
+                const QString firstRow = QString( formatter ).arg( artist ).arg( title );
+                LOG_FORMAT( "---firstRow--- %s", GETSTRING( firstRow ) );
+                list.append( firstRow );
+
+                const uint timeInSecs = record.value( RadioHistoryValue::Time ).toUInt();
+                QDateTime dateTime;
+                dateTime.setTime_t( timeInSecs );
+
+                QString time = dateTime.toString( Qt::SystemLocaleShortDate );
+                LOG_FORMAT( "---time--- %s", GETSTRING( time ) );
 
                 QString name = !station.isEmpty() ? station : parseFrequency( frequency );
-                list.append( qtTrId( "txt_rad_dblist_1_2" ).arg( time ).arg( name ) );
+                LOG_FORMAT( "---name--- %s", GETSTRING( name ) );
+                const QString secondRow = QString( formatter ).arg( time ).arg( name );
+                LOG_FORMAT( "---secondRow--- %s", GETSTRING( secondRow ) );
+
+                list.append( secondRow );
             } else {
                 list.append( artist );
                 list.append( title );
@@ -222,7 +239,7 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
 /*!
  *
  */
-void RadioHistoryModelPrivate::removeAll()
+void RadioHistoryModelPrivate::removeAll( bool removeTagged )
 {
     if ( !mQueryModel ) {
         return;
@@ -230,7 +247,7 @@ void RadioHistoryModelPrivate::removeAll()
 
     QSqlQuery query = beginTransaction();
 
-    query.prepare( SQL_DELETE_ALL );
+    query.prepare( removeTagged ? SQL_CLEAR_TAGS : SQL_DELETE_ALL );
 
     // Commented out because rowsRemoved() seems to crash HbListView
 //    commitTransaction( query, RemoveRows, 0, rowCount() - 1 );
@@ -250,7 +267,6 @@ void RadioHistoryModelPrivate::setViewMode( ViewMode mode )
 
     mViewMode = mode;
     mQueryModel->setQuery( mode == ShowTagged ? SQL_SELECT_TAGGED : SQL_SELECT_ALL, *mDatabase );
-    q_ptr->reset();
 }
 
 /*!
@@ -264,7 +280,11 @@ void RadioHistoryModelPrivate::toggleTagging( const RadioHistoryItem& item, cons
     updateQuery.addBindValue( item.isTagged() ? 0 : 1 );
     updateQuery.addBindValue( item.id() );
 
-    commitTransaction( updateQuery, ChangeData, row );
+    Operation operation = ChangeData;
+    if ( mViewMode == ShowTagged && item.isTagged() ) {
+        operation = RemoveRows;
+    }
+    commitTransaction( updateQuery, operation, row );
 }
 
 /*!

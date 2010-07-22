@@ -79,13 +79,6 @@ public:
      */
     virtual TBool IsHeadsetConnectedL() const = 0;
 
-    /**
-     * Returns current Voice UI state.
-     *
-     * @return ETrue if Voice UI is active, EFalse otherwise
-     */
-    virtual TBool IsVoiceUiActive() const = 0;
-
     };
 
 #endif // CRADIOSYSTEMEVENTCOLLECTOR_H

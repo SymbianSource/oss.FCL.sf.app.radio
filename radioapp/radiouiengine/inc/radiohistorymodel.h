@@ -20,6 +20,7 @@
 
 // System includes
 #include <QAbstractListModel>
+#include <QScopedPointer>
 
 // User includes
 #include "radiouiengineexport.h"
@@ -35,7 +36,7 @@ class RadioHistoryItem;
 class UI_ENGINE_DLL_EXPORT RadioHistoryModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE_D( d_ptr, RadioHistoryModel )
+    Q_DECLARE_PRIVATE_D( d_ptr.data(), RadioHistoryModel )
     Q_DISABLE_COPY( RadioHistoryModel )
 
     friend class RadioUiEngine;
@@ -73,6 +74,8 @@ public:
 
     RadioHistoryItem itemAtIndex( const QModelIndex& index ) const;
 
+    void removeAll( bool removeTagged );
+
 signals:
 
     void itemAdded();
@@ -81,7 +84,6 @@ signals:
 public slots:
 
     void resetCurrentSong();
-    void removeAll();
 
 private:
 
@@ -101,7 +103,7 @@ private: // data
     /**
      * Unmodifiable pointer to the private implementation
      */
-    RadioHistoryModelPrivate* const d_ptr;
+    const QScopedPointer<RadioHistoryModelPrivate> d_ptr;
 
 };
 

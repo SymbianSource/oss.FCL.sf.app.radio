@@ -15,10 +15,30 @@
 *
 */
 
+// System includes
+#include <ncp_feature_settings.hrh>
+
 // User includes
 #include "cradioaccessoryobserver.h"
 #include "mradioheadseteventobserver.h"
 #include "cradioenginelogger.h"
+
+#ifdef ASW_CORE_AUDIO_PLATFORM_VERSION // Nokia specific adaptation
+#include <accpolpropgenericid.h>
+
+#ifndef __WINS__
+
+const TUint KPhysicalConnectionBitmask = KPCNokiaAV | KPCWired;
+
+#else
+
+const TUint KPhysicalConnectionBitmask = 0x20000 | 0x1;
+
+#endif // __WINS__
+
+#else
+const TUint KPhysicalConnectionBitmask = KPCWired;
+#endif // ASW_CORE_AUDIO_PLATFORM_VERSION
 
 // ---------------------------------------------------------------------------
 //
@@ -27,6 +47,7 @@
 CRadioAccessoryObserver::CRadioAccessoryObserver()
     : CActive( CActive::EPriorityStandard )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 
@@ -36,7 +57,7 @@ CRadioAccessoryObserver::CRadioAccessoryObserver()
 //
 void CRadioAccessoryObserver::ConstructL()
     {
-    LOG_METHOD_AUTO;
+    LEVEL2( LOG_METHOD_AUTO );
     User::LeaveIfError( iAccessoryServer.Connect() );
 
     // Creates a new sub-session within an existing session.
@@ -45,7 +66,7 @@ void CRadioAccessoryObserver::ConstructL()
 
     TInt nroChangedAccessories( 0 );
     UpdateCurrentAccessoriesL( nroChangedAccessories );
-    LOG_FORMAT( "CRadioAccessoryObserver::ConstructL() -- Found %d wired/BT accessories ( %d accessories in total ).",
+    LOG_FORMAT( "Found %d wired/BT accessories ( %d accessories in total ).",
               nroChangedAccessories, iAccPolGenIdArr.Count() );
     CActiveScheduler::Add( this );
     // Accessory is always listened
@@ -59,6 +80,7 @@ void CRadioAccessoryObserver::ConstructL()
 //
 CRadioAccessoryObserver* CRadioAccessoryObserver::NewL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioAccessoryObserver* self = new( ELeave ) CRadioAccessoryObserver;
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -72,6 +94,7 @@ CRadioAccessoryObserver* CRadioAccessoryObserver::NewL()
 //
 CRadioAccessoryObserver::~CRadioAccessoryObserver()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     Cancel();
     iAccessoryConn.CloseSubSession();
     iAccessoryServer.Close();
@@ -84,6 +107,7 @@ CRadioAccessoryObserver::~CRadioAccessoryObserver()
 //
 TBool CRadioAccessoryObserver::FindAccessoryL( TBool aAcceptOnlyHeadset, TAccAudioOutPutType& aOutputType ) const
     {
+    LEVEL2( LOG_METHOD_AUTO );
 #ifdef __WINS__
     TBool accessoryFound = ETrue;
     aAcceptOnlyHeadset = ETrue;
@@ -91,16 +115,16 @@ TBool CRadioAccessoryObserver::FindAccessoryL( TBool aAcceptOnlyHeadset, TAccAud
 #else
     TBool accessoryFound = EFalse;
 
-    LOG_FORMAT( "CRadioAccessoryObserver::FindAccessoryL - Connected accessories count = %d", iAccPolGenIdArr.Count());
+    LOG_FORMAT( "Connected accessories count = %d", iAccPolGenIdArr.Count());
     for ( TInt i = 0; i < iAccPolGenIdArr.Count() && !accessoryFound; i++ )
         {
         TAccPolGenericID accPolGenId = iAccPolGenIdArr.GetGenericIDL( i );
 
         //Check if physical connection is of acceptable type
         TUint32 physicalConnectionCaps = accPolGenId.PhysicalConnectionCaps();
-        if ( physicalConnectionCaps & KPCWired || physicalConnectionCaps & KPCBluetooth )
+        if ( physicalConnectionCaps & KPhysicalConnectionBitmask || physicalConnectionCaps & KPCBluetooth )
             {
-            LOG_FORMAT( "CRadioAccessoryObserver::FindAccessoryL - is wired or BT ( physicalConnectionCaps = %d )", physicalConnectionCaps );
+            LOG_FORMAT( "is wired or BT ( physicalConnectionCaps = %d )", physicalConnectionCaps );
 
             if ( !aAcceptOnlyHeadset )
                 {
@@ -110,21 +134,21 @@ TBool CRadioAccessoryObserver::FindAccessoryL( TBool aAcceptOnlyHeadset, TAccAud
             TUint32 deviceType = accPolGenId.DeviceTypeCaps();
             if ( deviceType & KDTHeadset )
                 {
-                LOG_FORMAT( "CRadioAccessoryObserver::FindAccessoryL - is HeadSet( deviceType = %d )", deviceType );
+                LOG_FORMAT( "is HeadSet( deviceType = %d )", deviceType );
                 if ( !IsLineoutConnectedL( accPolGenId ) )
                     {
-                    LOG( "CRadioAccessoryObserver::FindAccessoryL - Is a normal headSet" );
+                    LOG( "Is a normal headSet" );
                     accessoryFound = ETrue;
                     }
                 }
             else if ( deviceType & KDTLoopset )
                 {
-                LOG_FORMAT( "CRadioAccessoryObserver::FindAccessoryL - is Loopset( deviceType = %d )", deviceType );
+                LOG_FORMAT( "is Loopset( deviceType = %d )", deviceType );
                 accessoryFound = ETrue;
                 }
             else
                 {
-                LOG_FORMAT( "CRadioAccessoryObserver::FindWiredAccessoryL - is NOT HeadSet or Loopset( deviceType = %d )", deviceType );
+                LOG_FORMAT( "is NOT HeadSet or Loopset( deviceType = %d )", deviceType );
                 }
 
             if ( accessoryFound )
@@ -137,12 +161,12 @@ TBool CRadioAccessoryObserver::FindAccessoryL( TBool aAcceptOnlyHeadset, TAccAud
                 iAccessoryConn.GetValueL( accPolGenId, nameRecord, audioOutputTypeValue );
 
                 aOutputType = static_cast<TAccAudioOutPutType>( audioOutputTypeValue.iValue );
-                LOG_FORMAT( "CRadioAccessoryObserver::FindAccessoryL - AudioOutputType = %d", aOutputType );
+                LOG_FORMAT( "AudioOutputType = %d", aOutputType );
                 }
             }
         else
             {
-            LOG_FORMAT( "CRadioAccessoryObserver::FindAccessoryL - is NOT wired or BT ( physicalConnectionCaps = %d )", physicalConnectionCaps );
+            LOG_FORMAT( "is NOT wired or BT ( physicalConnectionCaps = %d )", physicalConnectionCaps );
             }
         }
 #endif
@@ -165,6 +189,7 @@ TBool CRadioAccessoryObserver::IsHeadsetConnectedL() const
 //
 TBool CRadioAccessoryObserver::IsLineoutConnectedL( TAccPolGenericID& aAccPolGenId ) const
     {
+    LEVEL2( LOG_METHOD_AUTO );
     TBool isLineOut( EFalse );
 
     CAccPolSubblockNameArray* nameArray = CAccPolSubblockNameArray::NewL();
@@ -175,7 +200,7 @@ TBool CRadioAccessoryObserver::IsLineoutConnectedL( TAccPolGenericID& aAccPolGen
     CleanupStack::PopAndDestroy( nameArray );
     if ( isAudioOutValue )
         {
-        LOG_FORMAT( "CRadioAccessoryObserver::IsLineoutConnectedL - isAudioOutValue = ( %d )", isAudioOutValue );
+        LOG_FORMAT( "isAudioOutValue = ( %d )", isAudioOutValue );
 
         TAccPolNameRecord nameRecord;
         nameRecord.SetNameL( KAccAudioOut );
@@ -188,7 +213,7 @@ TBool CRadioAccessoryObserver::IsLineoutConnectedL( TAccPolGenericID& aAccPolGen
         if ( TAccAudioOutLineout == audioOutValue.iValue )
             {
             //is lineout
-            LOG_FORMAT( "CRadioAccessoryObserver::IsLineoutConnectedL - Accessory is LineOut( audioOutValue = %d )", audioOutValue.iValue );
+            LOG_FORMAT( "Accessory is LineOut( audioOutValue = %d )", audioOutValue.iValue );
             isLineOut = ETrue;
             }
         }
@@ -201,12 +226,13 @@ TBool CRadioAccessoryObserver::IsLineoutConnectedL( TAccPolGenericID& aAccPolGen
 //
 void CRadioAccessoryObserver::UpdateCurrentAccessoriesL( TInt& aNroChangedAccessories )
     {
+    LEVEL2( LOG_METHOD_AUTO );
     // first check, the removed accessories.
     TInt removedAccessories = CountRemovedAccessoriesL();
-    LOG_FORMAT( "CRadioAccessoryObserver::UpdateCurrentAccessoriesL() -- %d accessories removed.", removedAccessories );
+    LOG_FORMAT( "- %d accessories removed.", removedAccessories );
     aNroChangedAccessories += removedAccessories;
     TInt addedAccessories = CountAddedAccessoriesL();
-    LOG_FORMAT( "CRadioAccessoryObserver::UpdateCurrentAccessoriesL() -- %d accessories added.", addedAccessories );
+    LOG_FORMAT( "- %d accessories added.", addedAccessories );
     aNroChangedAccessories += addedAccessories;
 
     iSavedAccessories.Reset();
@@ -214,10 +240,10 @@ void CRadioAccessoryObserver::UpdateCurrentAccessoriesL( TInt& aNroChangedAccess
     for ( TInt i = 0; i < iAccPolGenIdArr.Count(); i++ )
         {
         iSavedAccessories.AppendL( iAccPolGenIdArr.GetGenericIDL( i ) );
-        LOG_FORMAT( "CRadioAccessoryObserver::UpdateCurrentAccessoriesL() -- accessory in slot %d: %d",
+        LOG_FORMAT( "- accessory in slot %d: %d",
                   i, iAccPolGenIdArr.GetGenericIDL( i ).UniqueID() );
         }
-    LOG_FORMAT( "CRadioAccessoryObserver::UpdateCurrentAccessoriesL() -- %d accessories in total.", iSavedAccessories.Count() );
+    LOG_FORMAT( "- %d accessories in total.", iSavedAccessories.Count() );
     }
 
 // ---------------------------------------------------------------------------
@@ -226,6 +252,7 @@ void CRadioAccessoryObserver::UpdateCurrentAccessoriesL( TInt& aNroChangedAccess
 //
 TInt CRadioAccessoryObserver::CountRemovedAccessoriesL() const
     {
+    LEVEL2( LOG_METHOD_AUTO );
     TInt removedAccessories( 0 );
 
     for ( TInt i = 0; i < iSavedAccessories.Count(); i++ )
@@ -234,7 +261,7 @@ TInt CRadioAccessoryObserver::CountRemovedAccessoriesL() const
 
         TUint32 physicalConnectionCaps = savedAcc.PhysicalConnectionCaps();
 
-        if ( physicalConnectionCaps & KPCWired || physicalConnectionCaps & KPCBluetooth )
+        if ( physicalConnectionCaps & KPhysicalConnectionBitmask || physicalConnectionCaps & KPCBluetooth )
             {
             TBool found( EFalse );
 
@@ -243,13 +270,13 @@ TInt CRadioAccessoryObserver::CountRemovedAccessoriesL() const
                 TAccPolGenericID freshAcc = iAccPolGenIdArr.GetGenericIDL( j );
                 if ( freshAcc.UniqueID() == savedAcc.UniqueID() )
                     {
-                    LOG_FORMAT( "CRadioAccessoryObserver::CountRemovedAccessoriesL() -- Accessory with id = %d found.", savedAcc.UniqueID() );
+                    LOG_FORMAT( "- Accessory with id = %d found.", savedAcc.UniqueID() );
                     found = ETrue;
                     }
                 }
             if ( !found )
                 {
-                LOG_FORMAT( "CRadioAccessoryObserver::CountRemovedAccessoriesL() -- Accessory with id = %d removed.", savedAcc.UniqueID() );
+                LOG_FORMAT( "- Accessory with id = %d removed.", savedAcc.UniqueID() );
                 removedAccessories++;
                 }
             }
@@ -263,6 +290,7 @@ TInt CRadioAccessoryObserver::CountRemovedAccessoriesL() const
 //
 TInt CRadioAccessoryObserver::CountAddedAccessoriesL() const
     {
+    LEVEL2( LOG_METHOD_AUTO );
     TInt addedAccessories( 0 );
 
     for ( TInt i = 0; i < iAccPolGenIdArr.Count(); i++ )
@@ -271,7 +299,7 @@ TInt CRadioAccessoryObserver::CountAddedAccessoriesL() const
 
         TUint32 physicalConnectionCaps = freshAcc.PhysicalConnectionCaps();
 
-        if ( physicalConnectionCaps & KPCWired || physicalConnectionCaps & KPCBluetooth )
+        if ( physicalConnectionCaps & KPhysicalConnectionBitmask || physicalConnectionCaps & KPCBluetooth )
             {
             TBool found( EFalse );
 
@@ -280,13 +308,13 @@ TInt CRadioAccessoryObserver::CountAddedAccessoriesL() const
                 TAccPolGenericID savedAcc = iSavedAccessories[j];
                 if ( savedAcc.UniqueID() == freshAcc.UniqueID() )
                     {
-                    LOG_FORMAT( "CRadioAccessoryObserver::CountAddedAccessoriesL() -- Accessory with id = %d found.", freshAcc.UniqueID() );
+                    LOG_FORMAT( "- Accessory with id = %d found.", freshAcc.UniqueID() );
                     found = ETrue;
                     }
                 }
             if ( !found )
                 {
-                LOG_FORMAT( "CRadioAccessoryObserver::CountAddedAccessoriesL() -- Accessory with id = %d added.", freshAcc.UniqueID() );
+                LOG_FORMAT( "- Accessory with id = %d added.", freshAcc.UniqueID() );
                 addedAccessories++;
                 }
             }
@@ -310,6 +338,7 @@ void CRadioAccessoryObserver::SetObserver( MRadioHeadsetEventObserver* aObserver
 //
 void CRadioAccessoryObserver::RunL()
     {
+    LEVEL2( LOG_METHOD_AUTO );
     TRequestStatus status = iStatus;
     iAccessoryConn.NotifyAccessoryConnectionStatusChanged( iStatus, iAccPolGenIdArr );
 
@@ -328,18 +357,18 @@ void CRadioAccessoryObserver::RunL()
             // or when audio routing status changes.
             if ( audioOutputType == EAccAudioOutPutTypePrivate )
                 {
-                LOG( "CRadioAccessoryObserver::RunL - Headset connected" );
+                LOG( "Headset connected" );
                 iObserver->HeadsetConnectedCallbackL();
                 }
             else
                 {
-                LOG( "CRadioAccessoryObserver::RunL - Public wired or BT accessory connected." );
+                LOG( "Public wired or BT accessory connected." );
                 iObserver->HeadsetDisconnectedCallbackL();
                 }
             }
         else
             {
-            LOG( "CRadioAccessoryObserver::RunL - No wired or BT accessories available" );
+            LOG( "No wired or BT accessories available" );
             iObserver->HeadsetDisconnectedCallbackL();
             }
         }
@@ -353,5 +382,6 @@ void CRadioAccessoryObserver::RunL()
 //
 void CRadioAccessoryObserver::DoCancel()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iAccessoryConn.CancelNotifyAccessoryConnectionStatusChanged();
     }

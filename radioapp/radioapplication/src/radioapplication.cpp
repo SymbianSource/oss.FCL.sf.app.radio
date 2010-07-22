@@ -17,7 +17,10 @@
 
 // System includes
 #include <QTimer>
+#include <qsysteminfo.h>
 #include <HbDeviceMessageBox>
+#include <xqserviceutil.h>
+#include <HbSplashScreen>
 
 // User includes
 #include "radioapplication.h"
@@ -44,13 +47,17 @@
  * Constructor
  */
 RadioApplication::RadioApplication( int &argc, char *argv[] ) :
-    HbApplication( argc, argv )
+    HbApplication( argc, argv, Hb::NoSplash )
 {
     // Initializes the radio engine utils if UI logs are entered into the engine log
     INIT_COMBINED_LOGGER
 
     LOG_TIMESTAMP( "Start radio" );
     setApplicationName( hbTrId( "txt_rad_title_fm_radio" ) );
+
+    if ( !XQServiceUtil::isService() ) {
+        HbSplashScreen::start();
+    }
 
     QTimer::singleShot( 0, this, SLOT(init()) );
 }
@@ -66,25 +73,33 @@ RadioApplication::~RadioApplication()
 }
 
 /*!
- *Private slot
+ * Private slot
  *
  */
 void RadioApplication::init()
 {
-    bool okToStart = !RadioUiEngine::isOfflineProfile();
+    // If started as a service, there is no need for offline-check
+    bool okToStart = XQServiceUtil::isService();
+    QScopedPointer<QtMobility::QSystemDeviceInfo> deviceInfo( new QtMobility::QSystemDeviceInfo() );
 
     if ( !okToStart ) {
-        HbDeviceMessageBox box( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ), HbMessageBox::MessageTypeQuestion );
-        box.setTimeout( HbPopup::NoTimeout );
-        box.exec();
-        okToStart = box.isAcceptAction( box.triggeredAction() );
+        if ( deviceInfo->currentProfile() != QtMobility::QSystemDeviceInfo::OfflineProfile ) {
+            okToStart = true;
+        } else {
+            // Device is in offline profile, ask the user for permission to start
+            HbDeviceMessageBox box( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ), HbMessageBox::MessageTypeQuestion );
+            box.setTimeout( HbPopup::NoTimeout );
+            box.exec();
+            okToStart = box.isAcceptAction( box.triggeredAction() );
+        }
     }
 
     if ( okToStart ) {
 
-        // MainWindow needs to be alive to be able to show the offline query dialog.
-        // The window is only constructed half-way at this point because we may need to shut down if
-        // offline usage is not allowed
+        // Try to optimize startup time by launching the radio server process as soon as possible.
+        // This way the server and UI are being initialized at the same time and the startup is faster.
+//        RadioUiEngine::launchRadioServer();
+
         mMainWindow.reset( new RadioWindow() );
 
         CREATE_WIN32_TEST_WINDOW
@@ -92,7 +107,7 @@ void RadioApplication::init()
         INIT_WIN32_TEST_WINDOW
 
         // Construct the real views
-        mMainWindow->init();
+        mMainWindow->init( deviceInfo.take() );
 
         mMainWindow->show();
     } else {

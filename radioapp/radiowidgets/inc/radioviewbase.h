@@ -20,8 +20,8 @@
 
 // System includes
 #include <HbView>
-
 #include <QScopedPointer>
+#include <QSharedPointer>
 
 // User includes
 
@@ -30,13 +30,15 @@ class RadioWindow;
 class RadioStationModel;
 class RadioUiLoader;
 class HbAction;
+class RadioUiEngine;
 
 // Constants
 namespace MenuItem
 {
     enum CommonMenuItem
     {
-        UseLoudspeaker
+        UseLoudspeaker,
+        Exit
     };
 }
 
@@ -51,15 +53,19 @@ public:
 
     virtual ~RadioViewBase();
 
-    void setMembers( RadioUiLoader* uiLoader, RadioWindow* mainWindow );
+    void setMembers( RadioWindow* mainWindow, RadioUiLoader* uiLoader );
 
-    virtual void init() = 0;
+    virtual void preLazyLoadInit();
+
+    void initialize( QSharedPointer<RadioUiEngine> uiEngine );
 
     bool isInitialized() const;
 
     bool isTransient() const;
 
     void updateOrientation( Qt::Orientation orientation, bool forceUpdate = false );
+
+    void bringToForeground();
 
 protected slots:
 
@@ -76,10 +82,10 @@ protected:
 // New functinos
 
     void initBackAction();
-    
+
     void connectCommonMenuItem( int menuItem );
 
-    void connectXmlElement( const char* name, const char* signal, QObject* receiver, const char* slot );
+    void connectXmlElement( const QString& name, const char* signal, QObject* receiver, const char* slot );
 
     void connectViewChangeMenuItem( QString name, const char* slot );
 
@@ -88,6 +94,8 @@ protected:
     void askQuestion( const QString& question );
 
 private:
+
+    virtual void init() = 0;
 
     virtual void setOrientation();
     virtual void userAccepted();
@@ -106,7 +114,11 @@ protected: // data
      */
     QScopedPointer<RadioUiLoader>       mUiLoader;
 
-    bool                                mInitialized;
+    /**
+     * Pointer to the ui engine
+     * Shared among all views and the radio window
+     */
+    QSharedPointer<RadioUiEngine>       mUiEngine;
 
     /**
      * Flag indicating whether or not the view is transient

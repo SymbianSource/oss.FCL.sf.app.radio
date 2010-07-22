@@ -27,7 +27,7 @@
  */
 static QString convertString( const TDesC& aDesc )
 {
-    return QString( (QChar*)aDesc.Ptr(), aDesc.Length() );
+    return QString::fromUtf16( aDesc.Ptr(), aDesc.Length() );
 }
 
 /*!
@@ -102,10 +102,13 @@ void RadioRdsListener::RdsDataRadioTextPlus( TUint32 aFrequency,
                                              const TInt aRadioTextPlusClass,
                                              const TDesC& aRadioText )
 {
-    if ( aRadioText.Length() > 0 ) {
-        const uint frequency = static_cast<uint>( aFrequency );
-        mStationHandler.setCurrentRadioTextPlus( frequency, aRadioTextPlusClass, convertString( aRadioText ) );
+    TInt rtClass = aRadioTextPlusClass;
+    if ( aRadioTextPlusClass == RtPlus::Band ) {
+        rtClass = RtPlus::Artist;
     }
+
+    const uint frequency = static_cast<uint>( aFrequency );
+    mStationHandler.setCurrentRadioTextPlus( frequency, rtClass, convertString( aRadioText ) );
 }
 
 /*!

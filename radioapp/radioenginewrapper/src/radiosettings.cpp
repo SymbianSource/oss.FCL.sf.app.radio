@@ -45,7 +45,6 @@ RadioSettings::RadioSettings() :
  */
 RadioSettings::~RadioSettings()
 {
-    delete d_ptr;
 }
 
 /*!
@@ -55,6 +54,15 @@ bool RadioSettings::isFirstTimeStart()
 {
     Q_D( RadioSettings );
     return d->isFirstTimeStart();
+}
+
+/*!
+ * \reimp
+ */
+void RadioSettings::setFirstTimeStartPerformed( bool firstTimeStartPerformed )
+{
+    Q_D( RadioSettings );
+    d->setFirstTimeStartPerformed( firstTimeStartPerformed );
 }
 
 /*!

@@ -19,6 +19,7 @@
 // User includes
 #include "cradioremcontarget.h"
 #include "cradioremcontargetimp.h"
+#include "cradioenginelogger.h"
 
 
 // ================= MEMBER FUNCTIONS =======================
@@ -29,6 +30,7 @@
 //
 EXPORT_C CRadioRemConTarget* CRadioRemConTarget::NewL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return CRadioRemConTargetImp::NewL();
     }
 
@@ -38,4 +40,5 @@ EXPORT_C CRadioRemConTarget* CRadioRemConTarget::NewL()
 //
 CRadioRemConTarget::~CRadioRemConTarget()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }

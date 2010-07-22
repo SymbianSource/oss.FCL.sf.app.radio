@@ -42,11 +42,11 @@ CRadioEngineTls& CRadioEngineTls::Instance()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineTls::InitializeL( CCoeEnv* aEnv, RFs* aFs )
+void CRadioEngineTls::InitializeL( RFs* aFs )
     {
     if ( !UserSvr::DllTls( KUidRadioEngineTls ) )
         {
-        CRadioEngineTls* self = new ( ELeave ) CRadioEngineTls( aEnv, aFs );
+        CRadioEngineTls* self = new ( ELeave ) CRadioEngineTls( aFs );
         CleanupStack::PushL( self );
         self->ConstructL();
         User::LeaveIfError( UserSvr::DllSetTls( KUidRadioEngineTls, self ) );
@@ -59,9 +59,8 @@ void CRadioEngineTls::InitializeL( CCoeEnv* aEnv, RFs* aFs )
 //
 // ---------------------------------------------------------------------------
 //
-CRadioEngineTls::CRadioEngineTls( CCoeEnv* aEnv, RFs* aFs )
-    : iEnv( aEnv )
-    , iFs( aFs )
+CRadioEngineTls::CRadioEngineTls( RFs* aFs )
+    : iFs( aFs )
     {
     }
 
@@ -72,18 +71,14 @@ CRadioEngineTls::CRadioEngineTls( CCoeEnv* aEnv, RFs* aFs )
 //
 void CRadioEngineTls::ConstructL()
     {
-    if ( !iEnv )
-        {
-        iEnv = CCoeEnv::Static();
-        }
-
-    if ( !iFs )
+    if ( !iFs || !iFs->Handle() )
         {
         iFsOwned = ETrue;
         iFs = new ( ELeave ) RFs;
         User::LeaveIfError( iFs->Connect() );
         }
 
+    
 #ifdef LOGGING_ENABLED
     iLogger = CRadioEngineLogger::NewL( *iFs );
 #endif // LOGGING_ENABLED
@@ -122,16 +117,6 @@ MRadioEngineLogger* CRadioEngineTls::Logger()
 #else
     return NULL;
 #endif
-    }
-
-
-// ---------------------------------------------------------------------------
-// Return the eikon environment
-// ---------------------------------------------------------------------------
-//
-CCoeEnv* CRadioEngineTls::Env()
-    {
-    return CRadioEngineTls::Instance().iEnv;
     }
 
 

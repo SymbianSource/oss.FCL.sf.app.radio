@@ -20,7 +20,7 @@
 
 // System includes
 #include <QScopedPointer>
-#include <QPointer>
+#include <QSharedPointer>
 
 // User includes
 #include "radio_global.h"
@@ -31,11 +31,11 @@ class RadioUiEngine;
 class RadioEngineWrapper;
 class RadioStationModel;
 class RadioHistoryModel;
-class RadioCarouselModel;
 class RadioPresetStorage;
 class RadioControlService;
 class RadioMonitorService;
 class RadioScannerEngine;
+class QTimer;
 
 class RadioUiEnginePrivate : public RadioEngineWrapperObserver
 {
@@ -62,6 +62,8 @@ private:
     void tunedToFrequency( uint frequency, int reason );
     void radioStatusChanged( bool radioIsOn );
     void rdsAvailabilityChanged( bool available );
+    void increaseVolume();
+    void decreaseVolume();
     void volumeChanged( int volume );
     void muteChanged( bool muted );
     void audioRouteChanged( bool loudspeaker );
@@ -74,7 +76,7 @@ private:
     /*!
      * Tunes to next or previous station
      */
-    uint skip( StationSkip::Mode mode, uint startFrequency = 0 );
+    uint skip( StationSkip::Mode mode, uint startFrequency = 0, const int reason = TuneReason::Skip );
 
 private: // data
 
@@ -92,15 +94,17 @@ private: // data
 
     QScopedPointer<RadioHistoryModel>       mHistoryModel;
 
-    QScopedPointer<RadioCarouselModel>      mCarouselModel;
-
-#ifndef BUILD_WIN32
     QScopedPointer<RadioControlService>     mControlService;
-#endif
 
     QScopedPointer<RadioMonitorService>     mMonitorService;
 
-    QPointer<RadioScannerEngine>            mScannerEngine;
+    QWeakPointer<RadioScannerEngine>        mScannerEngine;
+
+    /**
+     * Power off timer
+     * Owned by public class by setting parent
+     */
+    QTimer*                                 mPowerOffTimer;
 
 };
 

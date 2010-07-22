@@ -18,6 +18,7 @@
 // System includes
 #include <QStringList>
 
+// User includes
 #include "radiostationmodel.h"
 #include "radiostationmodel_p.h"
 #include "radiopresetstorage.h"
@@ -62,7 +63,6 @@ RadioStationModel::RadioStationModel( RadioUiEnginePrivate& uiEngine ) :
  */
 RadioStationModel::~RadioStationModel()
 {
-    delete d_ptr;
 }
 
 /*!
@@ -112,7 +112,7 @@ QVariant RadioStationModel::data( const QModelIndex& index, int role ) const
         }
 
         return firstLine;
-    } else if ( role == RadioStationModel::RadioStationRole ) {
+    } else if ( role == RadioRole::RadioStationRole ) {
         QVariant variant;
         variant.setValue( stationAt( index.row() ) );
         return variant;
@@ -129,6 +129,10 @@ QVariant RadioStationModel::data( const QModelIndex& index, int role ) const
             list.append( d->mNowPlayingIcon );
         }
         return list;
+    } else if ( role == RadioRole::IsFavoriteRole ) {
+        QVariant variant;
+        variant.setValue( stationAt( index.row() ).isFavorite() );
+        return variant;
     }
 
     return QVariant();
@@ -141,7 +145,7 @@ bool RadioStationModel::setData( const QModelIndex& index, const QVariant& value
 {
     Q_UNUSED( index );
 
-    if ( role == RadioStationModel::ToggleFavoriteRole ) {
+    if ( role == RadioRole::ToggleFavoriteRole ) {
         const uint frequency = value.toUInt();
         RadioStation station;
         if ( findFrequency( frequency, station ) ) {
@@ -164,32 +168,25 @@ void RadioStationModel::initialize( RadioPresetStorage* storage, RadioEngineWrap
     Q_D( RadioStationModel );
     d->mPresetStorage = storage;
     d->mWrapper = wrapper;
-    const int presetCount = d->mPresetStorage->presetCount();
+
     int index = d->mPresetStorage->firstPreset();
-    LOG_FORMAT( "RadioStationModelPrivate::initialize: presetCount: %d, firstIndex: %d", presetCount, index );
+    LOG_FORMAT( "RadioStationModel::initialize: presetCount: %d, firstIndex: %d",
+                                            d->mPresetStorage->presetCount(), index );
 
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
     while ( index >= 0 ) {
-#else
-    index = 0;
-    while ( index < presetCount ) {
-#endif // COMPILE_WITH_NEW_PRESET_UTILITY
-
         RadioStation station;
-        station.detach();
 
-        RadioStationIf* preset = static_cast<RadioStationIf*>( station.data_ptr() );
-        if ( d->mPresetStorage->readPreset( index, *preset ) ) {
-            if ( station.isValid() ) {
+        RadioStationIf* stationInterface = static_cast<RadioStationIf*>( station.data_ptr() );
+        if ( d->mPresetStorage->readPreset( index, *stationInterface ) ) {
+            if ( station.isValid() && d->mWrapper->isFrequencyValid( station.frequency() ) ) {
                 d->mStations.insert( station.frequency(), station );
             } else {
-                LOG( "RadioStationModelPrivate::initialize: Invalid station!" );
+                LOG( "RadioStationModel::initialize: Invalid station!" );
+                LOG_FORMAT( "Invalid station freq: %d", station.frequency() );
             }
         }
 
-#ifdef COMPILE_WITH_NEW_PRESET_UTILITY
         index = d->mPresetStorage->nextPreset( index );
-#endif
     }
 
     d->setCurrentStation( d->mWrapper->currentFrequency() );
@@ -233,7 +230,7 @@ RadioStation RadioStationModel::stationAt( int index ) const
     // Get the value from the keys list instead of directly accessing the values list
     // because QMap may have added a default-constructed value to the values list
     Q_D( const RadioStationModel );
-    if ( index < d->mStations.keys().count() ) {
+    if ( index >= 0 && index < d->mStations.keys().count() ) {
         uint frequency = d->mStations.keys().at( index );
         return d->mStations.value( frequency );
     }
@@ -243,14 +240,30 @@ RadioStation RadioStationModel::stationAt( int index ) const
 /*!
  * Finds a station by frequency
  */
-bool RadioStationModel::findFrequency( uint frequency, RadioStation& station )
+bool RadioStationModel::findFrequency( uint frequency, RadioStation& station, FindCriteria::Criteria criteria ) const
 {
-    Q_D( RadioStationModel );
+    Q_D( const RadioStationModel );
+
+    if ( criteria == FindCriteria::IncludeManualStation && d->mCurrentStation->frequency() == frequency ) {
+        station = *d->mCurrentStation;
+        return true;
+    }
+
     if ( d->mStations.contains( frequency ) ) {
         station = d->mStations.value( frequency );
         return true;
     }
     return false;
+}
+
+/*!
+ * Convenience function to find a radio station.
+ */
+RadioStation RadioStationModel::findStation( uint frequency, FindCriteria::Criteria criteria ) const
+{
+    RadioStation station;
+    findFrequency( frequency, station, criteria ); // Return value ignored
+    return station;
 }
 
 /*!
@@ -293,6 +306,10 @@ RadioStation RadioStationModel::findClosest( const uint frequency, StationSkip::
     const bool findNext = mode == StationSkip::Next || mode == StationSkip::NextFavorite;
     QList<RadioStation> list = findFavorite ? d->favorites() : d->mStations.values();
 
+    if ( list.isEmpty() ) {
+        return RadioStation();
+    }
+
     // Find the previous and next station from current frequency
     RadioStation previous;
     RadioStation next;
@@ -317,6 +334,15 @@ RadioStation RadioStationModel::findClosest( const uint frequency, StationSkip::
     }
 
     return findNext ? next : previous;
+}
+
+/*!
+ * Checks if the model contains the given frequency
+ */
+bool RadioStationModel::contains( const uint frequency ) const
+{
+    RadioStation unused;
+    return findFrequency( frequency, unused );
 }
 
 /*!
@@ -361,7 +387,7 @@ void RadioStationModel::removeStation( const RadioStation& station )
         // Copy the station to a temporary variable that can be used as signal parameter
         RadioStation tempStation = station;
 
-        const int row = modelIndexFromFrequency( tempStation.frequency() ).row();
+        const int row = indexFromFrequency( tempStation.frequency() );
         beginRemoveRows( QModelIndex(), row, row );
 
         d->mPresetStorage->deletePreset( tempStation.presetIndex() );
@@ -414,8 +440,6 @@ void RadioStationModel::removeAll( RemoveMode mode )
             }
         }
     }
-
-    reset(); // TODO: Remove. this is a workaround to HbGridView update problem
 }
 
 /*!
@@ -425,11 +449,11 @@ void RadioStationModel::addStation( const RadioStation& station )
 {
     Q_D( RadioStationModel );
     const int newIndex = findUnusedPresetIndex();
-    LOG_FORMAT( "RadioStationModelPrivate::addStation: Adding station to index %d", newIndex );
+    LOG_FORMAT( "RadioStationModel::addStation: Adding station to index %d", newIndex );
 
     RadioStation newStation = station;
     newStation.setPresetIndex( newIndex );
-    newStation.unsetType( RadioStation::Temporary );
+    newStation.unsetType( RadioStation::ManualStation );
 
     // We have to call beginInsertRows() BEFORE the addition is actually done so we must figure out where
     // the new station will go in the sorted frequency order
@@ -449,7 +473,6 @@ void RadioStationModel::addStation( const RadioStation& station )
         }
     }
 
-//    emit layoutAboutToBeChanged();
     beginInsertRows( QModelIndex(), row, row );
 
     d->doSaveStation( newStation );
@@ -458,7 +481,10 @@ void RadioStationModel::addStation( const RadioStation& station )
 
     endInsertRows();
 
-//    emit layoutChanged();
+    // Not all UI components listen to rowsInserted() signal so emit the favorite signal
+    if ( newStation.isFavorite() ) {
+        emit favoriteChanged( *d->mCurrentStation );
+    }
 }
 
 /*!
@@ -471,8 +497,9 @@ void RadioStationModel::saveStation( RadioStation& station )
     RadioStation::Change changeFlags = station.changeFlags();
     station.resetChangeFlags();
 
-    if ( station.isType( RadioStation::Temporary ) ) {
+    if ( station.isType( RadioStation::ManualStation ) ) {
 
+        d->mManualStation = station;
         emitChangeSignals( station, changeFlags );
 
     } else if ( station.isValid() && stationHasChanged && d->mStations.contains( station.frequency() )) {
@@ -501,7 +528,7 @@ void RadioStationModel::setFavoriteByFrequency( uint frequency, bool favorite )
 {
     Q_D( RadioStationModel );
     if ( d->mWrapper->isFrequencyValid( frequency ) ) {
-        LOG_FORMAT( "RadioStationModelPrivate::setFavoriteByFrequency, frequency: %d", frequency );
+        LOG_FORMAT( "RadioStationModel::setFavoriteByFrequency, frequency: %d", frequency );
         RadioStation station;
         if ( findFrequency( frequency, station ) ) { // Update existing preset
             if ( station.isFavorite() != favorite ) {
@@ -519,11 +546,6 @@ void RadioStationModel::setFavoriteByFrequency( uint frequency, bool favorite )
 
             newStation.setType( RadioStation::LocalStation | RadioStation::Favorite );
 
-            // If PI code has been received, it is a local station
-            if ( newStation.hasPiCode() ) {
-                newStation.setType( RadioStation::LocalStation );
-            }
-
             // Emit the signals only after adding the preset and reinitializing the current station
             // because the UI will probably query the current station in its slots that get called.
             addStation( newStation );
@@ -536,7 +558,7 @@ void RadioStationModel::setFavoriteByFrequency( uint frequency, bool favorite )
  */
 void RadioStationModel::setFavoriteByPreset( int presetIndex, bool favorite )
 {
-    LOG_FORMAT( "RadioStationModelPrivate::setFavoriteByPreset, presetIndex: %d", presetIndex );
+    LOG_FORMAT( "RadioStationModel::setFavoriteByPreset, presetIndex: %d", presetIndex );
     RadioStation station;
     if ( findPresetIndex( presetIndex, station ) != RadioStation::NotFound ) {
         station.setFavorite( favorite );
@@ -549,7 +571,7 @@ void RadioStationModel::setFavoriteByPreset( int presetIndex, bool favorite )
  */
 void RadioStationModel::renameStation( int presetIndex, const QString& name )
 {
-    LOG_FORMAT( "RadioStationModelPrivate::renameStation, presetIndex: %d, name: %s", presetIndex, GETSTRING(name) );
+    LOG_FORMAT( "RadioStationModel::renameStation, presetIndex: %d, name: %s", presetIndex, GETSTRING(name) );
     RadioStation station;
     if ( findPresetIndex( presetIndex, station ) != RadioStation::NotFound ) {
         station.setUserDefinedName( name );
@@ -615,13 +637,13 @@ QList<RadioStation> RadioStationModel::stationsInRange( uint minFrequency, uint 
 /*!
  * Returns the model index corresponding to the given frequency
  */
-QModelIndex RadioStationModel::modelIndexFromFrequency( uint frequency )
+int RadioStationModel::indexFromFrequency( uint frequency )
 {
     RadioStation station;
     if ( findFrequency( frequency, station ) ) {
-        return index( findPresetIndex( station.presetIndex() ), 0 );
+        return findPresetIndex( station.presetIndex() );
     }
-    return QModelIndex();
+    return -1;
 }
 
 /*!
@@ -706,21 +728,6 @@ int RadioStationModel::findUnusedPresetIndex()
         // Nothing to do here
     }
 
-    LOG_FORMAT( "RadioStationModelPrivate::findUnusedPresetIndex, index: %d", index );
+    LOG_FORMAT( "RadioStationModel::findUnusedPresetIndex, index: %d", index );
     return index;
-}
-
-/*!
- * Used by the RDS data setters to find the correct station where the data is set
- */
-RadioStation RadioStationModel::findCurrentStation( uint frequency )
-{
-    Q_D( RadioStationModel );
-    RadioStation station = *d->mCurrentStation;
-    if ( station.frequency() != frequency ) {
-        if ( !findFrequency( frequency, station ) ) {
-            return RadioStation();
-        }
-    }
-    return station;
 }

@@ -53,9 +53,19 @@ void RadioSettingsPrivate::init( MRadioApplicationSettings* storage )
 bool RadioSettingsPrivate::isFirstTimeStart()
 {
     if ( mSettingsStorage ) {
-        return mSettingsStorage->UpdateStartCount() == 0;
+        return mSettingsStorage->IsFirstTimeStart();
     }
     return false;
+}
+
+/*!
+ *
+ */
+void RadioSettingsPrivate::setFirstTimeStartPerformed( bool firstTimeStartPerformed )
+{
+    if ( mSettingsStorage ) {
+        mSettingsStorage->SetFirstTimeStartPerformed( firstTimeStartPerformed );
+    }
 }
 
 /*!

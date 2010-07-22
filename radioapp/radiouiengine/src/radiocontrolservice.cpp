@@ -23,17 +23,17 @@
 #include "radiouiengine.h"
 #include "radioservicedef.h"
 
+// Constants
+const int SERVICE_POWEROFF_DELAY = 5000;
+
 /*!
  *
  */
 RadioControlService::RadioControlService( RadioUiEngine& engine ) :
-    XQServiceProvider( RADIO_CONTROL_SERVICE , &engine ),
+    XQServiceProvider( RADIO_SERVICE +"."+ RADIO_CONTROL_SERVICE, &engine ),
     mUiEngine( engine )
 {
     publishAll();
-    if ( XQServiceUtil::isService() ) {
-        XQServiceUtil::toBackground( true );
-    }
 }
 
 /*!
@@ -48,14 +48,19 @@ RadioControlService::~RadioControlService()
  */
 void RadioControlService::command( int commandId )
 {
+    //TODO: Uncomment when vendor id can be read from the client
+//    if ( requestInfo().clientVendorId() != NOKIA_VENDORID ) {
+//        return;
+//    }
+
     switch ( commandId )
     {
-        case RadioServiceCommand::Play:
-            mUiEngine.setMute( false );
+        case RadioServiceCommand::PowerOn:
+            mUiEngine.setPowerOn();
             break;
 
-        case RadioServiceCommand::Pause:
-            mUiEngine.setMute( true );
+        case RadioServiceCommand::PowerOff:
+            mUiEngine.setPowerOff( SERVICE_POWEROFF_DELAY );
             break;
 
         case RadioServiceCommand::Previous:
@@ -67,11 +72,11 @@ void RadioControlService::command( int commandId )
             break;
 
         case RadioServiceCommand::SeekUp:
-            mUiEngine.seekStation( Seeking::Up );
+            mUiEngine.seekStation( Seek::Up );
             break;
 
         case RadioServiceCommand::SeekDown:
-            mUiEngine.seekStation( Seeking::Down );
+            mUiEngine.seekStation( Seek::Down );
             break;
 
         case RadioServiceCommand::Foreground:
@@ -80,6 +85,14 @@ void RadioControlService::command( int commandId )
 
         case RadioServiceCommand::Background:
             XQServiceUtil::toBackground( true );
+            break;
+
+        case RadioServiceCommand::Mute:
+            mUiEngine.setMute( true );
+            break;
+
+        case RadioServiceCommand::UnMute:
+            mUiEngine.setMute( false );
             break;
 
         default:

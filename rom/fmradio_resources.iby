@@ -23,7 +23,7 @@
 // Use standard macros
 #include <data_caging_paths_for_iby.hrh>
 
-S60_APP_RESOURCE(qtfmradio)
+S60_APP_RESOURCE(fmradio)
 
 data=DATAZ_\QT_TRANSLATIONS_DIR\fmradio.qm  QT_TRANSLATIONS_DIR\fmradio.qm
 

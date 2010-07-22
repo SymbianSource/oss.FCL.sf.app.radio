@@ -21,8 +21,11 @@
 // System includes
 #include <HbMainWindow>
 #include <HbEffect>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QScopedPointer>
+#include <QSharedPointer>
+#include <qsysteminfo.h>
+using namespace QtMobility; // has to be here to be able to connect SLOT queryOfflineUsage
 
 // User includes
 #include "radiowidgetsexport.h"
@@ -31,15 +34,16 @@
 class RadioViewBase;
 class RadioUiEngine;
 class HbVolumeSliderPopup;
+class HbMessageBox;
 
 typedef QScopedPointer<HbVolumeSliderPopup> VolumeSliderPtr;
 
 /**
- * QPointer is used to store the views because it tracks the deletion of the object and nulls
+ * QWeakPointer is used to store the views because it tracks the deletion of the object and nulls
  * the reference. Transient view like RadioHistoryView is destroyed after they are closed
- * and QPointer will notice it.
+ * and QWeakPointer will notice it.
  */
-typedef QPointer<RadioViewBase> ViewPtr;
+typedef QWeakPointer<RadioViewBase> ViewPtr;
 
 // Class declaration
 class WIDGETS_DLL_EXPORT RadioWindow : public HbMainWindow
@@ -49,15 +53,13 @@ class WIDGETS_DLL_EXPORT RadioWindow : public HbMainWindow
 
 public:
 
-    RadioWindow( QWidget *parent = 0 );
+    RadioWindow( QWidget* parent = 0 );
 
     ~RadioWindow();
 
     void showErrorMessage( const QString& text );
 
-    void init();
-
-    RadioUiEngine& uiEngine();
+    void init( QSystemDeviceInfo* deviceInfo );
 
     QString orientationSection();
 
@@ -75,44 +77,57 @@ private slots:
     void updateOrientation( Qt::Orientation orientation );
     void showVolumeLevel( int volume );
     void updateAntennaStatus( bool connected );
+    void queryOfflineUsage( QSystemDeviceInfo::Profile profile );
 
 private:
 
 // New functions
 
-    void activateView( ViewPtr& aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags = Hb::ViewSwitchDefault );
+    void activateView( RadioViewBase* aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags = Hb::ViewSwitchDefault );
 
 private: // data
 
     /*!
      * Pointer to the UI engine
-     * Own
+     * Own, shared with views
      */
-    QScopedPointer<RadioUiEngine>   mUiEngine;
+    QSharedPointer<RadioUiEngine>       mUiEngine;
 
     /**
      * Tuning view.
      * Own.
      */
-    ViewPtr                         mMainView;
+    ViewPtr                             mMainView;
 
     /**
      * Stations view
      * Own.
      */
-    ViewPtr                         mStationsView;
+    ViewPtr                             mStationsView;
 
     /**
      * Play history view
      * Own.
      */
-    ViewPtr                         mHistoryView;
+    ViewPtr                             mHistoryView;
 
     /**
      * Pointer to the volume slider
      * Own.
      */
-    VolumeSliderPtr                 mVolSlider;
+    VolumeSliderPtr                     mVolSlider;
+
+    /**
+     * Pointer to messagebox
+     * Own.
+     */
+    QScopedPointer<HbMessageBox>        mMessageBox;
+
+    /**
+     * Pointer to qsystemdeviceinfo
+     * Own.
+     */
+    QScopedPointer<QSystemDeviceInfo>   mDeviceInfo;
 
 };
 

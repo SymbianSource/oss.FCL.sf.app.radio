@@ -17,7 +17,6 @@
 
 // System includes
 #include <e32cmn.h>
-#include <UiklafInternalCRKeys.h>
 
 // User includes
 #include "cradioaccessoryobserver.h"
@@ -36,6 +35,7 @@ const TInt KVRObserverArrayGranularity( 2 );
 CRadioSystemEventCollectorImp::CRadioSystemEventCollectorImp() :
     iSystemEventObservers( KVRObserverArrayGranularity )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     }
 
 // ---------------------------------------------------------------------------
@@ -44,15 +44,12 @@ CRadioSystemEventCollectorImp::CRadioSystemEventCollectorImp() :
 //
 void CRadioSystemEventCollectorImp::ConstructL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     RadioEngineUtils::InitializeL();
     iSystemEventDetector = CRadioSystemEventDetector::NewL( *this );
 
     iHeadsetObserver = CRadioAccessoryObserver::NewL();
     iHeadsetObserver->SetObserver( this );
-
-    TInt criticalLevel;
-    CRadioRepositoryManager::GetRepositoryValueL( KCRUidUiklaf,
-        KUikOODDiskCriticalThreshold, criticalLevel );
     }
 
 // ---------------------------------------------------------------------------
@@ -61,6 +58,7 @@ void CRadioSystemEventCollectorImp::ConstructL()
 //
 CRadioSystemEventCollectorImp* CRadioSystemEventCollectorImp::NewL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     CRadioSystemEventCollectorImp* self = new( ELeave ) CRadioSystemEventCollectorImp;
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -74,6 +72,7 @@ CRadioSystemEventCollectorImp* CRadioSystemEventCollectorImp::NewL()
 //
 CRadioSystemEventCollectorImp::~CRadioSystemEventCollectorImp()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     delete iSystemEventDetector;
     delete iHeadsetObserver;
 
@@ -87,6 +86,7 @@ CRadioSystemEventCollectorImp::~CRadioSystemEventCollectorImp()
 //
 void CRadioSystemEventCollectorImp::AddObserverL( MRadioSystemEventObserver* aHeadsetObserver )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iSystemEventObservers.AppendL( aHeadsetObserver );
     }
 
@@ -96,6 +96,7 @@ void CRadioSystemEventCollectorImp::AddObserverL( MRadioSystemEventObserver* aHe
 //
  void CRadioSystemEventCollectorImp::RemoveObserver( MRadioSystemEventObserver* aSystemObserver )
     {
+     LEVEL3( LOG_METHOD_AUTO );
     TInt objectIndex = iSystemEventObservers.Find( aSystemObserver );
 
     if ( objectIndex != KErrNotFound )
@@ -110,6 +111,7 @@ void CRadioSystemEventCollectorImp::AddObserverL( MRadioSystemEventObserver* aHe
 //
 TBool CRadioSystemEventCollectorImp::IsMobileNetworkCoverage() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iSystemEventDetector->IsMobileNetworkCoverage();
     }
 
@@ -119,6 +121,7 @@ TBool CRadioSystemEventCollectorImp::IsMobileNetworkCoverage() const
 //
 TBool CRadioSystemEventCollectorImp::IsNetworkCoverage() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iSystemEventDetector->IsNetworkCoverage();
     }
 
@@ -128,6 +131,7 @@ TBool CRadioSystemEventCollectorImp::IsNetworkCoverage() const
 //
 TBool CRadioSystemEventCollectorImp::IsCallActive() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iSystemEventDetector->IsCallActive();
     }
 
@@ -137,6 +141,7 @@ TBool CRadioSystemEventCollectorImp::IsCallActive() const
 //
 TBool CRadioSystemEventCollectorImp::IsAudioResourcesAvailable() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iSystemEventDetector->IsAudioResourcesAvailable();
     }
 
@@ -145,15 +150,8 @@ TBool CRadioSystemEventCollectorImp::IsAudioResourcesAvailable() const
 // ---------------------------------------------------------------------------
 TBool CRadioSystemEventCollectorImp::IsHeadsetConnectedL() const
     {
+    LEVEL3( LOG_METHOD_AUTO );
     return iHeadsetObserver->IsHeadsetConnectedL();
-    }
-
-// ---------------------------------------------------------------------------
-// Getter Vocie UI state
-// ---------------------------------------------------------------------------
-TBool CRadioSystemEventCollectorImp::IsVoiceUiActive() const
-    {
-    return iSystemEventDetector->IsVoiceUiActive();
     }
 
 // ---------------------------------------------------------------------------
@@ -162,6 +160,7 @@ TBool CRadioSystemEventCollectorImp::IsVoiceUiActive() const
 //
 void CRadioSystemEventCollectorImp::NotifyObserversL( TRadioSystemEventType aEvent )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     for ( TInt i = 0; i < iSystemEventObservers.Count(); ++i )
         {
         iSystemEventObservers[i]->HandleSystemEventL( aEvent );
@@ -174,6 +173,7 @@ void CRadioSystemEventCollectorImp::NotifyObserversL( TRadioSystemEventType aEve
 //
 void CRadioSystemEventCollectorImp::NetworkUpCallbackL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioNetworkCoverageUp );
     }
 
@@ -183,6 +183,7 @@ void CRadioSystemEventCollectorImp::NetworkUpCallbackL()
 //
 void CRadioSystemEventCollectorImp::NetworkDownCallbackL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioNetworkCoverageDown );
     }
 
@@ -192,6 +193,7 @@ void CRadioSystemEventCollectorImp::NetworkDownCallbackL()
 //
 void CRadioSystemEventCollectorImp::CallActivatedCallbackL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioCallActivated );
     }
 
@@ -201,6 +203,7 @@ void CRadioSystemEventCollectorImp::CallActivatedCallbackL()
 //
 void CRadioSystemEventCollectorImp::CallDeactivatedCallbackL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioCallDeactivated );
     }
 
@@ -210,6 +213,7 @@ void CRadioSystemEventCollectorImp::CallDeactivatedCallbackL()
 //
 void CRadioSystemEventCollectorImp::AudioResourcesAvailableL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioAudioResourcesAvailable );
     }
 
@@ -219,6 +223,7 @@ void CRadioSystemEventCollectorImp::AudioResourcesAvailableL()
 //
 void CRadioSystemEventCollectorImp::AudioAutoResumeForbiddenL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioAudioAutoResumeForbidden );
     }
 
@@ -226,9 +231,10 @@ void CRadioSystemEventCollectorImp::AudioAutoResumeForbiddenL()
 // From class MRadioSystemEventDetectorObserver.
 // ---------------------------------------------------------------------------
 //
-void CRadioSystemEventCollectorImp::ErrorCallbackL( TInt DEBUGVAR( aError ) )
+void CRadioSystemEventCollectorImp::ErrorCallbackL( TInt DEBUGVAR3( aError ) )
     {
-    LOG_FORMAT( "CRadioSystemEventCollectorImp::ErrorCallbackL - %d", aError );
+    LEVEL3( LOG_METHOD_AUTO );
+    LEVEL3( LOG_FORMAT( "aError = %d", aError ) );
     // P&S get fail not considered as a critical issue.
     }
 
@@ -238,6 +244,7 @@ void CRadioSystemEventCollectorImp::ErrorCallbackL( TInt DEBUGVAR( aError ) )
 //
 void CRadioSystemEventCollectorImp::HeadsetConnectedCallbackL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioHeadsetConnected );
     }
 
@@ -247,6 +254,7 @@ void CRadioSystemEventCollectorImp::HeadsetConnectedCallbackL()
 //
 void CRadioSystemEventCollectorImp::HeadsetDisconnectedCallbackL()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     NotifyObserversL( ERadioHeadsetDisconnected );
     }
 
@@ -256,6 +264,7 @@ void CRadioSystemEventCollectorImp::HeadsetDisconnectedCallbackL()
 //
 void CRadioSystemEventCollectorImp::AudioRouteChangedL( RadioEngine::TRadioAudioRoute aRoute )
     {
+    LEVEL3( LOG_METHOD_AUTO );
     TRadioSystemEventType ev = ERadioAudioRouteHeadset;
     if ( aRoute != RadioEngine::ERadioHeadset )
         {

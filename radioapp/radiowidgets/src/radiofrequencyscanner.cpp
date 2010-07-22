@@ -20,6 +20,7 @@
 #include <QTimer>
 #include <HbLabel>
 #include <HbPushButton>
+#include <HbMessageBox>
 
 // User includes
 #include "radiofrequencyscanner.h"
@@ -29,11 +30,16 @@
 #include "radiostationmodel.h"
 #include "radiofrequencystrip.h"
 #include "radiostationcarousel.h"
-#include "radiouiutilities.h"
+#include "radioutil.h"
 #include "radiomainview.h"
 
 // Constants
-const int KExtraRoomToMaxValue = 100000;
+const int EXTRA_TO_PROGRESS_MAX_VALUE = 100000;
+const int CAROUSEL_FINISH_SCROLL_TIME = 1000;
+const int STRIP_FINISH_SCROLL_TIME = 1100;
+const int CAROUSEL_SCROLL_TIME = 1000;
+const int STRIP_SCROLL_TIME = 1100;
+const int START_DELAY = 1000;
 
 /*!
  *
@@ -42,12 +48,16 @@ RadioFrequencyScanner::RadioFrequencyScanner( RadioUiEngine& uiEngine, QObject* 
     QObject( parent ),
     mUiEngine( uiEngine ),
     mInMainView( parent->metaObject()->className() == RadioMainView::staticMetaObject.className() ),
-    mScannerEngine( mUiEngine.scannerEngine() ),
+    mScannerEngine( mUiEngine.createScannerEngine() ),
     mStripScrollTime( 0 ),
     mCarouselScrollTime( 0 ),
-    mIsAlive( false )
+    mIsAlive( false ),
+    mUserCanceled( false )
 {
-    RadioUiUtilities::setFrequencyScanner( this );
+    RadioUtil::setFrequencyScanner( this );
+
+    Radio::connect( mScannerEngine.data(),  SIGNAL(stationFound(RadioStation)),
+                    this,                   SLOT(updateScanProgress(RadioStation)) );
 }
 
 /*!
@@ -55,6 +65,7 @@ RadioFrequencyScanner::RadioFrequencyScanner( RadioUiEngine& uiEngine, QObject* 
  */
 RadioFrequencyScanner::~RadioFrequencyScanner()
 {
+    RadioUtil::setScanStatus( Scan::NotScanning );
 }
 
 /*!
@@ -63,43 +74,47 @@ RadioFrequencyScanner::~RadioFrequencyScanner()
 void RadioFrequencyScanner::startScanning()
 {
     mIsAlive = true;
-    RadioFrequencyStrip* frequencyStrip = RadioUiUtilities::frequencyStrip();
-    RadioStationCarousel* carousel = RadioUiUtilities::carousel();
+    RadioFrequencyStrip* frequencyStrip = RadioUtil::frequencyStrip();
+    RadioStationCarousel* carousel = RadioUtil::carousel();
 
     if ( mInMainView ) {
+
+        // If this is the first time start, bring application to foreground
+        if ( mUiEngine.isFirstTimeStart() ) {
+            static_cast<RadioMainView*>( parent() )->bringToForeground();
+        }
+
+        RadioUtil::setScanStatus( Scan::ScanningInMainView );
         mStripScrollTime = frequencyStrip->autoScrollTime();
         mCarouselScrollTime = carousel->autoScrollTime();
 
         carousel->setScanningMode( true );
-        carousel->setAutoScrollTime( 1000 );
-        frequencyStrip->setAutoScrollTime( 1100 );
+        carousel->setAutoScrollTime( CAROUSEL_SCROLL_TIME );
+        frequencyStrip->setAutoScrollTime( STRIP_SCROLL_TIME );
 
-        connectAndTest( carousel,               SIGNAL(scanAnimationFinished()),
+        Radio::connect( carousel,               SIGNAL(scanAnimationFinished()),
                         this,                   SLOT(continueScanning()) );
 
         static_cast<RadioMainView*>( parent() )->setScanningMode( true );
         frequencyStrip->setScanningMode( true );
     } else {
-        carousel->setCarouselModel( NULL );
-
-        mScanningProgressNote.reset( new HbProgressDialog( HbProgressDialog::ProgressDialog ) ),
-        mScanningProgressNote->setModal( true );
-        mScanningProgressNote->setAutoClose( true );
+        RadioUtil::setScanStatus( Scan::ScanningInStationsView );
+        mScanningProgressNote = new HbProgressDialog( HbProgressDialog::ProgressDialog );
+        mScanningProgressNote.data()->setModal( true );
+        mScanningProgressNote.data()->setAutoClose( true );
 
         // Add some extra to the maximum value to allow room for the station at the low band edge
-        mScanningProgressNote->setRange( mUiEngine.minFrequency(), mUiEngine.maxFrequency() + KExtraRoomToMaxValue );
-        mScanningProgressNote->setProgressValue( mUiEngine.minFrequency() );
-        mScanningProgressNote->setText( hbTrId( "txt_rad_info_searching_local_stations_please_wait" ) );
-        mScanningProgressNote->show();
+        mScanningProgressNote.data()->setRange( mUiEngine.minFrequency(), mUiEngine.maxFrequency() + EXTRA_TO_PROGRESS_MAX_VALUE );
+        mScanningProgressNote.data()->setProgressValue( mUiEngine.minFrequency() );
+        mScanningProgressNote.data()->setText( hbTrId( "txt_rad_info_searching_local_stations_please_wait" ) );
+        mScanningProgressNote.data()->setAttribute( Qt::WA_DeleteOnClose, true );
+        mScanningProgressNote.data()->open();
 
-        connectAndTest( mScanningProgressNote.data(),   SIGNAL(cancelled()),
+        Radio::connect( mScanningProgressNote.data(),   SIGNAL(cancelled()),
                         this,                           SLOT(cancelScanning()) );
     }
 
-    connectAndTest( mScannerEngine.data(),  SIGNAL(stationFound(RadioStation)),
-                    this,                   SLOT(updateScanProgress(RadioStation)) );
-
-    QTimer::singleShot( 1000, this, SLOT(delayedStart()) );
+    QTimer::singleShot( START_DELAY, this, SLOT(delayedStart()) );
 }
 
 /*!
@@ -116,6 +131,8 @@ bool RadioFrequencyScanner::isAlive() const
  */
 void RadioFrequencyScanner::cancelScanning()
 {
+    mUserCanceled = true;
+    RadioUtil::carousel()->cancelAnimation();
     finishScanning();
 }
 
@@ -144,8 +161,8 @@ void RadioFrequencyScanner::updateScanProgress( const RadioStation& station )
 
     if ( mInMainView ) {
 
-        RadioUiUtilities::frequencyStrip()->setFrequency( frequency, TuneReason::StationScan );
-        RadioUiUtilities::carousel()->animateNewStation( station );
+        RadioUtil::frequencyStrip()->setFrequency( frequency, TuneReason::StationScan );
+        RadioUtil::carousel()->animateNewStation( station );
 
     } else {
         // Check for special case that can happen during scanning.
@@ -153,11 +170,11 @@ void RadioFrequencyScanner::updateScanProgress( const RadioStation& station )
         // all of the higher frequencies. We don't update the progress value here because the value would
         // be lower than the previous one. The progress value is set to maximum when the scanner finishes.
         if ( frequency != mUiEngine.minFrequency() ) {
-            mScanningProgressNote->setProgressValue( frequency );
+            mScanningProgressNote.data()->setProgressValue( frequency );
         }
 
         mScannerEngine->continueScanning();
-    }    
+    }
 }
 
 /*!
@@ -166,7 +183,10 @@ void RadioFrequencyScanner::updateScanProgress( const RadioStation& station )
  */
 void RadioFrequencyScanner::continueScanning()
 {
-    mScannerEngine->continueScanning();
+    if ( !mUserCanceled ) {
+        RadioUtil::frequencyStrip()->addScannedStation( mUiEngine.stationModel().currentStation() );
+        mScannerEngine->continueScanning();
+    }
 }
 
 /*!
@@ -176,9 +196,11 @@ void RadioFrequencyScanner::continueScanning()
 void RadioFrequencyScanner::restoreUiControls()
 {
     if ( mInMainView ) {
-        RadioUiUtilities::frequencyStrip()->setScanningMode( false );
+        disconnect( RadioUtil::carousel(), SIGNAL(scrollingEnded()), this, 0 );
+
+        RadioUtil::frequencyStrip()->setScanningMode( false );
         static_cast<RadioMainView*>( parent() )->setScanningMode( false );
-        RadioUiUtilities::carousel()->setScanningMode( false );
+        RadioUtil::carousel()->setScanningMode( false );
     }
 
     deleteLater();
@@ -190,38 +212,81 @@ void RadioFrequencyScanner::restoreUiControls()
 void RadioFrequencyScanner::finishScanning()
 {
     mScannerEngine->cancel();
-    RadioUiUtilities::setFrequencyScanner( NULL );
-    mIsAlive = false;
-    RadioFrequencyStrip* frequencyStrip = RadioUiUtilities::frequencyStrip();
-    RadioStationCarousel* carousel = RadioUiUtilities::carousel();
+    RadioUtil::setScanStatus( Scan::NotScanning );
+    RadioUtil::setFrequencyScanner( NULL );
+    RadioFrequencyStrip* frequencyStrip = RadioUtil::frequencyStrip();
+    RadioStationCarousel* carousel = RadioUtil::carousel();
+
+    disconnect( mScannerEngine.data(), SIGNAL(stationFound(RadioStation)), this, 0 );
+
+    RadioStationModel& model = mUiEngine.stationModel();
+    const int stationCount = model.rowCount();
 
     if ( mInMainView ) {
-        RadioStationModel& model = mUiEngine.stationModel();
+
+        disconnect( carousel, SIGNAL(scanAnimationFinished()), this, 0 );
 
         // Scroll the carousel and frequency strip through all of the scanned stations
-        const int stationCount = model.rowCount();
         if ( stationCount > 1 ) {
-            frequencyStrip->setAutoScrollTime( 1000 );
-            carousel->setAutoScrollTime( 1000 );
-            const uint frequency = model.data( model.index( 0, 0 ), RadioStationModel::RadioStationRole ).value<RadioStation>().frequency();
-            frequencyStrip->setFrequency( frequency, TuneReason::StationScan );
-            carousel->setFrequency( frequency, TuneReason::StationScan );
+            frequencyStrip->setAutoScrollTime( STRIP_FINISH_SCROLL_TIME );
+            carousel->setAutoScrollTime( CAROUSEL_FINISH_SCROLL_TIME );
+
+            Radio::connect( carousel,   SIGNAL(scrollingEnded()),
+                            this,       SLOT(restoreUiControls()) );
+
+            const uint frequency = model.stationAt( 0 ).frequency();
+
+            mUiEngine.setFrequency( frequency, TuneReason::StationScanFinalize );
+            frequencyStrip->setFrequency( frequency, TuneReason::StationScanFinalize, Scroll::Right );
+            carousel->setFrequency( frequency, TuneReason::StationScanFinalize, Scroll::Right );
 
             frequencyStrip->setAutoScrollTime( mStripScrollTime );
             carousel->setAutoScrollTime( mCarouselScrollTime );
+        } else {
+            const uint frequency = mUiEngine.minFrequency();
+            frequencyStrip->setFrequency( frequency, TuneReason::Unspecified );
+            carousel->setFrequency( frequency, TuneReason::Unspecified );
+
+            if ( !mUserCanceled ) {
+                HbMessageBox* box = new HbMessageBox( HbMessageBox::MessageTypeInformation );
+                box->setTimeout( HbPopup::NoTimeout );
+                box->setText( hbTrId( "txt_rad_dpophead_no_stations_found_try_searching" ) );
+                box->setDismissPolicy( HbPopup::NoDismiss );
+                box->setAttribute( Qt::WA_DeleteOnClose, true );
+                box->open();
+            }
+
+            restoreUiControls();
         }
 
-        QTimer::singleShot( 100, this, SLOT(restoreUiControls()) );
-
     } else {
-        mScanningProgressNote->setProgressValue( mScanningProgressNote->maximum() );
-        deleteLater();
+        if ( !mUserCanceled ) {
+            if ( mScanningProgressNote ) {
+                mScanningProgressNote.data()->setProgressValue( mScanningProgressNote.data()->maximum() );
+                mScanningProgressNote.data()->close();
+            }
 
-        carousel->setCarouselModel( mUiEngine.carouselModel() );
+            if ( stationCount == 0 ) {
+                HbMessageBox* box = new HbMessageBox( HbMessageBox::MessageTypeInformation );
+                box->setTimeout( HbPopup::NoTimeout );
+                box->setText( hbTrId( "txt_rad_dpophead_no_stations_found_try_searching" ) );
+                box->setDismissPolicy( HbPopup::NoDismiss );
+                box->setAttribute( Qt::WA_DeleteOnClose, true );
+                box->open();
+            }
+        }
+        const uint frequency = model.stationAt( 0 ).frequency();
+        mUiEngine.setFrequency( frequency, TuneReason::StationScanFinalize );
     }
 
-    disconnect( mScannerEngine.data(),  SIGNAL(stationFound(RadioStation)),
-                this,                   SLOT(updateScanAndSaveProgress(RadioStation)) );
-
+    mIsAlive = false;
     emit frequencyScannerFinished();
+
+    if ( !mInMainView ) {
+        if ( mUserCanceled ) {
+            deleteLater();
+        } else {
+            delete this; //TODO: Remove this weird hack once the problem with deleteLater is clear
+        }
+    }
 }
