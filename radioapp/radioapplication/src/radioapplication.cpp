@@ -17,8 +17,9 @@
 
 // System includes
 #include <QTimer>
-#include <qsysteminfo.h>
 #include <HbDeviceMessageBox>
+#include <xqsettingsmanager.h>
+#include <xqsettingskey.h>
 #include <xqserviceutil.h>
 #include <HbSplashScreen>
 
@@ -43,11 +44,15 @@
 #   define INIT_WIN32_TEST_WINDOW
 #endif // BUILD_WIN32
 
+
+static XQSettingsKey gConnectionKey( XQSettingsKey::TargetCentralRepository, CENREP_CORE_APPLICATION_UIS, ID_NETWORK_CONNECTION_ALLOWED );
+
 /*!
  * Constructor
  */
 RadioApplication::RadioApplication( int &argc, char *argv[] ) :
-    HbApplication( argc, argv, Hb::NoSplash )
+    HbApplication( argc, argv, Hb::NoSplash ),
+    mSettingsManager( new XQSettingsManager( this ) )
 {
     // Initializes the radio engine utils if UI logs are entered into the engine log
     INIT_COMBINED_LOGGER
@@ -55,11 +60,21 @@ RadioApplication::RadioApplication( int &argc, char *argv[] ) :
     LOG_TIMESTAMP( "Start radio" );
     setApplicationName( hbTrId( "txt_rad_title_fm_radio" ) );
 
-    if ( !XQServiceUtil::isService() ) {
-        HbSplashScreen::start();
-    }
+    if ( XQServiceUtil::isService() ) {
 
-    QTimer::singleShot( 0, this, SLOT(init()) );
+        // Radio was started as a highway service from homescreen widget.
+        // Widget has already done the offline mode check so we can start without checking
+        init();
+
+    } else {
+
+        if ( isInOfflineMode() ) {
+            askOfflineModePermission( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ) );
+        } else {
+            init();
+        }
+
+    }
 }
 
 /*!
@@ -76,41 +91,93 @@ RadioApplication::~RadioApplication()
  * Private slot
  *
  */
-void RadioApplication::init()
+void RadioApplication::checkOfflineMode()
 {
-    // If started as a service, there is no need for offline-check
-    bool okToStart = XQServiceUtil::isService();
-    QScopedPointer<QtMobility::QSystemDeviceInfo> deviceInfo( new QtMobility::QSystemDeviceInfo() );
-
-    if ( !okToStart ) {
-        if ( deviceInfo->currentProfile() != QtMobility::QSystemDeviceInfo::OfflineProfile ) {
-            okToStart = true;
-        } else {
-            // Device is in offline profile, ask the user for permission to start
-            HbDeviceMessageBox box( hbTrId( "txt_rad_info_activate_radio_in_offline_mode" ), HbMessageBox::MessageTypeQuestion );
-            box.setTimeout( HbPopup::NoTimeout );
-            box.exec();
-            okToStart = box.isAcceptAction( box.triggeredAction() );
-        }
+    if ( isInOfflineMode() ) {
+        askOfflineModePermission( hbTrId( "txt_rad_info_continue_using_the_radio_in_offline" ) );
     }
+}
 
-    if ( okToStart ) {
+/*!
+ * Private slot
+ *
+ */
+void RadioApplication::handleOfflineQueryAnswer()
+{
+    HbDeviceMessageBox* box = static_cast<HbDeviceMessageBox*>( sender() );
+    box->deleteLater();
+    if ( box->isAcceptAction( box->triggeredAction() ) ) {
 
-        // Try to optimize startup time by launching the radio server process as soon as possible.
-        // This way the server and UI are being initialized at the same time and the startup is faster.
-//        RadioUiEngine::launchRadioServer();
+        // If main window has not been created yet it means the offline question was asked during startup
+        // so we must continue with the startup sequence. If the main window was already created it means
+        // the question was asked when the radio was already running and the offline mode was activated.
+        // In that case there is no need to do anything since the user wants to continue listening to radio.
+        if ( !mMainWindow ) {
+            init();
+        }
 
-        mMainWindow.reset( new RadioWindow() );
-
-        CREATE_WIN32_TEST_WINDOW
-
-        INIT_WIN32_TEST_WINDOW
-
-        // Construct the real views
-        mMainWindow->init( deviceInfo.take() );
-
-        mMainWindow->show();
     } else {
         quit();
     }
+}
+
+/*!
+ *
+ */
+void RadioApplication::init()
+{
+    // Try to optimize startup time by launching the radio server process as soon as possible.
+    // This way the server and UI are being initialized at the same time and the startup is faster.
+//        RadioUiEngine::launchRadioServer();
+
+    // Splash screen needs to be shown when not started by homescreen widget
+    if ( !XQServiceUtil::isService() ) {
+        HbSplashScreen::setAppId( "fmradio" );
+        HbSplashScreen::start();
+    }
+
+    Radio::connect( mSettingsManager,   SIGNAL(valueChanged(XQSettingsKey,QVariant)),
+                    this,               SLOT(checkOfflineMode()) );
+
+    bool monitoringStarted = mSettingsManager->startMonitoring( gConnectionKey );
+    LOG_ASSERT( monitoringStarted, LOG( "Failed to start monitoring Offline mode!" ) );
+    Q_UNUSED( monitoringStarted );
+
+    mMainWindow.reset( new RadioWindow() );
+
+    CREATE_WIN32_TEST_WINDOW
+
+    INIT_WIN32_TEST_WINDOW
+
+    // Construct the real views
+    mMainWindow->init();
+
+    mMainWindow->show();
+}
+
+/*!
+ *
+ */
+bool RadioApplication::isInOfflineMode() const
+{
+    const QVariant connectionAllowed = mSettingsManager->readItemValue( gConnectionKey );
+    if ( connectionAllowed.canConvert( QVariant::Int ) && connectionAllowed.toInt() == NetworkNotAllowed ) {
+        return true;
+    }
+
+    return false;
+}
+
+/*!
+ *
+ */
+void RadioApplication::askOfflineModePermission( const QString& question )
+{
+    HbDeviceMessageBox* box = new HbDeviceMessageBox( question, HbMessageBox::MessageTypeQuestion, this );
+    box->setStandardButtons( HbMessageBox::Yes | HbMessageBox::No );
+    box->setTimeout( HbPopup::NoTimeout );
+    box->setDismissPolicy( HbPopup::NoDismiss );
+    Radio::connect( box,    SIGNAL(aboutToClose()),
+                    this,   SLOT(handleOfflineQueryAnswer()) );
+    box->show();
 }

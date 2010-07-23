@@ -675,6 +675,7 @@ void CRadioEngineSettings::InitializeRegionsL()
 
     //User::LeaveIfError( iRadioSettingsImp.FsSession().Connect() );
 
+    //TODO: Remove the ResolveDriveL
     iRadioSettingsImp.ResolveDriveL( resourceFileName, KDC_RESOURCE_FILES_DIR );
     BaflUtils::NearestLanguageFile( iRadioSettingsImp.FsSession(), resourceFileName);
 
@@ -685,7 +686,7 @@ void CRadioEngineSettings::InitializeRegionsL()
     reader.SetBuffer(readBuffer);
     TInt regionCount = reader.ReadInt16();
 
-    for ( TInt i = 0 ; i < regionCount; i++ )
+    for ( TInt i = 0; i < regionCount; ++i )
         {
         TInt resId = reader.ReadInt32(); // The next resource ID to read.
         HBufC8* regionBuffer = iResFile.AllocReadLC(resId);

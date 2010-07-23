@@ -21,7 +21,6 @@
 #include "cradiosystemeventcollector.h"
 #include "cradiosettings.h"
 #include "mradioenginesettings.h"
-#include "cradiorepositorymanager.h"
 #include "mradiordsreceiver.h"
 #include "radioenginehandler.h"
 #include "mradioenginehandlerobserver.h"

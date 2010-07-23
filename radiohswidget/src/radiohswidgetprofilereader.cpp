@@ -17,9 +17,6 @@
 
 // System includes
 #include <QDateTime>
-// TODO: Profile information should be accessed from QtMobility when it is
-// ready.
-#include <ProfileEngineSDKCRKeys.h>
 #include "xqsettingsmanager.h"
 #include "xqsettingskey.h"
 #include "xqpublishandsubscribeutils.h"
@@ -28,13 +25,12 @@
 #include "radiohswidgetprofilereader.h"
 #include "radiohswidget.h"
 #include "radioservicedef.h"
+#include "radio_global.h"
 #include "radiologger.h"
 
 // Constants
 /** Constant for radio running undefined status. */
 const int RADIO_RUNNING_STATUS_UNDEFINED(-1);
-/** Constant for Off-line profile. */
-const int OFFLINE_PROFILE(5);
 
 /*!
     \class RadioHsWidgetProfileReader
@@ -92,19 +88,21 @@ void RadioHsWidgetProfileReader::startMonitoringRadioRunningStatus()
 }
 
 /*!
-    Reads the current profile of the device and \returns \c true if the
-    current profile is offline, \c false otherwise.
+    Checks if device is in offline mode and \returns \c true if it is
+    and \c false if not.
  */
-bool RadioHsWidgetProfileReader::isCurrentProfileOffline()
+bool RadioHsWidgetProfileReader::isInOfflineMode()
 {
     LOG_METHOD_RET("%d");
-    XQSettingsKey profileKey(XQSettingsKey::TargetCentralRepository,
-        KCRUidProfileEngine.iUid, KProEngActiveProfile);
+    XQSettingsKey connectionKey( XQSettingsKey::TargetCentralRepository,
+            CENREP_CORE_APPLICATION_UIS, ID_NETWORK_CONNECTION_ALLOWED );
+
     // Read current value.
-    QVariant profile(mSettingsManager->readItemValue(profileKey));
-    if (profile.canConvert(QVariant::Int) && profile.toInt() == OFFLINE_PROFILE) {
+    const QVariant connectionAllowed = mSettingsManager->readItemValue( connectionKey );
+    if ( connectionAllowed.canConvert( QVariant::Int ) && connectionAllowed.toInt() == NetworkNotAllowed ) {
         return true;
     }
+
     return false;
 }
 

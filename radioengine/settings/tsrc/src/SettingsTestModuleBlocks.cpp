@@ -194,7 +194,7 @@ TInt CSettingsTestModule::ExampleL( CStifItemParser& aItem )
         {
         TestModuleIf().Printf( i, KSettingsTestModule, 
                                 KParam, i, &string );
-        i++;
+        ++i;
         }
 
     return KErrNone;

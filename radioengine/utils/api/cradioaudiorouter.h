@@ -29,8 +29,6 @@ class MRadioAudioRoutingObserver;
 /**
  * CRadioAudioRouter
  *
- * Contains functionality for playing and routing startup sound
- *
  */
 NONSHARABLE_CLASS( CRadioAudioRouter ) : public CBase
     {

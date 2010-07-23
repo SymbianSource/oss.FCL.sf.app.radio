@@ -93,6 +93,7 @@
             </layout>
         </widget>
         <widget name="mv:frequency_area">
+            <sizehint height="10un" type="FIXED"/>
             <widget name="mv:frequency_strip" plugin="fmradiowidgetsplugin" type="RadioFrequencyStrip">
                 <contentsmargins left="var(hb-param-margin-gene-middle-horizontal)" right="var(hb-param-margin-gene-middle-horizontal)" />
                 <widget name="mv:prev_button" type="HbPushButton">
@@ -130,9 +131,6 @@
 
     <!-- Section to orient the view in portrait mode -->
     <section name="portrait">
-        <widget name="mv:frequency_area">
-            <sizehint height="10un" type="FIXED"/>
-        </widget>
         <widget name="mv:container">
             <layout type="anchor">
                 <anchoritem src="mv:info_area" srcEdge="TOP" dst="" dstEdge="TOP" spacing="-var(hb-param-margin-gene-middle-vertical)" />
@@ -154,9 +152,6 @@
 
     <!-- Section to orient the view in landscape mode -->
     <section name="landscape">
-        <widget name="mv:frequency_area">
-            <sizehint height="8un" type="FIXED"/>
-        </widget>
         <widget name="mv:container">
             <layout type="anchor">
                 <anchoritem src="mv:info_area" srcEdge="TOP" dst="" dstEdge="TOP" spacing="-var(hb-param-margin-gene-middle-vertical)" />

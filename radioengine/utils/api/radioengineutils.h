@@ -49,27 +49,6 @@ public:
      */
     IMPORT_C static RFs& FsSession();
 
-    /**
-     * Converts a frequency to a descriptor format.
-     * Returned descriptor is left in CleanupStack.
-     *
-     * @param   aFreq           Frequency, in kilohertz, to convert.
-     * @param   aDecimalCount   Decimal count to use.
-     * @param   aResourceId     Resource ID of the format string, or <code>KErrNotFound</code> if no such resource is to be used.
-     * @return  The formatted descriptor. Ownership is transferred.
-     */
-    IMPORT_C static HBufC* ReadFrequencyStringLC( TUint32 aFreq, TInt aDecimalCount, TInt aResourceId = KErrNotFound );
-
-    /**
-     * Writes formatted frequency to a give descriptor.
-     *
-     * @param   aDest           Destination descriptor.
-     * @param   aFreq           Frequency, in kilohertz, to convert.
-     * @param   aDecimalCount   Decimal count to use.
-     * @param   aFormat         Format read from resource.
-     */
-    IMPORT_C static void FormatFrequencyString( TDes& aDest, TUint32 aFreq, TInt aDecimalCount, TDesC& aFormat );
-
     };
 
 #endif // RADIOENGINEUTILS_H

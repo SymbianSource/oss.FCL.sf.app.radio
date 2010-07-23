@@ -42,6 +42,14 @@ const int MAXIMUM_VOLUME_LEVEL = 20;
 const int DEFAULT_VOLUME_LEVEL = 4;
 
 /**
+ * UIDs for checking the offline mode
+ * Values copied from CoreApplicationUIsSDKCRKeys.h
+ */
+const long int CENREP_CORE_APPLICATION_UIS = 0x101F876C;
+const unsigned long int ID_NETWORK_CONNECTION_ALLOWED = 0x00000001;
+enum NetworkConnectionAllowed { NetworkNotAllowed = 0, NetworkAllowed };
+
+/**
  * Roles used when interacting with the radio station model
  */
 namespace RadioRole

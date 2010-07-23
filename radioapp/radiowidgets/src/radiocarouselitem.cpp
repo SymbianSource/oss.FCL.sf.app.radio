@@ -64,6 +64,7 @@ RadioCarouselItem::RadioCarouselItem( RadioCarouselItemObserver& observer, QGrap
     mUrlItem( NULL ),
     mAppearance( Default ),
     mOwnsCss( registerCss ),
+    mLandscapeMode( false ),
     mFlags( DefaultFlags )
 {
     mStation.reset( new RadioStation() );
@@ -247,6 +248,22 @@ RadioCarouselItem::Appearance RadioCarouselItem::appearance() const
 /*!
  *
  */
+void RadioCarouselItem::setLandscape( bool landscape )
+{
+    mLandscapeMode = landscape;
+}
+
+/*!
+ *
+ */
+bool RadioCarouselItem::landscape() const
+{
+    return mLandscapeMode;
+}
+
+/*!
+ *
+ */
 void RadioCarouselItem::setSeekLayout( bool seekLayout )
 {
     if ( seekLayout ) {
@@ -400,4 +417,3 @@ void RadioCarouselItem::updateLayout()
 {
     setAppearance( mStation->hasSentRds() ? Full : Default );
 }
-

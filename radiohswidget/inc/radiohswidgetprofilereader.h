@@ -37,7 +37,7 @@ public:
 
     void startMonitoringRadioRunningStatus();
     
-    bool isCurrentProfileOffline();
+    bool isInOfflineMode();
 
 public slots:
     void handleDeletedItem(const XQSettingsKey &key);

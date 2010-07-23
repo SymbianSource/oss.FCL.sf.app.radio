@@ -30,6 +30,7 @@ symbian: {
     ICON                    = resources/qtg_large_radio.svg # Fallback icon in case theme doesn't have one
 
     LIBS                    += -lxqserviceutil
+    LIBS                    += -lxqsettingsmanager
 
     BLD_INF_RULES.prj_exports += "resources/fmradio.docml       /epoc32/release/winscw/udeb/z/resource/hb/splashml/fmradio.docml" \
                                  "resources/fmradio.splashml    /epoc32/release/winscw/udeb/z/resource/hb/splashml/fmradio.splashml" \
@@ -38,8 +39,6 @@ symbian: {
 }
 
 CONFIG      += hb service
-CONFIG      += mobility
-MOBILITY    = systeminfo
 
 # Service provider specific configuration.
 SERVICE.FILE = resources/service_conf.xml

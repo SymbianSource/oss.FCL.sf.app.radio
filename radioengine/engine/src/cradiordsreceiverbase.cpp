@@ -130,7 +130,7 @@ void CRadioRdsReceiverBase::SetAutomaticSwitchingL( TBool aEnable )
     {
     LEVEL3( LOG_METHOD_AUTO );
     iAfEnabled = aEnable;
-    for ( TInt i = 0 ; i < iObservers.Count(); i++ )
+    for ( TInt i = 0; i < iObservers.Count(); ++i )
         {
         iObservers[i]->RdsAfSearchStateChange( iAfEnabled );
         }

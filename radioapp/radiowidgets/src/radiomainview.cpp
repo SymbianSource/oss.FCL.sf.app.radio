@@ -120,6 +120,7 @@ void RadioMainView::init()
 
     mCarousel = mUiLoader->findObject<RadioStationCarousel>( DOCML::MV_NAME_STATION_CAROUSEL );
     mCarousel->init( *mUiLoader, mUiEngine.data() );
+    mCarousel->setLandscape( mMainWindow->orientation() == Qt::Horizontal );
 
     mFrequencyStrip = mUiLoader->findObject<RadioFrequencyStrip>( DOCML::MV_NAME_FREQUENCY_STRIP );
     mFrequencyStrip->init( mUiEngine.data(), *mUiLoader );
@@ -211,6 +212,7 @@ void RadioMainView::setOrientation()
     loadSection( DOCML::FILE_MAINVIEW, mMainWindow->orientationSection() );
     if ( mCarousel && mFrequencyStrip ) {
         mCarousel->setFrequency( mFrequencyStrip->frequency(), TuneReason::Unspecified );
+        mCarousel->setLandscape( mMainWindow->orientation() == Qt::Horizontal );
     }
 }
 

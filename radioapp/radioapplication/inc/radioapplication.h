@@ -27,6 +27,7 @@
 // Forward declarations
 class RadioWindow;
 class RadioStationModel;
+class XQSettingsManager;
 
 #ifdef BUILD_WIN32
     class Win32Window;
@@ -46,19 +47,32 @@ public:
 
 private slots:
 
+    void checkOfflineMode();
+    void handleOfflineQueryAnswer();
+
+private:
+
     void init();
+    bool isInOfflineMode() const;
+    void askOfflineModePermission( const QString& question );
 
 private: // data
 
 #ifdef BUILD_WIN32
-    QScopedPointer<Win32Window>     mWin32Window;
+    QScopedPointer<Win32Window>         mWin32Window;
 #endif // BUILD_WIN32
 
     /**
      * Application main window
      * Own
      */
-    QScopedPointer<RadioWindow> mMainWindow;
+    QScopedPointer<RadioWindow>         mMainWindow;
+
+    /**
+     * Pointer to settings manager
+     * Own.
+     */
+    XQSettingsManager*                  mSettingsManager;
 
 };
 

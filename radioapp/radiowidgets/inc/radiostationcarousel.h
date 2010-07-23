@@ -113,6 +113,8 @@ public:
 
     void drawOffScreen( QPainter& painter );
 
+    void setLandscape( bool landscape );
+
     void setAlternateSkippingMode( bool alternateSkipping ); //TODO: Remove this! This is test code
 
 signals:

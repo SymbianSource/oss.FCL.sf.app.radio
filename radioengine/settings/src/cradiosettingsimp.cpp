@@ -81,12 +81,9 @@ CRadioSettingsImp::~CRadioSettingsImp()
     delete iApplicationSettings;
     if ( iFsSession )
         {
-        if ( iFsSession->Handle() )
-            {
-            iFsSession->Close();
-            }
-        delete iFsSession;
+        iFsSession->Close();
         }
+    delete iFsSession;
     }
 
 // ---------------------------------------------------------------------------
@@ -137,7 +134,7 @@ void CRadioSettingsImp::ResolveDriveL( TFileName& aFileName, const TDesC& aPath 
     {
     LEVEL3( LOG_METHOD_AUTO );
     LEVEL3( LOG_FORMAT( "aFileName = %S, aPath = %S", &aFileName, &aPath ) );
-    
+
     TFileName fileName;
     TFileName baseResource;
     TFindFile finder( *iFsSession );
@@ -235,4 +232,3 @@ RFs& CRadioSettingsImp::FsSession()
     LEVEL3( LOG_METHOD_AUTO );
     return *iFsSession;
     }
-

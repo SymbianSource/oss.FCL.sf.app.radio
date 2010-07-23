@@ -116,7 +116,7 @@ TBool CRadioAccessoryObserver::FindAccessoryL( TBool aAcceptOnlyHeadset, TAccAud
     TBool accessoryFound = EFalse;
 
     LOG_FORMAT( "Connected accessories count = %d", iAccPolGenIdArr.Count());
-    for ( TInt i = 0; i < iAccPolGenIdArr.Count() && !accessoryFound; i++ )
+    for ( TInt i = 0; i < iAccPolGenIdArr.Count() && !accessoryFound; ++i )
         {
         TAccPolGenericID accPolGenId = iAccPolGenIdArr.GetGenericIDL( i );
 
@@ -237,7 +237,7 @@ void CRadioAccessoryObserver::UpdateCurrentAccessoriesL( TInt& aNroChangedAccess
 
     iSavedAccessories.Reset();
 
-    for ( TInt i = 0; i < iAccPolGenIdArr.Count(); i++ )
+    for ( TInt i = 0; i < iAccPolGenIdArr.Count(); ++i )
         {
         iSavedAccessories.AppendL( iAccPolGenIdArr.GetGenericIDL( i ) );
         LOG_FORMAT( "- accessory in slot %d: %d",
@@ -255,7 +255,7 @@ TInt CRadioAccessoryObserver::CountRemovedAccessoriesL() const
     LEVEL2( LOG_METHOD_AUTO );
     TInt removedAccessories( 0 );
 
-    for ( TInt i = 0; i < iSavedAccessories.Count(); i++ )
+    for ( TInt i = 0; i < iSavedAccessories.Count(); ++i )
         {
         TAccPolGenericID savedAcc = iSavedAccessories[i];
 
@@ -293,7 +293,7 @@ TInt CRadioAccessoryObserver::CountAddedAccessoriesL() const
     LEVEL2( LOG_METHOD_AUTO );
     TInt addedAccessories( 0 );
 
-    for ( TInt i = 0; i < iAccPolGenIdArr.Count(); i++ )
+    for ( TInt i = 0; i < iAccPolGenIdArr.Count(); ++i )
         {
         TAccPolGenericID freshAcc = iAccPolGenIdArr.GetGenericIDL( i );
 

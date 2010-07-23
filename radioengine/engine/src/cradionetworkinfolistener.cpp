@@ -119,7 +119,7 @@ void CRadioNetworkInfoListener::ConstructL()
     // Get phone info of first legal phone.
     TInt legalPhoneIndex = KErrNotFound;
     RTelServer::TPhoneInfo phoneInfo;
-    for ( TInt i=0; i<phones && legalPhoneIndex == KErrNotFound; i++)
+    for ( TInt i=0; i<phones && legalPhoneIndex == KErrNotFound; ++i )
         {
         if ( telServer.GetPhoneInfo( i, phoneInfo ) == KErrNone )
             {

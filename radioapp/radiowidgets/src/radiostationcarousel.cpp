@@ -441,6 +441,14 @@ void RadioStationCarousel::drawOffScreen( QPainter& painter )
 }
 
 /*!
+ *
+ */
+void RadioStationCarousel::setLandscape( bool landscape )
+{
+    CALL_TO_ALL_ITEMS( setLandscape( landscape ) );
+}
+
+/*!
  * TODO: Remove this! This is test code
  */
 void RadioStationCarousel::setAlternateSkippingMode( bool alternateSkipping )

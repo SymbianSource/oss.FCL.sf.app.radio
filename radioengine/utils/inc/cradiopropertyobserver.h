@@ -201,42 +201,42 @@ private: // data
     /**
      * Value of a subscribed category property of type int.
      */
-    TInt iValueInt;
+    TInt                            iValueInt;
 
     /**
      * Value of a subscribed category property of type byte array.
      */
-    HBufC8* iValueByteArray;
+    HBufC8*                         iValueByteArray;
 
     /**
      * Value of a subscribed category property of type text.
      */
-    HBufC* iValueText;
+    HBufC*                          iValueText;
 
     /**
      * Handle to Publish And Subscribe component
      */
-    RProperty iProperty;
+    RProperty                       iProperty;
 
     /**
      * Observer to be notified when particular Property value has changed
      */
-    MRadioPropertyChangeObserver& iObserver;
+    MRadioPropertyChangeObserver&   iObserver;
 
     /**
      * UID of Publish And Subscribe category
      */
-    TUid iCategory;
+    TUid                            iCategory;
 
     /**
      * Subkey to be used with Publish And Subscribe
      */
-    TUint iKey;
+    TUint                           iKey;
 
     /**
      * Type of the observed property.
      */
-    TRadioPropertyType iPropertyType;
+    TRadioPropertyType              iPropertyType;
 
     };
 

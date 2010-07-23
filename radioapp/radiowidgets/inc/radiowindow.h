@@ -24,8 +24,6 @@
 #include <QWeakPointer>
 #include <QScopedPointer>
 #include <QSharedPointer>
-#include <qsysteminfo.h>
-using namespace QtMobility; // has to be here to be able to connect SLOT queryOfflineUsage
 
 // User includes
 #include "radiowidgetsexport.h"
@@ -59,7 +57,7 @@ public:
 
     void showErrorMessage( const QString& text );
 
-    void init( QSystemDeviceInfo* deviceInfo );
+    void init();
 
     QString orientationSection();
 
@@ -77,7 +75,6 @@ private slots:
     void updateOrientation( Qt::Orientation orientation );
     void showVolumeLevel( int volume );
     void updateAntennaStatus( bool connected );
-    void queryOfflineUsage( QSystemDeviceInfo::Profile profile );
 
 private:
 
@@ -122,12 +119,6 @@ private: // data
      * Own.
      */
     QScopedPointer<HbMessageBox>        mMessageBox;
-
-    /**
-     * Pointer to qsystemdeviceinfo
-     * Own.
-     */
-    QScopedPointer<QSystemDeviceInfo>   mDeviceInfo;
 
 };
 

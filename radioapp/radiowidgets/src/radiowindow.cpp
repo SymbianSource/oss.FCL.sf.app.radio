@@ -68,14 +68,10 @@ void RadioWindow::showErrorMessage( const QString& text )
 /*!
  *
  */
-void RadioWindow::init( QSystemDeviceInfo* deviceInfo )
+void RadioWindow::init()
 {
-    mDeviceInfo.reset( deviceInfo );
-
     Radio::connect( this,                   SIGNAL(viewReady()),
                     this,                   SLOT(initView()) );
-    Radio::connect( mDeviceInfo.data(),     SIGNAL(currentProfileChanged(QSystemDeviceInfo::Profile)),
-                    this,                   SLOT(queryOfflineUsage(QSystemDeviceInfo::Profile)) );
 
     activateMainView();
 }
@@ -208,28 +204,6 @@ void RadioWindow::updateAntennaStatus( bool connected )
     } else {
         mMessageBox.reset();
     }
-}
-
-/*!
- * Private slot
- *
- */
-void RadioWindow::queryOfflineUsage( QSystemDeviceInfo::Profile profile )
-{
-    if ( profile == QSystemDeviceInfo::OfflineProfile ) {
-        bool okToContinue = false;
-        HbDeviceMessageBox box( hbTrId( "txt_rad_info_continue_using_the_radio_in_offline" ), HbMessageBox::MessageTypeQuestion );
-        box.setTimeout( HbPopup::NoTimeout );
-        box.exec();
-
-        okToContinue = box.isAcceptAction( box.triggeredAction() );
-
-        if ( okToContinue ) {
-            // Radio stays on
-        } else {
-            qApp->quit(); // Close radio
-        }
-    } // other profiles are not interesting
 }
 
 /*!

@@ -81,10 +81,6 @@ CRadioRemConTargetImp* CRadioRemConTargetImp::NewL()
 CRadioRemConTargetImp::~CRadioRemConTargetImp()
     {
     LEVEL3( LOG_METHOD_AUTO );
-    if ( iRepeatTimer )
-        {
-        iRepeatTimer->Cancel();
-        }
     delete iRepeatTimer;
     delete iInterfaceSelector; //deletes also iCallTarget and iCoreTarget
     iCoreTarget = NULL;

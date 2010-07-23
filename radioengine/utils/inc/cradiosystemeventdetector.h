@@ -100,7 +100,7 @@ private: // data
     /**Indicator for the call status*/
     TBool                       iIsCallActive;
 
-    /** Array of audio policy categories that VR must not resume after. */
+    /** Array of audio policy categories that radio must not resume after. */
     RArray<TInt>                iNoAutoResumeAudioCategories;
 
     /** Indicator for audio resource status. */

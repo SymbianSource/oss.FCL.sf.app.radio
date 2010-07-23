@@ -50,7 +50,7 @@ void CRadioRegion::ConstructL( TResourceReader& aRr )
     iDecimalCount = aRr.ReadInt16();
 
     TInt countryCodeCount = aRr.ReadInt16();
-    for ( TInt i = 0 ; i < countryCodeCount ; i++)
+    for ( TInt i = 0; i < countryCodeCount; ++i )
         {
         TPtrC code;
         code.Set( aRr.ReadTPtrC());

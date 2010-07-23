@@ -841,7 +841,9 @@ void RadioFrequencyStrip::scrollToFrequency( uint frequency, Scroll::Direction d
 
     newPos -= mSelectorPos - ROUNDER;
 
-    scrollContentsTo( QPointF( newPos, 0 ), time );
+//    scrollContentsTo( QPointF( newPos, 0 ), time );
+// TODO: Remove this and uncomment the above line. This is a temporary workaround to get the strip to move
+    scrollContentsTo( QPointF( newPos, 0 ), 0 );
 }
 
 /*!

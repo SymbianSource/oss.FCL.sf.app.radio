@@ -51,7 +51,7 @@ const TInt KRadioVolumeStepsDividinglimit = 20;
 const TInt KRadioVolumeStepsDivider = 500;
 /** amount of volume steps used previously */
 #if defined __WINS__
-const TInt KRadioVolumeStepsOld = 10;
+const TInt KRadioVolumeStepsWins = 20;
 #endif // defined __WINS__
 
 /** KRadioRadioSwitchDelay value must not be too small, otherwise problems with
@@ -232,6 +232,7 @@ TRadioRegion CRadioEngineImp::DetermineRegion()
     LEVEL3( LOG_METHOD_AUTO );
     TRadioRegion region = ERadioRegionNone;
 
+    //TODO: Reimplement in QT side and remove the mobile network functionality
     MRadioEngineSettings& engineSettings = iSettings->EngineSettings();
     if ( iSystemEventCollector->IsMobileNetworkCoverage() )
         {
@@ -300,9 +301,7 @@ void CRadioEngineImp::InitRadioL( TInt aRegionId )
     // Utilities have been created now
     iRadioInitializationState = ERadioUtilitiesConstructed;
 
-    // Before first RequestTunerControl() call it is ok to enable offline mode without checking capabilities
-    iTunerUtility->EnableTunerInOfflineMode( ETrue );
-    iTunerUtility->RequestTunerControl();
+    RequestTunerControl();
     }
 
 // ---------------------------------------------------------------------------
@@ -335,7 +334,7 @@ void CRadioEngineImp::EnableAudio( TBool aEnable, TBool aDelay )
              iRadioEnabled &&
              OkToPlay( iSettings->EngineSettings().TunedFrequency() ) )
             {
-            iTunerUtility->RequestTunerControl();
+            RequestTunerControl();
             }
         else
             {
@@ -486,7 +485,7 @@ void CRadioEngineImp::SwitchPower( TBool aPowerOn )
             iRadioEnabled &&
             OkToPlay( iSettings->EngineSettings().TunedFrequency() ) )
         {
-        iTunerUtility->RequestTunerControl();
+        RequestTunerControl();
         }
     else
         {
@@ -589,6 +588,29 @@ void CRadioEngineImp::PowerOff()
             {
             HandlePowerEvent( EFalse, KErrNone );
             }
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// Requests tuner control from tuner utility
+// ---------------------------------------------------------------------------
+//
+void CRadioEngineImp::RequestTunerControl()
+    {
+    LOG_METHOD_AUTO;
+
+    if ( iRadioInitializationState < ERadioTunerControlRequested )
+        {
+        LOG( "Requesting tuner control" );
+        // Before first RequestTunerControl() say that it is ok to enable offline mode without checking capabilities
+        iTunerUtility->EnableTunerInOfflineMode( ETrue );
+        iTunerUtility->RequestTunerControl();
+
+        iRadioInitializationState = ERadioTunerControlRequested;
+        }
+    else
+        {
+        LOG( "Tuner control already requested" );
         }
     }
 
@@ -923,10 +945,8 @@ void CRadioEngineImp::SetAntennaAttached( TBool aAntennaAttached )
     }
 
 // ---------------------------------------------------------------------------
-// If CRadioPlayerUtility has 10 steps, CAknVolumeControl has also 10 steps and also
-// the maximum volume level of Visual radio is 10. Otherwise CRadioPlayerUtility has
-// 200 steps, and CAknVolumeControl has 20 steps, so maximum volume level of Visual radio
-// is 20.
+// Determine the meximum volume level by dividing the maximum volume setting
+// received from player utility to get the desired 20 volume steps
 // ---------------------------------------------------------------------------
 //
 TInt CRadioEngineImp::MaxVolumeLevel() const
@@ -935,7 +955,7 @@ TInt CRadioEngineImp::MaxVolumeLevel() const
     TInt maxLevel = 0;
 
 #if defined __WINS__
-    maxLevel = KRadioVolumeStepsOld;
+    maxLevel = KRadioVolumeStepsWins;
 #else
     if ( RadioInitialized() )
         {
@@ -1003,9 +1023,9 @@ void CRadioEngineImp::DoNotifyRadioEventL( TInt aRadioEvent, TInt aErrorCode )
     LOG_METHOD_AUTO;
     TInt count = iObservers.Count();
 
-    for ( TInt i = 0; i<count; i++)
+    for ( TInt i = 0; i < count; ++i )
         {
-        MRadioEngineObserver * observer = iObservers[i];
+        MRadioEngineObserver* observer = iObservers[i];
 
         switch ( aRadioEvent )
             {
@@ -1251,23 +1271,10 @@ void CRadioEngineImp::MrftoStationSeekComplete( TInt aError, TInt aFrequency )
 
     iSeekingState = RadioEngine::ERadioNotSeeking;
 
-    if ( aFrequency == 0 ) {
+    if ( aFrequency == 0 )
+        {
         NotifyRadioEvent( ERadioEventFrequency, aError );
-    }
-
-//    if ( aError != KErrNone )
-//        {
-//        iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonImplicit;
-//        NotifyRadioEvent( ERadioEventFrequency, KErrNone ); // Frequency change is not otherwise notified when seeking fails.
-//        }
-//    else
-//        {
-//        // sometimes frequency change is not reported even if seeking succeeds
-//        if ( !iFrequencySetByRdsAf )
-//            {
-//            NotifyRadioEvent( ERadioEventFrequency, KErrNone );
-//            }
-//        }
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -1640,13 +1647,13 @@ void CRadioEngineImp::HandlePowerEvent( TBool aPowerOn, TInt aErrorCode )
             }
         }
 
-    if ( !iSettings->EngineSettings().IsPowerOn() )
+    if ( !aPowerOn )
         {
         CancelSeek();
         }
 
     // If we are seeking, power event starts seeking
-    if ( iSeekingState != RadioEngine::ERadioNotSeeking && iSettings->EngineSettings().IsPowerOn() )
+    if ( iSeekingState != RadioEngine::ERadioNotSeeking && aPowerOn )
         {
         // Reset seeking state to enable seeking start
         LOG( "PowerOn event in seekingstate. Restart seeking" );

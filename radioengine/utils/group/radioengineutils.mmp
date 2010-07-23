@@ -49,7 +49,6 @@ SOURCE                  cradioaccessoryobserver.cpp
 SOURCE                  cradiopropertyobserver.cpp
 SOURCE                  cradioremcontarget.cpp
 SOURCE                  cradioremcontargetimp.cpp
-SOURCE                  cradiorepositoryentitybase.cpp
 SOURCE                  cradiosystemeventdetector.cpp
 SOURCE                  cradiosystemeventcollector.cpp
 SOURCE                  cradiosystemeventcollectorimp.cpp
@@ -66,4 +65,3 @@ LIBRARY                 cone.lib
 LIBRARY                 remconcoreapi.lib
 LIBRARY                 remconextensionapi.lib
 LIBRARY                 remconinterfacebase.lib
-LIBRARY                 featmgr.lib

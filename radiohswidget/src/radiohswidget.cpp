@@ -1085,7 +1085,7 @@ bool RadioHsWidget::radioStartPermission()
     // starting the radio is allowed in other profiles without asking a
     // permission.
     bool radioStartPermssion = true;
-    if (mProfileMonitor->isCurrentProfileOffline()) {
+    if (mProfileMonitor->isInOfflineMode()) {
         // Device is in offline profile, ask the user for permission to start
         HbDeviceMessageBox box(hbTrId(
             "txt_fmradiohswidget_rad_info_activate_radio_in_offline_mode_hs"),

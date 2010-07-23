@@ -79,7 +79,7 @@ EXPORT_C void CRadioAudioRouter::SetAudioRouteL( RadioEngine::TRadioAudioRoute a
     {
     LEVEL3( LOG_METHOD_AUTO );
 
-    for ( TInt i = 0 ; i < iRoutableAudios.Count(); i++ )
+    for ( TInt i = 0; i < iRoutableAudios.Count(); ++i )
         {
         iRoutableAudios[i]->SetAudioRouteL( aAudioRoute );
         }

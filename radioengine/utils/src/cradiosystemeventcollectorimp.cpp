@@ -20,7 +20,6 @@
 
 // User includes
 #include "cradioaccessoryobserver.h"
-#include "cradiorepositorymanager.h"
 #include "cradiosystemeventcollectorimp.h"
 #include "cradiosystemeventdetector.h"
 #include "radioengineutils.h"

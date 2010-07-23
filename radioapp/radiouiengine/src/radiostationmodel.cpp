@@ -180,6 +180,18 @@ void RadioStationModel::initialize( RadioPresetStorage* storage, RadioEngineWrap
         if ( d->mPresetStorage->readPreset( index, *stationInterface ) ) {
             if ( station.isValid() && d->mWrapper->isFrequencyValid( station.frequency() ) ) {
 
+#ifdef INIT_STATIONS_WITH_DUMMY_RT
+                station.setGenre( GenreEurope::RdsChildrensProgrammes );
+                if ( index % 3 == 0 ) {
+                    station.setName( "Radio Rock" );
+                    station.setRadioText( "Now playing: <font color='cyan'>The Presidents of the United States of America</font> - <font color='cyan'>Dune Buggy and diipa daapa jhkjhui erjlkej rewjtl</font>" );
+                } else if ( index % 2 == 0 ) {
+                    station.setName( "Radio Rock" );
+                } else {
+                    station.setDynamicPsText( "DYN PS" );
+                }
+#endif // INIT_STATIONS_WITH_DUMMY_RT
+
                 // Check if the station seems to send RDS or not.
                 // Note that radiotext is not checked because it is not saved to cenrep
                 // TODO: Consider saving this state flag to cenrep

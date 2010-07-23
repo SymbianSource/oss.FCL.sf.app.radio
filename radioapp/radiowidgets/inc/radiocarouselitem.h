@@ -37,6 +37,7 @@ class RadioCarouselItem : public HbWidget
 {
     Q_OBJECT
     Q_PROPERTY(Appearance appearance READ appearance WRITE setAppearance)
+    Q_PROPERTY(bool landscape READ landscape WRITE setLandscape)
     Q_ENUMS(Appearance)
 
     friend class RadioStationCarousel;
@@ -70,6 +71,9 @@ public:
 
     void setAppearance( Appearance appearance );
     Appearance appearance() const;
+
+    void setLandscape( bool landscape );
+    bool landscape() const;
 
     void setSeekLayout( bool seekLayout );
 
@@ -122,6 +126,7 @@ private: // data
 
     Appearance                          mAppearance;
     bool                                mOwnsCss;
+    bool                                mLandscapeMode;
     CarouselItemFlags                   mFlags;
 
 };

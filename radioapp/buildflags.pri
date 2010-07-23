@@ -26,6 +26,9 @@
 # Flag to use dummy radio data read from XML file
 # RADIOFLAGS += USE_DUMMY_RADIO_DATA
 
+# Flag to initialize radio stations with dummy rt
+# RADIOFLAGS += INIT_STATIONS_WITH_DUMMY_RT
+
 # Functional testing
 # RADIOFLAGS += SHOW_CALLSIGN_IN_ANY_REGION
 
@@ -114,11 +117,9 @@ win32: {
     DESTDIR     = ../bin
     LIBS        += -L../bin
     INCLUDEPATH += ../radioenginewrapper/inc
-    INCLUDEPATH += ../../internal/win32_stubs
-    HEADERS     += ../../internal/win32_stubs/qsysteminfo.h
-    HEADERS     += ../../internal/win32_stubs/xqserviceutil.h
-    HEADERS     += ../../internal/win32_stubs/xqserviceprovider.h
-    SOURCES     += ../../internal/win32_stubs/win32_stubs.cpp
+    INCLUDEPATH += ../radioapplication/win32_stubs
+    HEADERS     += ../radioapplication/win32_stubs/*.h
+    SOURCES     += ../radioapplication/win32_stubs/*.cpp
 }
 
 USE_UNFROZEN_EXPORTS {

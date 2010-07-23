@@ -87,6 +87,7 @@ void CRadioSystemEventDetector::ConstructL()
 
 #ifndef __WINS__
     // Define audio types for not resuming.
+    //TODO: Check these audio resume categories!
     iNoAutoResumeAudioCategories = RArray<TInt>( KVRAudioCategoryArrayGranularity );
     iNoAutoResumeAudioCategories.AppendL( ECatMediaPlayer );
     iNoAutoResumeAudioCategories.AppendL( ECatMobileTv );
@@ -176,7 +177,7 @@ void CRadioSystemEventDetector::HandlePropertyChangeL( const TUid& aCategory,
             TAudioClientList audioClients;
             audioClients.Copy( aValue );
             // Check all playing audios!
-            for ( TInt i = 0; i < audioClients().iNumOfProcesses ; i++ )
+            for ( TInt i = 0; i < audioClients().iNumOfProcesses ; ++i )
                 {
                 TInt cat = audioClients().iClientCategoryList[i];
                 LOG_FORMAT( "Check audio cat %x", cat );

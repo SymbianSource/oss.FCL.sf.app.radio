@@ -20,8 +20,6 @@ include(../buildflags.pri)
 TEMPLATE    = lib
 TARGET      = fmradiowidgets
 CONFIG      += dll hb
-CONFIG      += mobility
-MOBILITY    = systeminfo
 DEFINES     += BUILD_WIDGETS_DLL
 
 symbian:TARGET.UID3 = 0x2002FF4C

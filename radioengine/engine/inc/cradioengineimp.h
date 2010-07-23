@@ -30,7 +30,6 @@
 #include "radioenginedef.h"
 
 // Forward declarations
-class CRadioPubSub;
 class CRadioRdsReceiverBase;
 class CRadioNetworkInfoListener;
 class MRadioEngineSettings;
@@ -111,27 +110,11 @@ private:
         ERadioEventFmTransmitter
         };
 
-    /**
-     * Possible radio scan events.
-     */
-    enum TRadioScanEvent
-        {
-        /**
-         * Scanning found a valid frequency.
-         */
-        ERadioEventFrequencyScanned,
-
-        /**
-         * Scanning is completed.
-         */
-        ERadioEventScanCompleted
-
-        };
-
     enum TRadioInitialisationState
         {
         ERadioNotInitialized,
         ERadioUtilitiesConstructed,
+        ERadioTunerControlRequested,
         ERadioTunerControlGranted
         };
 
@@ -170,6 +153,11 @@ private:
      * Switches radio power OFF.
      */
     void PowerOff();
+
+    /**
+     * Requests tuner control from tuner utility
+     */
+    void RequestTunerControl();
 
     /**
      * Converts region code used internally by Visual Radio
