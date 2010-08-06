@@ -184,7 +184,7 @@ void RadioFrequencyScanner::updateScanProgress( const RadioStation& station )
 void RadioFrequencyScanner::continueScanning()
 {
     if ( !mUserCanceled ) {
-        RadioUtil::frequencyStrip()->addScannedStation( mUiEngine.stationModel().currentStation() );
+        RadioUtil::frequencyStrip()->addScannedStation( mUiEngine.stationModel().currentStation().frequency() );
         mScannerEngine->continueScanning();
     }
 }

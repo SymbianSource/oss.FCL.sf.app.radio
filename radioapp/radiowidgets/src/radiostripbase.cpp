@@ -20,7 +20,6 @@
 
 // User includes
 #include "radiostripbase.h"
-#include "radiologger.h"
 
 // Constants
 

@@ -22,7 +22,6 @@
 #include <QPixmap>
 
 // Forward declarations
-class RadioFrequencyStrip;
 class QGraphicsPixmapItem;
 
 // Class declaration

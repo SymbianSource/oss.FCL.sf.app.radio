@@ -56,7 +56,6 @@ USERINCLUDE             /sf/mw/mmmw/mmserv/inc
 USERINCLUDE             /sf/mw/mmmw/inc
 
 APP_LAYER_SYSTEMINCLUDE
-SYSTEMINCLUDE           /epoc32/include/internal
 
 SOURCEPATH              ../../src
 SOURCE                  cradioregion.cpp

@@ -29,8 +29,6 @@
  */
 const int FREQUENCY_MULTIPLIER = 1000000;
 
-const int ONE_HERTZ = FREQUENCY_MULTIPLIER;
-
 /**
  * Desired amount of steps in the volume control in the UI
  */
@@ -110,16 +108,6 @@ namespace Scan
         NotScanning,
         ScanningInMainView,
         ScanningInStationsView
-    };
-}
-
-namespace Scroll
-{
-    enum Direction
-    {
-        Shortest,
-        Left,
-        Right
     };
 }
 

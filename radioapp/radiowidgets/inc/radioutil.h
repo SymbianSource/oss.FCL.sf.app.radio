@@ -23,6 +23,7 @@
 
 // User includes
 #include "radio_global.h"
+#include "radiofrequencystripdef.h"
 
 // Forward declarations
 class RadioFrequencyStrip;

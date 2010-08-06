@@ -19,15 +19,14 @@
 
 // User includes
 #include "radiofrequencyitem.h"
-#include "radiofrequencystrip.h"
-#include "radio_global.h"
-#include "radiologger.h"
+#include "radiofrequencystripbase.h"
+#include "radiofrequencystripdef.h"
 
 /*!
  *
  */
 RadioFrequencyItem::RadioFrequencyItem( QString frequency ) :
-    mFrequency( frequency.isEmpty() ? 0 : frequency.toInt() * ONE_HERTZ ),
+    mFrequency( frequency.isEmpty() ? 0 : frequency.toInt() * FrequencyStrip::ONE_HERTZ ),
     mGraphicsItem( 0 )
 {
 }

@@ -36,7 +36,6 @@ USERINCLUDE             ../inc
 
 APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE           /epoc32/include/remcon
-SYSTEMINCLUDE           /epoc32/include/internal
 SYSTEMINCLUDE           /epoc32/include/mmf/common
 SYSTEMINCLUDE           /epoc32/include/platform/mw
 

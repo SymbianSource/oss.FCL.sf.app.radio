@@ -39,7 +39,6 @@ USERINCLUDE     ../../../utils/api
 USERINCLUDE     ../../../utils/inc
 
 APP_LAYER_SYSTEMINCLUDE
-SYSTEMINCLUDE           /epoc32/include/internal
 
 SOURCEPATH      ../src
 

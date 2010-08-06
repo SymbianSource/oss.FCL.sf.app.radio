@@ -40,7 +40,6 @@ USERINCLUDE             /sf/mw/mmmw/inc
 
 APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE           /epoc32/include/remcon
-SYSTEMINCLUDE           /epoc32/include/internal
 SYSTEMINCLUDE           /epoc32/include/mmf/common
 SYSTEMINCLUDE           /epoc32/include/platform/mw
 
@@ -51,7 +50,6 @@ SOURCE                  cradioroutableaudio.cpp
 SOURCE                  cradioaudiorouter.cpp
 SOURCE                  cradiopropertyobserver.cpp
 SOURCE                  cradioremcontarget.cpp
-SOURCE                  cradiorepositoryentitybase.cpp
 SOURCE                  cradiosystemeventcollector.cpp
 SOURCE                  cradiosystemeventcollectorimp.cpp
 SOURCE                  cradiosystemeventdetector.cpp

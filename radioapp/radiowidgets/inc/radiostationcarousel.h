@@ -26,6 +26,7 @@
 // User includes
 #include "radiocarouselitemobserver.h"
 #include "radiowidgetsexport.h"
+#include "radiofrequencystripdef.h"
 #include "radio_global.h"
 
 // Forward declarations

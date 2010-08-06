@@ -88,8 +88,7 @@ void RadioMainView::setScanningMode( bool scanning )
         updateFavoriteButton();
         mFrequencyScanner.take();
 
-//        const bool firsTimeStart = mUiEngine->isFirstTimeStart();
-        const bool firsTimeStart = false; // TODO! RadioServer terminates. Fix available in NCP 25 or 27.
+        const bool firsTimeStart = mUiEngine->isFirstTimeStart();
         const int rowCount = mUiEngine->stationModel().rowCount();
         if ( firsTimeStart && rowCount != 0 ) {
             mUiEngine->setFirstTimeStartPerformed( true );
@@ -190,8 +189,7 @@ void RadioMainView::init()
 #endif // BUILD_WIN32
     setNavigationAction( backAction );
 
-//    const bool firsTimeStart = mUiEngine->isFirstTimeStart();
-    const bool firsTimeStart = false; // TODO! RadioServer terminates. Fix available in NCP 25 or 27.
+    const bool firsTimeStart = mUiEngine->isFirstTimeStart();
     const int rowCount = mUiEngine->stationModel().rowCount();
     if ( firsTimeStart && rowCount == 0 ){
         QTimer::singleShot( 100, this, SLOT(toggleScanning()) );
@@ -422,7 +420,7 @@ void RadioMainView::setManualSeekMode( bool manualSeekActive )
  */
 void RadioMainView::handleFavoriteChange( const RadioStation& station )
 {
-    mFrequencyStrip->updateFavorite( station );
+    mFrequencyStrip->updateFavorite( station.frequency() );
     updateFavoriteButton();
 }
 

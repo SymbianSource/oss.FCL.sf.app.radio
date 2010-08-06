@@ -21,8 +21,9 @@
 
 #ifndef __WINS__
 
-#include <audiopolicypubsubdata.h>
-#include <audiosw_pubsubkeys.h>
+//#include <audiopolicypubsubdata.h>
+//#include <audiosw_pubsubkeys.h>
+#include <AudioClientsListPSKeys.h>
 
 #endif //__WINS__
 
@@ -36,7 +37,7 @@
 #include "mradiosystemeventdetectorobserver.h"
 
 /** Granularity for audio category arrays. */
-const TInt KVRAudioCategoryArrayGranularity = 3;
+//const TInt KVRAudioCategoryArrayGranularity = 3;
 
 // This has to be the last include. 
 #ifdef STUB_CONSTELLATION
@@ -84,7 +85,7 @@ void CRadioSystemEventDetector::ConstructL()
                                                         CRadioPropertyObserver::ERadioPropertyInt );
     iCallStatusObserver->ActivateL();
     iIsCallActive = iCallStatusObserver->ValueInt() != EPSCTsyCallStateNone;
-
+/*
 #ifndef __WINS__
     // Define audio types for not resuming.
     //TODO: Check these audio resume categories!
@@ -97,6 +98,7 @@ void CRadioSystemEventDetector::ConstructL()
     iAudioPolicyObserver = CRadioPropertyObserver::NewL( *this, KPSUidMMFAudioServer, KAudioPolicyAudioClients, CRadioPropertyObserver::ERadioPropertyByteArray );
     iAudioPolicyObserver->ActivateL();
 #endif
+*/
     }
 
 // ---------------------------------------------------------------------------
