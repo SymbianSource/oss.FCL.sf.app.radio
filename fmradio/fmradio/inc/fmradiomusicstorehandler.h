@@ -257,6 +257,11 @@ private: // members
      * UID for Operator music store (native app.)
      */
     TUint32 iOperatorStoreNativeUID;
+    
+    /*
+     * UID for operator java client app 
+     */
+    TUid iOperatorJavaMusicStoreUID;
 
     /**
      * Website where Operator music store can be found

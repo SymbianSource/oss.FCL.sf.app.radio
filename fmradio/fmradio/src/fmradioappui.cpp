@@ -1357,15 +1357,22 @@ void CFMRadioAppUi::HandleHeadsetReconnectedCallback()
     if ( !(iFMRadioVariationFlags & KFMRadioInternalAntennaSupported) &&
             iCurrentRadioState != EFMRadioStateOffForPhoneCall && 
             iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
-        {
-        // active offline query controls radio on/off
-        if ( iAudioLost )
+        {        
+        if ( !iRadioEngine->IsRadioOn() && !iRadioEngine->IsInCall() )
             {
+            FTRACE( FPrint( _L("CFMRadioAppUi::HandleHeadsetReconnectedCallback() - Turn radio on") ) );
+            TurnRadioOn();
+            } 
+        // active offline query controls radio on/off
+        else if ( iAudioLost )
+            {
+            FTRACE( FPrint( _L("CFMRadioAppUi::HandleHeadsetReconnectedCallback() - Try to resume") ) );
             TRAP_IGNORE( TryToResumeAudioL() );	
             }
         else if ( ( iGlobalOfflineQuery && !iGlobalOfflineQuery->IsActive() ) ||
               !iGlobalOfflineQuery )
             {
+            FTRACE( FPrint( _L("CFMRadioAppUi::HandleHeadsetReconnectedCallback() - Offline query") ) );
             iRadioEngine->InitializeRadio();
             }
         HandleVolumeChangedCallback();

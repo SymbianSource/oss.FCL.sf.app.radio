@@ -44,6 +44,7 @@ const TUint32 KOperatorMusicStore = 0x4;
 const TUint32 KOperatorMusicStoreType = 0x5;
 const TUint32 KOperatorMusicStoreDisplayName = 0x6;
 const TUint32 KOperatorMusicStoreNativeUid = 0x7;
+const TUint32 KOperatorMusicStoreJavaName = 0x8;
 const TUint32 KOperatorMusicStoreWebPage = 0x9;
 const TUint32 KOperatorMusicStoreURI = 0xA;
 const TInt TUInt32HexLength = 8;
@@ -219,8 +220,40 @@ void CFMRadioMusicStoreHandler::InitializeParametersL(
             break;
             }
         case EFMRadioJavaApp:
-            // Java application not supported currently
+            {
+            TApaAppInfo appInfo;
+            RBuf operatorJavaAppName;
+            operatorJavaAppName.CleanupClosePushL();
+            operatorJavaAppName.CreateL( appInfo.iCaption.MaxLength() ); // caption length should be enough
+            
+            TInt err = aRepository.Get( KOperatorMusicStoreJavaName, operatorJavaAppName );
+
+            if ( !err )
+                {
+                _LIT( KFakeName, ".fakeapp" );
+                RApaLsSession apaSession;
+                User::LeaveIfError( apaSession.Connect() );
+                CleanupClosePushL( apaSession );
+                User::LeaveIfError( apaSession.GetAllApps() );
+    
+                while ( apaSession.GetNextApp( appInfo ) == KErrNone )
+                    {
+                    if ( appInfo.iFullName.Right( 8 ).Compare( KFakeName ) == 0)
+                        {
+                        TApaAppCaption appname;
+                        appname = appInfo.iCaption;
+                        if ( !appInfo.iCaption.Compare( operatorJavaAppName ) )
+                            {
+                            FTRACE(FPrint(_L("CFMRadioMusicStoreHandler::InitializeParametersL( Operator Java UID found, name: %S)"), &operatorJavaAppName ));
+                            iOperatorJavaMusicStoreUID = appInfo.iUid;
+                            }
+                        }
+                    }
+                CleanupStack::PopAndDestroy( &apaSession ); // close apaSession
+                }
+            CleanupStack::PopAndDestroy( &operatorJavaAppName );
             break;
+            }
         case EFMRadioWebsite:
             {
             const TInt initialSize = 5;
@@ -473,37 +506,41 @@ void CFMRadioMusicStoreHandler::LaunchMusicStoreL(
     RBuf searchString;
     searchString.CleanupClosePushL();
 
-    TBool isHandled = ETrue;
+    TBool isHandled = EFalse;
     switch( aCommandId )
         {
         case EFMRadioMusicStoreGoogle:
         case EFMRadioMusicStoreWikipedia:
         case EFMRadioMusicStoreAmg:
         case EFMRadioMusicStoreMusicPortl:
-            isHandled = EFalse;
             break;
         case EFMRadioMusicStoreNokiaMusicShop:
+            isHandled = ETrue;
             searchString.Assign( NokiaMusicShopSearchL( aTitle, aArtist, aAlbum ) );
             break;
         case EFMRadioMusicStoreOperator:
             if ( iOperatorStoreWebsite.Length() != 0 )
                 {
+                isHandled = ETrue;
                 searchString.CreateL( iOperatorStoreWebsite );
                 }
             else if ( iOperatorStoreNativeUID )
                 {
+                isHandled = ETrue;
                 // It is assumed that both Nokia Music Shop and operator specific music store use
                 // same kind of interface to communicate
                 searchString.Assign( NokiaMusicShopSearchL( aTitle, aArtist, aAlbum ) );
                 }
+            else if ( iOperatorJavaMusicStoreUID.iUid )
+                {
+                isHandled = ETrue;
+                }
             else
                 {
-                isHandled = EFalse;
                 }
             break;
         default:
             FTRACE( FPrint( _L("CFMRadioMusicStoreHandler::LaunchMusicStoreL - Unknown id = %d"), aCommandId ) );
-            isHandled = EFalse;
             break;
         }
 
@@ -524,8 +561,8 @@ void CFMRadioMusicStoreHandler::LaunchMusicStoreL(
                 LaunchWebPageL( searchString );
                 break;
             }
-        CleanupStack::PopAndDestroy( &searchString );
         }
+    CleanupStack::PopAndDestroy( &searchString );
     }
 
 // -----------------------------------------------------------------------------
@@ -534,16 +571,29 @@ void CFMRadioMusicStoreHandler::LaunchMusicStoreL(
 //
 void CFMRadioMusicStoreHandler::LaunchOperatorMusicStoreL( const TDesC& aSearchString )
     {
+    FTRACE(FPrint(_L("CFMRadioMusicStoreHandler::LaunchOperatorMusicStoreL('%S')"), &aSearchString));
     if ( iOperatorStoreWebsite.Length() != 0 )
         {
+        FTRACE(FPrint(_L("CFMRadioMusicStoreHandler::LaunchOperatorMusicStoreL Website") ));
         LaunchWebPageL( aSearchString );
         }
     else if ( iOperatorStoreNativeUID )
         {
         // It is assumed that both Nokia Music Shop and operator specific music store use
         // same kind of interface to communicate
+        FTRACE(FPrint(_L("CFMRadioMusicStoreHandler::LaunchOperatorMusicStoreL Operator Native UID") ));
         TUid musicshopUid( TUid::Uid( iOperatorStoreNativeUID ) );
         LaunchMusicShopL( musicshopUid, aSearchString );
+        }
+    else if ( iOperatorJavaMusicStoreUID.iUid )
+        {
+        FTRACE(FPrint(_L("CFMRadioMusicStoreHandler::LaunchOperatorMusicStoreL Operator Java UID") ));
+        TThreadId threadId;
+        RApaLsSession apaSession;
+        User::LeaveIfError( apaSession.Connect() );
+        CleanupClosePushL( apaSession );
+        apaSession.StartDocument( KNullDesC, iOperatorJavaMusicStoreUID, threadId );
+        CleanupStack::PopAndDestroy( &apaSession ); // close apaSession
         }
     else
         {

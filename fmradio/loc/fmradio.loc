@@ -263,7 +263,7 @@
 // d: Shown if the 3.5mm analog audio accessory required as antenna is not connected
 // l: popup_note_window
 //
-#define qtn_fmradio_error_con_headset     "Connect wired headset with 3.5mm connector"
+#define qtn_fmradio_error_con_headset     "Please connect your wired headset with the phone’s 3.5mm connector"
 
 // d: Confirmation query 
 // d: Replaces all existing stations with the new ones on the list.
