@@ -62,4 +62,4 @@ QObject *RadioHsWidgetPlugin::createInstance(const QServiceInterfaceDescriptor &
     }
 }
 
-Q_EXPORT_PLUGIN2(fmradiohswidget, RadioHsWidgetPlugin)
+Q_EXPORT_PLUGIN2(radiohswidgetplugin, RadioHsWidgetPlugin)

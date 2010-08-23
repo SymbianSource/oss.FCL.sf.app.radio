@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RCC>
     <qresource>
-        <file>layout/mainview.docml</file>
-        <file>layout/stationsview.docml</file>
-        <file>layout/historyview.docml</file>
+        <file alias="layout/mainview.docml">layout/mainview.docml.bin</file>
+        <file alias="layout/stationsview.docml">layout/stationsview.docml.bin</file>
+        <file alias="layout/historyview.docml">layout/historyview.docml.bin</file>
         <file>layout/radiocarouselitem.css</file>
         <file>layout/radiocarouselitem.widgetml</file>
     </qresource>

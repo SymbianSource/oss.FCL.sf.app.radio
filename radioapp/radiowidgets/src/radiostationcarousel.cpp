@@ -82,8 +82,7 @@ RadioStationCarousel::RadioStationCarousel( QGraphicsItem* parent ) :
     mModel( NULL ),
     mPosAdjustmentDisabled( false ),
     mScrollDirection( Scroll::Shortest ),
-    mManualSeekMode( false ),
-    mAlternateSkipping( false )
+    mManualSeekMode( false )
 #ifdef USE_DEBUGGING_CONTROLS
     ,mRdsLabel( new RadioFadingLabel( this ) )
 #endif // USE_DEBUGGING_CONTROLS
@@ -389,9 +388,6 @@ void RadioStationCarousel::setInfoText( CarouselInfoText::Type type )
         cleanRdsData();
         mInfoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
         mInfoText->setPlainText( hbTrId( "txt_rad_list_searching_all_available_stations_ple" ) );
-    } else if ( type == CarouselInfoText::ManualSeek ) {
-        mInfoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
-        mInfoText->setPlainText( "Manual Seek Mode" );
     }
 
     mInfoText->setVisible( true );
@@ -424,9 +420,7 @@ void RadioStationCarousel::setManualSeekMode( bool manualSeekActive )
     setEnabled( !manualSeekActive );
 
     mItems[CenterItem]->setSeekLayout( manualSeekActive );
-    if ( manualSeekActive ) {
-        setInfoText( CarouselInfoText::ManualSeek );
-    } else {
+    if ( !manualSeekActive ) {
         clearInfoText();
         setFrequency( mUiEngine->currentFrequency(), TuneReason::Unspecified );
     }
@@ -446,14 +440,6 @@ void RadioStationCarousel::drawOffScreen( QPainter& painter )
 void RadioStationCarousel::setLandscape( bool landscape )
 {
     CALL_TO_ALL_ITEMS( setLandscape( landscape ) );
-}
-
-/*!
- * TODO: Remove this! This is test code
- */
-void RadioStationCarousel::setAlternateSkippingMode( bool alternateSkipping )
-{
-    mAlternateSkipping = alternateSkipping;
 }
 
 /*!
@@ -807,11 +793,7 @@ void RadioStationCarousel::scrollToIndex( int index, Scroll::Direction direction
         if ( mode.testFlag( NoAnim ) ) {
             scrollTime = 0;
         } else if ( mode.testFlag( FromPanGesture ) ) {
-            if ( mAlternateSkipping ) { //TODO: Remove this! This is test code
-                scrollTime = 500;
-            } else {
-                scrollTime = 300;
-            }
+            scrollTime = 500;
         } else if ( mode.testFlag( FromSwipeGesture ) ) {
             scrollTime = 100;
         }
@@ -884,35 +866,24 @@ void RadioStationCarousel::adjustPos( int offset )
             newPos = 0;
             mScrollDirection = Scroll::Right;
             if ( !mIsCustomFreq ) {
-
-                if ( mAlternateSkipping ) { //TODO: Remove this! This is test code
-                    const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::PreviousFavorite ).frequency();
-                    if ( newFreq > 0 ) {
-                        newIndex = mModel->indexFromFrequency( newFreq );
-                    } else {
-                        needsToScroll = false;
-                        newPos = mMidScrollPos;
-                    } // End test code
-
+                const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::PreviousFavorite ).frequency();
+                if ( newFreq > 0 ) {
+                    newIndex = mModel->indexFromFrequency( newFreq );
                 } else {
-                    --newIndex;
+                    needsToScroll = false;
+                    newPos = mMidScrollPos;
                 }
             }
         } else {
             mScrollDirection = Scroll::Left;
             newPos = mMaxScrollPos;
 
-            if ( mAlternateSkipping ) { //TODO: Remove this! This is test code
-                const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::NextFavorite ).frequency();
-                if ( newFreq > 0 ) {
-                    newIndex = mModel->indexFromFrequency( newFreq );
-                } else {
-                    needsToScroll = false;
-                    newPos = mMidScrollPos;
-                } // End test code
-
+            const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::NextFavorite ).frequency();
+            if ( newFreq > 0 ) {
+                newIndex = mModel->indexFromFrequency( newFreq );
             } else {
-                ++newIndex;
+                needsToScroll = false;
+                newPos = mMidScrollPos;
             }
         }
     }

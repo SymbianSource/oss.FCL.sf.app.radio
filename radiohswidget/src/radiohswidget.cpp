@@ -704,8 +704,8 @@ void RadioHsWidget::load(const QString &docml)
                         POWER_BUTTON_ICON_ON,
                         CONTROL_BUTTON_ICON_COLOR_NORMAL);
                     // Connect the button's clicked signal.
-                    Radio::connect(mPowerButton, SIGNAL(clicked()), this,
-                        SLOT(toggleRadioPower()));
+                    Radio::connect(mPowerButton, SIGNAL(clicked()),
+                                   this,         SLOT(toggleRadioPower()));
                 }
 
                 // Find previous button.
@@ -718,8 +718,8 @@ void RadioHsWidget::load(const QString &docml)
                         PREVIOUS_BUTTON_SUFFIX, NULL,
                         CONTROL_BUTTON_ICON_COLOR_DISABLED);
                     // Connect the button's clicked signal.
-                    Radio::connect(mPreviousButton, SIGNAL(clicked()), this,
-                        SLOT(changeToPreviousStation()));
+                    Radio::connect(mPreviousButton, SIGNAL(clicked()),
+                                   this,            SLOT(changeToPreviousStation()));
                 }
 
                 // Find next button.
@@ -732,8 +732,8 @@ void RadioHsWidget::load(const QString &docml)
                         CONTROL_BUTTON_GRAPHICS_DISABLED, NEXT_BUTTON_SUFFIX,
                         NULL, CONTROL_BUTTON_ICON_COLOR_DISABLED);
                     // Connect the button's clicked signal.
-                    Radio::connect(mNextButton, SIGNAL(clicked()), this,
-                        SLOT(changeToNextStation()));
+                    Radio::connect(mNextButton, SIGNAL(clicked()),
+                                   this,        SLOT(changeToNextStation()));
                 }
             }
         }

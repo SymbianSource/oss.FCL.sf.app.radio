@@ -56,6 +56,7 @@ private slots:
     void setFrequencyFromEngine( uint frequency, int reason );
     void skip( int skipMode );
     void openStationsView();
+    void startFirstTimeScanning();
     void toggleScanning();
     void toggleFavorite();
     void seekingStarted();
@@ -64,9 +65,6 @@ private slots:
     void setManualSeekMode( bool manualSeekActive );
     void handleFavoriteChange( const RadioStation& station );
     void saveActivity();
-
-    void toggleSkippingMode();  //TODO: Remove. Temporary test code
-    void resetFirstTimeCount(); //TODO: Remove. Temporary test code
 
 private:
 

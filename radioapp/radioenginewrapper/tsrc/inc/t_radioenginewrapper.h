@@ -24,11 +24,11 @@
 #include <QtTest/QtTest>
 #include <e32property.h>
 #include <centralrepository.h>
+#include <RadioStubManager.h>
 
 #include "radioenginewrapperobserver.h"
 #include "radiostationhandlerif.h"
 //#include "radiostation.h"
-#include "radiostubmanager.h"
 #include "t_schedulerstartandstoptimer.h"
 
 class RadioUiEngine;
@@ -49,12 +49,11 @@ class TestRadioEngineWrapper : public QObject, RadioStationHandlerIf, RadioEngin
     enum SlotEnteredFlag
     {
     	NoSlotsEntered         = 0
-        ,HeadsetConnected       = 1 << 0
-        ,SeekingStarted         = 1 << 1
-        ,TunedToFrequency       = 1 << 2
-        ,MuteChanged            = 1 << 3
-        ,VolumeChanged          = 1 << 4
-        ,ItemAdded              = 1 << 5
+        ,TunedToFrequency       = 1 << 0
+        ,MuteChanged            = 1 << 1
+        ,VolumeChanged          = 1 << 2
+        ,AntennaChanged         = 1 << 3
+        ,ItemAdded              = 1 << 4
     };
     Q_DECLARE_FLAGS( Slots, SlotEnteredFlag )    
     
@@ -76,8 +75,6 @@ private slots:
     void init();
     void cleanup();
     
-    void testIsEngineConstructed();
-    
     void testRadioSettingsReference();
     
     void testRegion();
@@ -86,15 +83,14 @@ private slots:
 
     void testTuning();
     
-    void testTuningWithDelay();
+    void testCancelSeeking();
     
-    void testMuteToggling();
+    // Mute's callback function CRadioEngine::MrpoMuteChange() is commented in radio engine, so no point to test here.
+    // void testMute();
     
     void testVolumeSetting();
     
     void testLoudSpeakerUsage();
-    
-    void testScanning();
     
     void cleanupTestCase();
     
@@ -125,25 +121,22 @@ private:
     
     // c =>
     void tunedToFrequency( uint frequency, int commandSender );
-    void seekingStarted( Seeking::Direction direction );
-    void radioStatusChanged( bool radioIsOn );
 
     void rdsAvailabilityChanged( bool available );
 
+    void increaseVolume();
+    void decreaseVolume();
     void volumeChanged( int volume );
     void muteChanged( bool muted );
 
+    void antennaStatusChanged( bool connected ); // uusi
+    
     void audioRouteChanged( bool loudspeaker );
-    void scanAndSaveFinished();
-    void headsetStatusChanged( bool connected );
 
     void skipPrevious();
     void skipNext();
     // <= from base class RadioStationHandlerIf 
       
-    // subfunctions used by the test framework called slots =>
-    // void testRadioStationModelInit();
-
     // from base class MSchedulerStartAndStopTimerObserver =>
     void Timeout( TUint aTimerId );    
     void CreateMUT();
@@ -155,7 +148,7 @@ private:
     TInt tstGetFrequency();
     void tstSetScanningData( TUint aCount, TInt aMinFreq, TInt aFrequencyStepSize );
     void tstDefineAndAttachRadioServerProperties();
-    void tstCreateCRObjects();
+    TInt tstCreateCRObjects();
     
 private:
     RadioEngineWrapper* mEngineWrapper;

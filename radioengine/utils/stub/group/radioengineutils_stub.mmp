@@ -2,7 +2,7 @@
 * Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 * All rights reserved.
 * This component and the accompanying materials are made available
-* under the terms of the License "Eclipse Public License v1.0"
+* under the terms of "Eclipse Public License v1.0"
 * which accompanies this distribution, and is available
 * at the URL "http://www.eclipse.org/legal/epl-v10.html".
 *
@@ -50,9 +50,9 @@ SOURCE                  cradioroutableaudio.cpp
 SOURCE                  cradioaudiorouter.cpp
 SOURCE                  cradiopropertyobserver.cpp
 SOURCE                  cradioremcontarget.cpp
+SOURCE                  cradiosystemeventdetector.cpp
 SOURCE                  cradiosystemeventcollector.cpp
 SOURCE                  cradiosystemeventcollectorimp.cpp
-SOURCE                  cradiosystemeventdetector.cpp
 SOURCE                  cradioenginelogger.cpp
 
 SOURCEPATH              ../src
@@ -63,7 +63,7 @@ LIBRARY                 bafl.lib
 LIBRARY                 accclient.lib
 LIBRARY                 accpolicy.lib
 LIBRARY                 centralrepository.lib
-LIBRARY                 commonengine.lib
+LIBRARY                 CommonEngine.lib
 LIBRARY                 efsrv.lib
 LIBRARY                 euser.lib
 LIBRARY                 cone.lib

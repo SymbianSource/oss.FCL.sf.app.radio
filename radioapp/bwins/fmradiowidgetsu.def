@@ -118,17 +118,16 @@ EXPORTS
 	?setFrequency@RadioFrequencyStrip@@UAEXIHW4Direction@Scroll@@@Z @ 117 NONAME ; void RadioFrequencyStrip::setFrequency(unsigned int, int, enum Scroll::Direction)
 	?frequencyChanged@RadioStationCarousel@@IAEXIHH@Z @ 118 NONAME ; void RadioStationCarousel::frequencyChanged(unsigned int, int, int)
 	?trimIndex@RadioStationCarousel@@AAEHH@Z @ 119 NONAME ; int RadioStationCarousel::trimIndex(int)
-	?setAlternateSkippingMode@RadioStationCarousel@@QAEX_N@Z @ 120 NONAME ; void RadioStationCarousel::setAlternateSkippingMode(bool)
-	?initView@RadioWindow@@AAEXXZ @ 121 NONAME ; void RadioWindow::initView(void)
-	?trUtf8@RadioStationCarousel@@SA?AVQString@@PBD0H@Z @ 122 NONAME ; class QString RadioStationCarousel::trUtf8(char const *, char const *, int)
-	??_ERadioFadingLabel@@UAE@I@Z @ 123 NONAME ; RadioFadingLabel::~RadioFadingLabel(unsigned int)
-	?init@RadioWindow@@QAEXXZ @ 124 NONAME ; void RadioWindow::init(void)
-	?isScrollingAllowed@RadioStationCarousel@@ABE_NXZ @ 125 NONAME ; bool RadioStationCarousel::isScrollingAllowed(void) const
-	?qt_metacast@RadioFrequencyStrip@@UAEPAXPBD@Z @ 126 NONAME ; void * RadioFrequencyStrip::qt_metacast(char const *)
-	?staticMetaObject@RadioWindow@@2UQMetaObject@@B @ 127 NONAME ; struct QMetaObject const RadioWindow::staticMetaObject
-	?cleanRdsData@RadioStationCarousel@@QAEXXZ @ 128 NONAME ; void RadioStationCarousel::cleanRdsData(void)
-	?clearInfoText@RadioStationCarousel@@QAEXXZ @ 129 NONAME ; void RadioStationCarousel::clearInfoText(void)
-	?adjustPos@RadioStationCarousel@@AAEXH@Z @ 130 NONAME ; void RadioStationCarousel::adjustPos(int)
-	?frequencyAtIndex@RadioFrequencyStrip@@EBEIH@Z @ 131 NONAME ; unsigned int RadioFrequencyStrip::frequencyAtIndex(int) const
-	?scanAnimationFinished@RadioStationCarousel@@IAEXXZ @ 132 NONAME ; void RadioStationCarousel::scanAnimationFinished(void)
+	?initView@RadioWindow@@AAEXXZ @ 120 NONAME ; void RadioWindow::initView(void)
+	?trUtf8@RadioStationCarousel@@SA?AVQString@@PBD0H@Z @ 121 NONAME ; class QString RadioStationCarousel::trUtf8(char const *, char const *, int)
+	??_ERadioFadingLabel@@UAE@I@Z @ 122 NONAME ; RadioFadingLabel::~RadioFadingLabel(unsigned int)
+	?init@RadioWindow@@QAEXXZ @ 123 NONAME ; void RadioWindow::init(void)
+	?isScrollingAllowed@RadioStationCarousel@@ABE_NXZ @ 124 NONAME ; bool RadioStationCarousel::isScrollingAllowed(void) const
+	?qt_metacast@RadioFrequencyStrip@@UAEPAXPBD@Z @ 125 NONAME ; void * RadioFrequencyStrip::qt_metacast(char const *)
+	?staticMetaObject@RadioWindow@@2UQMetaObject@@B @ 126 NONAME ; struct QMetaObject const RadioWindow::staticMetaObject
+	?cleanRdsData@RadioStationCarousel@@QAEXXZ @ 127 NONAME ; void RadioStationCarousel::cleanRdsData(void)
+	?clearInfoText@RadioStationCarousel@@QAEXXZ @ 128 NONAME ; void RadioStationCarousel::clearInfoText(void)
+	?adjustPos@RadioStationCarousel@@AAEXH@Z @ 129 NONAME ; void RadioStationCarousel::adjustPos(int)
+	?frequencyAtIndex@RadioFrequencyStrip@@EBEIH@Z @ 130 NONAME ; unsigned int RadioFrequencyStrip::frequencyAtIndex(int) const
+	?scanAnimationFinished@RadioStationCarousel@@IAEXXZ @ 131 NONAME ; void RadioStationCarousel::scanAnimationFinished(void)
 

@@ -72,4 +72,5 @@ SOURCES     += radiocarouselitem.cpp
 SOURCES     += radiocarouselanimator.cpp
 SOURCES     += radiohistoryview.cpp
 
+DOCML       += res/layout/stationsview.docml res/layout/mainview.docml res/layout/historyview.docml
 RESOURCES   += res/fmradioui.qrc

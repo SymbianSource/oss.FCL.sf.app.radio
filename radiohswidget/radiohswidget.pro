@@ -36,7 +36,7 @@ INCLUDEPATH += ../common
 
 UID = 2002E6D6
 
-RESOURCES = resources.qrc
+RESOURCES += resources.qrc
 
 symbian: {
 

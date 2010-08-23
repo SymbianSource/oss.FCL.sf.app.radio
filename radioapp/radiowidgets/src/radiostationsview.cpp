@@ -271,7 +271,7 @@ void RadioStationsView::toggleFavorite()
 void RadioStationsView::deleteStation()
 {
     mCurrentQuestion = DeleteStation;
-    askQuestion( hbTrId( "txt_rad_menu_delete_station" ) );
+    askQuestion( hbTrId( "txt_rad_info_delete_station" ) );
 }
 
 /*!

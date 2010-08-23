@@ -17,11 +17,7 @@
 
 #include "../../../group/buildflags.hrh"
 
-#ifdef COMPILE_IN_IVALO
-#   include <domain/osextensions/platform_paths.hrh>
-#else
-#   include <platform_paths.hrh>
-#endif // COMPILE_IN_IVALO
+#include <platform_paths.hrh>
 
 #include <data_caging_paths.hrh>
 

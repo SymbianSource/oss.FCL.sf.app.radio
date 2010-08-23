@@ -132,7 +132,7 @@ void RadioApplication::init()
 
     // Splash screen needs to be shown when not started by homescreen widget
     if ( !XQServiceUtil::isService() ) {
-        HbSplashScreen::setAppId( "fmradio" );
+        HbSplashScreen::setAppId( "0x2002FF4E" );
         HbSplashScreen::start();
     }
 

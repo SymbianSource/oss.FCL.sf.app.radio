@@ -137,7 +137,6 @@ void CRadioRemConTargetImp::MrccatoCommand( TRemConCoreApiOperationId aOperation
     {
     LOG_FORMAT( "aOperationId = %d, aButtonAct = %d", aOperationId, aButtonAct );
     LOG_METHOD_AUTO;
-    //TODO: Refactor
     if ( iObserver )
         {
         switch ( aOperationId )

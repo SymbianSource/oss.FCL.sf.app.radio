@@ -287,7 +287,7 @@ void RadioFrequencyStripBase::updateStation( const QModelIndex& parent, int firs
  */
 void RadioFrequencyStripBase::handleLeftButton()
 {
-    skipToPreviousFavorite();
+    skipToPrevious();
 }
 
 /*!
@@ -295,7 +295,7 @@ void RadioFrequencyStripBase::handleLeftButton()
  */
 void RadioFrequencyStripBase::handleRightButton()
 {
-    skipToNextFavorite();
+    skipToNext();
 }
 
 /*!
@@ -455,7 +455,7 @@ void RadioFrequencyStripBase::mouseReleaseEvent( QGraphicsSceneMouseEvent* event
     RadioStripBase::mouseReleaseEvent( event );
 
     mManualSeekTimer->stop();
-    if ( mManualSeekMode && !isScrolling() ) {
+    if ( mManualSeekMode ) {
         mManualSeekTimer->start( FrequencyStrip::MANUALSEEK_END_TIMEOUT );
     }
 }

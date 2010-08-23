@@ -171,11 +171,6 @@ void RadioMainView::init()
     // "Play history" menu item
     connectViewChangeMenuItem( DOCML::MV_NAME_HISTORYVIEW_ACTION, SLOT(activateHistoryView()) );
 
-    //TODO: REMOVE. THIS IS TEMPORARY TEST CODE
-    toggleSkippingMode();
-    menu()->addAction( "-- Reset start count", this, SLOT(resetFirstTimeCount()) );
-    // END TEMPORARY TEST CODE
-
     updateAudioRoute( mUiEngine->isUsingLoudspeaker() );
 
     // Add "back" navigation action to put the application to background
@@ -191,9 +186,11 @@ void RadioMainView::init()
 
     const bool firsTimeStart = mUiEngine->isFirstTimeStart();
     const int rowCount = mUiEngine->stationModel().rowCount();
-    if ( firsTimeStart && rowCount == 0 ){
-        QTimer::singleShot( 100, this, SLOT(toggleScanning()) );
-    }
+
+   if ( firsTimeStart && rowCount == 0 ){
+            QTimer::singleShot( 4500, this, SLOT(startFirstTimeScanning()) );
+        }
+
 
     Radio::connect( static_cast<HbApplication*>( qApp ),    SIGNAL(aboutToQuit()),
                     this,                                   SLOT(saveActivity()) );
@@ -329,6 +326,16 @@ void RadioMainView::openStationsView()
 /*!
  * Private slot
  */
+void RadioMainView::startFirstTimeScanning()
+{
+    if ( mUiEngine->isAntennaAttached() ){
+        QTimer::singleShot( 100, this, SLOT(toggleScanning()) );
+    }
+}
+
+/*!
+ * Private slot
+ */
 void RadioMainView::toggleScanning()
 {
     mFrequencyStrip->cancelManualSeek();
@@ -378,6 +385,11 @@ void RadioMainView::updateAntennaStatus( bool connected )
     HbAction* scanAction = mUiLoader->findObject<HbAction>( DOCML::MV_NAME_SCAN_ACTION );
     scanAction->setEnabled( connected );
     mCarousel->updateAntennaStatus( connected );
+    const bool firsTimeStart = mUiEngine->isFirstTimeStart();
+    const int rowCount = mUiEngine->stationModel().rowCount();
+    if ( firsTimeStart && rowCount == 0 && connected ){
+            QTimer::singleShot( 100, this, SLOT(toggleScanning()) );
+        }
 }
 
 /*!
@@ -458,32 +470,6 @@ void RadioMainView::saveActivity()
     LOG_ASSERT( ok, LOG( "Failed to remove old activity from Activity Manager!" ) );
     ok = activityManager->addActivity( RADIO_MAINVIEW_ACTIVITY_ID, QVariant(), metadata );
     LOG_ASSERT( ok, LOG( "Failed to update activity to Activity Manager!" ) );
-}
-
-/*!
- * Private slot
- */
-void RadioMainView::toggleSkippingMode()
-{
-    if ( !mSkippingAction ) {
-        mSkippingAction = menu()->addAction( "", this, SLOT(toggleSkippingMode()) );
-    }
-
-    mAlternateSkipping = !mAlternateSkipping;
-    mCarousel->setAlternateSkippingMode( mAlternateSkipping );
-    if ( mAlternateSkipping ) {
-        mSkippingAction->setText( "-- Normal skipping mode" );
-    } else {
-        mSkippingAction->setText( "-- Alternate skipping mode" );
-    }
-}
-
-/*!
- * Private slot
- */
-void RadioMainView::resetFirstTimeCount()
-{
-    mUiEngine->setFirstTimeStartPerformed( false );
 }
 
 /*!

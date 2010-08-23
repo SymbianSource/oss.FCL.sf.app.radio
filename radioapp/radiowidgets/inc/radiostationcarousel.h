@@ -116,8 +116,6 @@ public:
 
     void setLandscape( bool landscape );
 
-    void setAlternateSkippingMode( bool alternateSkipping ); //TODO: Remove this! This is test code
-
 signals:
 
     void frequencyChanged( uint frequency, int reason, int direction );
@@ -224,8 +222,6 @@ private: // data
     Scroll::Direction                   mScrollDirection;
 
     bool                                mManualSeekMode;
-
-    bool                                mAlternateSkipping;
 
 #ifdef USE_DEBUGGING_CONTROLS
     RadioFadingLabel*                   mRdsLabel;

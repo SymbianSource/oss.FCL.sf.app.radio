@@ -833,7 +833,7 @@ void CRadioEngineImp::AdjustVolume( RadioEngine::TRadioVolumeSetDirection aDirec
             TInt min = iSettings->EngineSettings().DefaultMinVolumeLevel();
             if ( --volume < min )
                 {
-                volume = min;
+                volume = 0;
                 }
             }
         else if ( aDirection == RadioEngine::ERadioIncVolume )
@@ -868,18 +868,17 @@ void CRadioEngineImp::SetVolume( TInt aVolume )
 
         if ( aVolume == 0 )
             {
+            iSettings->RadioSetter().SetVolume( aVolume );
+            NotifyRadioEvent( ERadioEventVolume, KErrNone );
             SetVolumeMuted( ETrue );
             }
         else
             {
-            if ( iSettings->EngineSettings().IsVolMuted() )
-                {
-                SetVolumeMuted( EFalse );
-                }
-            else if ( iPlayerUtility->SetVolume( TunerVolumeForUiVolume( aVolume ) ) == KErrNone )
+            if ( iPlayerUtility->SetVolume( TunerVolumeForUiVolume( aVolume ) ) == KErrNone )
                 {
                 iSettings->RadioSetter().SetVolume( aVolume );
                 NotifyRadioEvent( ERadioEventVolume, KErrNone );
+                SetVolumeMuted( EFalse );
                 }
             }
         }
@@ -1132,6 +1131,7 @@ void CRadioEngineImp::HandleSystemEventL( TRadioSystemEventType aEventType )
 
         case ERadioCallDeactivated:
             {
+            iPlayerUtility->Play();
             SwitchPower( ETrue );
             }
             break;
