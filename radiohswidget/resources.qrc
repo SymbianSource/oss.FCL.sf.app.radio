@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/ui">
-        <file>resource/fmradiohswidget.docml</file>
-    </qresource>
-</RCC>

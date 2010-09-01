@@ -1,0 +1,50 @@
+/*
+* Copyright (c) 2002-2004 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Project build file for FMRadioEngine
+*
+*/
+
+
+#include <platform_paths.hrh>
+
+// Platforms the component needs to be built on
+//
+
+PRJ_PLATFORMS
+DEFAULT
+
+PRJ_EXPORTS
+// Source files which are copied to their following destinations
+../inc/fmradiointernalpskeys.h APP_LAYER_PLATFORM_EXPORT_PATH(fmradiointernalpskeys.h)
+
+//Backup registartion file
+backup_registration.xml  z:/private/2001b25e/backup_registration.xml
+
+// iby file
+../rom/fmradioengine.iby	CORE_APP_LAYER_IBY_EXPORT_PATH(fmradioengine.iby)
+
+// *.mmp files required for building the needed component
+//
+PRJ_MMPFILES
+fmradioengine.mmp
+
+
+// *.mmp files required for building any test programs
+//
+//PRJ_TESTMMPFILES
+//../internal/fmradioenginetest/tfmradioengine.mmp
+
+
+
+// End of file
