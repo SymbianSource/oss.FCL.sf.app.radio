@@ -182,7 +182,7 @@ void RadioStation::setName( const QString& name )
 {
     // Name emptiness is checked because this name setter is used by incoming RDS PS name
     // and empty names should be ignored
-    if ( !name.isEmpty() && !mData->isRenamedByUser() && mData->mName.compare( name ) != 0 ) {
+    if ( !name.isEmpty() && !mData->isRenamedByUser() && mData->mName.compare( name.trimmed() ) != 0 ) {
         mData->mName = name.trimmed();
         mData->mChangeFlags |= RadioStation::PersistentDataChanged | RadioStation::NameChanged;
         mData->setStationHasSentRds( true );

@@ -220,7 +220,7 @@ void RadioFrequencyScanner::finishScanning()
     disconnect( mScannerEngine.data(), SIGNAL(stationFound(RadioStation)), this, 0 );
 
     RadioStationModel& model = mUiEngine.stationModel();
-    const int stationCount = model.rowCount();
+    const int stationCount = model.localCount();
 
     if ( mInMainView ) {
 

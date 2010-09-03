@@ -35,14 +35,14 @@
 static QString parseLine( const RadioStation& station )
 {
     QString line = "";
-    const QString parsedFrequency = qtTrId( "txt_rad_dblist_l1_mhz" ).arg( RadioStation::parseFrequency( station.frequency() ) );
-    line.append( parsedFrequency );
 
     QString name = station.name();
     if ( !name.isEmpty() )
     {
-        line.append( " - " );
         line.append( name.trimmed() );
+    } else {
+        const QString parsedFrequency = qtTrId( "txt_rad_dblist_l1_mhz" ).arg( RadioStation::parseFrequency( station.frequency() ) );
+        line.append( parsedFrequency );
     }
 
     LOG_FORMAT( "RadioStationModel: Returning line %s", GETSTRING(line) );
@@ -99,16 +99,44 @@ QVariant RadioStationModel::data( const QModelIndex& index, int role ) const
     if ( role == Qt::DisplayRole ) {
         RadioStation station = stationAt( index.row() );
         QString firstLine = parseLine( station );
-        if ( d->mDetailLevel.testFlag( RadioStationModel::ShowGenre ) ) {
-            QStringList list;
-            list.append( firstLine );
-            QString genre = " "; // Empty space so that the listbox generates the second row
-            if ( station.genre() != -1 ) {
-                genre = d->mUiEngine.api().genreToString( station.genre(), GenreTarget::StationsList );
-            }
-            list.append( genre );
+        QString name = station.name();
 
-            return list;
+        if ( !name.isEmpty() ) {
+            if ( currentStation().frequency() == station.frequency() ) {
+                if ( d->mDetailLevel.testFlag( RadioStationModel::ShowGenre ) ) {
+                    QStringList list;
+                    list.append( firstLine );
+                    QString genre = " "; // Empty space so that the listbox generates the second row
+                    if ( station.genre() != -1 ) {
+                        genre = d->mUiEngine.api().genreToString( station.genre(), GenreTarget::StationsList );
+                    }
+                    list.append( genre );
+
+                    return list;
+                }
+            } else {
+                QStringList list;
+                list.append( firstLine );
+                QString parsedFrequency = " "; // Empty space so that the listbox generates the second row
+                parsedFrequency = qtTrId( "txt_rad_dblist_l1_mhz" ).arg( RadioStation::parseFrequency( station.frequency() ) );
+                list.append( parsedFrequency );
+                return list;
+            }
+        } else {
+            if ( currentStation().frequency() != station.frequency() ) {
+                QStringList list;
+                list.append( firstLine );
+                return list;
+            } else {
+                QStringList list;
+                list.append( firstLine );
+                QString genre = " "; // Empty space so that the listbox generates the second row
+                if ( station.genre() != -1 ) {
+                    genre = d->mUiEngine.api().genreToString( station.genre(), GenreTarget::StationsList );
+                }
+                list.append( genre );
+                return list;
+            }
         }
 
         return firstLine;
@@ -541,6 +569,15 @@ int RadioStationModel::favoriteCount()
 }
 
 /*!
+ * Finds number of local stations
+ */
+int RadioStationModel::localCount()
+{
+    Q_D( const RadioStationModel );
+    return d->locals().count();
+}
+
+/*!
  * Changes the favorite status of a station by its frequency. If the station does
  * not yet exist, it is added.
  */
@@ -594,7 +631,7 @@ void RadioStationModel::renameStation( int presetIndex, const QString& name )
     LOG_FORMAT( "RadioStationModel::renameStation, presetIndex: %d, name: %s", presetIndex, GETSTRING(name) );
     RadioStation station;
     if ( findPresetIndex( presetIndex, station ) != RadioStation::NotFound ) {
-        station.setUserDefinedName( name );
+        station.setUserDefinedName( name.left(15) ); // Only 15 characters allowed
         saveStation( station );
     }
 }
@@ -674,6 +711,7 @@ void RadioStationModel::dynamicPsCheckEnded()
 {
     Q_D( RadioStationModel );
     LOG_TIMESTAMP( "Finished dynamic PS check." );
+    LOG("RadioStationModel::dynamicPsCheckEnded");
     if ( d->mCurrentStation->psType() != RadioStation::Dynamic && !d->mCurrentStation->dynamicPsText().isEmpty() )
     {
         d->mCurrentStation->setPsType( RadioStation::Static );

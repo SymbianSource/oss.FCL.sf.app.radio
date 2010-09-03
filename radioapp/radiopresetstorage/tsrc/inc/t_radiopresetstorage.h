@@ -47,7 +47,7 @@ private slots:
     void testSavePreset();
     void testReadPreset();
     void testDeletePreset();
-    void testStessTest();
+    void testStressTest();
     
 private:
     

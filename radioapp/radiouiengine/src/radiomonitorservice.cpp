@@ -71,10 +71,18 @@ RadioMonitorService::~RadioMonitorService()
 void RadioMonitorService::init()
 {
     RadioStationModel* stationModel = &mUiEngine.api().stationModel();
+    Radio::connect( stationModel,   SIGNAL(rowsInserted(QModelIndex,int,int)),
+                    this,           SLOT(notifyFavoriteCount()) );
+    Radio::connect( stationModel,   SIGNAL(rowsInserted(QModelIndex,int,int)),
+                    this,           SLOT(notifyLocalCount()) );
     Radio::connect( stationModel,   SIGNAL(rowsRemoved(QModelIndex,int,int)),
                     this,           SLOT(notifyFavoriteCount()) );
+    Radio::connect( stationModel,   SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                    this,           SLOT(notifyLocalCount()) );
     Radio::connect( stationModel,   SIGNAL(favoriteChanged(RadioStation)),
                     this,           SLOT(notifyFavoriteCount()) );
+    Radio::connect( stationModel,   SIGNAL(favoriteChanged(RadioStation)),
+                    this,           SLOT(notifyLocalCount()) );
     Radio::connect( stationModel,   SIGNAL(stationDataChanged(RadioStation)),
                     this,           SLOT(notifyStationChange(RadioStation)) );
     Radio::connect( stationModel,   SIGNAL(radioTextReceived(RadioStation)),
@@ -124,6 +132,9 @@ void RadioMonitorService::requestAllData()
     notificationList.append( notification );
 
     notification.setValue( RadioNotificationData( RadioServiceNotification::FavoriteCount, stationModel.favoriteCount() ) );
+    notificationList.append( notification );
+
+    notification.setValue( RadioNotificationData( RadioServiceNotification::LocalCount, stationModel.localCount() ) );
     notificationList.append( notification );
 
     notification.setValue( RadioNotificationData( RadioServiceNotification::Frequency, RadioStation::parseFrequency( station.frequency() ) ) );
@@ -188,6 +199,16 @@ void RadioMonitorService::notifyFavoriteCount()
     if ( favoriteCount == 1 ) {
         checkIfCurrentStationIsFavorite();
     }
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioMonitorService::notifyLocalCount()
+{
+    const int localCount = mUiEngine.api().stationModel().localCount();
+    RUN_NOTIFY( LocalCount, localCount );
 }
 
 /*!

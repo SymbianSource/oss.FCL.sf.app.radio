@@ -69,6 +69,7 @@
                 <ref object="mv:scan_action" role="HbMenu:addAction"/>
                 <ref object="exit_action" role="HbMenu:addAction"/>
             </widget>
+            <string name="title" locid="txt_rad_title_fm_radio"/>
         </widget>
         <widget name="mv:info_area">
             <widget name="mv:carousel_overlay" type="HbLabel">
@@ -81,7 +82,7 @@
             </widget>
             <widget name="mv:info_text">
                 <bool name="visible" value="FALSE" />
-                <string name="plainText" locid="" />
+                <string name="plainText" locid="txt_rad_info_fm_radio" />
                 <enums name="alignment" value="AlignBottom|AlignHCenter"/>
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)" />
             </widget>
@@ -125,8 +126,7 @@
             <bool name="stretched" value="TRUE" />
             <string name="text" locid="txt_rad_button_activate_loudspeaker" />
             <icon name="icon" iconName="qtg_mono_speaker" />
-        </widget>
-
+        </widget>        
     </section>
 
     <!-- Section to orient the view in portrait mode -->

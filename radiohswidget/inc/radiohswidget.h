@@ -234,6 +234,8 @@ private:
 
     /*! Stores the count of favorite stations. */
     int mFavoriteStationCount;
+    /*! Stores the count of local stations. */
+    int mLocalStationCount;
     /*! Stores the value whether the current station is favorite or not. */
     bool mCurrentStationIsFavorite;
 

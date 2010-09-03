@@ -74,9 +74,9 @@ const QString DOCML_OBJECT_NAME_LONELY_ROW_LABEL("lonelyRowLabel");
 const QString DOCML_OBJECT_NAME_ANIMATION_ICON("animationIcon");
 
 /** Unknown favorite station count. */
-const int FAVORITE_STATION_COUNT_UNDEFINED(-1);
-/** One favorite station set. */
-const int FAVORITE_STATION_COUNT_ONE(1);
+const int FAVORITE_STATION_COUNT_UNDEFINED(0);
+/** Unknown local station count. */
+const int LOCAL_STATION_COUNT_UNDEFINED(0);
 /** Favorite station count lower boundary including this number. */
 const int FAVORITE_STATION_COUNT_LOWER_BOUNDARY(0);
 /** Favorite station count upper boundary including this number. */
@@ -143,6 +143,7 @@ RadioHsWidget::RadioHsWidget(QGraphicsItem* parent, Qt::WindowFlags flags)
       mAnimationIcon(NULL),
       mFmRadioState(FmRadio::StateUndefined),
       mFavoriteStationCount(FAVORITE_STATION_COUNT_UNDEFINED),
+      mLocalStationCount(LOCAL_STATION_COUNT_UNDEFINED),
       mCurrentStationIsFavorite(false),
       mProfileMonitor(NULL),
       mRadioServiceClient(NULL)
@@ -176,17 +177,23 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
             information.toInt() >= FAVORITE_STATION_COUNT_LOWER_BOUNDARY &&
             information.toInt() <= FAVORITE_STATION_COUNT_UPPER_BOUNDARY) {
             mFavoriteStationCount = information.toInt();
-            // If there are favorite stations, enable the next/previous
-            // buttons.
             LOG_FORMAT("mFavoriteStationCount: %d", mFavoriteStationCount);
-            // Enable or disable buttons only if favoriteCount differs
-            // from 1. CurrentIsFavorite case handles situation when there
-            // is only one favorite station.
-            if (mFavoriteStationCount != FAVORITE_STATION_COUNT_ONE) {
-                enableStationButtons();
-            }
-        } else {
-            mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
+            enableStationButtons();
+        }
+        break;
+
+    case RadioServiceNotification::LocalCount:
+        LOG("LocalCount");
+        if (information.canConvert(QVariant::Int) &&
+            information.toInt() >= FAVORITE_STATION_COUNT_LOWER_BOUNDARY &&
+            information.toInt() <= FAVORITE_STATION_COUNT_UPPER_BOUNDARY) {
+            mLocalStationCount = information.toInt();
+            // If there are local stations, enable the next/previous
+            // buttons.
+            LOG_FORMAT("mLocalStationCount: %d", mLocalStationCount);
+            // Enable or disable buttons only if localCount differs
+            // from 1.
+            enableStationButtons();
         }
         break;
 
@@ -195,10 +202,6 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
         if (information.canConvert(QVariant::Bool)) {
             mCurrentStationIsFavorite = information.toBool();
             LOG_FORMAT("currentIsFavorite: %d", mCurrentStationIsFavorite);
-            // If current station is favorite disable next/prev buttons.
-            // Radio sends this information only when there is only one
-            // favorite station set.
-            enableStationButtons();
         }
         break;
 
@@ -316,6 +319,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         mRadioServiceClient->stopMonitoring();
         changePowerButtonOn(false);
         mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
+        mLocalStationCount = LOCAL_STATION_COUNT_UNDEFINED;
         mCurrentStationIsFavorite = false;
         enableStationButtons();
         clearRadioInformation();
@@ -329,6 +333,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         mFmRadioState = FmRadio::StateStarting;
         changePowerButtonOn(true);
         mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
+        mLocalStationCount = LOCAL_STATION_COUNT_UNDEFINED;
         mCurrentStationIsFavorite = false;
         enableStationButtons();
         changeInformationAreaLayout(Animation);
@@ -367,6 +372,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         mFmRadioState = FmRadio::StateClosing;
         changePowerButtonOn(false);
         mFavoriteStationCount = FAVORITE_STATION_COUNT_UNDEFINED;
+        mLocalStationCount = LOCAL_STATION_COUNT_UNDEFINED;
         mCurrentStationIsFavorite = false;
         enableStationButtons();
         clearRadioInformation();
@@ -478,7 +484,12 @@ void RadioHsWidget::changeToPreviousStation()
 {
     LOG_SLOT_CALLER;
     clearRadioInformation();
-    mRadioServiceClient->commandFmRadio(RadioServiceCommand::Previous);
+    if (mFavoriteStationCount > 1) {
+        mRadioServiceClient->commandFmRadio(RadioServiceCommand::PreviousFavorite);
+    }
+    else {
+        mRadioServiceClient->commandFmRadio(RadioServiceCommand::Previous);
+    }
 }
 
 /*!
@@ -488,7 +499,12 @@ void RadioHsWidget::changeToNextStation()
 {
     LOG_SLOT_CALLER;
     clearRadioInformation();
-    mRadioServiceClient->commandFmRadio(RadioServiceCommand::Next);
+    if (mFavoriteStationCount > 1) {
+        mRadioServiceClient->commandFmRadio(RadioServiceCommand::NextFavorite);
+    }
+    else {
+        mRadioServiceClient->commandFmRadio(RadioServiceCommand::Next);
+    }
 
 }
 
@@ -908,18 +924,16 @@ void RadioHsWidget::changePowerButtonOn(const bool isPowerOn)
 void RadioHsWidget::enableStationButtons()
 {
     LEVEL2(LOG_METHOD_ENTER);
-    LOG_FORMAT("RadioHsWidget::enableStationButtons count: %d", mFavoriteStationCount);
+    LOG_FORMAT("RadioHsWidget::enableStationButtons count: %d", mLocalStationCount);
     if (mFmRadioState == FmRadio::StateAntennaNotConnected){
         changeButtonToDisabled(Next);
         changeButtonToDisabled(Previous);
     }
-    else if ((mFavoriteStationCount > 1) || (mFavoriteStationCount == 1
-        && !mCurrentStationIsFavorite)) {
+    else if (mLocalStationCount + mFavoriteStationCount > 1) {
         changeButtonToEnabled(Next);
         changeButtonToEnabled(Previous);
     }
-    else if ((mFavoriteStationCount == 1 && mCurrentStationIsFavorite)
-        || (mFavoriteStationCount < 1)) {
+    else {
         changeButtonToDisabled(Next);
         changeButtonToDisabled(Previous);
     }

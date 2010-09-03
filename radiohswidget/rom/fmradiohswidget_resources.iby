@@ -23,8 +23,6 @@
 // Use standard macros
 #include <data_caging_paths_for_iby.hrh>
 
-#S60_APP_RESOURCE(fmradiohswidget)
-
-#data=DATAZ_\QT_TRANSLATIONS_DIR\fmradiohswidget.qm  QT_TRANSLATIONS_DIR\fmradiohswidget.qm
+data=DATAZ_\QT_TRANSLATIONS_DIR\radiohswidget.qm  QT_TRANSLATIONS_DIR\radiohswidget.qm
 
 #endif // RADIOHSWIDGET_RESOURCES_IBY

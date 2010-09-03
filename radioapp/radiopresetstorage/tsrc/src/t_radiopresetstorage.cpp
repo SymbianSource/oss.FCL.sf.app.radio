@@ -18,17 +18,19 @@
 #include "radiopresetstorage.h"
 #include "radiostation.h"
 #include "radiostation_p.h"
+#include "trace.h"
 
 // Constants
 const uint KTestFrequency1 = 89000000;
 const uint KTestFrequency2 = 89500000;
 const uint KTestFrequency3 = 90000000;
 const uint KTestFrequency4 = 90500000;
-const uint KMaxNumberOfPresets = 100;
-const uint KInvalidPresetIndex = -2;
+const int KInvalidPresetIndex = -2;
 const uint KFirstPresetIndex = 0;
 const uint KSecondPresetIndex = 1;
 const uint KThirdPresetIndex = 2;
+const uint KFourthPresetIndex = 3;
+const uint KArbitraryPresetIndex = 14;
 const uint KFrequencyStep = 100000;
 
 /*!
@@ -36,6 +38,7 @@ const uint KFrequencyStep = 100000;
  */
 int main(int /* argc*/, char *argv[])
 {
+    FUNC_LOG;
     TestRadioPresetStorage tv;
 
     char *pass[3];
@@ -51,6 +54,7 @@ int main(int /* argc*/, char *argv[])
 
 TestRadioPresetStorage::TestRadioPresetStorage()
 {
+    FUNC_LOG;
 }
 
 
@@ -59,6 +63,7 @@ TestRadioPresetStorage::TestRadioPresetStorage()
  */
 TestRadioPresetStorage::~TestRadioPresetStorage()
 {
+    FUNC_LOG;
 }
 
 /*!
@@ -66,6 +71,7 @@ TestRadioPresetStorage::~TestRadioPresetStorage()
  */
 void TestRadioPresetStorage::init()
 {
+    FUNC_LOG;
 }
 
 /*!
@@ -73,6 +79,7 @@ void TestRadioPresetStorage::init()
  */
 void TestRadioPresetStorage::cleanup()
 {
+    FUNC_LOG;
 }
 
 /*!
@@ -80,15 +87,15 @@ void TestRadioPresetStorage::cleanup()
  */
 void TestRadioPresetStorage::initTestCase()
 {
+    FUNC_LOG;
     mPresetStorage.reset( new RadioPresetStorage() );
     // this is the range used in this test module
     for(int i = 0; i <= mPresetStorage->maxNumberOfPresets(); i++)
     {
         mPresetStorage->deletePreset( i );        
     }    
-    QVERIFY2(( mPresetStorage->presetCount() == 0 ), "API:RadioPresetStorage initTestCase 1");    
-    // TODO: replace the local constant with the constand defined in preset utility header  
-    QVERIFY2(( mPresetStorage->maxNumberOfPresets() == KMaxNumberOfPresets ), "API:RadioPresetStorage initTestCase 2");
+    QVERIFY2(( mPresetStorage->presetCount() == 0 ), "API:RadioPresetStorage initTestCase 1");
+    INFO_1("mPresetStorage->maxNumberOfPresets() == %i", mPresetStorage->maxNumberOfPresets() );
 }
 
 /*!
@@ -96,6 +103,7 @@ void TestRadioPresetStorage::initTestCase()
  */
 void TestRadioPresetStorage::cleanupTestCase()
 {
+    FUNC_LOG;
 	
 }
 
@@ -104,39 +112,50 @@ void TestRadioPresetStorage::cleanupTestCase()
  */
 void TestRadioPresetStorage::testSavePreset()
 {
-  int test = mPresetStorage->maxNumberOfPresets();
-  int initialPresetCount( 0 );
-  //int initialPresetindex( KFirstPresetIndex );  
-  RadioStation station;  
-  station.setFrequency( KTestFrequency1 );
-  station.setPresetIndex( KFirstPresetIndex );
-  mPresetStorage->savePreset( *station.data_ptr() );
-  QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 1 ), "API:RadioPresetStorage testSavePreset 1");
-  QVERIFY2(( mPresetStorage->nextPreset( KFirstPresetIndex ) == 0 ), "API:RadioPresetStorage testSavePreset 2");
-  
-  station.setFrequency( KTestFrequency2 );
-  station.setPresetIndex( KSecondPresetIndex );
-  mPresetStorage->savePreset( *station.data_ptr() );
-  QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 2 ), "API:RadioPresetStorage testSavePreset 3");
-  QVERIFY2(( mPresetStorage->nextPreset( KFirstPresetIndex ) == KSecondPresetIndex ), "API:RadioPresetStorage testSavePreset 4");
-  
-  // check that saving preset fails if preset index and frequency are allready in use
-  station.setFrequency( KTestFrequency2 );
-  station.setPresetIndex( KSecondPresetIndex );
-  mPresetStorage->savePreset( *station.data_ptr() );
-  QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 2 ), "API:RadioPresetStorage testSavePreset 5");
-  
-  // check that saving preset success when new preset index and frequency are not in use
-  station.setFrequency( KTestFrequency3 );
-  station.setPresetIndex( KThirdPresetIndex );  
-  mPresetStorage->savePreset( *station.data_ptr() );
-  QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 3 ), "API:RadioPresetStorage testSavePreset 6");
-  
-  // check that saving with invalid preset index fails
-  station.setFrequency( KTestFrequency4 );
-  station.setPresetIndex( KInvalidPresetIndex );  
-  mPresetStorage->savePreset( *station.data_ptr() );
-  QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 3 ), "API:RadioPresetStorage testSavePreset 6");
+    FUNC_LOG;
+    int test = mPresetStorage->maxNumberOfPresets();
+    int initialPresetCount( 0 );
+    //int initialPresetindex( KFirstPresetIndex );  
+     RadioStation station;  
+    station.setFrequency( KTestFrequency1 );
+    station.setPresetIndex( KFirstPresetIndex );
+    QVERIFY2( mPresetStorage->savePreset( *station.data_ptr() ), "Preset save failed! 1");    
+    INFO_1("mPresetStorage->presetCount() = %i", mPresetStorage->presetCount() );
+    QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 1 ), "API:RadioPresetStorage testSavePreset 1");
+    INFO_1("mPresetStorage->nextPreset() = %i", mPresetStorage->nextPreset( KFirstPresetIndex ) );
+    QVERIFY2(( mPresetStorage->nextPreset( KFirstPresetIndex ) == KErrNotFound ), "API:RadioPresetStorage testSavePreset 2");
+    
+    station.setFrequency( KTestFrequency2 );
+    station.setPresetIndex( KSecondPresetIndex );
+    QVERIFY2( mPresetStorage->savePreset( *station.data_ptr() ), "Preset save failed! 2");    
+    QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 2 ), "API:RadioPresetStorage testSavePreset 3");
+    QVERIFY2(( mPresetStorage->nextPreset( KFirstPresetIndex ) == KSecondPresetIndex ), "API:RadioPresetStorage testSavePreset 4");
+    
+    // check that saving preset succeeds if preset index and frequency are allready in use
+    station.setFrequency( KTestFrequency2 );
+    station.setPresetIndex( KSecondPresetIndex );
+    QVERIFY2( mPresetStorage->savePreset( *station.data_ptr() ), "Preset save failed! 3");    
+    QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 2 ), "API:RadioPresetStorage testSavePreset 5");
+    
+    // check that saving preset success when new preset index and frequency are not in use
+    station.setFrequency( KTestFrequency3 );
+    station.setPresetIndex( KThirdPresetIndex );
+    QVERIFY2( mPresetStorage->savePreset( *station.data_ptr() ), "Preset save failed! 4");    
+    QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 3 ), "API:RadioPresetStorage testSavePreset 6");
+    
+    // check that saving with out of boundary preset index succeeds
+    station.setFrequency( KTestFrequency4 );
+    station.setPresetIndex( KInvalidPresetIndex );  
+    QVERIFY2( mPresetStorage->savePreset( *station.data_ptr() ), "Preset save failed! 5");    
+    INFO_1("mPresetStorage->presetCount() = %i", mPresetStorage->presetCount() );
+    QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 4 ), "API:RadioPresetStorage testSavePreset 7");
+
+    // check that saving with arbitrary preset index succeeds
+    station.setFrequency( KTestFrequency4 );
+    station.setPresetIndex( KArbitraryPresetIndex );  
+    QVERIFY2( mPresetStorage->savePreset( *station.data_ptr() ), "Preset save failed! 6");    
+    INFO_1("mPresetStorage->presetCount() = %i", mPresetStorage->presetCount() );
+    QVERIFY2(( mPresetStorage->presetCount() == initialPresetCount + 5 ), "API:RadioPresetStorage testSavePreset 8");
 }
 
 /*!
@@ -144,27 +163,32 @@ void TestRadioPresetStorage::testSavePreset()
  */
 void TestRadioPresetStorage::testReadPreset()
 {
-  RadioStation station;
-  RadioStationIf* preset = static_cast<RadioStationIf*>( station.data_ptr() );
-  mPresetStorage->readPreset( KFirstPresetIndex, *preset );  
-  QVERIFY2(( preset->frequency() == KTestFrequency1 ), "API:RadioPresetStorage testReadPreset 1");
-  
-  RadioStation station1;
-  RadioStationIf* preset1 = static_cast<RadioStationIf*>( station1.data_ptr() );
-  mPresetStorage->readPreset( KSecondPresetIndex, *preset1 );
-  QVERIFY2(( preset->frequency() == KTestFrequency2 ), "API:RadioPresetStorage testReadPreset 2");  
-  
-  RadioStation station2;
-  RadioStationIf* preset2 = static_cast<RadioStationIf*>( station2.data_ptr() );
-  mPresetStorage->readPreset( KThirdPresetIndex, *preset2 );
-  QVERIFY2(( preset->frequency() == KTestFrequency3 ), "API:RadioPresetStorage testReadPreset 3");
-  
-  RadioStation station3;
-  RadioStationIf* preset3 = static_cast<RadioStationIf*>( station3.data_ptr() );
-  // test the value returned with invalid preset index
-  mPresetStorage->readPreset( KThirdPresetIndex + 1, *preset3 );
-  // TODO: change the value to KErrNotFound when preset utility update done
-  QVERIFY2(( preset->frequency() == 87500000 ), "API:RadioPresetStorage testReadPreset 4");
+    FUNC_LOG;
+    RadioStation station;
+    RadioStationIf* preset = static_cast<RadioStationIf*>( station.data_ptr() );
+    QVERIFY2( mPresetStorage->readPreset( KFirstPresetIndex, *preset ),  "Failed to read a preset");
+    QVERIFY2(( preset->frequency() == KTestFrequency1 ), "API:RadioPresetStorage testReadPreset 1");
+    
+    RadioStation station1;
+    RadioStationIf* preset1 = static_cast<RadioStationIf*>( station1.data_ptr() );
+    QVERIFY2( mPresetStorage->readPreset( KSecondPresetIndex, *preset1 ),  "Failed to read a preset");
+    QVERIFY2(( preset1->frequency() == KTestFrequency2 ), "API:RadioPresetStorage testReadPreset 2");  
+    
+    RadioStation station2;
+    RadioStationIf* preset2 = static_cast<RadioStationIf*>( station2.data_ptr() );
+    QVERIFY2( mPresetStorage->readPreset( KThirdPresetIndex, *preset2 ),  "Failed to read a preset");
+    QVERIFY2(( preset2->frequency() == KTestFrequency3 ), "API:RadioPresetStorage testReadPreset 3");
+    
+    RadioStation station3;
+    RadioStationIf* preset3 = static_cast<RadioStationIf*>( station3.data_ptr() );
+    QVERIFY2( mPresetStorage->readPreset( KFourthPresetIndex, *preset3 ),  "Failed to read a preset");
+    QVERIFY2(( preset3->frequency() == KTestFrequency4 ), "API:RadioPresetStorage testReadPreset 4");
+
+    RadioStation stationArbitrary;
+    RadioStationIf* presetArbitrary = static_cast<RadioStationIf*>( stationArbitrary.data_ptr() );
+    QVERIFY2( mPresetStorage->readPreset( KArbitraryPresetIndex, *presetArbitrary ),  "Failed to read a preset");
+    QVERIFY2(( presetArbitrary->frequency() ==  KTestFrequency4 ), "API:RadioPresetStorage testReadPreset 6");
+
 }
 
 /*!
@@ -172,6 +196,7 @@ void TestRadioPresetStorage::testReadPreset()
  */
 void TestRadioPresetStorage::testDeletePreset()
 {   
+    FUNC_LOG;
     int initialPresetCount( mPresetStorage->presetCount() );
     
     QVERIFY2(( mPresetStorage->firstPreset() == KFirstPresetIndex ), "API:RadioPresetStorage testDeletePreset 1");
@@ -182,21 +207,24 @@ void TestRadioPresetStorage::testDeletePreset()
     
     RadioStation station;
     RadioStationIf* preset = static_cast<RadioStationIf*>( station.data_ptr() );
-    mPresetStorage->readPreset( KSecondPresetIndex, *preset );
-    // TODO: change the value to KErrNotFound when preset utility update done
-    QVERIFY2(( preset->frequency() == 87500000 ), "API:RadioPresetStorage testDeletePreset 5");
+    QVERIFY2( EFalse == mPresetStorage->readPreset( KSecondPresetIndex, *preset ), "Reading of deleted preset succeeded!" );
     
     mPresetStorage->deletePreset( KFirstPresetIndex );
     QVERIFY2(( mPresetStorage->firstPreset() == KThirdPresetIndex ), "API:RadioPresetStorage testDeletePreset 6");
     mPresetStorage->deletePreset( KThirdPresetIndex );
+    mPresetStorage->deletePreset( KFourthPresetIndex );
+    mPresetStorage->deletePreset( KArbitraryPresetIndex );
+
+    
     QVERIFY2(( mPresetStorage->presetCount() == 0), "API:RadioPresetStorage testDeletePreset 7");
 }
   
 /*!
  * Test filling preset storage and handling boundary values
  */
-void TestRadioPresetStorage::testStessTest()
+void TestRadioPresetStorage::testStressTest()
 {
+    FUNC_LOG;
     for(int i = 0; i < mPresetStorage->maxNumberOfPresets(); i++)
     {
         RadioStation station;
@@ -204,7 +232,7 @@ void TestRadioPresetStorage::testStessTest()
         station.setPresetIndex( i );  
         mPresetStorage->savePreset( *station.data_ptr() );
     }
-    QVERIFY2(( mPresetStorage->presetCount() == mPresetStorage->maxNumberOfPresets()), "API:RadioPresetStorage testStessTest 1");
+    QVERIFY2(( mPresetStorage->presetCount() == mPresetStorage->maxNumberOfPresets()), "API:RadioPresetStorage testStressTest 1");
     int test = mPresetStorage->presetCount();
     RadioStation station;
     station.setFrequency( 87500000 + mPresetStorage->maxNumberOfPresets()*KFrequencyStep + KFrequencyStep);
@@ -212,7 +240,7 @@ void TestRadioPresetStorage::testStessTest()
     mPresetStorage->savePreset( *station.data_ptr() );
     int r = mPresetStorage->presetCount();
     // preset count must not increase
-    QVERIFY2(( mPresetStorage->presetCount() == mPresetStorage->maxNumberOfPresets()), "API:RadioPresetStorage testStessTest 2");
+    QVERIFY2(( mPresetStorage->presetCount() == mPresetStorage->maxNumberOfPresets()), "API:RadioPresetStorage testStressTest 2");
     
     for(int i = 0; i <= mPresetStorage->maxNumberOfPresets(); i++)
     {
@@ -221,5 +249,5 @@ void TestRadioPresetStorage::testStessTest()
 
     // test deleting with invalid preset index
     mPresetStorage->deletePreset( KInvalidPresetIndex );
-    QVERIFY2(( mPresetStorage->presetCount() == 0), "API:RadioPresetStorage testStessTest 3");
+    QVERIFY2(( mPresetStorage->presetCount() == 0), "API:RadioPresetStorage testStressTest 3");
 }

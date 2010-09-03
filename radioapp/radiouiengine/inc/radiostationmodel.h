@@ -157,6 +157,11 @@ public:
     int favoriteCount();
 
     /*!
+    * Function to check the number of local stations
+    */
+    int localCount();
+
+    /*!
      * Convenience functions to change common settings
      */
     void setFavoriteByFrequency( uint frequency, bool favorite );

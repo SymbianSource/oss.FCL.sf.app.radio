@@ -58,10 +58,7 @@ void RadioFrequencyStrip::init( RadioUiEngine* engine, RadioUiLoader& uiLoader )
  */
 void RadioFrequencyStrip::setFrequency( const uint newFrequency, int reason, Scroll::Direction direction )
 {
-    Q_UNUSED( reason );
-    if ( newFrequency != frequency() || reason == TuneReason::Skip ) {
-        RadioFrequencyStripBase::setFrequency( newFrequency, reason, direction );
-    }
+    RadioFrequencyStripBase::setFrequency( newFrequency, reason, direction );
 }
 
 /*!

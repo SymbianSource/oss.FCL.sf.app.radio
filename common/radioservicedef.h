@@ -41,6 +41,8 @@ namespace RadioServiceCommand
         PowerOff,
         Previous,
         Next,
+        PreviousFavorite,
+        NextFavorite,
         SeekUp,
         SeekDown,
         Foreground,
@@ -54,6 +56,7 @@ namespace RadioServiceNotification
 {
     enum Type {
         FavoriteCount = 1,
+        LocalCount,
         CurrentIsFavorite,
         RadioStatus,
         Frequency,

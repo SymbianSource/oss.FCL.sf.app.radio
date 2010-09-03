@@ -222,6 +222,7 @@ private: // data
     Scroll::Direction                   mScrollDirection;
 
     bool                                mManualSeekMode;
+    bool                                mOrientation;
 
 #ifdef USE_DEBUGGING_CONTROLS
     RadioFadingLabel*                   mRdsLabel;

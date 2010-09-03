@@ -51,6 +51,7 @@ private slots:
 
     void notifyRadioStatus();
     void notifyFavoriteCount();
+    void notifyLocalCount();
     void notifyStationChange( const RadioStation& station );
     void sendNotifications();
 

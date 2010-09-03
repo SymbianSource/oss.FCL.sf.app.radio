@@ -31,8 +31,6 @@ file=ABI_DIR\BUILD_DIR\fmradioenginewrapper.dll                     SHARED_LIB_D
 file=ABI_DIR\BUILD_DIR\fmradiopresetstorage.dll                     SHARED_LIB_DIR\fmradiopresetstorage.dll       PAGED
 file=ABI_DIR\BUILD_DIR\fmradiouiengine.dll                          SHARED_LIB_DIR\fmradiouiengine.dll            PAGED
 file=ABI_DIR\BUILD_DIR\fmradiowidgets.dll                           SHARED_LIB_DIR\fmradiowidgets.dll             PAGED
-file=ABI_DIR\BUILD_DIR\fmradiowidgetsplugin.dll                     SHARED_LIB_DIR\fmradiowidgetsplugin.dll       PAGED
-data=\epoc32\data\z\resource\plugins\fmradiowidgetsplugin.qtplugin  resource\plugins\fmradiowidgetsplugin.qtplugin
 
 file=ABI_DIR\BUILD_DIR\fmradioengine.dll                            SHARED_LIB_DIR\fmradioengine.dll              PAGED
 file=ABI_DIR\BUILD_DIR\fmradioengineutils.dll                       SHARED_LIB_DIR\fmradioengineutils.dll         PAGED

@@ -44,7 +44,7 @@ class UI_ENGINE_DLL_EXPORT RadioHistoryModel : public QAbstractListModel
     friend class RadioStationModelPrivate;
 
     friend class RadioHistoryView;  // TEMPORARY TEST CODE, REMOVE
-
+    friend class TestRadioUiEngine;
 public:
 
     ~RadioHistoryModel();

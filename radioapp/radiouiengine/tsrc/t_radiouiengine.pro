@@ -1,19 +1,18 @@
-/*
-* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
-* All rights reserved.
-* This component and the accompanying materials are made available
-* under the terms of "Eclipse Public License v1.0"
-* which accompanies this distribution, and is available
-* at the URL "http://www.eclipse.org/legal/epl-v10.html".
-*
-* Initial Contributors:
-* Nokia Corporation - initial contribution.
-*
-* Contributors:
-*
-* Description: project file for radiouiengine tests
-*
-*/
+#
+# Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# All rights reserved.
+# This component and the accompanying materials are made available
+# under the terms of "Eclipse Public License v1.0"
+# which accompanies this distribution, and is available
+# at the URL "http://www.eclipse.org/legal/epl-v10.html".
+#
+# Initial Contributors:
+# Nokia Corporation - initial contribution.
+#
+# Contributors:
+#
+# Description: project file for radiouiengine's unit tests
+#
 
 TEMPLATE = app
 TARGET = t_radiouiengine
@@ -37,18 +36,22 @@ INCLUDEPATH += . \
     /epoc32/include/middleware \
     /epoc32/include/osextensions/stdapis/stlport \
     stub/inc \
-    ../../../inc \
+   ../../../inc \
+    ../../../common \
     ../inc \
     ../../commoninc \
     ../../radioenginewrapper/inc \
     ../../radiopresetstorage/inc \
-    ../../../../inc
+    ../../../../inc \
+    ../../../radioengine/utils/api \
+    ../../../radioengine/utils/inc
 
 CONFIG += qtestlib
 
-symbian:LIBS += -lradiouiengine
-symbian:LIBS += -lradioenginewrapper
-symbian:LIBS += -lradiopresetstorage
+symbian:LIBS += -lfmradiouiengine
+symbian:LIBS += -lfmradioenginewrapper
+symbian:LIBS += -lfmradiopresetstorage
+symbian:LIBS += -lfmradioengineutils
 
 HEADERS += inc/t_radiostation.h
 SOURCES += src/t_radiostation.cpp

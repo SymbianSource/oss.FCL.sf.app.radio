@@ -192,7 +192,7 @@ void RadioStationModelPrivate::addScannedFrequency( uint frequency )
 void RadioStationModelPrivate::setCurrentPsName( uint frequency, const QString& name )
 {
     Q_Q( RadioStationModel );
-    LOG_FORMAT( "void RadioStationModelPrivate::setCurrentPsName: %s", GETSTRING( name ) );
+    LOG_FORMAT( "RadioStationModelPrivate::setCurrentPsName: %s", GETSTRING( name ) );
     RadioStation station = q->findStation( frequency, FindCriteria::IncludeManualStation );
     if ( !station.isValid() ) {
         LOG( "Unable to find current station. Ignoring RDS" );
@@ -329,4 +329,18 @@ QList<RadioStation> RadioStationModelPrivate::favorites() const
         }
     }
     return favoriteList;
+}
+
+/*!
+ *
+ */
+QList<RadioStation> RadioStationModelPrivate::locals() const
+{
+    QList<RadioStation> localList;
+    foreach( const RadioStation& tempStation, mStations ) {
+        if ( !tempStation.isFavorite() ) {
+            localList.append( tempStation );
+        }
+    }
+    return localList;
 }

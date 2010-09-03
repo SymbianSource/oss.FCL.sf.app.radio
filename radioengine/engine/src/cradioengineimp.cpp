@@ -1171,7 +1171,7 @@ void CRadioEngineImp::MrftoRequestTunerControlComplete( TInt aError )
     LOG_METHOD_AUTO;
     LOG_FORMAT( "aError: %d", aError );
 
-    if ( aError == KErrNone || aError == KErrAlreadyExists ) // Tuner activated now or was already active
+    if ( aError == KErrNone || aError == KErrAlreadyExists || aError == -12056 ) // Tuner activated now or was already active
         {
         iRadioInitializationState = ERadioTunerControlGranted;
 
@@ -1271,7 +1271,8 @@ void CRadioEngineImp::MrftoStationSeekComplete( TInt aError, TInt aFrequency )
 
     iSeekingState = RadioEngine::ERadioNotSeeking;
 
-    if ( aFrequency == 0 )
+    // -12051 comes from adaptation when no stations found in scanning
+    if ( aError == -12051 || aFrequency == 0 )
         {
         NotifyRadioEvent( ERadioEventFrequency, aError );
         }
@@ -1416,17 +1417,9 @@ void CRadioEngineImp::MrpoVolumeChange( TInt aVolume )
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioEngineImp::MrpoMuteChange( TBool aMute )
+void CRadioEngineImp::MrpoMuteChange( TBool /*aMute*/ )
     {
     LEVEL3( LOG_METHOD_AUTO );
-    LOG_FORMAT( "CRadioEngineImp::MrpoMuteChange muted: %d", aMute );
-
-//    TBool muted = iSettings->EngineSettings().IsVolMuted();
-//    if ( !aMute != !muted )
-//        {
-//        iSettings->RadioSetter().SetVolMuted( aMute );
-//        NotifyRadioEvent( ERadioEventMute );
-//        }
     }
 
 // ---------------------------------------------------------------------------

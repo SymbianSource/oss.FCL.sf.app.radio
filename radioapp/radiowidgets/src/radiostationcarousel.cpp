@@ -82,7 +82,8 @@ RadioStationCarousel::RadioStationCarousel( QGraphicsItem* parent ) :
     mModel( NULL ),
     mPosAdjustmentDisabled( false ),
     mScrollDirection( Scroll::Shortest ),
-    mManualSeekMode( false )
+    mManualSeekMode( false ),
+    mOrientation( false )
 #ifdef USE_DEBUGGING_CONTROLS
     ,mRdsLabel( new RadioFadingLabel( this ) )
 #endif // USE_DEBUGGING_CONTROLS
@@ -440,6 +441,7 @@ void RadioStationCarousel::drawOffScreen( QPainter& painter )
 void RadioStationCarousel::setLandscape( bool landscape )
 {
     CALL_TO_ALL_ITEMS( setLandscape( landscape ) );
+    mOrientation = landscape;
 }
 
 /*!
@@ -629,9 +631,17 @@ void RadioStationCarousel::gestureEvent( QGestureEvent* event )
 
     HbScrollArea::gestureEvent( event );
 
-    if ( HbPanGesture* gesture = qobject_cast<HbPanGesture*>( event->gesture( Qt::PanGesture ) ) ) {
-        if ( gesture->state() == Qt::GestureFinished ) {
-            adjustPos( (int)gesture->offset().x() );
+    if ( mOrientation ) {
+        if ( HbPanGesture* gesture = qobject_cast<HbPanGesture*>( event->gesture( Qt::PanGesture ) ) ) {
+            if ( gesture->state() == Qt::GestureFinished ) {
+                adjustPos( (int)gesture->offset().y() );
+            }
+        }
+    } else {
+        if ( HbPanGesture* gesture = qobject_cast<HbPanGesture*>( event->gesture( Qt::PanGesture ) ) ) {
+            if ( gesture->state() == Qt::GestureFinished ) {
+                adjustPos( (int)gesture->offset().x() );
+            }
         }
     }
 }
@@ -860,30 +870,50 @@ void RadioStationCarousel::adjustPos( int offset )
     int newIndex = mCurrentIndex;
     bool needsToScroll = false;
 
-    if ( isScrollingAllowed() && abs( offset ) >= threshold ) {
+        if ( isScrollingAllowed() && abs( offset ) >= threshold ) {
         needsToScroll = true;
         if ( offset > 0 ) {
             newPos = 0;
             mScrollDirection = Scroll::Right;
             if ( !mIsCustomFreq ) {
-                const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::PreviousFavorite ).frequency();
-                if ( newFreq > 0 ) {
-                    newIndex = mModel->indexFromFrequency( newFreq );
+                if ( mModel->favoriteCount() > 1 ){
+                    const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::PreviousFavorite ).frequency();
+                    if ( newFreq > 0 ) {
+                        newIndex = mModel->indexFromFrequency( newFreq );
+                    } else {
+                        needsToScroll = false;
+                        newPos = mMidScrollPos;
+                    }
                 } else {
-                    needsToScroll = false;
-                    newPos = mMidScrollPos;
+                    const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::Previous ).frequency();
+                    if ( newFreq > 0 ) {
+                        newIndex = mModel->indexFromFrequency( newFreq );
+                    } else {
+                        needsToScroll = false;
+                        newPos = mMidScrollPos;
+                    }
                 }
             }
         } else {
             mScrollDirection = Scroll::Left;
             newPos = mMaxScrollPos;
 
-            const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::NextFavorite ).frequency();
-            if ( newFreq > 0 ) {
-                newIndex = mModel->indexFromFrequency( newFreq );
+            if ( mModel->favoriteCount() > 1 ){
+                const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::NextFavorite ).frequency();
+                if ( newFreq > 0 ) {
+                    newIndex = mModel->indexFromFrequency( newFreq );
+                } else {
+                    needsToScroll = false;
+                    newPos = mMidScrollPos;
+                }
             } else {
-                needsToScroll = false;
-                newPos = mMidScrollPos;
+                const uint newFreq = mModel->findClosest( mItems[CenterItem]->frequency(), StationSkip::Next ).frequency();
+                if ( newFreq > 0 ) {
+                    newIndex = mModel->indexFromFrequency( newFreq );
+                } else {
+                    needsToScroll = false;
+                    newPos = mMidScrollPos;
+                }
             }
         }
     }

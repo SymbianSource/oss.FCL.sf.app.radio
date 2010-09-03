@@ -22,8 +22,8 @@ BLD_INF_RULES.prj_exports += \
 "rom/fmradiohswidget.iby  CORE_APP_LAYER_IBY_EXPORT_PATH(fmradiohswidget.iby)"
 
 #iby exports to language
-#BLD_INF_RULES.prj_exports += \
-#"rom/fmradiohswidget_resources.iby  LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(fmradiohswidget_resources.iby)"
+BLD_INF_RULES.prj_exports += \
+"rom/fmradiohswidget_resources.iby  LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(fmradiohswidget_resources.iby)"
 
 BLD_INF_RULES.prj_extensions += \
 $$LITERAL_HASH"ifdef MARM" \

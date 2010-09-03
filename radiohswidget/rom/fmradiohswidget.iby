@@ -21,11 +21,13 @@
 // Use standard macros
 #include <data_caging_paths_for_iby.hrh>
 
-file=ABI_DIR\BUILD_DIR\fmradiohswidget.dll                                          SHARED_LIB_DIR\fmradiohswidget.dll
-data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.qtplugin      private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.qtplugin
-data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.xml           private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.xml
-data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.manifest      private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.manifest
+file=ABI_DIR\BUILD_DIR\fmradiohswidget.dll                                                      SHARED_LIB_DIR\fmradiohswidget.dll
+file=ABI_DIR\BUILD_DIR\fmradiowidgetsplugin.dll                     				SHARED_LIB_DIR\fmradiowidgetsplugin.dll       PAGED
+data=\epoc32\data\z\private\20022F35\import\widgetregistry\2002E6D6\fmradiohswidget.qtplugin    resource\plugins\fmradiowidgetsplugin.qtplugin
+data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.qtplugin                  private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.qtplugin
+data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.xml                       private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.xml
+data=ZPRIVATE\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.manifest                  private\20022f35\import\widgetregistry\2002E6D6\fmradiohswidget.manifest
 
-data=\epoc32\data\z\system\install\fmradiohswidget_stub.sis                         system\install\fmradiohswidget_stub.sis
+data=\epoc32\data\z\system\install\fmradiohswidget_stub.sis                                     system\install\fmradiohswidget_stub.sis
 
 #endif //__RADIOHSWIDGET_IBY__

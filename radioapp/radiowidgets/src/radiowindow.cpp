@@ -217,10 +217,6 @@ void RadioWindow::activateView( RadioViewBase* aMember, const QString& docmlFile
     }
 
     RadioViewBase* previousView = static_cast<RadioViewBase*>( currentView() );
-    if ( previousView && previousView->isTransient() ) {
-        removeView( previousView );
-        previousView->deleteLater();
-    }
 
     bool viewCreated = false;
     if ( !aMember->isInitialized() ) {
@@ -254,4 +250,9 @@ void RadioWindow::activateView( RadioViewBase* aMember, const QString& docmlFile
     aMember->updateOrientation( orientation(), viewCreated );
 
     setCurrentView( aMember, true, flags );
+
+    if ( previousView && previousView->isTransient() ) {
+        removeView( previousView );
+        previousView->deleteLater();
+    }
 }

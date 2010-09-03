@@ -46,9 +46,8 @@ class TestRadioUiEngine : public QObject, RadioEngineWrapperObserver
     	NoSlotsEntered               = 0
         ,StationDataChanged     = 1 << 0
         ,FavoriteChanged        = 1 << 1
-        ,StationAdded           = 1 << 2
-        ,DataChanged            = 1 << 3
-        ,ItemAdded              = 1 << 4
+        ,DataChanged            = 1 << 2
+        ,ItemAdded              = 1 << 3
     };
     Q_DECLARE_FLAGS( Slots, SlotEnteredFlag )    
     
@@ -59,7 +58,6 @@ public:
 
 public slots:
     void dataChanged(const QModelIndex topLeft, const QModelIndex bottomRight);
-    void stationAdded( RadioStation addedStation );    
     void stationDataChanged( RadioStation station );        
     void favoriteChanged( RadioStation station );
     void itemAdded();
@@ -82,7 +80,7 @@ private:
 
     // from base class RadioEngineWrapperObserver
     void tunedToFrequency( uint frequency, int commandSender );
-    void seekingStarted( Seeking::Direction direction );
+    void seekingStarted( Seek::Direction direction );
     void radioStatusChanged( bool radioIsOn );
     void rdsAvailabilityChanged( bool available );
     void volumeChanged( int volume );
@@ -112,9 +110,6 @@ private:
     void testSetRadioTextPlus();
     void testHistoryModelInit();
     void testHistoryModelAddItem();
-    void testHistoryModelFindItem();
-    void testHistoryModelUpdateItem();
-    void testHistoryModelSetData();
     void testAddRadioTextPlus();
     void testClearRadioTextPlus();
     void testRadioHistoryItem();

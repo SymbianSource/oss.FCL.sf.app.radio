@@ -179,6 +179,8 @@ void RadioFrequencyStripBase::createButtons()
  */
 void RadioFrequencyStripBase::setFrequency( const uint frequency, int reason, Scroll::Direction direction )
 {
+    Q_UNUSED( reason );
+
     if ( mFrequencies.contains( frequency ) ) {
         scrollToFrequency( frequency, direction, mAutoScrollTime );
     }
@@ -774,6 +776,8 @@ int RadioFrequencyStripBase::selectorPos() const
  */
 void RadioFrequencyStripBase::scrollToFrequency( uint frequency, Scroll::Direction direction, int time )
 {
+    Q_UNUSED( time );
+
     int targetFreqPos = mFrequencies.value( frequency ).mPosition;
     const int currentFreqPos = mFrequencies.value( mFrequency ).mPosition;
     const int currentPos = int( -contentWidget()->x() + mSelectorPos + FrequencyStrip::ROUNDER );

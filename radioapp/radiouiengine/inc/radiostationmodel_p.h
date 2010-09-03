@@ -73,6 +73,7 @@ private:
     void doSaveStation( RadioStation& station, bool persistentSave = true );
 
     QList<RadioStation> favorites() const;
+    QList<RadioStation> locals() const;
 
 private: // data
 

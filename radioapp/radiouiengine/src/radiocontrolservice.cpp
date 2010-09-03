@@ -64,12 +64,20 @@ void RadioControlService::command( int commandId )
             break;
 
         case RadioServiceCommand::Previous:
-            mUiEngine.skipStation( StationSkip::PreviousFavorite, 0, TuneReason::SkipFromWidget );
+            mUiEngine.skipStation( StationSkip::Previous, 0, TuneReason::SkipFromWidget );
             break;
 
         case RadioServiceCommand::Next:
-            mUiEngine.skipStation( StationSkip::NextFavorite, 0, TuneReason::SkipFromWidget );
+            mUiEngine.skipStation( StationSkip::Next, 0, TuneReason::SkipFromWidget );
             break;
+
+        case RadioServiceCommand::PreviousFavorite:
+             mUiEngine.skipStation( StationSkip::PreviousFavorite, 0, TuneReason::SkipFromWidget );
+             break;
+
+        case RadioServiceCommand::NextFavorite:
+             mUiEngine.skipStation( StationSkip::NextFavorite, 0, TuneReason::SkipFromWidget );
+             break;
 
         case RadioServiceCommand::SeekUp:
             mUiEngine.seekStation( Seek::Up );

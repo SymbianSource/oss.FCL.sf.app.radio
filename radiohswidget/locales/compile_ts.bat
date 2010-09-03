@@ -16,11 +16,11 @@
 
 @echo off
 
-set QM_FILE=fmradiohswidget.qm
-set QM_FILE_EN_US=fmradiohswidget_en_us.qm
+set QM_FILE=radiohswidget.qm
+set QM_FILE_EN_US=radiohswidget_en_us.qm
 set QM_LOCATION=./
 
 
 ECHO Creating QM file
-call lrelease -idbased fmradiohswidget.ts -qm %QM_LOCATION%%QM_FILE%
-REM call lrelease -idbased fmradiohswidget_en_us.ts -qm %QM_LOCATION%%QM_FILE_EN_US%
+call lrelease -idbased radiohswidget.ts -qm %QM_LOCATION%%QM_FILE%
+REM call lrelease -idbased radiohswidget_en_us.ts -qm %QM_LOCATION%%QM_FILE_EN_US%
