@@ -2581,7 +2581,8 @@ void CFMRadioAppUi::ProcessCommandTailL( const TDesC8& aTail )
                         }
                     else
                         {
-                        TFMRadioRegionSetting region = iRadioEngine->GetRegionL();  
+                        TFMRadioRegionSetting region = iRadioEngine->GetRegionL();
+                        TBool mute = EFalse;
                         
                         if ( iOfflineQueryDialogActivated || 
                              iConnectHeadsetQuery || 
@@ -2592,11 +2593,22 @@ void CFMRadioAppUi::ProcessCommandTailL( const TDesC8& aTail )
                         else
                             {
                             iChannelListView->CancelMoveL();
+                            if ( iCurrentRadioState == EFMRadioStateBusyScanLocalStations )
+                                {
+                                mute = ETrue;
+                                }
                             ActivateLocalViewL( view->Id() );
                             }
                         TApaTask task( iCoeEnv->WsSession() );
                         task.SetWgId( iCoeEnv->RootWin().Identifier() );
                         task.BringToForeground();
+                        if ( mute )
+                            {
+                            // unmute if the scanning was ongoing
+                            iRadioEngine->SetMuteOn( EFalse );
+                            // just to make sure the mute status is up to date
+                            HandleVolumeChangedCallback();
+                            }
                         }
                     }
                 }

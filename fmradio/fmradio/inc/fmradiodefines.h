@@ -118,7 +118,7 @@ const TInt  KFMRadioRdsAfIndicatorId = 314;
 const TInt  KFMRadioRdsViewer = 316;
 const TInt  KFMRadioRdsInteractionIndicatorId = 317;
 const TInt  KFMRadioLogoId = 318;
-const TReal KFMRadioIndicatorOpacityInHiddenState = 0.2f;
+const TReal KFMRadioIndicatorOpacityInHiddenState = 0.4f;
 const TReal KFMRadioRdsViewerOpacityHidden = 0.0f;
 const TReal KFMRadioRdsViewerOpacityShow = 0.4f;
 
