@@ -15,21 +15,16 @@
     <object name="hv:all_songs_button" type="HbAction">
         <bool name="checkable" value="TRUE"/>
         <icon iconName="qtg_mono_radio_stations" name="icon"/>
-        <string locid="txt_rad_button_recently_played_songs" name="text"/>
     </object>
     <object name="hv:tagged_songs_button" type="HbAction">
         <bool name="checkable" value="TRUE"/>
         <icon iconName="qtg_mono_favourites" name="icon"/>
-        <string locid="txt_rad_button_tagged_songs" name="text"/>
     </object>
     <object name="hv:toggle_tag_action" type="HbAction">
         <string locid="txt_rad_menu_tag_song" name="text"/>
     </object>
     <object name="hv:ovi_store_action" type="HbAction">
         <string locid="txt_rad_menu_search_from_music_store" name="text"/>
-    </object>
-    <object name="hv:other_store_action" type="HbAction">
-        <string value="Search from Amazon" name="text"/>
     </object>
 
     <widget name="view" type="HbView">
@@ -45,7 +40,7 @@
                 <sizepolicy horizontalPolicy="Expanding" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
                 <sizehint height="expr(var(hb-param-text-height-secondary)+2*var(hb-param-margin-gene-middle-vertical))" type="PREFERRED"/>
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
-                <string name="heading" locid="txt_rad_subhead_play_history" />
+                <string name="heading" locid="txt_rad_subhead_recently_played_songs" />
             </widget>
             <widget name="hv:stacked_widget" type="HbWidget" />
             <layout type="anchor">
@@ -63,7 +58,6 @@
     <widget name="hv:context_menu" type="HbMenu">
         <ref object="hv:toggle_tag_action" role="HbMenu:addAction"/>
         <ref object="hv:ovi_store_action" role="HbMenu:addAction"/>
-        <ref object="hv:other_store_action" role="HbMenu:addAction"/>
     </widget>
     
     <!-- Section to do lazy initialization of the view -->
@@ -145,7 +139,7 @@
             <string locid="txt_rad_info_song_information_is_collected_automat" name="plainText"/>
         </widget>
         <widget name="hv:heading_banner">
-            <string name="heading" locid="txt_rad_subhead_play_history" />
+            <string name="heading" locid="txt_rad_subhead_recently_played_songs" />
         </widget>
     </section>
     <section name="hv:tagged_mode">
@@ -159,7 +153,7 @@
             <string locid="txt_rad_info_you_can_add_song_to_the_tagged_songs" name="plainText"/>
         </widget>
         <widget name="hv:heading_banner">
-            <string name="heading" locid="txt_rad_button_tagged_songs" />
+            <string name="heading" locid="txt_rad_subhead_tagged_songs" />
         </widget>
     </section>
     <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">

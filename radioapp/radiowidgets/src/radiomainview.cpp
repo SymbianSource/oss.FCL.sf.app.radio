@@ -21,7 +21,7 @@
 #include <HbAction>
 #include <HbMenu>
 #include <HbApplication>
-#include <HbActivityManager>
+#include <afactivitystorage.h>
 #include <QPixmap>
 #include <HbLabel>
 #include <HbFrameItem>          // Temporarily here until docml supports frame items
@@ -62,9 +62,7 @@ static void initFrameBackground( RadioUiLoader& uiLoader,
 RadioMainView::RadioMainView() :
     RadioViewBase( false ),
     mCarousel( NULL ),
-    mFrequencyStrip( NULL ),
-    mSkippingAction( NULL ),
-    mAlternateSkipping( false )
+    mFrequencyStrip( NULL )
 {
 }
 
@@ -196,6 +194,10 @@ void RadioMainView::init()
                     this,                                   SLOT(saveActivity()) );
 
     emit applicationReady();
+
+    QScopedPointer<AfActivityStorage> storage( new AfActivityStorage() );
+    bool ok = storage->removeActivity( RADIO_MAINVIEW_ACTIVITY_ID );
+    LOG_ASSERT( ok, LOG( "Failed to remove old activity from Activity Storage!" ) );
 }
 
 /*!
@@ -279,39 +281,20 @@ void RadioMainView::setFrequencyFromEngine( uint frequency, int reason )
  */
 void RadioMainView::skip( int skipMode )
 {
-//    if ( !mAlternateSkipping && ( skipMode == StationSkip::PreviousFavorite || skipMode == StationSkip::NextFavorite ) &&
-//        mUiEngine->stationModel().favoriteCount() == 0 ) {
-//        mCarousel->setInfoText( CarouselInfoText::NoFavorites );
-//    } else {
-        const uint currentFrequency = mFrequencyStrip->frequency();
-        RadioStation station;
-        mUiEngine->stationModel().findFrequency( currentFrequency, station );
+    LOG_FORMAT( "RadioMainView::skip skipMode: %d", skipMode );
 
-        if ( mAlternateSkipping ) { //TODO: Remove. Temporary test code
-            if ( sender() == mFrequencyStrip ) {
-                if ( skipMode == StationSkip::NextFavorite ) {
-                    skipMode = StationSkip::Next;
-                } else if ( skipMode == StationSkip::PreviousFavorite ) {
-                    skipMode = StationSkip::Previous;
-                }
-            } else if ( sender() == mCarousel ) {
-                if ( skipMode == StationSkip::Next ) {
-                    skipMode = StationSkip::NextFavorite;
-                } else if ( skipMode == StationSkip::Previous ) {
-                    skipMode = StationSkip::PreviousFavorite;
-                }
-            }
-        }
+    const uint currentFrequency = mFrequencyStrip->frequency();
+    RadioStation station;
+    mUiEngine->stationModel().findFrequency( currentFrequency, station );
 
-        const uint frequency = mUiEngine->skipStation( static_cast<StationSkip::Mode>( skipMode ),
-                                                                currentFrequency);
+    const uint frequency = mUiEngine->skipStation( static_cast<StationSkip::Mode>( skipMode ),
+                                                            currentFrequency);
 
-        if ( currentFrequency != frequency || station.isFavorite() ) {
-            const Scroll::Direction direction = RadioUtil::scrollDirectionFromSkipMode( skipMode );
-            mCarousel->setFrequency( frequency, TuneReason::Skip, direction );
-            mFrequencyStrip->setFrequency( frequency, TuneReason::Skip, direction );
-        }
-//    }
+    if ( currentFrequency != frequency || station.isFavorite() ) {
+        const Scroll::Direction direction = RadioUtil::scrollDirectionFromSkipMode( skipMode );
+        mCarousel->setFrequency( frequency, TuneReason::Skip, direction );
+        mFrequencyStrip->setFrequency( frequency, TuneReason::Skip, direction );
+    }
 }
 
 /*!
@@ -441,18 +424,17 @@ void RadioMainView::handleFavoriteChange( const RadioStation& station )
  */
 void RadioMainView::saveActivity()
 {
-    HbActivityManager* activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
-
     // Get a screenshot for saving to the activity manager
     QSize screenShotSize = mCarousel->size().toSize();
     QPixmap screenShot( screenShotSize );
     QPainter painter( &screenShot );
 
     // Draw the background and overlay
-    HbLabel* backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_BACKGROUND );
-    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
-    backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_OVERLAY );
-    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+    // TODO: Uncomment when Orbit fixes the crash caused calling the pixmap() function.
+//    HbLabel* backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_BACKGROUND );
+//    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+//    backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_OVERLAY );
+//    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
 
     mCarousel->drawOffScreen( painter );
 
@@ -466,10 +448,9 @@ void RadioMainView::saveActivity()
     #endif
 
     // Update the activity to the activity manager
-    bool ok = activityManager->removeActivity( RADIO_MAINVIEW_ACTIVITY_ID );
-    LOG_ASSERT( ok, LOG( "Failed to remove old activity from Activity Manager!" ) );
-    ok = activityManager->addActivity( RADIO_MAINVIEW_ACTIVITY_ID, QVariant(), metadata );
-    LOG_ASSERT( ok, LOG( "Failed to update activity to Activity Manager!" ) );
+    QScopedPointer<AfActivityStorage> storage( new AfActivityStorage() );
+    bool ok = storage->saveActivity( RADIO_MAINVIEW_ACTIVITY_ID, QVariant(), metadata );
+    LOG_ASSERT( ok, LOG( "Failed to update activity to Activity Storage!" ) );
 }
 
 /*!

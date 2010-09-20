@@ -38,5 +38,23 @@
         <unit bldFile="radiohswidget" qt:proFile="radiohswidget.pro"/>
       </component>
     </collection>
+    <collection id="radiopresetstorage_tsrc" name="vado.radiopresetstorage_qt.tsrc" level="engine">
+      <component id="radiopresetstorage_tsrc" filter="s60,test,qt_unit_test" name="radiopresetstorage_qt.tsrc" introduced="^4">
+        <meta rel="testbuild">
+         <group name="vado.101_radiopresetstorage_tsrc"/>
+       </meta>
+        <unit bldFile="radioapp/radiopresetstorage/tsrc" qt:proFile="t_radiopresetstorage.pro"/>
+      </component>
+    </collection>
+    <collection id="radiouiengine_tsrc" name="vado.radiouiengine_qt.tsrc" level="engine">
+      <component id="radiouiengine_tsrc" filter="s60,test,qt_unit_test" name="radiouiengine_qt.tsrc" introduced="^4">
+        <meta rel="testbuild">
+         <group name="vado.101_radiouiengine_tsrc"/>
+       </meta>      
+        <unit bldFile="radioapp/radiouiengine/tsrc" qt:proFile="t_radiouiengine.pro"/>
+      </component>
+    </collection>
+    
+    
   </package>
 </SystemDefinition>

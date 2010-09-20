@@ -40,7 +40,7 @@
 * Prefix trace macro to complete tracing with component name.
 * Returns TDesC which can be used directly with RDebug or RFileLogger.
 */
-#define _PREFIX_TRACE( aMsg ) TPtrC( (const TText*)L"[t_radioenginewrapper]: " L##aMsg )
+#define _PREFIX_TRACE( aMsg ) TPtrC( (const TText*)L"[t_radiouiengine]: " L##aMsg )
 
 /**
 * Prefix error trace
@@ -55,7 +55,7 @@
 /**
 * Prefix macro for strings
 */
-#define _PREFIX_CHAR( aMsg ) (const char*)"[t_radioenginewrapper]: " ##aMsg
+#define _PREFIX_CHAR( aMsg ) (const char*)"[t_radiouiengine]: " ##aMsg
 
 /**
 * Define needed directories if TRACE_INTO_FILE macro in use

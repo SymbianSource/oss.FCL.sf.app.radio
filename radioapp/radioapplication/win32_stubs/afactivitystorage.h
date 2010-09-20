@@ -15,22 +15,22 @@
 *
 */
 
-#ifndef XQSERVICEUTIL_H
-#define XQSERVICEUTIL_H
+#ifndef AFACTIVITYSTORAGE_STUB_H
+#define AFACTIVITYSTORAGE_STUB_H
 
 #include <QString>
+#include <QVariant>
 
-// THIS IS A STUB CLASS FOR WIN32 ENVIRONMENT!
-// It is only meant to compile, not to actually do anything
-
-namespace XQServiceUtil
+class AfActivityStorage
 {
-    void toBackground(bool) {}
-    bool isEmbedded() { return false; }
-    bool isService() { return false; }
-    bool isService( int &argc, char *argv[] ) { return false; }
-    QString interfaceName() { return ""; }
-    QString operationName() { return ""; }
-}
 
-#endif
+public:
+    AfActivityStorage(QObject *parent = 0);
+    ~AfActivityStorage();
+
+    bool saveActivity(const QString &activityId, const QVariant &activityData, const QVariantHash &metadata);
+    bool removeActivity(const QString &activityId);
+
+};
+
+#endif // AFACTIVITYSTORAGE_STUB_H

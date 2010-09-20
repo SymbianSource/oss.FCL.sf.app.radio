@@ -19,6 +19,7 @@
 #include <HbInstance>
 #include <HbAction>
 #include <HbDeviceMessageBox>
+#include <HbNotificationDialog>
 #include <HbVolumeSliderPopup>
 
 // User includes
@@ -193,33 +194,31 @@ void RadioWindow::showVolumeLevel( int volume )
 void RadioWindow::updateAntennaStatus( bool connected )
 {
     if ( !connected ) {
-        if ( !mMessageBox ) {
-            mMessageBox.reset( new HbMessageBox() );
-        }
-        mMessageBox->setText( hbTrId( "txt_rad_dpophead_connect_wired_headset" ) );
-        mMessageBox->setDismissPolicy( HbPopup::NoDismiss );
-        mMessageBox->setTimeout( HbPopup::NoTimeout );
-//        mMessageBox->setAttribute( Qt::WA_DeleteOnClose, true );
-        mMessageBox->open();
-    } else {
-        mMessageBox.reset();
+        HbNotificationDialog* dlg = new HbNotificationDialog();
+        dlg->setTitle( hbTrId( "txt_rad_dpophead_connect_wired_headset" ) );
+        dlg->setIcon( HbIcon( "qtg_large_wire_connect" ) );
+        dlg->setTimeout( HbPopup::StandardTimeout );
+        dlg->setDismissPolicy( HbPopup::NoDismiss );
+        dlg->setAttribute( Qt::WA_DeleteOnClose );
+        dlg->show();
     }
 }
 
 /*!
  *
  */
-void RadioWindow::activateView( RadioViewBase* aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags )
+void RadioWindow::activateView( RadioViewBase* view, const QString& docmlFile, Hb::ViewSwitchFlags flags )
 {
     LOG_METHOD;
-    if ( aMember && aMember == currentView() ) {
+    Q_ASSERT_X( view, "RadioWindow", "Trying to activate an invalid view" );
+
+    RadioViewBase* previousView = static_cast<RadioViewBase*>( currentView() );
+    if ( view == previousView ) {
         return;
     }
 
-    RadioViewBase* previousView = static_cast<RadioViewBase*>( currentView() );
-
     bool viewCreated = false;
-    if ( !aMember->isInitialized() ) {
+    if ( !view->isInitialized() ) {
         viewCreated = true;
 
         QScopedPointer<RadioUiLoader> uiLoader( new RadioUiLoader() );
@@ -227,9 +226,9 @@ void RadioWindow::activateView( RadioViewBase* aMember, const QString& docmlFile
         // By default the document loader would create a new HbView instance for our view so we need
         // to use a silly little hack to prevent it. We call our view "view" and pass it to the document loader
         // so it already exists.
-        aMember->setObjectName( DOCML::NAME_VIEW );
+        view->setObjectName( DOCML::NAME_VIEW );
         QObjectList objectList;
-        objectList.append( aMember );
+        objectList.append( view );
         uiLoader->setObjectTree( objectList );
 
         bool ok = false;
@@ -241,15 +240,15 @@ void RadioWindow::activateView( RadioViewBase* aMember, const QString& docmlFile
             return;
         }
 
-        aMember->setMembers( this, uiLoader.take() );
-        aMember->preLazyLoadInit();
+        view->setMembers( this, uiLoader.take() );
+        view->preLazyLoadInit();
 
-        addView( aMember );
+        addView( view );
     }
 
-    aMember->updateOrientation( orientation(), viewCreated );
+    view->updateOrientation( orientation(), viewCreated );
 
-    setCurrentView( aMember, true, flags );
+    setCurrentView( view, true, flags );
 
     if ( previousView && previousView->isTransient() ) {
         removeView( previousView );

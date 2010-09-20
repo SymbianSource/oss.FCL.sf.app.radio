@@ -25,6 +25,7 @@
 
 #include "radioenginewrapperobserver.h"
 #include "radiostation.h"
+#include "t_schedulerstartandstoptimer.h"
 
 class RadioUiEngine;
 class RadioStationModel;
@@ -33,7 +34,7 @@ class RadioPresetStorage;
 class RadioEngineWrapper;
 class RadioEngineWrapperObserver;
 
-class TestRadioUiEngine : public QObject, RadioEngineWrapperObserver
+class TestRadioUiEngine : public QObject, RadioEngineWrapperObserver, MSchedulerStartAndStopTimerObserver
 {
     Q_OBJECT
 
@@ -90,6 +91,13 @@ private:
     void headsetStatusChanged( bool connected );
     void skipPrevious();
     void skipNext();
+    
+    // from base class MSchedulerStartAndStopTimerObserver =>
+    void Timeout( TUint aTimerId );    
+    void CreateMUT();
+    void DeleteMUT();
+    // <=
+
     // subfunctions used by the test framework called slots
     void testRadioStationModelInit();
     void testAddStation1();
@@ -117,8 +125,6 @@ private:
 private:
 	RadioUiEngine* mUiEngine;
 	QScopedPointer<RadioEngineWrapper>  mEngineWrapper;
-	RadioStationModel* mRadioStationModel;
-	RadioHistoryModel* mhistoryModel;
 	QScopedPointer<RadioPresetStorage>  mPresetStorage;
 	int mExpectedStationCount;	
 	/**
@@ -128,6 +134,12 @@ private:
 	Slots mEnteredSlots;
 	QString mStationToBeAdded;
 	QString mStationToBeSaved;
+    CSchedulerStopAndStartTimer* mSchedulerTimer;
+    // Active scheduler
+    // Workaround for the below panic, occured after porting to 10.1 
+    // Main Panic E32USER-CBase 44
+    // Create and install the active scheduler
+    CActiveScheduler* mScheduler;
 };
 
 #endif /* T_RADIOSTATION_H_ */

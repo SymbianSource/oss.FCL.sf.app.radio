@@ -25,6 +25,8 @@
 
 S60_APP_EXE(fmradio)
 data=ZRESOURCE\apps\fmradio.mif                                     APP_RESOURCE_DIR\fmradio.mif
+data=ZRESOURCE\hb\splashml\fmradio.splashml                         RESOURCE_FILES_DIR/hb/splashml/fmradio.splashml
+data=ZRESOURCE\hb\splashml\fmradio.docml                            RESOURCE_FILES_DIR/hb/splashml/fmradio.docml
 data=ZPRIVATE\10003a3f\import\apps\fmradio_reg.rsc                  private\10003a3f\import\apps\fmradio_reg.rsc
 
 file=ABI_DIR\BUILD_DIR\fmradioenginewrapper.dll                     SHARED_LIB_DIR\fmradioenginewrapper.dll       PAGED

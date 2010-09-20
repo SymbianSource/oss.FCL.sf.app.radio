@@ -39,6 +39,8 @@ const int MAXIMUM_VOLUME_LEVEL = 20;
  */
 const int DEFAULT_VOLUME_LEVEL = 4;
 
+const int VOLUME_STEP_DIVIDER = 500;
+
 /**
  * UIDs for checking the offline mode
  * Values copied from CoreApplicationUIsSDKCRKeys.h

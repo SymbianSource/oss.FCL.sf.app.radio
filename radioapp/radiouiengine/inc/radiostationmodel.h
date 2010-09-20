@@ -87,7 +87,7 @@ public:
     /*!
      * Sets the icons to be used in the lists
      */
-    void setIcons( const QIcon& favoriteIcon, const QIcon& nowPlayingIcon );
+    void setIcons( const QIcon& favoriteIcon, const QIcon& nonFavoriteIcon, const QIcon& nowPlayingIcon );
 
     /*!
      * Returns a reference to the station handler interface

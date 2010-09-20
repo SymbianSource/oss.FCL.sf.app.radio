@@ -112,7 +112,7 @@ void RadioUiEngine::launchRadioServer()
     QStringList args;
     args << RADIO_RANGE_USEURO; //TODO: Determine current region
     args << QString::number( lastTunedFrequency( 0 ) );
-    args << QString::number( lastVolume() );
+    args << QString::number( lastVolume() * VOLUME_STEP_DIVIDER );
 
     QProcess serverProcess;
     bool success = serverProcess.startDetached( RADIO_SERVER_NAME, args );

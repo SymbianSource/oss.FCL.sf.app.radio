@@ -16,6 +16,7 @@
 
 TMP_DIR_NAME = enginewrapper_stub
 include(../../buildflags.pri)
+defFilePath = ../..
 
 TEMPLATE    = lib
 TARGET      = fmradioenginewrapper_stub

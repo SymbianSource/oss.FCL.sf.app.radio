@@ -33,7 +33,7 @@
 #include "radiostation.h"
 #include "radiologger.h"
 
-static const QLatin1String DATABASE_NAME    ( "radioplayhistory.db" );
+static const QLatin1String DATABASE_NAME    ( "c:\\radioplayhistory.db" );
 static const QLatin1String DATABASE_DRIVER  ( "QSQLITE" );
 static const QLatin1String HISTORY_TABLE    ( "history" );
 static const QLatin1String SQL_CREATE_TABLE ( "CREATE TABLE history ("
@@ -187,7 +187,11 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
         QSqlRecord record = mQueryModel->record( row );
         if ( role == Qt::DisplayRole ) {
 
-            const QString artist = record.value( RadioHistoryValue::Artist ).toString();
+            QString artist = record.value( RadioHistoryValue::Artist ).toString();
+            if ( artist.isEmpty() ) {
+                artist = qtTrId( "txt_rad_dblist_unknown" );
+            }
+
             const QString title = record.value( RadioHistoryValue::Title ).toString();
             const QString station = record.value( RadioHistoryValue::Station ).toString();
             const uint frequency = record.value( RadioHistoryValue::Frequency ).toUInt() * 1000;
@@ -196,7 +200,6 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
             if ( mShowDetails ) {
                 QString formatter = qtTrId( "txt_rad_dblist_1_2" );
                 LOG_FORMAT( "---formatter--- %s", GETSTRING( formatter ) );
-                formatter = "%1 - %2";  // TODO!
 
                 const QString firstRow = QString( formatter ).arg( artist ).arg( title );
                 LOG_FORMAT( "---firstRow--- %s", GETSTRING( firstRow ) );

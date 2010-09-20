@@ -43,6 +43,7 @@ class RadioStationsView : public RadioViewBase
     Q_OBJECT
     Q_PROPERTY(HbIcon nowPlayingIcon READ nowPlayingIcon WRITE setNowPlayingIcon)
     Q_PROPERTY(HbIcon favoriteIcon READ favoriteIcon WRITE setFavoriteIcon)
+    Q_PROPERTY(HbIcon nonFavoriteIcon READ nonFavoriteIcon WRITE setNonFavoriteIcon)
 
 public:
 
@@ -54,6 +55,9 @@ public:
 
     void setFavoriteIcon( const HbIcon& favoriteIcon );
     HbIcon favoriteIcon() const;
+
+    void setNonFavoriteIcon( const HbIcon& nonFavoriteIcon );
+    HbIcon nonFavoriteIcon() const;
 
 private slots:
 
@@ -97,6 +101,7 @@ private: //data
     HbAction*                               mLocalStationsButton;
 
     HbIcon                                  mFavoriteIcon;
+    HbIcon                                  mNonFavoriteIcon;
     HbIcon                                  mNowPlayingIcon;
 
     QScopedPointer<RadioStation>            mSelectedStation;

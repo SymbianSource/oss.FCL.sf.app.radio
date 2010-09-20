@@ -20,6 +20,11 @@ symbian: {
     TARGET.SID = 0x2002EAD8  # Tried  0x101FF976 but failed
     MMP_RULES += SMPSAFE    
 }
+
+CONFIG += qtestlib \
+          Hb \
+          symbian_test  
+
 DEPENDPATH += . \
     inc \
     src

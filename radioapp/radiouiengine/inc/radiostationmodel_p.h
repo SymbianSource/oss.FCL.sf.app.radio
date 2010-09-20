@@ -132,6 +132,12 @@ private: // data
     QIcon                       mFavoriteIcon;
 
     /**
+    * Pointer to nonFavorite icon.
+    * Not own.
+    */
+    QIcon                       mNonFavoriteIcon;
+
+    /**
      * Pointer to the now playing marker icon
      * Not own.
      */

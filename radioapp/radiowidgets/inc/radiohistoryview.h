@@ -74,6 +74,7 @@ private:
 
 // New functions
 
+    void initContextMenu();
     RadioHistoryModel& historyModel() const;
 
 private: //data

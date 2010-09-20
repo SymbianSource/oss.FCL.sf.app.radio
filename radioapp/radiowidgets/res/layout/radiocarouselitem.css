@@ -1,6 +1,7 @@
 RadioCarouselItem
 {
     layout: default;
+    size-policy-horizontal: fixed;
 }
 
 RadioCarouselItem::star_button

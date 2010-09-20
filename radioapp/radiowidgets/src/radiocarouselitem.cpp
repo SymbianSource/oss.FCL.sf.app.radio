@@ -41,6 +41,7 @@ const QLatin1String URL_LABEL            ( "url_label" );
 
 const QLatin1String SEEKING_TEXT        ( "txt_rad_list_tuning" );
 const QLatin1String CONNECT_HEADSET_TEXT( "txt_rad_list_connect_wireless_antenna_headset_with" );
+const uint CAROUSEL_LENGTH = 11;
 
 /*!
  *
@@ -308,8 +309,15 @@ void RadioCarouselItem::update( const RadioStation* station )
 
         const bool hasName = mStation->hasName();
         if ( hasName ) {
+            if ( mStation->name().length() > CAROUSEL_LENGTH ) {
+                mNameItem->setAlignment( Qt::AlignLeft );
+            } else {
+                mNameItem->setAlignment( Qt::AlignHCenter );
+            }
             mNameItem->setText( mStation->name() );
+
         } else {
+            mNameItem->setAlignment( Qt::AlignHCenter );
             mNameItem->setText( mStation->frequencyString() );
         }
 
@@ -348,7 +356,12 @@ void RadioCarouselItem::setFrequency( uint frequency )
 {
     LOG_FORMAT( "RadioCarouselItem::setFrequency: %d", frequency );
 
-    mNameItem->setText( RadioStation::parseFrequency( frequency ) );
+    if ( mStation->hasName() && mStation->frequency() == frequency ) {
+        mNameItem->setText( mStation->name() );
+    } else {
+        mNameItem->setText( RadioStation::parseFrequency( frequency ) );
+    }
+
 
     if ( !mObserver.isInManualSeek() ) {
         *mStation = mObserver.findStation( frequency );

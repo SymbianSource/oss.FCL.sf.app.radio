@@ -22,11 +22,9 @@
 
 
 
-// System includes
 #include <e32base.h>
 
 
-// System includes
 #include "mschedulerstartandstoptimerobserver.h"
 
 
@@ -42,19 +40,18 @@ const TInt KTimerDefaultValue   = 400;
  *   ?good_class_usage_example(s)
  *  @endcode
  *
- *  @lib t_radioenginewrapper.exe
+ *  @lib AccServer.exe
  *  @since S60 10.1
  */
 NONSHARABLE_CLASS(  CSchedulerStopAndStartTimer ): public CTimer
     {
 
 public:
-    enum TTimerId
-        {
-        ETimerIdRunMUT = 0,
-        ETimerIdCreateMUT = 1,
-        ETimerIdDeleteMUT = 2
-        };
+    enum TTimerId{
+    ETimerIdRunMUT = 0,
+    ETimerIdCreateMUT = 1,
+    ETimerIdDeleteMUT = 2    
+    };
 
 
     /**

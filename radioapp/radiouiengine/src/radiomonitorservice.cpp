@@ -127,6 +127,9 @@ void RadioMonitorService::requestAllData()
     QVariantList notificationList;
     QVariant notification;
 
+    notification.setValue( RadioNotificationData( RadioServiceNotification::Region, mUiEngine.api().region() ) );
+    notificationList.append( notification );
+
     RadioStatus::Status radioStatus = determineRadioStatus();
     notification.setValue( RadioNotificationData( RadioServiceNotification::RadioStatus, radioStatus ) );
     notificationList.append( notification );
@@ -146,8 +149,7 @@ void RadioMonitorService::requestAllData()
     }
 
     if ( station.genre() > 0 ) {
-        notification.setValue( RadioNotificationData( RadioServiceNotification::Genre,
-                        mUiEngine.api().genreToString( station.genre(), GenreTarget::HomeScreen ) ) );
+        notification.setValue( RadioNotificationData( RadioServiceNotification::Genre, station.genre() ) );
         notificationList.append( notification );
     }
 
@@ -226,8 +228,7 @@ void RadioMonitorService::notifyStationChange( const RadioStation& station )
     QVariant notification;
 
     if ( station.hasDataChanged( RadioStation::GenreChanged ) ) {
-        const QString genre = uiEngine.genreToString( station.genre(), GenreTarget::HomeScreen );
-        notification.setValue( RadioNotificationData( RadioServiceNotification::Genre, genre ) );
+        notification.setValue( RadioNotificationData( RadioServiceNotification::Genre, station.genre() ) );
         list.append( notification );
     }
 

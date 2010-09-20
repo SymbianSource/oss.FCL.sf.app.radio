@@ -42,7 +42,7 @@ struct Song
 };
 const Song KRecognizedSongs[] = {
     { "Red Hot Chili Peppers", "Under The Bridge" },
-    { "Queens Of The Stone Age", "No One Knows" },
+    { "", "No One Knows" },
     { "The Presidents of the United States of America", "Dune Buggy" },
     { "System of a Down", "Aerials" },
     { "The White Stripes", "Seven Nation Army" },
@@ -265,8 +265,7 @@ void RadioHistoryView::init()
     mHistoryList->setModel( historyModel );
     mHistoryList->setSelectionMode( HbListView::NoSelection );
     mHistoryList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-    //TODO: Uncomment after MCL wk28 release to improve scrolling FPS rate
-    //mHistoryList->setItemPixmapCacheEnabled( true );
+    mHistoryList->setItemPixmapCacheEnabled( true ); // Improves scrolling FPS rate
 
     mAllSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_ALL_SONGS_BUTTON );
     mTaggedSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_TAGGED_SONGS_BUTTON );
@@ -290,13 +289,8 @@ void RadioHistoryView::init()
     connectCommonMenuItem( MenuItem::Exit );
     connectCommonMenuItem( MenuItem::UseLoudspeaker );
 
-    // Context menu actions
-    connectXmlElement( DOCML::HV_NAME_TOGGLE_TAG_ACTION,    SIGNAL(triggered()),
-                       this,                                SLOT(toggleTagging()) );
-    connectXmlElement( DOCML::HV_NAME_OVI_STORE_ACTION,     SIGNAL(triggered()),
-                       this,                                SLOT(openOviStore()) );
-    connectXmlElement( DOCML::HV_NAME_OTHER_STORE_ACTION,   SIGNAL(triggered()),
-                       this,                                SLOT(openOtherStore()) );
+    initContextMenu();
+
     initBackAction();
 
     updateViewMode();
@@ -330,6 +324,24 @@ void RadioHistoryView::userAccepted()
     const bool removeTagged = mTaggedSongsButton->isChecked();
     mUiEngine->historyModel().removeAll( removeTagged );
     updateVisibilities();
+}
+
+/*!
+ *
+ */
+void RadioHistoryView::initContextMenu()
+{
+    // Context menu actions
+    connectXmlElement( DOCML::HV_NAME_TOGGLE_TAG_ACTION,    SIGNAL(triggered()),
+                       this,                                SLOT(toggleTagging()) );
+    connectXmlElement( DOCML::HV_NAME_OVI_STORE_ACTION,     SIGNAL(triggered()),
+                       this,                                SLOT(openOviStore()) );
+
+    // TODO: Get additional music stores. For now use "Amazon" for demonstration purposes
+    const QString otherStoreFormatter = hbTrId( "txt_rad_menu_search_from_other_store" );
+    if ( HbMenu* contextMenu = mUiLoader->findObject<HbMenu>( DOCML::HV_NAME_CONTEXT_MENU ) ) {
+        contextMenu->addAction( otherStoreFormatter.arg( "Amazon" ), this, SLOT(openOtherStore()) );
+    }
 }
 
 /*!

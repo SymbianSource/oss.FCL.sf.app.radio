@@ -19,17 +19,11 @@
 #include "radiohistoryitem.h"
 #include "radiohistoryitem_p.h"
 
-/**
- * Static shared data instance that is used by all default-constructed RadioStation instances
- */
-Q_GLOBAL_STATIC( RadioHistoryItemPrivate, shared_null )
-
-
 /*!
  *
  */
 RadioHistoryItem::RadioHistoryItem() :
-    mData( shared_null() )
+    mData( new RadioHistoryItemPrivate() )
 {
     mData->ref.ref();
 }
@@ -79,7 +73,10 @@ bool RadioHistoryItem::isValid() const
  */
 void RadioHistoryItem::reset()
 {
-    mData = shared_null();
+    mData->ref.deref();
+    mData = NULL;
+    mData = new RadioHistoryItemPrivate();
+    mData->ref.ref();
 }
 
 /*!

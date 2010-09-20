@@ -47,6 +47,7 @@ public:
 
 private slots:
 
+    void construct();
     void checkOfflineMode();
     void handleOfflineQueryAnswer();
 
@@ -73,6 +74,8 @@ private: // data
      * Own.
      */
     XQSettingsManager*                  mSettingsManager;
+
+    bool                                mInitialisationDone;
 
 };
 

@@ -7,9 +7,9 @@
     <source>New name:</source>
     <translation variants="no">New name:</translation>
     <extra-loc-layout_id>qtl_dialog_pri_heading</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dialog</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_rock_music">
@@ -37,9 +37,9 @@
     <source>Clear Recently played songs list?</source>
     <translation variants="no">Clear Recently played songs list?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_opt_play_history">
@@ -50,6 +50,16 @@
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>opt</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_common_button_cancel">
+    <comment>Button. Ignores the dialog and returns previous view</comment>        
+    <source>Cancel</source>
+    <translation variants="no">Cancel</translation>
+    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>button</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_news">
@@ -67,9 +77,9 @@
     <source>Search all stations</source>
     <translation variants="no">Search all stations</translation>
     <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01, rad_02</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio_001, FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_culture">
@@ -107,9 +117,9 @@
     <source>Local frequency band automatically set for radio.</source>
     <translation variants="no">Local frequency band automatically set for radio.</translation>
     <extra-loc-layout_id>qtl_notifdialog_pri2</extra-loc-layout_id>    
-    <extra-loc-viewid>fmradio</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>fm</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_val_l1_mhz">
@@ -132,16 +142,6 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_button_tagged_songs">
-    <comment>Button text. Expresses that the list contains songs which have been marked as favorite songs.</comment>        
-    <source>Tagged songs</source>
-    <translation variants="no">Tagged songs</translation>
-    <extra-loc-layout_id>qtl_toolbar_tiny_2</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_info_soft_rock">
     <comment>Main view Information area item. Displayed if PTY is available. Used only in US region.</comment>        
     <source>Soft rock</source>
@@ -149,6 +149,16 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
+    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_rad_subhead_recently_played_songs">
+    <comment>Heading text for the Recently played songs view.</comment>        
+    <source>Recently played songs</source>
+    <translation variants="no">Recently played songs</translation>
+    <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
+    <extra-loc-positionid>subhead</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -252,6 +262,16 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
+<message numerus="no" id="txt_common_menu_delete">
+    <comment>Item specific menu item. Allows the user to delete a station.</comment>        
+    <source>Delete</source>
+    <translation variants="no">Delete</translation>
+    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>menu</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
 <message numerus="no" id="txt_rad_info_language">
     <comment>Main view Information area item. Displayed if PTY is available. Used only in US region.</comment>        
     <source>Language</source>
@@ -270,6 +290,16 @@
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_common_menu_rename_item">
+    <comment>Item specific menu item. Allows the user to define a new name for a station.</comment>        
+    <source>Rename</source>
+    <translation variants="no">Rename</translation>
+    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>menu</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_soft_rhythm_and_blues">
@@ -362,21 +392,41 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
+<message numerus="no" id="txt_common_button_no">
+    <comment>Button. Pressing this button rejects the selected operation.</comment>        
+    <source>No</source>
+    <translation variants="no">No</translation>
+    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>button</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_common_button_ok">
+    <comment>Button. Allows the user to accept the dialog and return to previous view</comment>        
+    <source>OK</source>
+    <translation variants="no">OK</translation>
+    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>button</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
 <message numerus="no" id="txt_rad_info_station_list_is_full_please_remove_s">
     <comment>Dialog text which is displayed if all found stations do not fit to the Stations list after doing a Search all stations function. Displayed also if user tries to mark station as favorite in main view or in stations view and there is not enough room for stations in the Stations list.</comment>        
     <source>Station list is full. Please remove some stations and try again.</source>
     <translation variants="no">Station list is full. Please remove some stations and try again.</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_no_favourites_add_favourites_to_see">
     <comment>Info text in main pane if &quot;Favourites&quot; list has no items. &quot;Favourite stations&quot; text must be same localization as txt_rad_subhead_favorite_stations. Favourite icon refers to a star -icon in the main view.</comment>        
     <source>Tap the star icon or Add to favourite button in main view to mark currently playing station as a favorite.</source>
     <translation variants="no">Tap the star icon or Add to favourite button in main view to mark currently playing station as a favorite.</translation>
-    <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_no_favourites_add_favourites_to_see</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
@@ -387,9 +437,9 @@
     <source>Clear Favourite stations list?</source>
     <translation variants="no">Clear Favourite stations list?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_adult_hits">
@@ -406,7 +456,7 @@
     <comment>Title of the info text in main pane if &quot;Favourite stations&quot; list has no items. </comment>        
     <source>(No favourite stations)</source>
     <translation variants="no">(No favourite stations)</translation>
-    <extra-loc-layout_id>qtl_view_empty_title_pri</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_no_favourite_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
@@ -477,9 +527,9 @@
     <source>FM Radio</source>
     <translation variants="no">FM Radio</translation>
     <extra-loc-layout_id>qtl_list_pri_large_graphic</extra-loc-layout_id>    
-    <extra-loc-viewid>fmradio</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>list</extra-loc-positionid>
-    <extra-loc-feature>fm</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_childrens_programmes">
@@ -522,6 +572,16 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
+<message numerus="no" id="txt_short_caption_fmradio">
+    <comment>Home screen shortcut caption (for 10.1)</comment>        
+    <source>FM Radio</source>
+    <translation variants="no">FM Radio</translation>
+    <extra-loc-layout_id>qtl_homescreen_shortcut</extra-loc-layout_id>    
+    <extra-loc-viewid>Home_screen_001</extra-loc-viewid>
+    <extra-loc-positionid>caption</extra-loc-positionid>
+    <extra-loc-feature>Ho</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_information">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Information</source>
@@ -547,9 +607,9 @@
     <source>FM Radio</source>
     <translation variants="no">FM Radio</translation>
     <extra-loc-layout_id>qtl_titlebar</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>title</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_cancel">
@@ -567,9 +627,9 @@
     <source>Delete station?</source>
     <translation variants="no">Delete station?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_religion">
@@ -606,7 +666,7 @@
     <comment>Info text in main pane area if Tagged songs list has no item (e.g. after the user has deleted all content from the list). Note that &quot;tagged songs&quot; must use the same localisation as txt_rad_button_tagged_songs. Recently played songs must be same as &quot;Recently played songs&quot; text must be the same as txt_rad_button_recently_played_songs..</comment>        
     <source>You can add song to the tagged songs list from Recently played songs or from main view if song information is available. </source>
     <translation variants="no">You can add song to the tagged songs list from Recently played songs or from main view if song information is available. </translation>
-    <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_you_can_add_song_to_the_tagged_songs</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
@@ -657,9 +717,9 @@
     <source>Continue using the Radio in off-line mode?</source>
     <translation variants="no">Continue using the Radio in off-line mode?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_list_unknown">
@@ -686,7 +746,7 @@
     <comment>Info text in main pane area if Recently played songs has no item (e.g. after the user has emptied the list). Note that &quot;Identify song&quot; must be the same string as txt_rad_list_identify_song. &quot;Recently played songs&quot; text must be the same as &quot;Recently played songs&quot; text must be the same as txt_rad_button_recently_played_songs. Displayed if Shazam (song identification) application is NOT installed to the device.</comment>        
     <source>Song information is collected automatically from radio stations which send the song information using the RDS+ technology.</source>
     <translation variants="no">Song information is collected automatically from radio stations which send the song information using the RDS+ technology.</translation>
-    <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_song_information_is_collected_automat</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
@@ -697,9 +757,9 @@
     <source>Clear All stations list?</source>
     <translation variants="no">Clear All stations list?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_classical">
@@ -717,9 +777,9 @@
     <source>Song was added to Tagged songs.</source>
     <translation variants="no">Song was added to Tagged songs.</translation>
     <extra-loc-layout_id>qtl_notifdialog_pri2_medium_graphic</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dpophead</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_talk">
@@ -730,6 +790,16 @@
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_common_button_yes">
+    <comment>Button. Pressing this button confirms the selected operation.</comment>        
+    <source>Yes</source>
+    <translation variants="no">Yes</translation>
+    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>button</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_finance">
@@ -747,9 +817,9 @@
     <source>Activate Fm Radio in off-line mode?</source>
     <translation variants="no">Activate Fm Radio in off-line mode?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_searching_local_stations_please_wait">
@@ -782,14 +852,24 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
+<message numerus="no" id="txt_common_opt_deactivate_loudspeaker">
+    <comment>Options list item. Deactivates the loudspeaker. Only available if audio can be routed to the headset</comment>        
+    <source>Deactivate loudspeaker</source>
+    <translation variants="no">Deactivate loudspeaker</translation>
+    <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>opt</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
 <message numerus="no" id="txt_rad_info_clear_tagged_songs_list">
     <comment>Dialog text displayed when user is about to clear all tagged songs in Tagged songs view.</comment>        
     <source>Clear Tagged songs list?</source>
     <translation variants="no">Clear Tagged songs list?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_top_40">
@@ -827,28 +907,38 @@
     <source>Stations in station list will be replaced. Favourite stations won&apos;t be touched. Continue?</source>
     <translation variants="no">Stations in station list will be replaced. Favourite stations won&apos;t be touched. Continue?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_tag_song">
-    <comment>Item specific menu item. Allows the user to add a song in play history list to tagged songs list. Available only if the item is not already in the tagged songs.</comment>        
+    <comment>Item specific menu item. Allows the user to add a song to tagged songs list. Available only if the item is not already in the tagged songs. Displayed in Main view and in Play history view.</comment>        
     <source>Tag song</source>
     <translation variants="no">Tag song</translation>
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01, rad_03</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio_001, FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_no_stations_search_stations_automat">
     <comment>Info text in main pane if &quot;All stations&quot; list has no items. Activates the search all station function if user taps the text.</comment>        
     <source>Search stations automatically by tapping here.</source>
     <translation variants="no">Search stations automatically by tapping here.</translation>
-    <extra-loc-layout_id>qtl_view_empty_description_sec</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_no_stations_search_stations_automat</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
+    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_rad_subhead_local_stations">
+    <comment>Heading text for the All stations view under Stations.</comment>        
+    <source>All stations</source>
+    <translation variants="no">All stations</translation>
+    <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
+    <extra-loc-positionid>subhead</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -887,29 +977,29 @@
     <source>FM Radio could not be started. </source>
     <translation variants="no">FM Radio could not be started. </translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>fmradio</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>fm</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_no_stations">
     <comment>Title of the info text in main pane if &quot;All stations&quot; list has no items. </comment>        
     <source>(No stations)</source>
     <translation variants="no">(No stations)</translation>
-    <extra-loc-layout_id>qtl_view_empty_title_pri</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_no_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_short_caption_fm_radio">
-    <comment>Application menu item name in grid. Short caption.</comment>        
-    <source>FM Radio</source>
-    <translation variants="no">FM Radio</translation>
-    <extra-loc-layout_id>qtl_grid_applications_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>fmradio</extra-loc-viewid>
-    <extra-loc-positionid>grid</extra-loc-positionid>
-    <extra-loc-feature>fm</extra-loc-feature>
+<message numerus="no" id="txt_common_opt_exit">
+    <comment>Options list item. With the exit option, the user can close the currently active application and return to the Home screen.</comment>        
+    <source>Exit</source>
+    <translation variants="no">Exit</translation>
+    <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>opt</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_serious_classical">
@@ -957,9 +1047,9 @@
     <source>No stations found. Try searching stations by scrolling the frequency strip.</source>
     <translation variants="no">No stations found. Try searching stations by scrolling the frequency strip.</translation>
     <extra-loc-layout_id>qtl_notifdialog_pri2</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dpophead</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_sport">
@@ -973,23 +1063,13 @@
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_tsw_caption_fm_radio">
-    <comment>Application name in Task switcher.</comment>        
+    <comment>Application name in Task switcher (for 10.2)</comment>        
     <source>FM Radio</source>
     <translation variants="no">FM Radio</translation>
     <extra-loc-layout_id>qtl_grid_taskswitcher_tiny</extra-loc-layout_id>    
     <extra-loc-viewid>tsw_01</extra-loc-viewid>
     <extra-loc-positionid>caption</extra-loc-positionid>
     <extra-loc-feature>ts</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_subhead_play_history">
-    <comment>Heading text for the Play history view.</comment>        
-    <source>Play history</source>
-    <translation variants="no">Play history</translation>
-    <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
-    <extra-loc-positionid>subhead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_remove_tag">
@@ -1022,6 +1102,16 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
+<message numerus="no" id="txt_rad_subhead_tagged_songs">
+    <comment>Heading text for the Tagged songs view.</comment>        
+    <source>Tagged songs</source>
+    <translation variants="no">Tagged songs</translation>
+    <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
+    <extra-loc-positionid>subhead</extra-loc-positionid>
+    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_current_affairs">
     <comment>Second row on the Stations list item (PTY=Program type information). </comment>        
     <source>Current affairs</source>
@@ -1039,16 +1129,6 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_button_local_stations">
-    <comment>Toolbar button. Displays list of all radio stations.</comment>        
-    <source>All stations</source>
-    <translation variants="no">All stations</translation>
-    <extra-loc-layout_id>qtl_toolbar_tiny_2</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1142,16 +1222,6 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_button_favourites">
-    <comment>Toolbar button. Displays list of all favourite radio stations.</comment>        
-    <source>Favourite stations</source>
-    <translation variants="no">Favourite stations</translation>
-    <extra-loc-layout_id>qtl_toolbar_tiny_2</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_1_2">
     <comment>Two row list item first row. Displays artist and song name. Only in landscape. %1 is the artist&apos;s name and %2 is the song name.</comment>        
     <source>%1 - %2</source>
@@ -1179,16 +1249,6 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_button_recently_played_songs">
-    <comment>Button text. Opens the Recently played songs list view.</comment>        
-    <source>Recently played songs</source>
-    <translation variants="no">Recently played songs</translation>
-    <extra-loc-layout_id>qtl_toolbar_tiny_2</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1242,16 +1302,6 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_subhead_favorite_stations">
-    <comment>Heading text for the Stations view&apos;s &quot;Favorite stations&quot; view</comment>        
-    <source>Favorite stations</source>
-    <translation variants="no">Favorite stations</translation>
-    <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
-    <extra-loc-positionid>subhead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
 <message numerus="no" id="txt_rad_dblist_unknown">
     <comment>First row of the two row list item. Displayed only in portrait and only when the artist name is not available for the identified song.</comment>        
     <source>(Unknown)</source>
@@ -1260,6 +1310,16 @@
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>dblist</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_common_menu_play_music">
+    <comment>Item specific menu item. Starts to play the station when selected. Not displayed if station is already playing.</comment>        
+    <source>Play</source>
+    <translation variants="no">Play</translation>
+    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>menu</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_adult_hits">
@@ -1276,7 +1336,7 @@
     <comment>Title of the info text in main pane if &quot;Recently played songs&quot; or &quot;Tagged songs&quot; list has no items. </comment>        
     <source>(No songs)</source>
     <translation variants="no">(No songs)</translation>
-    <extra-loc-layout_id>qtl_view_empty_title_pri</extra-loc-layout_id>    
+    <extra-loc-layout_id>txt_rad_info_play_history_is_empty</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
@@ -1287,9 +1347,9 @@
     <source>Search from Ovi Music</source>
     <translation variants="no">Search from Ovi Music</translation>
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01, rad_03</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio_001, FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_documentary">
@@ -1437,9 +1497,9 @@
     <source>Connect wired headset.</source>
     <translation variants="no">Connect wired headset.</translation>
     <extra-loc-layout_id>qtl_notifdialog_pri2_medium_graphic</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dpophead</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_phone_in">
@@ -1449,6 +1509,16 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
+    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_rad_subhead_favourites">
+    <comment>Heading text for the Favourite stations view under Stations.</comment>        
+    <source>Favourite stations</source>
+    <translation variants="no">Favourite stations</translation>
+    <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
+    <extra-loc-positionid>subhead</extra-loc-positionid>
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
@@ -1467,9 +1537,9 @@
     <source>Search from %1</source>
     <translation variants="no">Search from %1</translation>
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>rad_01, rad_03</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio_001, FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_public">
@@ -1513,13 +1583,13 @@
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_remove_song_from_tagged_songs">
-    <comment>Dialog text displayed when user is about to remove a song from Favorite list in Favorite songs view.</comment>        
+    <comment>Dialog text displayed when user is about to remove a song from Favorite list in Tagged songs view.</comment>        
     <source>Remove song from tagged songs?</source>
     <translation variants="no">Remove song from tagged songs?</translation>
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>rad</extra-loc-viewid>
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>ra</extra-loc-feature>
+    <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_classic_rock">
@@ -1532,14 +1602,14 @@
     <extra-loc-feature>Fm</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_subhead_all_stations">
-    <comment>Heading text for the Stations view&apos;s &quot;All stations&quot; view</comment>        
-    <source>All stations</source>
-    <translation variants="no">All stations</translation>
-    <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
-    <extra-loc-positionid>subhead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+<message numerus="no" id="txt_common_opt_activate_loudspeaker">
+    <comment>Options list item. Switches the audio from handset or handsfree to loudspeaker. Only available if audio can be routed to the loudspeaker.</comment>        
+    <source>Activate loudspeaker</source>
+    <translation variants="no">Activate loudspeaker</translation>
+    <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
+    <extra-loc-viewid>common</extra-loc-viewid>
+    <extra-loc-positionid>opt</extra-loc-positionid>
+    <extra-loc-feature>co</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_folk_music">

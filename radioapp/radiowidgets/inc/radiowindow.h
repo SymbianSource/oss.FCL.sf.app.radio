@@ -33,6 +33,7 @@ class RadioViewBase;
 class RadioUiEngine;
 class HbVolumeSliderPopup;
 class HbMessageBox;
+class HbNotificationDialog;
 
 typedef QScopedPointer<HbVolumeSliderPopup> VolumeSliderPtr;
 
@@ -80,7 +81,7 @@ private:
 
 // New functions
 
-    void activateView( RadioViewBase* aMember, const QString& docmlFile, Hb::ViewSwitchFlags flags = Hb::ViewSwitchDefault );
+    void activateView( RadioViewBase* view, const QString& docmlFile, Hb::ViewSwitchFlags flags = Hb::ViewSwitchDefault );
 
 private: // data
 
@@ -113,13 +114,6 @@ private: // data
      * Own.
      */
     VolumeSliderPtr                     mVolSlider;
-
-    /**
-     * Pointer to messagebox
-     * Own.
-     */
-    QScopedPointer<HbMessageBox>        mMessageBox;
-
 };
 
 

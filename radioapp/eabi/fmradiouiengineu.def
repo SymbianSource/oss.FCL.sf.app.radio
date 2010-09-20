@@ -154,7 +154,7 @@ EXPORTS
 	_ZN17RadioStationModel21findUnusedPresetIndexEv @ 153 NONAME
 	_ZN17RadioStationModel22setFavoriteByFrequencyEjb @ 154 NONAME
 	_ZN17RadioStationModel7setDataERK11QModelIndexRK8QVarianti @ 155 NONAME
-	_ZN17RadioStationModel8setIconsERK5QIconS2_ @ 156 NONAME
+	_ZN17RadioStationModel8setIconsERK5QIconS2_S2_ @ 156 NONAME
 	_ZN17RadioStationModel9removeAllENS_10RemoveModeE @ 157 NONAME
 	_ZN17RadioStationModel9setDetailE6QFlagsINS_10DetailFlagEE @ 158 NONAME
 	_ZN17RadioStationModelC1ER20RadioUiEnginePrivate @ 159 NONAME

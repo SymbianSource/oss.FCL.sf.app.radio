@@ -40,10 +40,7 @@
 
 // Constants
 const int RTPLUS_CHECK_TIMEOUT = 700;
-const int INFOTEXT_NOFAVORITES_TIMEOUT = 5000;
 const int SET_FREQUENCY_TIMEOUT = 500;
-const int FAVORITE_HINT_SHOW_DELAY = 1000;
-const int FAVORITE_HINT_HIDE_DELAY = 2000;
 
 // Matti testing constants
 const QLatin1String LEFT_ITEM_NAME      ( "carousel_left" );
@@ -83,7 +80,8 @@ RadioStationCarousel::RadioStationCarousel( QGraphicsItem* parent ) :
     mPosAdjustmentDisabled( false ),
     mScrollDirection( Scroll::Shortest ),
     mManualSeekMode( false ),
-    mOrientation( false )
+    mOrientation( false ),
+    mScrollIgnore( false )
 #ifdef USE_DEBUGGING_CONTROLS
     ,mRdsLabel( new RadioFadingLabel( this ) )
 #endif // USE_DEBUGGING_CONTROLS
@@ -244,7 +242,7 @@ void RadioStationCarousel::setFrequency( uint frequency, int reason, Scroll::Dir
             }
 
             mIsCustomFreq = false;
-            if ( reason == TuneReason::Skip || reason == TuneReason::StationScanFinalize ) {
+            if ( reason == TuneReason::Skip || reason == TuneReason::SkipFromEngine || reason == TuneReason::StationScanFinalize ) {
                 const int newIndex = mModel->indexFromFrequency( frequency );
                 scrollToIndex( newIndex, direction, NoSignal );
                 mCurrentIndex = newIndex;
@@ -308,8 +306,6 @@ void RadioStationCarousel::setScanningMode( bool scanning )
         }
         clearInfoText();
         setCenterIndex( 0 );
-        mTimerMode = FavoriteHintShow;
-        mGenericTimer->start( FAVORITE_HINT_SHOW_DELAY );
     }
 
     setEnabled( !scanning );
@@ -362,32 +358,15 @@ void RadioStationCarousel::cancelAnimation()
 void RadioStationCarousel::setInfoText( CarouselInfoText::Type type )
 {
     mInfoTextType = type;
-    if ( type == CarouselInfoText::NoFavorites || type == CarouselInfoText::FavoriteIconHint ) {
-//        mInfoText->setPlainText( hbTrId( "txt_rad_dialog_long_press_arrow_keys_to_search_str" ) );
-    //TODO: Remove hardcoding. Temporarily hardcoded for usability testing
-        mInfoText->setPlainText( "Tap star to mark favourites" );
-        mInfoText->setAlignment( Qt::AlignCenter );
-        mItems[CenterItem]->setItemVisibility( RadioCarouselItem::IconVisible );
-        mTimerMode = InfoText;
-        mGenericTimer->setInterval( INFOTEXT_NOFAVORITES_TIMEOUT );
-        mGenericTimer->start();
 
-        if ( !mAnimator ) {
-            mAnimator = new RadioCarouselAnimator( *this );
-        }
-        mAnimator.data()->startFlashingIcon();
-
-    } else if ( type == CarouselInfoText::ConnectAntenna ) {
+    if ( type == CarouselInfoText::ConnectAntenna ) {
         cleanRdsData();
         mInfoText->setPlainText( hbTrId( "txt_rad_info_connect_wired_headset1" ) );
-        mInfoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
     } else if ( type == CarouselInfoText::Seeking ) {
         cleanRdsData();
-        mInfoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
         mInfoText->setPlainText( hbTrId( "txt_rad_list_seeking" ) );
     } else if ( type == CarouselInfoText::Scanning ) {
         cleanRdsData();
-        mInfoText->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
         mInfoText->setPlainText( hbTrId( "txt_rad_list_searching_all_available_stations_ple" ) );
     }
 
@@ -465,6 +444,10 @@ void RadioStationCarousel::adjustAfterScroll()
         return;
     }
 
+    if ( mScrollIgnore ) {
+        mScrollIgnore = false; // next scrollingEnded() is handled
+        return;
+    }
     if ( mTargetIndex != -1 ) {
         setCenterIndex( mTargetIndex );
     }
@@ -530,13 +513,6 @@ void RadioStationCarousel::timerFired()
     } else if ( mTimerMode == InfoText ) {
         clearInfoText();
         mTimerMode = NoTimer;
-    } else if ( mTimerMode == FavoriteHintShow ) {
-        setInfoText( CarouselInfoText::FavoriteIconHint );
-        mTimerMode = FavoriteHintHide;
-        mGenericTimer->start( FAVORITE_HINT_HIDE_DELAY );
-    } else if ( mTimerMode == FavoriteHintHide ) {
-        clearInfoText();
-        mTimerMode = NoTimer;
     }
 }
 
@@ -570,18 +546,6 @@ void RadioStationCarousel::updateAntennaStatus( bool connected )
     } else {
         clearInfoText();
     }
-}
-
-/*!
- * \reimp
- */
-void RadioStationCarousel::mousePressEvent( QGraphicsSceneMouseEvent* event )
-{
-    if ( mInfoTextType == CarouselInfoText::NoFavorites || mInfoTextType == CarouselInfoText::FavoriteIconHint ) {
-        clearInfoText();
-    }
-
-    HbScrollArea::mousePressEvent( event );
 }
 
 /*!
@@ -634,12 +598,14 @@ void RadioStationCarousel::gestureEvent( QGestureEvent* event )
     if ( mOrientation ) {
         if ( HbPanGesture* gesture = qobject_cast<HbPanGesture*>( event->gesture( Qt::PanGesture ) ) ) {
             if ( gesture->state() == Qt::GestureFinished ) {
+                mScrollIgnore = true; // next scrollingEnded() signal needs to be ignored
                 adjustPos( (int)gesture->offset().y() );
             }
         }
     } else {
         if ( HbPanGesture* gesture = qobject_cast<HbPanGesture*>( event->gesture( Qt::PanGesture ) ) ) {
             if ( gesture->state() == Qt::GestureFinished ) {
+                mScrollIgnore = true; // next scrollingEnded() signal needs to be ignored
                 adjustPos( (int)gesture->offset().x() );
             }
         }

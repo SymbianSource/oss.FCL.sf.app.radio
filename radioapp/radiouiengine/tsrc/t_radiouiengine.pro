@@ -24,6 +24,10 @@ symbian: {
     MMP_RULES += SMPSAFE
 }
 
+CONFIG += qtestlib \
+          Hb \
+          symbian_test  
+
 
 DEPENDPATH += . \
     inc \
@@ -46,12 +50,12 @@ INCLUDEPATH += . \
     ../../../radioengine/utils/api \
     ../../../radioengine/utils/inc
 
-CONFIG += qtestlib
-
 symbian:LIBS += -lfmradiouiengine
 symbian:LIBS += -lfmradioenginewrapper
 symbian:LIBS += -lfmradiopresetstorage
 symbian:LIBS += -lfmradioengineutils
 
+HEADERS += inc/t_schedulerstartandstoptimer.h
 HEADERS += inc/t_radiostation.h
+SOURCES += src/t_schedulerstartandstoptimer.cpp
 SOURCES += src/t_radiostation.cpp

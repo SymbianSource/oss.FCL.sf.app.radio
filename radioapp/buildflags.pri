@@ -118,8 +118,13 @@ win32: {
     LIBS        += -L../bin
     INCLUDEPATH += ../radioenginewrapper/inc
     INCLUDEPATH += ../radioapplication/win32_stubs
-    HEADERS     += ../radioapplication/win32_stubs/*.h
-    SOURCES     += ../radioapplication/win32_stubs/*.cpp
+    HEADERS     += ../radioapplication/win32_stubs/qsysteminfo.h
+    HEADERS     += ../radioapplication/win32_stubs/xqserviceprovider.h
+    HEADERS     += ../radioapplication/win32_stubs/xqserviceutil.h
+    HEADERS     += ../radioapplication/win32_stubs/xqsettingskey.h
+    HEADERS     += ../radioapplication/win32_stubs/xqsettingsmanager.h
+    HEADERS     += ../radioapplication/win32_stubs/afactivitystorage.h
+    SOURCES     += ../radioapplication/win32_stubs/win32_stubs.cpp
 }
 
 USE_UNFROZEN_EXPORTS {

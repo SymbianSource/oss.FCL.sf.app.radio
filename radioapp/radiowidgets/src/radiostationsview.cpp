@@ -95,6 +95,22 @@ HbIcon RadioStationsView::favoriteIcon() const
 }
 
 /*!
+ *
+ */
+void RadioStationsView::setNonFavoriteIcon( const HbIcon& nonFavoriteIcon )
+{
+    mNonFavoriteIcon = nonFavoriteIcon;
+}
+
+/*!
+ *
+ */
+HbIcon RadioStationsView::nonFavoriteIcon() const
+{
+    return mNonFavoriteIcon;
+}
+
+/*!
  * Private slot
  *
  */
@@ -303,8 +319,8 @@ void RadioStationsView::init()
 
     loadSection( DOCML::FILE_STATIONSVIEW, DOCML::SV_SECTION_SHOW_ALL_STATIONS );
 
-    if ( !mFavoriteIcon.isNull() && !mNowPlayingIcon.isNull() ) {
-        mModel->setIcons( mFavoriteIcon.qicon(), mNowPlayingIcon.qicon() );
+    if ( !mFavoriteIcon.isNull() && !mNonFavoriteIcon.isNull() && !mNowPlayingIcon.isNull() ) {
+        mModel->setIcons( mFavoriteIcon.qicon(), mNonFavoriteIcon.qicon(), mNowPlayingIcon.qicon() );
     }
     mModel->setDetail( RadioStationModel::ShowIcons | RadioStationModel::ShowGenre );
 
@@ -394,6 +410,5 @@ void RadioStationsView::initListView()
     mStationsList->setModel( mFilterModel );
     mStationsList->setSelectionMode( HbListView::NoSelection );
     mStationsList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-    //TODO: Uncomment after MCL wk28 release to improve scrolling FPS rate
-    //mStationsList->setItemPixmapCacheEnabled( true );
+    mStationsList->setItemPixmapCacheEnabled( true ); // Improves scrolling FPS rate
 }

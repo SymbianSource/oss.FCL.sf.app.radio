@@ -51,17 +51,38 @@ static XQSettingsKey gConnectionKey( XQSettingsKey::TargetCentralRepository, CEN
  * Constructor
  */
 RadioApplication::RadioApplication( int &argc, char *argv[] ) :
-    HbApplication( argc, argv, Hb::NoSplash ),
-    mSettingsManager( new XQSettingsManager( this ) )
+    HbApplication( argc, argv, XQServiceUtil::isService(argc, argv) ? Hb::NoSplash : Hb::DefaultApplicationFlags ),
+    mMainWindow( new RadioWindow() ),
+    mSettingsManager( new XQSettingsManager( this ) ),
+    mInitialisationDone( false )
 {
     // Initializes the radio engine utils if UI logs are entered into the engine log
     INIT_COMBINED_LOGGER
 
     LOG_TIMESTAMP( "Start radio" );
+
+    QTimer::singleShot( 0, this, SLOT( construct() ) );
+}
+
+/*!
+ *
+ */
+RadioApplication::~RadioApplication()
+{
+    // Destructor needs to be defined. See explanation from RadioEngineWrapperPrivate destructor.
+    // Releases the radio engine utils if it was initialized in the beginning
+    RELEASE_COMBINED_LOGGER
+}
+
+/*!
+ * Private slot
+ *
+ */
+void RadioApplication::construct()
+{
     setApplicationName( hbTrId( "txt_rad_title_fm_radio" ) );
 
     if ( XQServiceUtil::isService() ) {
-
         // Radio was started as a highway service from homescreen widget.
         // Widget has already done the offline mode check so we can start without checking
         init();
@@ -75,16 +96,7 @@ RadioApplication::RadioApplication( int &argc, char *argv[] ) :
         }
 
     }
-}
 
-/*!
- *
- */
-RadioApplication::~RadioApplication()
-{
-    // Destructor needs to be defined. See explanation from RadioEngineWrapperPrivate destructor.
-    // Releases the radio engine utils if it was initialized in the beginning
-    RELEASE_COMBINED_LOGGER
 }
 
 /*!
@@ -112,7 +124,7 @@ void RadioApplication::handleOfflineQueryAnswer()
         // so we must continue with the startup sequence. If the main window was already created it means
         // the question was asked when the radio was already running and the offline mode was activated.
         // In that case there is no need to do anything since the user wants to continue listening to radio.
-        if ( !mMainWindow ) {
+        if ( !mInitialisationDone ) {
             init();
         }
 
@@ -131,10 +143,6 @@ void RadioApplication::init()
 //        RadioUiEngine::launchRadioServer();
 
     // Splash screen needs to be shown when not started by homescreen widget
-    if ( !XQServiceUtil::isService() ) {
-        HbSplashScreen::setAppId( "0x2002FF4E" );
-        HbSplashScreen::start();
-    }
 
     Radio::connect( mSettingsManager,   SIGNAL(valueChanged(XQSettingsKey,QVariant)),
                     this,               SLOT(checkOfflineMode()) );
@@ -143,14 +151,13 @@ void RadioApplication::init()
     LOG_ASSERT( monitoringStarted, LOG( "Failed to start monitoring Offline mode!" ) );
     Q_UNUSED( monitoringStarted );
 
-    mMainWindow.reset( new RadioWindow() );
-
     CREATE_WIN32_TEST_WINDOW
 
     INIT_WIN32_TEST_WINDOW
 
     // Construct the real views
     mMainWindow->init();
+    mInitialisationDone = true;
 
     mMainWindow->show();
 }

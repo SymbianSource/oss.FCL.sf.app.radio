@@ -101,7 +101,6 @@ namespace DOCML
     static const QLatin1String HV_NAME_CONTEXT_MENU             ( "hv:context_menu" );
     static const QLatin1String HV_NAME_TOGGLE_TAG_ACTION        ( "hv:toggle_tag_action" );
     static const QLatin1String HV_NAME_OVI_STORE_ACTION         ( "hv:ovi_store_action" );
-    static const QLatin1String HV_NAME_OTHER_STORE_ACTION       ( "hv:other_store_action" );
 
     // History View Context Menu
     static const QLatin1String HV_NAME_CONTEXT_TAG              ( "hv:toggle_tag_action" );

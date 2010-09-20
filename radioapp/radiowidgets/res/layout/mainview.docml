@@ -9,9 +9,9 @@
                     <icon name="icon" iconName="qtg_fr_lcd" />
                 </widget>
                 <widget name="mv:info_text" type="HbLabel" >
-                    <contentsmargins top="var(hb-param-margin-gene-top)" bottom="var(hb-param-margin-gene-bottom)"
+                    <contentsmargins top="16un" bottom="var(hb-param-margin-gene-bottom)"
                                      left="var(hb-param-margin-gene-left)" right="var(hb-param-margin-gene-right)" />
-                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    <enums name="alignment" value="AlignTop|AlignHCenter"/>
                     <string name="plainText" locid="txt_rad_info_fm_radio" />
                     <fontspec name="fontSpec" role="Title" textheight="8un" />
                 </widget>
@@ -23,6 +23,7 @@
 
             <!-- Frequency area that holds the frequency strip -->
             <widget name="mv:frequency_area" type="HbWidget">
+                <sizehint height="10un" type="FIXED"/>            
                 <widget name="mv:frequency_background" type="HbLabel">
                     <icon name="icon" iconName="qtg_fr_lcd"/>
                 </widget>
@@ -77,13 +78,13 @@
             </widget>
             <widget name="mv:station_carousel" plugin="fmradiowidgetsplugin" type="RadioStationCarousel">
                 <icon name="favoriteIcon" iconName="qtg_small_favorite" />
-                <icon name="nonFavoriteIcon" iconName=":/images/pri_small_star_inactive.svg" />
+                <icon name="nonFavoriteIcon" iconName="qtg_small_star_non_favourited" />
                 <integer name="autoScrollTime" value="1000"/>
             </widget>
             <widget name="mv:info_text">
                 <bool name="visible" value="FALSE" />
                 <string name="plainText" locid="txt_rad_info_fm_radio" />
-                <enums name="alignment" value="AlignBottom|AlignHCenter"/>
+                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)" />
             </widget>
             <layout type="stacked">
@@ -94,7 +95,6 @@
             </layout>
         </widget>
         <widget name="mv:frequency_area">
-            <sizehint height="10un" type="FIXED"/>
             <widget name="mv:frequency_strip" plugin="fmradiowidgetsplugin" type="RadioFrequencyStrip">
                 <contentsmargins left="var(hb-param-margin-gene-middle-horizontal)" right="var(hb-param-margin-gene-middle-horizontal)" />
                 <widget name="mv:prev_button" type="HbPushButton">

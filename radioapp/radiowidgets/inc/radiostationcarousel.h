@@ -47,7 +47,6 @@ namespace CarouselInfoText
         None,
         ConnectAntenna,
         NoFavorites,
-        FavoriteIconHint,
         Seeking,
         Scanning,
         ManualSeek
@@ -143,7 +142,6 @@ private:
 
 // from base class QGraphicsItem
 
-    void mousePressEvent( QGraphicsSceneMouseEvent* event );
     void resizeEvent( QGraphicsSceneResizeEvent* event );
     void showEvent( QShowEvent* event );
     void gestureEvent( QGestureEvent* event );
@@ -181,7 +179,7 @@ private:
 
 private: // data
 
-    enum TimerMode { NoTimer, SetFrequency, RtPlusCheck, InfoText, FavoriteHintShow, FavoriteHintHide };
+    enum TimerMode { NoTimer, SetFrequency, RtPlusCheck, InfoText };
 
     RadioUiEngine*                      mUiEngine;
 
@@ -223,6 +221,7 @@ private: // data
 
     bool                                mManualSeekMode;
     bool                                mOrientation;
+    bool                                mScrollIgnore;
 
 #ifdef USE_DEBUGGING_CONTROLS
     RadioFadingLabel*                   mRdsLabel;

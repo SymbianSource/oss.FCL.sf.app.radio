@@ -88,10 +88,6 @@ private: // data
     QScopedPointer<RadioFrequencyScanner>   mFrequencyScanner;
     RadioStationCarousel*                   mCarousel;
     RadioFrequencyStrip*                    mFrequencyStrip;
-
-    HbAction*                               mSkippingAction;    //TODO: Remove. Temporary test code
-    bool                                    mAlternateSkipping; //TODO: Remove. Temporary test code
-
     };
 
 #endif // RADIOMAINVIEW_H

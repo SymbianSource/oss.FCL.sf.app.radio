@@ -57,6 +57,7 @@ namespace RadioServiceNotification
     enum Type {
         FavoriteCount = 1,
         LocalCount,
+        Region,
         CurrentIsFavorite,
         RadioStatus,
         Frequency,

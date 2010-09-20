@@ -29,6 +29,7 @@ INCLUDEPATH += ../radiouiengine/inc
 INCLUDEPATH += ../../common
 
 LIBS        += -lfmradiouiengine
+symbian:LIBS += -lafservice
 
 LOGGING_ENABLED:LIBS += -lfmradioenginewrapper
 

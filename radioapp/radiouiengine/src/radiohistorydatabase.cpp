@@ -29,7 +29,7 @@
 #include "radiohistorydatabase.h"
 #include "radiologger.h"
 
-static const QLatin1String DATABASE_NAME    ( "radioplayhistory.db" );
+static const QLatin1String DATABASE_NAME    ( "c:\\radioplayhistory.db" );
 static const QLatin1String DATABASE_DRIVER  ( "QSQLITE" );
 static const QLatin1String HISTORY_TABLE    ( "history" );
 static const QLatin1String SQL_CREATE_TABLE ( "CREATE TABLE history ("

@@ -117,15 +117,14 @@ QVariant RadioStationModel::data( const QModelIndex& index, int role ) const
             } else {
                 QStringList list;
                 list.append( firstLine );
-                QString parsedFrequency = " "; // Empty space so that the listbox generates the second row
-                parsedFrequency = qtTrId( "txt_rad_dblist_l1_mhz" ).arg( RadioStation::parseFrequency( station.frequency() ) );
-                list.append( parsedFrequency );
+                list.append( qtTrId( "txt_rad_dblist_l1_mhz2" ).arg( RadioStation::parseFrequency( station.frequency() ) ) );
                 return list;
             }
         } else {
             if ( currentStation().frequency() != station.frequency() ) {
                 QStringList list;
                 list.append( firstLine );
+                list.append( " " );
                 return list;
             } else {
                 QStringList list;
@@ -150,7 +149,9 @@ QVariant RadioStationModel::data( const QModelIndex& index, int role ) const
         QVariantList list;
         if ( station.isFavorite() && !d->mFavoriteIcon.isNull() ) {
             list.append( d->mFavoriteIcon );
-        } else {
+        } else if ( !station.isFavorite() && !d->mNonFavoriteIcon.isNull() ) {
+            list.append( d->mNonFavoriteIcon );
+        }else {
             list.append( QIcon() );
         }
         if ( currentStation().frequency() == station.frequency() && !d->mNowPlayingIcon.isNull() ) {
@@ -245,10 +246,11 @@ void RadioStationModel::initialize( RadioPresetStorage* storage, RadioEngineWrap
 /*!
  * Sets the icons to be used in the lists
  */
-void RadioStationModel::setIcons( const QIcon& favoriteIcon, const QIcon& nowPlayingIcon )
+void RadioStationModel::setIcons( const QIcon& favoriteIcon, const QIcon& nonFavoriteIcon, const QIcon& nowPlayingIcon )
 {
     Q_D( RadioStationModel );
     d->mFavoriteIcon = favoriteIcon;
+    d->mNonFavoriteIcon = nonFavoriteIcon;
     d->mNowPlayingIcon = nowPlayingIcon;
 }
 

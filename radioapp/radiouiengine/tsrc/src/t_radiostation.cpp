@@ -15,11 +15,8 @@
 *
 */
 
-#define UNIT_TESTS_FOR_10_1
-#ifdef UNIT_TESTS_FOR_10_1
 #include <e32base.h>
 #include <eikenv.h>
-#endif
 #include "t_radiostation.h"
 #include "radiopresetstorage.h"
 #include "radiostation.h"
@@ -67,15 +64,17 @@ const QString KTestDynamicPSText = "MAKKARAA";
 int main(int /* argc*/, char *argv[])
 {
     FUNC_LOG;
-    TestRadioUiEngine tv;
+    TestRadioUiEngine* tv = new TestRadioUiEngine();
 
     char *pass[3];
     pass[0] = argv[0];
     pass[1] = "-o";
     pass[2] = "c:\\data\\testradiouiengine.txt";
 
-    int res = QTest::qExec(&tv, 3, pass);
+    int res = QTest::qExec(tv, 3, pass);
 
+    INFO_1( "Main, result value %i", res );
+    delete tv;
     return res;
 }
 
@@ -149,7 +148,11 @@ void TestRadioUiEngine::skipNext()
 TestRadioUiEngine::~TestRadioUiEngine()
 {
     FUNC_LOG;
-	delete mUiEngine;
+    mEngineWrapper.reset( NULL );
+    mPresetStorage.reset( NULL );
+    delete mSchedulerTimer;
+    delete mScheduler;
+    RadioEngineUtils::Release();
 }
 
 /*!
@@ -174,40 +177,15 @@ void TestRadioUiEngine::cleanup()
 void TestRadioUiEngine::initTestCase()
 {
     FUNC_LOG;
-#ifdef UNIT_TESTS_FOR_10_1
-// Workaround for the below panic, occured after porting to 10.1 
-// Main Panic E32USER-CBase 44
-// Create and install the active scheduler
-    CActiveScheduler* scheduler = new(ELeave) CActiveScheduler;
-    CleanupStack::PushL(scheduler);
-    CActiveScheduler::Install(scheduler);
-#endif 
-    RadioEngineUtils::InitializeL();
-    mUiEngine = new RadioUiEngine;
-    mUiEngine->init();
-    
-    mEngineWrapper.reset( new RadioEngineWrapper( mUiEngine->stationModel().stationHandlerIf() ) );
-    mEngineWrapper->init();
-    mPresetStorage.reset( new RadioPresetStorage() );
-    mUiEngine->stationModel().initialize( mPresetStorage.data(), mEngineWrapper.data() );
-    
-    //TODO:: Check why ASSERT fails when mModel->rowCount() == 0 
-    if(mUiEngine->stationModel().rowCount()>0)
-    {
-    	mUiEngine->stationModel().removeAll(); //ASSERT: \"last >= first\" in file qabstractitemmodel.cpp, line 2110	
-    }    
-
-    Radio::connect( &mUiEngine->stationModel(),  SIGNAL(dataChanged(const QModelIndex, const QModelIndex)),
-        this,    SLOT(dataChanged(const QModelIndex, const QModelIndex)) );
-    
-    Radio::connect( &mUiEngine->stationModel(),           SIGNAL(stationDataChanged(RadioStation)),
-        this,    SLOT(stationDataChanged(RadioStation)) );
-    
-    Radio::connect( &mUiEngine->stationModel(),           SIGNAL(favoriteChanged(RadioStation)),
-        this,    SLOT(favoriteChanged(RadioStation)) );
-    
-    Radio::connect( &mUiEngine->historyModel(),           SIGNAL(itemAdded()),
-        this,    SLOT(itemAdded()) );
+    // Workaround for the below panic, occured after porting to 10.1 
+    // Main Panic E32USER-CBase 44
+    // Create and install the active scheduler
+    mScheduler = new(ELeave) CActiveScheduler;
+    CActiveScheduler::Install( mScheduler );
+    TInt err( KErrNone);
+    TRAP( err, mSchedulerTimer = CSchedulerStopAndStartTimer::NewL( *this ) );
+    QVERIFY2(  KErrNone == err, "CSchedulerStopAndStartTimer not constructed!" );     
+    mSchedulerTimer->StartTimer( 1000000, CSchedulerStopAndStartTimer::ETimerIdCreateMUT );
 }
 
 /*!
@@ -216,8 +194,18 @@ void TestRadioUiEngine::initTestCase()
 void TestRadioUiEngine::cleanupTestCase()
 {
     FUNC_LOG;
-	delete &mUiEngine->stationModel();
-	delete mUiEngine;
+    Radio::disconnect( &mUiEngine->stationModel(),  SIGNAL(dataChanged(const QModelIndex, const QModelIndex)),
+        this,    SLOT(dataChanged(const QModelIndex, const QModelIndex)) );
+    
+    Radio::disconnect( &mUiEngine->stationModel(),           SIGNAL(stationDataChanged(RadioStation)),
+        this,    SLOT(stationDataChanged(RadioStation)) );
+    
+    Radio::disconnect( &mUiEngine->stationModel(),           SIGNAL(favoriteChanged(RadioStation)),
+        this,    SLOT(favoriteChanged(RadioStation)) );
+    
+    Radio::disconnect( &mUiEngine->historyModel(),           SIGNAL(itemAdded()),
+        this,    SLOT(itemAdded()) );
+    mSchedulerTimer->StartTimer( 1000000, CSchedulerStopAndStartTimer::ETimerIdDeleteMUT );
 }
 
 /*!
@@ -925,9 +913,8 @@ void TestRadioUiEngine::testHistoryModelInit()
     if( mUiEngine->historyModel().rowCount()>0 )
     {       
         mUiEngine->historyModel().removeAll( EFalse );
-        QVERIFY2((mUiEngine->stationModel().rowCount()==0), "API:RadioHistoryModel removeAll() 1");
     }
-    QVERIFY2((mUiEngine->historyModel().rowCount()==0), "API:RadioHistoryModel removeAll() 2");           
+    QVERIFY2((mUiEngine->historyModel().rowCount()==0), "API:RadioHistoryModel removeAll()");           
 }
 
 /*!
@@ -951,9 +938,10 @@ void TestRadioUiEngine::testHistoryModelAddItem()
     QVERIFY2(!(artistTitle.compare(KTestArtist1+" - "+KTestTitle1)), "API:RadioHistoryModel addItem() 3");
     
     
-    expectedHistoryItemCount = mUiEngine->historyModel().rowCount();
-    // trying to add an item that allready exists must not increase the item count
+    expectedHistoryItemCount = mUiEngine->historyModel().rowCount() + 1;
+    // trying to add an item that allready exists must increase the item count
     mUiEngine->historyModel().addItem( KTestArtist1, KTestTitle1, station );
+    INFO_1( "mUiEngine->historyModel().rowCount()== %i", mUiEngine->historyModel().rowCount() );
     QVERIFY2((mUiEngine->historyModel().rowCount()==expectedHistoryItemCount), "API:RadioHistoryModel addItem() 4");
 }
 
@@ -995,3 +983,66 @@ void TestRadioUiEngine::testHistoryModelItem()
     delete item;
     item = NULL;
 }
+
+void TestRadioUiEngine::Timeout( TUint aTimerId )
+    {
+    FUNC_LOG;    
+    if ( CSchedulerStopAndStartTimer::ETimerIdCreateMUT == aTimerId )
+        {
+        INFO("ETimerIdCreateMUT elapsed");
+        }
+    else if ( CSchedulerStopAndStartTimer::ETimerIdDeleteMUT == aTimerId )
+        {
+        INFO("ETimerIdDeleteMUT elapsed");
+        }
+    else if ( CSchedulerStopAndStartTimer::ETimerIdRunMUT == aTimerId )
+        {
+        INFO("ETimerIdRunMUT elapsed");
+        }
+    else
+        {
+        INFO("Unknown timer elapsed");        
+        }
+    }
+
+void TestRadioUiEngine::CreateMUT()
+    {
+    FUNC_LOG;
+    RadioEngineUtils::InitializeL();
+    mUiEngine = new RadioUiEngine;
+    mUiEngine->init();
+    
+    mEngineWrapper.reset( new RadioEngineWrapper( mUiEngine->stationModel().stationHandlerIf() ) );
+    mEngineWrapper->init();
+    mPresetStorage.reset( new RadioPresetStorage() );
+    mUiEngine->stationModel().initialize( mPresetStorage.data(), mEngineWrapper.data() );
+    
+    //TODO:: Check why ASSERT fails when mModel->rowCount() == 0 
+    if(mUiEngine->stationModel().rowCount()>0)
+    {
+        mUiEngine->stationModel().removeAll(); //ASSERT: \"last >= first\" in file qabstractitemmodel.cpp, line 2110    
+    }    
+
+    Radio::connect( &mUiEngine->stationModel(),  SIGNAL(dataChanged(const QModelIndex, const QModelIndex)),
+        this,    SLOT(dataChanged(const QModelIndex, const QModelIndex)) );
+    
+    Radio::connect( &mUiEngine->stationModel(),           SIGNAL(stationDataChanged(RadioStation)),
+        this,    SLOT(stationDataChanged(RadioStation)) );
+    
+    Radio::connect( &mUiEngine->stationModel(),           SIGNAL(favoriteChanged(RadioStation)),
+        this,    SLOT(favoriteChanged(RadioStation)) );
+    
+    Radio::connect( &mUiEngine->historyModel(),           SIGNAL(itemAdded()),
+        this,    SLOT(itemAdded()) );
+    mSchedulerTimer->StartTimer( 1000000, CSchedulerStopAndStartTimer::ETimerIdRunMUT );
+    }
+
+void TestRadioUiEngine::DeleteMUT()
+    {
+    FUNC_LOG;
+    if ( NULL != mUiEngine )
+        {
+        delete mUiEngine;
+        mUiEngine = NULL;        
+        }
+    }

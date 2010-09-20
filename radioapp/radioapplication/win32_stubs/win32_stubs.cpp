@@ -19,6 +19,7 @@
 #include "xqserviceprovider.h"
 #include "xqsettingskey.h"
 #include "xqsettingsmanager.h"
+#include "afactivitystorage.h"
 #include "radio_global.h"
 
 /*!
@@ -148,4 +149,34 @@ bool XQSettingsManager::stopMonitoring( const XQSettingsKey& )
 XQSettingsManager::Error XQSettingsManager::error() const
 {
     return NoError;
+}
+
+/*!
+ *
+ */
+AfActivityStorage::AfActivityStorage( QObject* )
+{
+}
+
+/*!
+ *
+ */
+AfActivityStorage::~AfActivityStorage()
+{
+}
+
+/*!
+ *
+ */
+bool AfActivityStorage::saveActivity( const QString&, const QVariant&, const QVariantHash& )
+{
+    return true;
+}
+
+/*!
+ *
+ */
+bool AfActivityStorage::removeActivity( const QString& )
+{
+    return true;
 }
