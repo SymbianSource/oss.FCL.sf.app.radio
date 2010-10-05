@@ -25,7 +25,6 @@
 
 // Class declaration
 NONSHARABLE_CLASS( MRadioEngineHandlerObserver ) : public MRadioEngineObserver
-                                                 , public MRadioAudioRoutingObserver
                                                  , public MRadioSystemEventObserver
 {
 public:

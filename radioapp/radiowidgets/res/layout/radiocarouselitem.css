@@ -38,7 +38,7 @@ RadioCarouselItem::genre_label
 
 RadioCarouselItem::genre_label::text
 {
-    color: lightgray; /*var(qtc_lcd_title_normal);*/
+    color: var(qtc_lcd_title_normal);
     font-variant: secondary;
     text-align: center center;
 }
@@ -75,7 +75,7 @@ RadioCarouselItem[appearance!=Full]::name_label
 
 RadioCarouselItem::name_label::text
 {
-    color: white; /*var(qtc_lcd_title_normal);*/
+    color: var(qtc_lcd_title_normal);
     font-variant: primary;
     text-wrap-mode: no-wrap;
     text-align: center top;
@@ -115,18 +115,20 @@ RadioCarouselItem::rt_label::text
 RadioCarouselItem[appearance=Full]::rt_label::text
 {
     text-line-count-max: 4;
-    text-wrap-mode: word-wrap; /*wrap-anywhere; */
+    text-wrap-mode: word-wrap;
     text-align: center center;
 }
 
 RadioCarouselItem[appearance=Full][landscape]::rt_label::text
 {
     text-height: expr(var(hb-param-text-height-secondary)*0.95);
+    max-width: expr(var(hb-param-screen-width)/2 - var(hb-param-margin-gene-left) - var(hb-param-margin-gene-right) - var(hb-param-margin-gene-middle-horizontal) - var(hb-param-margin-gene-middle-horizontal)/2);
 }
 
 RadioCarouselItem[appearance=Full][!landscape]::rt_label::text
 {
     text-height: var(hb-param-text-height-secondary);
+    max-width: expr(var(hb-param-screen-width) - var(hb-param-margin-gene-left) - var(hb-param-margin-gene-right) - 2*var(hb-param-margin-gene-middle-horizontal));
 }
 
 RadioCarouselItem[appearance!=Full]::rt_label::text

@@ -31,6 +31,9 @@
       <component id="radio_rom" filter="s60" name="Radio ROM" introduced="^4">
         <unit bldFile="rom"/>
       </component>
+      <component id="radiowidgetsplugin" filter="s60" name="Radio Widgets Plugin" introduced="^4" class="plugin">
+        <unit bldFile="radioapp/radiowidgetsplugin" qt:proFile="radiowidgetsplugin.pro"/>
+      </component>      
     </collection>
     <collection id="radiohswidget" name="Radio Homescreen Widget" level="plugin">
 		<!-- collection is really a component. Move down a directory -->
@@ -39,7 +42,7 @@
       </component>
     </collection>
     <collection id="radiopresetstorage_tsrc" name="vado.radiopresetstorage_qt.tsrc" level="engine">
-      <component id="radiopresetstorage_tsrc" filter="s60,test,qt_unit_test" name="radiopresetstorage_qt.tsrc" introduced="^4">
+      <component id="radiopresetstorage_qt_tsrc" filter="s60,test,qt_unit_test" name="radiopresetstorage_qt.tsrc" introduced="^4">
         <meta rel="testbuild">
          <group name="vado.101_radiopresetstorage_tsrc"/>
        </meta>
@@ -47,7 +50,7 @@
       </component>
     </collection>
     <collection id="radiouiengine_tsrc" name="vado.radiouiengine_qt.tsrc" level="engine">
-      <component id="radiouiengine_tsrc" filter="s60,test,qt_unit_test" name="radiouiengine_qt.tsrc" introduced="^4">
+      <component id="radiouiengine_qt_tsrc" filter="s60,test,qt_unit_test" name="radiouiengine_qt.tsrc" introduced="^4">
         <meta rel="testbuild">
          <group name="vado.101_radiouiengine_tsrc"/>
        </meta>      

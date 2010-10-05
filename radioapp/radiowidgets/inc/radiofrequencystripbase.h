@@ -139,7 +139,7 @@ private:
 
     void updateAllItems();
 
-    QPixmap drawPixmap( uint frequency, QList<FrequencyStrip::StationMarker> stations, RadioFrequencyItem* item );
+    QPixmap drawPixmap( uint mainFrequency, QList<FrequencyStrip::StationMarker> stations, RadioFrequencyItem* item );
 
     QLineF makeTab( qreal pos, int height );
 
@@ -218,6 +218,8 @@ private: // data
     int                         mManualSeekTimerId;
 
     QColor                      mForegroundColor;
+
+    bool                        mIgnoreScrollingEnd;
 
 };
 

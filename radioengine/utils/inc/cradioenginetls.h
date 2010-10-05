@@ -24,6 +24,7 @@
 class MRadioEngineLogger;
 class CCoeEnv;
 class RFs;
+class CRadioEngineLogger;
 
 /**
  * TLS handler

@@ -74,6 +74,7 @@ RadioStationCarousel::RadioStationCarousel( QGraphicsItem* parent ) :
     mMaxScrollPos( 0 ),
     mCurrentIndex( 0 ),
     mTargetIndex( -1 ),
+    mCurrentFrequency( 0 ),
     mIsCustomFreq( false ),
     mInfoTextType( CarouselInfoText::None ),
     mModel( NULL ),
@@ -267,6 +268,7 @@ void RadioStationCarousel::setFrequency( uint frequency, int reason, Scroll::Dir
             }
         } else {
             mItems[CenterItem]->setFrequency( frequency );
+            mCurrentFrequency = frequency;
         }
     }
 }
@@ -402,7 +404,7 @@ void RadioStationCarousel::setManualSeekMode( bool manualSeekActive )
     mItems[CenterItem]->setSeekLayout( manualSeekActive );
     if ( !manualSeekActive ) {
         clearInfoText();
-        setFrequency( mUiEngine->currentFrequency(), TuneReason::Unspecified );
+        setFrequency( mCurrentFrequency, TuneReason::Unspecified );
     }
 }
 

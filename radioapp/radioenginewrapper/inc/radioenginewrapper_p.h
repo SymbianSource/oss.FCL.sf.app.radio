@@ -100,10 +100,6 @@ private:
     void RegionEventL( TInt aRegion, TInt aError );
     void FmTransmitterEventL( TBool /*aActive*/ ) {}
 
-// from base class MRadioAudioRoutingObserver
-
-    void AudioRouteChangedL( RadioEngine::TRadioAudioRoute aRoute );
-
 // from base class MRadioSystemEventObserver
 
     void HandleSystemEventL( TRadioSystemEventType aEventType );

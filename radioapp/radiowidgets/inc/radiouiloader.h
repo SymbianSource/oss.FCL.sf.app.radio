@@ -63,7 +63,7 @@ namespace DOCML
     static const QLatin1String SV_NAME_FAVORITES_BUTTON         ( "sv:favorite_stations_button" );
     static const QLatin1String SV_NAME_LOCALS_BUTTON            ( "sv:local_stations_button" );
     static const QLatin1String SV_NAME_SCAN_ACTION              ( "sv:scan_action" );
-    static const QLatin1String SV_NAME_CLEAR_LIST_ACTION        ( "sv:clear_list_action" );
+    static const QLatin1String SV_NAME_MULTI_SELECTION_ACTION   ( "sv:multi_selection_action" );
     static const QLatin1String SV_NAME_SCAN_BUTTON              ( "sv:scan_button" );
     static const QLatin1String SV_NAME_PLAY_ACTION              ( "sv:play_action" );
     static const QLatin1String SV_NAME_RENAME_ACTION            ( "sv:rename_action" );
@@ -90,7 +90,7 @@ namespace DOCML
     static const QLatin1String MV_NAME_INFO_TEXT                ( "mv:info_text" );
 
     // History View
-    static const QLatin1String HV_NAME_CLEAR_LIST_ACTION        ( "hv:clear_list_action" );
+    static const QLatin1String HV_NAME_MULTI_DELETE_ACTION      ( "hv:multi_delete_action" );
     static const QLatin1String HV_NAME_HISTORY_LIST             ( "hv:history_list" );
     static const QLatin1String HV_NAME_ALL_SONGS_BUTTON         ( "hv:all_songs_button" );
     static const QLatin1String HV_NAME_TAGGED_SONGS_BUTTON      ( "hv:tagged_songs_button" );

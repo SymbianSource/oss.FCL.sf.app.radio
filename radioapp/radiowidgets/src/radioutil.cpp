@@ -18,6 +18,7 @@
 // System includes
 #include <HbEffect>
 #include <HbNotificationDialog>
+#include <QSortFilterProxyModel>
 
 // User includes
 #include "radioutil.h"
@@ -176,6 +177,24 @@ void RadioUtil::showDiscreetNote( const QString& text )
     self.mNotificationDialog.data()->setAttribute( Qt::WA_DeleteOnClose );
     self.mNotificationDialog.data()->setTitle( text );
     self.mNotificationDialog.data()->show();
+}
+
+/*!
+ *
+ */
+void RadioUtil::mapToSource( const QModelIndexList& proxyIndices, 
+                             QModelIndexList& sourceIndices, 
+                             const QSortFilterProxyModel* model)
+{
+   if(!model) {
+       return;
+   }
+   QModelIndexList::const_iterator iter = proxyIndices.constBegin();
+   QModelIndexList::const_iterator end  = proxyIndices.constEnd();
+   while( iter != end ) {
+       sourceIndices.append( model->mapToSource( *iter ) );
+       ++iter;
+   }
 }
 
 /*!

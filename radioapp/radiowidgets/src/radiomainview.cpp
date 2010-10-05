@@ -269,7 +269,8 @@ void RadioMainView::setFrequencyFromEngine( uint frequency, int reason )
         updateFavoriteButton();
         if ( reason != TuneReason::FrequencyStrip &&
              reason != TuneReason::StationCarousel &&
-             reason != TuneReason::Skip ) {
+             reason != TuneReason::Skip &&
+             reason != TuneReason::ManualSeekTune ) {
             mCarousel->setFrequency( frequency, reason, Scroll::Shortest );
             mFrequencyStrip->setFrequency( frequency, reason, Scroll::Shortest );
         }

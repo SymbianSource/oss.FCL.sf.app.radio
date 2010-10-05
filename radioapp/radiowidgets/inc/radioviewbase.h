@@ -31,6 +31,7 @@ class RadioStationModel;
 class RadioUiLoader;
 class HbAction;
 class RadioUiEngine;
+class HbSelectionDialog;
 
 // Constants
 namespace MenuItem
@@ -92,6 +93,10 @@ protected:
     void loadSection( const QString& docml, const QString& section );
 
     void askQuestion( const QString& question );
+    
+    void showSelectionDialog( QAbstractItemModel* model, 
+                              const QString& titleTxt, 
+                              const QString& confirmBtnTxt );
 
 private:
 

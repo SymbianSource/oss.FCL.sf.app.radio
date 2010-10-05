@@ -60,6 +60,12 @@ static const QLatin1String SQL_CLEAR_TAGS   ( "UPDATE history SET tagged = 0 WHE
 //static static const QLatin1String SQL_FIND_ITEM_BY_ID( "SELECT * FROM history WHERE id = ?" );
 static const QLatin1String SQL_TOGGLE_TAG   ( "UPDATE history SET tagged = ? WHERE id = ?" );
 
+static const QLatin1String SQL_DELETE_ITEM_FORMAT_STR ( "DELETE FROM history WHERE id = %1" );
+static const QLatin1String SQL_REMOVE_TAG_FORMAT_STR  ( "UPDATE history SET tagged = 0 WHERE id = %1" );
+static const QLatin1String OR_ID_IS_FORMAT_STR        (" OR id = %1");
+
+static const int MAX_ID_COUNT_IN_QUERY = 5;
+
 #ifdef LOGGING_ENABLED
 #   define GET_ERR( param ) GETSTRING( param.lastError().text() )
 #   define GET_ERR_PTR( param ) GETSTRING( param->lastError().text() )
@@ -262,6 +268,66 @@ void RadioHistoryModelPrivate::removeAll( bool removeTagged )
 /*!
  *
  */
+void RadioHistoryModelPrivate::removeByModelIndices( QModelIndexList& indices,  bool removeTags )
+{
+    if ( !mQueryModel ) {
+           return;
+    }       
+    QString sqlStr = "";
+    int rowIndex = -1;    
+    
+    QSqlQuery query( *mDatabase );
+    mDatabase->transaction();
+    // List needs to be sorted and indices needs to go throught from largest to smallest.
+    // This is for keeping QmodelIndexing in sync after begin- and endremoverows
+    // calls when content is not yet actually removed.
+    // Real removal happens in QSqlQuery::exec
+    qSort(indices);
+    QModelIndexList::const_iterator iter = indices.constEnd();
+    QModelIndexList::const_iterator begin = indices.constBegin();
+    for ( int counter = 1; iter != begin; ) {
+        iter--;
+        rowIndex = (*iter).row();
+        if( rowIndex > -1 ) {
+            QSqlRecord record = mQueryModel->record(rowIndex);
+            
+            if( counter > 1 ) {
+                sqlStr += QString( OR_ID_IS_FORMAT_STR ).arg(record.value("id").toInt());  
+            } else {
+                sqlStr = QString( removeTags ? SQL_REMOVE_TAG_FORMAT_STR 
+                                 : SQL_DELETE_ITEM_FORMAT_STR ).arg(record.value("id").toInt());  
+            }
+            // adding max MAX_ID_COUNT_IN_QUERY ids to Query
+            if( counter == MAX_ID_COUNT_IN_QUERY ) {
+                if( !prepareAndExec( query, sqlStr ) ) {
+                    // error, do not proceed
+                    break;
+                }
+                counter = 1;
+                sqlStr = "";
+            } else {
+                counter++;
+            }   
+            q_ptr->beginRemoveRows( QModelIndex(), rowIndex, rowIndex );
+            q_ptr->endRemoveRows();
+        }
+    }
+    if( !query.lastError().isValid() && sqlStr.length() ) {
+        prepareAndExec( query, sqlStr );
+    }
+    if( query.lastError().isValid() ) {
+        // in case of error, rollback everyhing and reset model
+        mDatabase->rollback();
+        q_ptr->reset(); 
+    } else {
+        mDatabase->commit();
+        refreshModel();
+    }
+}
+
+/*!
+ *
+ */
 void RadioHistoryModelPrivate::setViewMode( ViewMode mode )
 {
     if ( !mQueryModel ) {
@@ -282,7 +348,6 @@ void RadioHistoryModelPrivate::toggleTagging( const RadioHistoryItem& item, cons
     updateQuery.prepare( SQL_TOGGLE_TAG );
     updateQuery.addBindValue( item.isTagged() ? 0 : 1 );
     updateQuery.addBindValue( item.id() );
-
     Operation operation = ChangeData;
     if ( mViewMode == ShowTagged && item.isTagged() ) {
         operation = RemoveRows;
@@ -358,4 +423,15 @@ void RadioHistoryModelPrivate::commitTransaction( QSqlQuery& query, Operation op
         success = mDatabase->rollback();
         LOG_ASSERT( success, LOG_FORMAT( "Rollback failed! err: %s", GET_ERR_PTR( mDatabase ) ) );
     }
+}
+
+bool RadioHistoryModelPrivate::prepareAndExec( QSqlQuery& query, const QString& sqlStr )
+{
+    bool isOk = true;
+    isOk = query.prepare(sqlStr);
+
+    if(isOk) {
+        isOk = query.exec();
+    }
+    return isOk;
 }

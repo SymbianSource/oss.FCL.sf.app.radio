@@ -57,7 +57,8 @@ private:
     TBool IsCallActive() const;
     TBool IsAudioResourcesAvailable() const;
     TBool IsHeadsetConnectedL() const;
-
+    void AsObserver( MRadioAudioRoutingObserver*& obj )const;
+    
     void NotifyObserversL( TRadioSystemEventType aEvent );
 
 // from base class MRadioSystemEventDetectorObserver

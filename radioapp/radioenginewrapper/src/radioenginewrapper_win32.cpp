@@ -166,8 +166,9 @@ void RadioEngineWrapper::setManualSeekMode( bool manualSeek )
 {
     Q_D( RadioEngineWrapper );
     d->mManualSeekMode = manualSeek;
+
     if ( !manualSeek ) {
-        RUN_NOTIFY_LOOP( d->mObservers, tunedToFrequency( d->mFrequency, d->mTuneReason ) );
+        RUN_NOTIFY_LOOP( d->observers(), tunedToFrequency( currentFrequency(), TuneReason::ManualSeekTune ) );
     }
 }
 

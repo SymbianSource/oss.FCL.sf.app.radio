@@ -39,9 +39,9 @@ const QLatin1String NAME_LABEL           ( "name_label" );
 const QLatin1String RT_LABEL             ( "rt_label" );
 const QLatin1String URL_LABEL            ( "url_label" );
 
-const QLatin1String SEEKING_TEXT        ( "txt_rad_list_tuning" );
-const QLatin1String CONNECT_HEADSET_TEXT( "txt_rad_list_connect_wireless_antenna_headset_with" );
-const uint CAROUSEL_LENGTH = 11;
+const QLatin1String SEEKING_TEXT         ( "txt_rad_list_tuning" );
+const QLatin1String CONNECT_HEADSET_TEXT ( "txt_rad_list_connect_wireless_antenna_headset_with" );
+const int PS_NAME_MAX_VISIBILE_LENGTH    = 11;
 
 /*!
  *
@@ -112,7 +112,11 @@ void RadioCarouselItem::createPrimitives()
 
     mRadiotextItem = new HbRichTextItem( this );
     HbStyle::setItemName( mRadiotextItem, RT_LABEL );
-
+	
+    // TODO: Proper text wrapping mode can be set in style sheet once 
+    // TextWrapAtWordBoundaryOrAnywhere counterpart gets available
+    mRadiotextItem->setTextWrapping( Hb::TextWrapAtWordBoundaryOrAnywhere );
+    
     mUrlItem = new HbTextItem( this );
     HbStyle::setItemName( mUrlItem, URL_LABEL );
 
@@ -309,7 +313,7 @@ void RadioCarouselItem::update( const RadioStation* station )
 
         const bool hasName = mStation->hasName();
         if ( hasName ) {
-            if ( mStation->name().length() > CAROUSEL_LENGTH ) {
+            if ( mStation->name().length() > PS_NAME_MAX_VISIBILE_LENGTH ) {
                 mNameItem->setAlignment( Qt::AlignLeft );
             } else {
                 mNameItem->setAlignment( Qt::AlignHCenter );
@@ -327,7 +331,7 @@ void RadioCarouselItem::update( const RadioStation* station )
             if ( mStation->hasDynamicPs() ) {
                 mRadiotextItem->setText( mStation->dynamicPsText() );
             } else if ( hasName ) {
-                const QString loc = "%L1 Mhz"; //hbTrId( "txt_rad_list_l1_mhz_small" );
+                const QString loc = hbTrId( "txt_rad_list_l1_mhz_small" );
                 mRadiotextItem->setText( loc.arg( mStation->frequencyString() ) );
             } else {
                 mRadiotextItem->setText( "" );

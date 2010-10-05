@@ -24,7 +24,6 @@
 #include "radioengine.hrh"
 
 // Forward declarations
-class MRadioEngineInitializer;
 class CRadioAudioRouter;
 class CRadioSettings;
 class MRadioApplicationSettings;
@@ -47,7 +46,7 @@ public:
      * Starts the radio engine initialization.
      * Asks the given initializer to create the member variables
      */
-    IMPORT_C static CRadioEngine* NewL( MRadioEngineInitializer& aInitializer );
+    IMPORT_C static CRadioEngine* NewL();
 
     IMPORT_C ~CRadioEngine();
 

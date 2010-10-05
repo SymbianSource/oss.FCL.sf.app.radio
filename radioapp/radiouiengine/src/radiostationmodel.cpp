@@ -449,6 +449,28 @@ void RadioStationModel::removeStation( const RadioStation& station )
         endRemoveRows();
     }
 }
+/*!
+ * Removes stations based on model indices
+ */
+void RadioStationModel::removeByModelIndices( QModelIndexList& indices, bool removefavorite )
+{
+    // List needs to be sorted and indices needs to go throught from largest to smallest.
+    // This is for keeping QmodelIndexing in sync after begin- and endremoverows, which
+    // are needed for each item separately
+    qSort( indices );
+    QModelIndexList::const_iterator iter = indices.constEnd();
+    QModelIndexList::const_iterator begin = indices.constBegin();
+    RadioStation station;  
+    while( iter != begin ) {
+       iter--;
+       station = stationAt( (*iter).row() );
+       if( removefavorite ) {
+          setFavoriteByPreset( station.presetIndex(), false );   
+      } else {                     
+          removeStation( station );
+      }                     
+    }
+}
 
 /*!
  * Public slot

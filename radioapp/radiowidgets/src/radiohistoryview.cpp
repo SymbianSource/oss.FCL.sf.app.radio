@@ -21,6 +21,7 @@
 #include <HbAbstractViewItem>
 #include <HbMenu>
 #include <HbMessageBox>
+#include <HbSelectionDialog>
 
 // User includes
 #include "radiohistoryview.h"
@@ -30,6 +31,7 @@
 #include "radiouiengine.h"
 #include "radiohistorymodel.h"
 #include "radiohistoryitem.h"
+#include "radioutil.h"
 
 // BEGIN TEMPORARY TEST CODE CODE
 #include <QTimer>
@@ -130,11 +132,11 @@ void RadioHistoryView::updateViewMode()
  * Private slot
  *
  */
-void RadioHistoryView::clearList()
+void RadioHistoryView::openMultiSelection()
 {
-    const bool showingTagged = mTaggedSongsButton->isChecked();
-    askQuestion( hbTrId( showingTagged ? "txt_rad_info_clear_tagged_songs_list" :
-                                         "txt_rad_info_clear_recently_played_songs_list" ) );
+    showSelectionDialog( &mUiEngine->historyModel() , 
+                         hbTrId( "txt_fmradio_title_delete_song_information" ), 
+                         hbTrId( "txt_common_button_delete_toolbar" ) );
 }
 
 /*!
@@ -270,9 +272,9 @@ void RadioHistoryView::init()
     mAllSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_ALL_SONGS_BUTTON );
     mTaggedSongsButton = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_TAGGED_SONGS_BUTTON );
 
-    if ( HbAction* clearListAction = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_CLEAR_LIST_ACTION ) ) {
-        Radio::connect( clearListAction,    SIGNAL(triggered()),
-                        this,               SLOT(clearList()) );
+    if ( HbAction* multiDelAction = mUiLoader->findObject<HbAction>( DOCML::HV_NAME_MULTI_DELETE_ACTION ) ) {
+            Radio::connect( multiDelAction,    SIGNAL(triggered()),
+                            this,              SLOT(openMultiSelection()) );
     }
 
     Radio::connect( mTaggedSongsButton,     SIGNAL(triggered()),
@@ -321,9 +323,20 @@ void RadioHistoryView::setOrientation()
  */
 void RadioHistoryView::userAccepted()
 {
-    const bool removeTagged = mTaggedSongsButton->isChecked();
-    mUiEngine->historyModel().removeAll( removeTagged );
-    updateVisibilities();
+    HbSelectionDialog* dlg = static_cast<HbSelectionDialog*>( sender() );
+    if(dlg) {
+        bool favoriteMode = mTaggedSongsButton->isChecked();
+        QModelIndexList selected = dlg->selectedModelIndexes();
+        int count = selected.count();
+        if( count ==  mUiEngine->historyModel().rowCount() ) {
+            mUiEngine->historyModel().removeAll( favoriteMode );
+        } else {
+            mUiEngine->historyModel().removeByModelIndices( selected, favoriteMode );            
+        }
+        QString msg = hbTrId("txt_rad_dpophead_l1_song_information_removed", count );
+        RadioUtil::showDiscreetNote( msg );
+        updateVisibilities();
+    }
 }
 
 /*!

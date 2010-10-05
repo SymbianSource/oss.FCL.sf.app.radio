@@ -75,6 +75,7 @@ public:
     RadioHistoryItem itemAtIndex( const QModelIndex& index ) const;
 
     void removeAll( bool removeTagged );
+    void removeByModelIndices( QModelIndexList& indices, bool removeTags );
 
 signals:
 

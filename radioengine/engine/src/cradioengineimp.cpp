@@ -88,6 +88,38 @@ CRadioEngineImp::CRadioEngineImp( CRadioAudioRouter* aAudioRouter )
     LEVEL3( LOG_METHOD_AUTO );
     }
 
+
+// ---------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------
+//
+CRadioEngineImp* CRadioEngineImp::NewL()
+    {
+    LEVEL3( LOG_METHOD_AUTO );
+    
+    // audiorouter is required for constructing engine so we need to create it and
+    // radio system event collector as observer of audiorouter before creating the
+    // actual engine.
+    CRadioSystemEventCollector *eventCollector = CRadioSystemEventCollector::NewL();
+    CleanupStack::PushL( eventCollector );
+    
+    MRadioAudioRoutingObserver* observer = 0;
+    eventCollector->AsObserver( observer );
+    User::LeaveIfNull( observer );
+    
+    CRadioAudioRouter* audioRouter = CRadioAudioRouter::NewL( *( observer ) );
+    CleanupStack::PushL( audioRouter );
+    
+    CRadioEngineImp* self = new (ELeave) CRadioEngineImp( audioRouter );
+    
+    CleanupStack::Pop( audioRouter );
+    CleanupStack::Pop( eventCollector );  
+    
+    self->iSystemEventCollector = eventCollector;
+    self->ConstructL();
+    return self;
+    }
+
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
@@ -96,13 +128,16 @@ void CRadioEngineImp::ConstructL()
     {
     LOG_METHOD_AUTO;
 
-    if ( !iAudioRouter || !iSystemEventCollector || !iSettings )
+    if ( !iAudioRouter || !iSystemEventCollector )
         {
         User::Leave( KErrNotReady );
         }
 
     iSystemEventCollector->AddObserverL( this );
 
+    iSettings = CRadioSettings::NewL();
+    iSettings->RadioSetter().SetObserver( this );
+    
     // Initial default values to be over by init
     User::LeaveIfError( iSettings->RadioSetter().SetPowerOn( EFalse ) );
 
@@ -120,6 +155,9 @@ void CRadioEngineImp::ConstructL()
 
     // Create timer that is used when polling for radio restart.
     iRadioTimer = CPeriodic::NewL( CActive::EPriorityHigh );
+    
+    InitRadioL( DetermineRegion() );
+    EnableAudio( ETrue );
     }
 
 // ---------------------------------------------------------------------------
@@ -170,27 +208,6 @@ CRadioEngineImp::~CRadioEngineImp()
         }
     delete iSettings;
 
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::SetSystemEventCollector( CRadioSystemEventCollector* aCollector )
-    {
-    LEVEL3( LOG_METHOD_AUTO );
-    iSystemEventCollector = aCollector;
-    }
-
-// ---------------------------------------------------------------------------
-//
-// ---------------------------------------------------------------------------
-//
-void CRadioEngineImp::SetRadioSettings( CRadioSettings* aSettings )
-    {
-    LEVEL3( LOG_METHOD_AUTO );
-    iSettings = aSettings;
-    iSettings->RadioSetter().SetObserver( this );
     }
 
 // ---------------------------------------------------------------------------

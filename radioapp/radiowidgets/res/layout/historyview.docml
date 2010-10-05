@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument context="RadioHistoryView" version="1.0">
-    <object name="hv:clear_list_action" type="HbAction">
-        <string locid="txt_rad_opt_clear_list" name="text"/>
+    <object name="hv:multi_delete_action" type="HbAction">
+        <string locid="txt_common_opt_delete" name="text"/>
     </object>
     <object name="hv:add_songs_action" type="HbAction">
         <string value="DEBUG: Add Songs" name="text"/>
@@ -64,7 +64,7 @@
     <section name="lazy_load">
         <widget name="view">
             <widget name="hv:menu" role="HbView:menu" type="HbMenu">
-                <ref object="hv:clear_list_action" role="HbMenu:addAction"/>
+                <ref object="hv:multi_delete_action" role="HbMenu:addAction"/>
                 <ref object="hv:add_songs_action" role="HbMenu:addAction"/>
                 <ref object="loudspeaker_action" role="HbMenu:addAction"/>
                 <ref object="exit_action" role="HbMenu:addAction"/>
@@ -113,7 +113,7 @@
         <widget name="hv:empty_container">
             <bool name="visible" value="FALSE"/>
         </widget>
-        <object name="hv:clear_list_action">
+        <object name="hv:multi_delete_action">
             <bool name="visible" value="TRUE"/>
         </object>
     </section>
@@ -124,7 +124,7 @@
         <widget name="hv:empty_container">
             <bool name="visible" value="TRUE"/>
         </widget>
-        <object name="hv:clear_list_action">
+        <object name="hv:multi_delete_action">
             <bool name="visible" value="FALSE"/>
         </object>
     </section>

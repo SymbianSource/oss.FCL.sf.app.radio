@@ -23,7 +23,6 @@
 
 // User includes
 #include "radio_global.h"
-#include "mradioengineinitializer.h"
 
 // Forward declarations
 class CRadioEngine;
@@ -32,7 +31,7 @@ class MRadioEngineHandlerObserver;
 class MRadioApplicationSettings;
 
 // Class declaration
-class RadioEngineHandler : public MRadioEngineInitializer
+class RadioEngineHandler 
 {
 public:
 
@@ -187,14 +186,6 @@ public:
      * Returns a reference to the application settings
      */
     MRadioApplicationSettings& applicationSettings() const;
-
-private:
-
-// from base class MRadioEngineInitializer
-
-    CRadioAudioRouter* InitAudioRouterL();
-    CRadioSystemEventCollector* InitSystemEventCollectorL();
-    CRadioSettings* InitSettingsL();
 
 private: // data
 

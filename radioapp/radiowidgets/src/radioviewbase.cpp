@@ -19,6 +19,7 @@
 #include <HbAction>
 #include <HbEffect>
 #include <QCoreApplication>
+#include <HbSelectionDialog>
 #include <HbMessageBox>
 
 #include "radioviewbase.h"
@@ -147,7 +148,7 @@ void RadioViewBase::quit()
  */
 void RadioViewBase::handleUserAnswer( HbAction* answer )
 {
-    HbMessageBox* dlg = static_cast<HbMessageBox*>( sender() );
+    HbDialog* dlg = static_cast<HbDialog*>( sender() );
     if( dlg->actions().first() == answer ) {
         userAccepted();
     }
@@ -228,6 +229,26 @@ void RadioViewBase::loadSection( const QString& docml, const QString& section )
 void RadioViewBase::askQuestion( const QString& question )
 {
     HbMessageBox::question( question, this, SLOT(handleUserAnswer(HbAction*)), HbMessageBox::Yes | HbMessageBox::No );
+}
+
+/*!
+ *
+ */
+void RadioViewBase::showSelectionDialog( QAbstractItemModel* model, 
+                                         const QString& titleTxt, 
+                                         const QString& confirmBtnTxt )
+{
+   HbSelectionDialog* selectionDlg = new HbSelectionDialog;
+   selectionDlg->setModel( model );
+   selectionDlg->setAttribute( Qt::WA_DeleteOnClose );
+   selectionDlg->setSelectionMode( HbAbstractItemView::MultiSelection );
+   selectionDlg->setHeadingText( titleTxt );
+
+   if( selectionDlg->actions().count() ) {       
+       selectionDlg->actions().first()->setText( confirmBtnTxt );
+   }
+  
+   selectionDlg->open( this, SLOT(handleUserAnswer( HbAction* ) ) );     
 }
 
 /*!

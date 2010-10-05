@@ -86,11 +86,9 @@ RadioFrequencyStripBase::RadioFrequencyStripBase( QGraphicsItem* parent ) :
     mManualSeekMode( false ),
     mLastReportedFrequency( 0 ),
     mManualSeekTimerId( 0 ),
-    mForegroundColor( Qt::white )//HbColorScheme::color( FrequencyStrip::TEXT_COLOR_ATTRIBUTE ) )
+    mForegroundColor( Qt::white ),//HbColorScheme::color( FrequencyStrip::TEXT_COLOR_ATTRIBUTE ) )
+    mIgnoreScrollingEnd( false )
 {
-    setScrollingStyle( HbScrollArea::PanWithFollowOn );
-    setItemSize( QSizeF( FrequencyStrip::ITEM_WIDTH + FrequencyStrip::PIXMAP_OVERLAP / 2, mItemHeight ) );
-    setOverlap( FrequencyStrip::PIXMAP_OVERLAP / 2 );
 }
 
 /*!
@@ -119,12 +117,17 @@ void RadioFrequencyStripBase::initbase( uint minFrequency, uint maxFrequency, ui
     mFrequencyStepSize  = stepSize;
     mFrequency          = frequency;
 
-    initModel();
-    initEmptyItems();
-    initPositions();
+    setScrollingStyle( HbScrollArea::PanWithFollowOn );
 
     HbDeviceProfile deviceProfile;
     mItemHeight = static_cast<int>( mItemHeight * deviceProfile.unitValue() );
+    setItemSize( QSizeF( FrequencyStrip::ITEM_WIDTH + FrequencyStrip::PIXMAP_OVERLAP / 2, mItemHeight ) );
+
+    setOverlap( FrequencyStrip::PIXMAP_OVERLAP / 2 );
+
+    initModel();
+    initEmptyItems();
+    initPositions();
 
     mManualSeekTimer = new QTimer( this );
     mManualSeekTimer->setInterval( FrequencyStrip::MANUALSEEK_START_TIMEOUT );
@@ -342,6 +345,11 @@ void RadioFrequencyStripBase::toggleManualSeek()
  */
 void RadioFrequencyStripBase::handleScrollingEnd()
 {
+    if ( mIgnoreScrollingEnd ) {
+        mIgnoreScrollingEnd = false;
+        return;
+    }
+
     // Check if the selector is in the invalid area where the strip loops around
     const int selectorPosition = selectorPos();
     if ( mManualSeekMode ) {
@@ -386,8 +394,8 @@ void RadioFrequencyStripBase::scrollPosChanged()
     if ( mManualSeekMode ) {
         const int pos = selectorPos();
         const uint frequency = mPositions.value( pos );
-        if ( frequency > 0 ) {
-            mFrequency = mPositions.value( pos );
+        if ( frequency > 0 && mFrequency != frequency ) {
+            mFrequency = frequency;
             emitFrequencyChanged( mFrequency, FrequencyStrip::ManualSeekUpdate, Scroll::Shortest );
         }
     }
@@ -467,6 +475,7 @@ void RadioFrequencyStripBase::mouseReleaseEvent( QGraphicsSceneMouseEvent* event
  */
 void RadioFrequencyStripBase::gestureEvent( QGestureEvent* event )
 {
+    mIgnoreScrollingEnd = true;
     HbSwipeGesture* swipeGesture = static_cast<HbSwipeGesture*>( event->gesture( Qt::SwipeGesture ) );
     if ( swipeGesture && !mManualSeekMode ) {
         if ( swipeGesture->state() == Qt::GestureFinished ) {
@@ -502,13 +511,11 @@ void RadioFrequencyStripBase::initModel()
     const uint maxFreq = uint( qreal(mMaxFrequency) / FrequencyStrip::ONE_HERTZ + 0.9 ); // always round up
 
     QStringList list;
-    QString freqText;
     for ( uint i = minFreq; i <= maxFreq; ++i ) {
-        freqText = QString::number( i );
-        list.append( freqText );
-        mFrequencyItems.append( new RadioFrequencyItem( freqText ) );
+        list.append( QString::number( i ) );
+        mFrequencyItems.append( new RadioFrequencyItem( i ) );
     }
-    mFrequencyItems.append( new RadioFrequencyItem( "" ) );
+    mFrequencyItems.append( new RadioFrequencyItem( 0 ) );
     list.append( "" );
 
     mMaxWidth = list.count() * FrequencyStrip::ITEM_WIDTH;
@@ -527,10 +534,11 @@ void RadioFrequencyStripBase::initModel()
  */
 void RadioFrequencyStripBase::initSelector()
 {
-    QPixmap selectorPixmap = QPixmap( QSize( FrequencyStrip::SELECTOR_WIDTH, (int)size().height() ) );
+    QPixmap selectorPixmap = QPixmap( QSize( FrequencyStrip::SELECTOR_WIDTH, (int)size().height() - FrequencyStrip::SELECTOR_MARGIN * 2 ) );
     selectorPixmap.fill( Qt::red );
     mSelectorImage->setPixmap( selectorPixmap );
     mSelectorImage->setZValue( FrequencyStrip::SELECTOR_Z_POS );
+    mSelectorImage->setPos( 0, FrequencyStrip::SELECTOR_MARGIN );
 }
 
 /*!
@@ -670,40 +678,36 @@ void RadioFrequencyStripBase::updateAllItems()
 /*!
  *
  */
-QPixmap RadioFrequencyStripBase::drawPixmap( uint frequency, QList<FrequencyStrip::StationMarker> stations, RadioFrequencyItem* item )
+QPixmap RadioFrequencyStripBase::drawPixmap( uint mainFrequency, QList<FrequencyStrip::StationMarker> stations, RadioFrequencyItem* item )
 {
     QPixmap pixmap( FrequencyStrip::PIXMAP_WIDTH, mItemHeight );
     pixmap.fill( Qt::transparent );
+
+    if ( mainFrequency == 0 ) {
+        return pixmap;
+    }
+
     QPainter painter( &pixmap );
     QPen normalPen = painter.pen();
     QPen favoritePen = normalPen;
     normalPen.setColor( mForegroundColor );
     painter.setPen( normalPen );
 
-    if ( frequency == 0 ) {
-        painter.drawLine( makeTab( mSeparatorPos - 1 + FrequencyStrip::ROUNDER, mItemHeight ) );
-        painter.drawLine( makeTab( mSeparatorPos + FrequencyStrip::ROUNDER, mItemHeight ) );
-        return pixmap;
-    }
-
-    const QString itemText = QString::number( frequency / FrequencyStrip::ONE_HERTZ );
-    const uint startFrequency = frequency - FrequencyStrip::HALF_HERTZ;
-    const uint endFrequency = startFrequency + FrequencyStrip::ONE_HERTZ;
+    const uint frequencyIncrement = qMin( mFrequencyStepSize, FrequencyStrip::ONE_HUNDRED_KHZ );
+    const QString itemText = QString::number( mainFrequency / FrequencyStrip::ONE_HERTZ );
+    const uint startFrequency = mainFrequency - FrequencyStrip::HALF_HERTZ + frequencyIncrement;
+    const uint endFrequency = mainFrequency + FrequencyStrip::HALF_HERTZ;
     const uint  roundedMin = int( qreal(mMinFrequency) / FrequencyStrip::ONE_HERTZ + FrequencyStrip::ROUNDER );
-    const uint freq = frequency / FrequencyStrip::ONE_HERTZ;
+    const uint freq = mainFrequency / FrequencyStrip::ONE_HERTZ;
     const int diff = freq - roundedMin;
     const qreal startPixel = diff * FrequencyStrip::ITEM_WIDTH;
     qreal pixels = 0.0;
     const qreal leftOverlap = FrequencyStrip::PIXMAP_OVERLAP / 2;
 
-    for ( uint frequency = startFrequency; frequency <= endFrequency; frequency += mFrequencyStepSize ) {
+    for ( uint loopFrequency = startFrequency; loopFrequency <= endFrequency; loopFrequency += frequencyIncrement ) {
 
-        if ( frequency < mMinFrequency || frequency > mMaxFrequency ) {
-            continue;
-        }
-
-        pixels = qreal( frequency - startFrequency ) / FrequencyStrip::PIXEL_IN_HZ;
-        if ( frequency % FrequencyStrip::ONE_HERTZ == 0 ) {
+        pixels = qreal( loopFrequency - startFrequency ) / FrequencyStrip::PIXEL_IN_HZ;
+        if ( loopFrequency % FrequencyStrip::ONE_HERTZ == 0 ) {
 
             // Draw the high frequency tab and the frequency text for the even number
             normalPen.setWidth( 3 );
@@ -712,7 +716,7 @@ QPixmap RadioFrequencyStripBase::drawPixmap( uint frequency, QList<FrequencyStri
             normalPen.setWidth( 1 );
             painter.setPen( normalPen );
 
-            // Draw the frequency text and its 00 decimals
+            // Draw the frequency text and its decimals
             painter.setFont( FrequencyStrip::DECIMAL_FONT );
             const int decimalWidth = painter.fontMetrics().width( FrequencyStrip::DECIMAL_TEXT );
             const int decimalSpace = painter.fontMetrics().leftBearing( '.' );
@@ -723,19 +727,22 @@ QPixmap RadioFrequencyStripBase::drawPixmap( uint frequency, QList<FrequencyStri
             painter.setFont( FrequencyStrip::DECIMAL_FONT );
             painter.drawText( QPoint( textPosX + frequencyWidth + decimalSpace, FrequencyStrip::FREQUENCY_TEXT_Y_POS ), FrequencyStrip::DECIMAL_TEXT );
 
-        } else if ( frequency % FrequencyStrip::ONE_TAB_IN_HZ == 0 ) {
+        } else if ( loopFrequency % FrequencyStrip::ONE_TAB_IN_HZ == 0 ) {
 
             // Draw the low frequency tab for the uneven number
             painter.drawLine( makeTab( pixels + leftOverlap, FrequencyStrip::TAB_HEIGHT_SMALL ) );
 
         }
 
-        addFrequencyPos( int( startPixel + pixels + FrequencyStrip::ROUNDER ), frequency, item );
+        if ( ( loopFrequency - mMinFrequency ) % mFrequencyStepSize == 0  && loopFrequency >= mMinFrequency && loopFrequency <= mMaxFrequency ) {
+            addFrequencyPos( int( startPixel + pixels + FrequencyStrip::ROUNDER ), loopFrequency, item );
+        }
     }
 
     // Draw favorites and local stations
     favoritePen.setColor( Qt::yellow );
 
+    const int markerYPos = mItemHeight - 18;
     foreach ( const FrequencyStrip::StationMarker& station, stations ) {
         const uint frequency = station.mFrequency;
         pixels = qreal( frequency - startFrequency ) / FrequencyStrip::PIXEL_IN_HZ;
@@ -743,11 +750,13 @@ QPixmap RadioFrequencyStripBase::drawPixmap( uint frequency, QList<FrequencyStri
         if ( station.mIsFavorite ) {
             favoritePen.setWidth( FrequencyStrip::PEN_WIDTH_FAVORITE );
             painter.setPen( favoritePen );
-            painter.drawEllipse( int( pixels + leftOverlap - 3 ), FrequencyStrip::STATION_MARKER_Y_POS - 3, 6, 6 );
+            painter.drawEllipse( int( pixels + leftOverlap - 3 ), markerYPos - 3, 6, 6 );
+//            painter.drawEllipse( int( pixels + leftOverlap - 3 ), FrequencyStrip::STATION_MARKER_Y_POS - 3, 6, 6 );
         } else {
             favoritePen.setWidth( 1 );
             painter.setPen( favoritePen );
-            painter.drawEllipse( int( pixels + leftOverlap - 4 ), FrequencyStrip::STATION_MARKER_Y_POS - 4, 8, 8 );
+            painter.drawEllipse( int( pixels + leftOverlap - 4 ), markerYPos - 4, 8, 8 );
+//            painter.drawEllipse( int( pixels + leftOverlap - 4 ), FrequencyStrip::STATION_MARKER_Y_POS - 4, 8, 8 );
         }
     }
 

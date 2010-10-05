@@ -68,7 +68,7 @@ private slots:
     void startScanning();
     void finishScanning();
     void updateVisibilities();
-    void clearList();
+    void openMultiSelection();
     void play();            // Called from context menu
     void rename();          // Called from context menu
     void toggleFavorite();  // Called from context menu
@@ -93,7 +93,7 @@ private: //data
     QSortFilterProxyModel*                  mFilterModel;
 
     HbAction*                               mScanStationsAction;
-    HbAction*                               mClearListAction;
+    HbAction*                               mMultiSelectionAction;
 
     HbListView*                             mStationsList;
 
@@ -108,7 +108,7 @@ private: //data
 
     QScopedPointer<RadioFrequencyScanner>   mFrequencyScanner;
 
-    enum UserQuestion { NoQuestion, DeleteStation, StartScanning, ClearList };
+    enum UserQuestion { NoQuestion, DeleteStation, StartScanning, MultiSelection };
     UserQuestion                            mCurrentQuestion;
 
 };

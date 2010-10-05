@@ -29,7 +29,7 @@ class RadioFrequencyItem
 {
 public:
 
-    RadioFrequencyItem( QString frequency );
+    RadioFrequencyItem( uint frequency );
 
     uint frequency() const;
 

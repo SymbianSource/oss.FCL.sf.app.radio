@@ -193,8 +193,11 @@ void RadioEngineWrapperPrivate::AntennaEventL( TBool aAntennaAttached, TInt aErr
  */
 void RadioEngineWrapperPrivate::AudioRoutingEventL( TInt aAudioDestination, TInt aError )
 {
-    Q_UNUSED( aAudioDestination )
-    Q_UNUSED( aError )
+    if( !aError )
+    {
+        mUseLoudspeaker = aAudioDestination == RadioEngine::ERadioSpeaker;
+        RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( mUseLoudspeaker ) );
+    }
 }
 
 /*!
@@ -211,15 +214,6 @@ void RadioEngineWrapperPrivate::SeekingEventL( TInt DEBUGVAR( aSeekingState ), T
 void RadioEngineWrapperPrivate::RegionEventL( TInt DEBUGVAR( aRegion ), TInt DEBUGVAR( aError ) )
 {
     LOG_FORMAT( "RadioEngineWrapperPrivate::RegionEventL, aRegion: %d, Error: %d", aRegion, aError );
-}
-
-/*!
- * \reimp
- */
-void RadioEngineWrapperPrivate::AudioRouteChangedL( RadioEngine::TRadioAudioRoute aRoute )
-{
-    mUseLoudspeaker = aRoute == RadioEngine::ERadioSpeaker;
-    RUN_NOTIFY_LOOP( mObservers, audioRouteChanged( mUseLoudspeaker ) );
 }
 
 /*!

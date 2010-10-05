@@ -35,8 +35,8 @@ const QString KKeyFrequency = "CurrentFreq";
 const QString KKeyOffline = "Offline";
 
 const uint KScanFrequencies[] = {
-    87600000,
-    88000000,
+    87500000,
+    88100000,
     89400000,
     96000000,
     97600000,

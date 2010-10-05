@@ -98,7 +98,7 @@ bool RadioEngineHandler::constructEngine()
     LOG_METHOD;
 
     CRadioEngine* engine = NULL;
-    TRAPD( err, engine = CRadioEngine::NewL( *this ) );
+    TRAPD( err, engine = CRadioEngine::NewL() );
     if ( err ) {
         return false;
     }
@@ -340,26 +340,3 @@ MRadioApplicationSettings& RadioEngineHandler::applicationSettings() const
     return mEngine->Settings().ApplicationSettings();
 }
 
-/*!
- * \reimp
- */
-CRadioAudioRouter* RadioEngineHandler::InitAudioRouterL()
-{
-    return CRadioAudioRouter::NewL( mObserver );
-}
-
-/*!
- * \reimp
- */
-CRadioSystemEventCollector* RadioEngineHandler::InitSystemEventCollectorL()
-{
-    return CRadioSystemEventCollector::NewL();
-}
-
-/*!
- * \reimp
- */
-CRadioSettings* RadioEngineHandler::InitSettingsL()
-{
-    return CRadioSettings::NewL();
-}

@@ -21,6 +21,7 @@
 #include <e32std.h>
 
 class MRadioSystemEventObserver;
+class MRadioAudioRoutingObserver;
 
 NONSHARABLE_CLASS( CRadioSystemEventCollector )
     {
@@ -78,6 +79,15 @@ public:
      * @return
      */
     virtual TBool IsHeadsetConnectedL() const = 0;
+    
+   
+    /**
+     * Returns object as provided observer
+     *
+     * @param
+     */
+    virtual void AsObserver( MRadioAudioRoutingObserver*& obj ) const = 0;
+
 
     };
 

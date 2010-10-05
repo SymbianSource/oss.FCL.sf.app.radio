@@ -54,7 +54,7 @@ public:
 private slots:
 
     void updateViewMode();
-    void clearList();
+    void openMultiSelection();
     void updateVisibilities();
     void showContextMenu( const QModelIndex& index );
     void handleLongPress( HbAbstractViewItem* item );

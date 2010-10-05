@@ -905,15 +905,9 @@ void RadioHsWidget::changePowerButtonOn(const bool isPowerOn)
     LEVEL2(LOG_METHOD);
     if (isPowerOn) {
         LEVEL2(LOG("Power on"));
-        // TODO: Temporarily set the text to clarify the action it performs.
-        // Remove when graphics displays the difference.
-        mPowerButton->setText("Off");
         buttonEvent(Power, Latched);
     } else {
         LEVEL2(LOG("Power off"));
-        // TODO: Temporarily set the text to clarify the action it performs.
-        // Remove when graphics displays the difference.
-        mPowerButton->setText("On");
         buttonEvent(Power, Normal);
     }
 }

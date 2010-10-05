@@ -12,6 +12,7 @@
             <RdsItem type="PsName" delay="1">Yle Suomi</RdsItem>
         </RdsGroup>
         <RdsGroup interval="3" count="100">
+    	    <Rds>
             <RdsItem type="PiCode" delay="0">0x5fA8</RdsItem>
             <RdsItem type="PsName" delay="1">Yle Oulu</RdsItem>
             </Rds>

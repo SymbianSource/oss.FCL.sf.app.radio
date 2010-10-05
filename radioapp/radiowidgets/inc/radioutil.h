@@ -30,6 +30,7 @@ class RadioFrequencyStrip;
 class RadioStationCarousel;
 class RadioFrequencyScanner;
 class HbNotificationDialog;
+class QSortFilterProxyModel;
 
 struct EffectInfo
 {
@@ -70,6 +71,10 @@ public:
     static TuneReason::Reason tuneReason( int tuneReason );
 
     static void showDiscreetNote( const QString& text );
+    
+    static void mapToSource( const QModelIndexList& proxyIndices, 
+                             QModelIndexList& sourceIndices, 
+                             const QSortFilterProxyModel* model);
 
 private:
 

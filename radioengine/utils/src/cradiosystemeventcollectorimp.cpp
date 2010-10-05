@@ -154,6 +154,15 @@ TBool CRadioSystemEventCollectorImp::IsHeadsetConnectedL() const
     }
 
 // ---------------------------------------------------------------------------
+// returns this as MRadioAudioRoutingObserver 
+// ---------------------------------------------------------------------------
+void CRadioSystemEventCollectorImp::AsObserver( MRadioAudioRoutingObserver*& obj )const
+{
+    CRadioSystemEventCollectorImp *object = const_cast<CRadioSystemEventCollectorImp*>( this );
+    obj = object;
+}
+
+// ---------------------------------------------------------------------------
 // Notifies the observers of system event
 // ---------------------------------------------------------------------------
 //

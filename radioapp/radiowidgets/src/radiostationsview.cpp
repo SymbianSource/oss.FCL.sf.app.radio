@@ -23,6 +23,7 @@
 #include <HbAction>
 #include <HbInputDialog>
 #include <HbMenu>
+#include <HbSelectionDialog>
 #include <QSortFilterProxyModel>
 
 // User includes
@@ -34,6 +35,7 @@
 #include "radiouiloader.h"
 #include "radiostationmodel.h"
 #include "radiostation.h"
+#include "radioutil.h"
 
 // Constants
 const char* REGEX_SHOW_FAVORITES = "true";
@@ -46,7 +48,7 @@ RadioStationsView::RadioStationsView() :
     RadioViewBase( false ),
     mModel( 0 ),
     mScanStationsAction( 0 ),
-    mClearListAction( 0 ),
+    mMultiSelectionAction( 0 ),
     mStationsList( 0 ),
     mFavoritesButton( 0 ),
     mLocalStationsButton( 0 ),
@@ -222,9 +224,8 @@ void RadioStationsView::updateVisibilities()
     if ( !localStationsMode ) {
         listEmpty = mModel->favoriteCount() == 0;
     }
-
-    mClearListAction->setEnabled( !listEmpty );
-
+    mMultiSelectionAction->setEnabled( !listEmpty );
+   
     const bool scanAvailable = mUiEngine->isAntennaAttached() && localStationsMode;
     mScanStationsAction->setEnabled( scanAvailable );
     HbPushButton* scanButton = mUiLoader->findWidget<HbPushButton>( DOCML::SV_NAME_SCAN_BUTTON );
@@ -237,12 +238,15 @@ void RadioStationsView::updateVisibilities()
  * Private slot
  *
  */
-void RadioStationsView::clearList()
+void RadioStationsView::openMultiSelection()
 {
     const bool favoriteMode = mFavoritesButton->isChecked();
-    mCurrentQuestion = ClearList;
-    askQuestion( hbTrId( favoriteMode ? "txt_rad_info_clear_favourite_stations_list"
-                                      : "txt_rad_info_clear_all_stations_list" ) );
+    mCurrentQuestion = MultiSelection;
+    showSelectionDialog( mFilterModel , 
+                         hbTrId( favoriteMode ? "txt_fmradio_title_remove_favorites"
+                                              : "txt_fmradio_title_delete_stations" ), 
+                         hbTrId( favoriteMode ? "txt_common_button_remove"
+                                              : "txt_common_button_delete_toolbar" ) );
 }
 
 /*!
@@ -297,6 +301,10 @@ void RadioStationsView::deleteStation()
 void RadioStationsView::renameDone( HbAction* action )
 {
     HbInputDialog* dlg = static_cast<HbInputDialog*>( sender() );
+
+    if ( dlg->actions().first() != action ) {
+        return;
+    }
 
     if( action ) {
         mModel->renameStation( mSelectedStation->presetIndex(), dlg->value().toString() );
@@ -364,10 +372,10 @@ void RadioStationsView::init()
     Radio::connect( mScanStationsAction,   SIGNAL(triggered() ),
                     this,                   SLOT(startScanning() ) );
 
-    // "Remove all presets" menu item
-    mClearListAction = mUiLoader->findObject<HbAction>( DOCML::SV_NAME_CLEAR_LIST_ACTION );
-    Radio::connect( mClearListAction,   SIGNAL(triggered() ),
-                    this,               SLOT(clearList() ) );
+    // menu item for opening selection dialog
+    mMultiSelectionAction = mUiLoader->findObject<HbAction>( DOCML::SV_NAME_MULTI_SELECTION_ACTION );
+    Radio::connect( mMultiSelectionAction, SIGNAL(triggered() ),
+                    this,                  SLOT(openMultiSelection() ) );
 
     connectCommonMenuItem( MenuItem::UseLoudspeaker );
 
@@ -390,14 +398,31 @@ void RadioStationsView::userAccepted()
                         this,                       SLOT(finishScanning()) );
 
         mFrequencyScanner->startScanning();
-    } else if ( mCurrentQuestion == ClearList ){
-        const bool favoriteMode = mFavoritesButton->isChecked();
-        mModel->removeAll( favoriteMode ? RadioStationModel::RemoveFavorites : RadioStationModel::RemoveAll );
-        updateVisibilities();
     } else if ( mCurrentQuestion == DeleteStation ) {
         mModel->removeStation( *mSelectedStation );
+    } else if ( mCurrentQuestion == MultiSelection ) {     
+        HbSelectionDialog* dlg = static_cast<HbSelectionDialog*>( sender() );
+        if( dlg ) {
+            QModelIndexList selected = dlg->selectedModelIndexes(); 
+            const bool favoriteMode = mFavoritesButton->isChecked();   
+            int count = selected.count();
+            if( count == mFilterModel->rowCount() ) {
+                // delete or remove all
+                mModel->removeAll( favoriteMode ? RadioStationModel::RemoveFavorites : RadioStationModel::RemoveAll );
+            } else {
+                // delete or remove selected, one by one.
+                RadioStation station;                             
+                QModelIndexList sourceIndices;
+                RadioUtil::mapToSource(selected, sourceIndices, mFilterModel );
+                mModel->removeByModelIndices( sourceIndices, favoriteMode );
+            }
+            QString msg = hbTrId(favoriteMode ? "txt_rad_dpophead_l1_favorite_removed" : 
+                                                "txt_rad_dpophead_l1_station_deleted", count );
+            RadioUtil::showDiscreetNote( msg );
+            
+        }
     }
-
+    updateVisibilities();
     mCurrentQuestion = NoQuestion;
 }
 

@@ -138,6 +138,7 @@ public:
     void removeByFrequency( uint frequency );
     void removeByPresetIndex( int presetIndex );
     void removeStation( const RadioStation& station );
+    void removeByModelIndices( QModelIndexList& indices, bool removeFavorites = false );
 
     /**
      * Removes all stations

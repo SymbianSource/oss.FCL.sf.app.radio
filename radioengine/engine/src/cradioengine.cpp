@@ -19,7 +19,6 @@
 #include "cradioengine.h"
 #include "cradioengineimp.h"
 #include "cradioenginelogger.h"
-#include "mradioengineinitializer.h"
 #include "radioengineutils.h"
 
 // ================= MEMBER FUNCTIONS =======================
@@ -28,26 +27,12 @@
 // Starts the radio engine initialization.
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CRadioEngine* CRadioEngine::NewL( MRadioEngineInitializer& aInitializer )
+EXPORT_C CRadioEngine* CRadioEngine::NewL()
     {
     RadioEngineUtils::InitializeL();
     LEVEL3( LOG_METHOD_AUTO );
-    CRadioAudioRouter* audioRouter = aInitializer.InitAudioRouterL();
-    CleanupStack::PushL( audioRouter );
 
-    CRadioEngineImp* self = new (ELeave) CRadioEngineImp( audioRouter );
-    CleanupStack::Pop( audioRouter );
-    CleanupStack::PushL( self );
-
-    self->SetSystemEventCollector( aInitializer.InitSystemEventCollectorL() );
-    self->SetRadioSettings( aInitializer.InitSettingsL() );
-    self->ConstructL();
-
-    self->InitRadioL( self->DetermineRegion() );
-    self->EnableAudio( ETrue );
-
-    CleanupStack::Pop( self );
-    return self;
+    return CRadioEngineImp::NewL();
     }
 
 // ---------------------------------------------------------------------------

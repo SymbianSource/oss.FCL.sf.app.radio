@@ -58,6 +58,7 @@ namespace FrequencyStrip
     const qreal ROUNDER = 0.5;
     const int SELECTOR_WIDTH = 2;
     const int SELECTOR_Z_POS = 100;
+    const int SELECTOR_MARGIN = 3;
 
     const int ONE_HERTZ = 1000000;
     const int HALF_HERTZ = ONE_HERTZ / 2;
@@ -80,9 +81,9 @@ namespace FrequencyStrip
         const int DECIMAL_FONT_SIZE = 4;
     #endif // BUILD_WIN32
 
-    const QFont FREQUENCY_FONT( "", FREQUENCY_FONT_SIZE );
-    const QFont DECIMAL_FONT( "", DECIMAL_FONT_SIZE );
-    const int FREQUENCY_TEXT_Y_POS = 35;
+    const QFont FREQUENCY_FONT( "", FREQUENCY_FONT_SIZE, QFont::Bold );
+    const QFont DECIMAL_FONT( "", DECIMAL_FONT_SIZE, QFont::Bold );
+    const int FREQUENCY_TEXT_Y_POS = 25;
     const int STATION_MARKER_Y_POS = 10;
 
     static const QLatin1String SLIDE_TO_LEFT    ( "SlideToLeft" );

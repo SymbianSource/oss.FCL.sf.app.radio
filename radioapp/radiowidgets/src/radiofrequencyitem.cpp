@@ -25,8 +25,8 @@
 /*!
  *
  */
-RadioFrequencyItem::RadioFrequencyItem( QString frequency ) :
-    mFrequency( frequency.isEmpty() ? 0 : frequency.toInt() * FrequencyStrip::ONE_HERTZ ),
+RadioFrequencyItem::RadioFrequencyItem( uint frequency ) :
+    mFrequency( frequency == 0 ? 0 : frequency * FrequencyStrip::ONE_HERTZ ),
     mGraphicsItem( 0 )
 {
 }

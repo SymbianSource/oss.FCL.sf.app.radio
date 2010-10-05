@@ -149,6 +149,14 @@ void RadioHistoryModel::removeAll( bool removeTagged )
     Q_D( RadioHistoryModel );
     d->removeAll( removeTagged );
 }
+/*!
+ *
+ */
+void RadioHistoryModel::removeByModelIndices( QModelIndexList& indices,  bool removeTags )
+{
+    Q_D( RadioHistoryModel );
+    d->removeByModelIndices( indices, removeTags );
+}
 
 /*!
  *

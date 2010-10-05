@@ -9,7 +9,7 @@
     <extra-loc-layout_id>qtl_dialog_pri_heading</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dialog</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_rock_music">
@@ -19,7 +19,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_personality">
@@ -29,17 +29,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_clear_recently_played_songs_list">
-    <comment>Dialog text displayed when user is about to clear all recently played songs in Recently played songs view.</comment>        
-    <source>Clear Recently played songs list?</source>
-    <translation variants="no">Clear Recently played songs list?</translation>
-    <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_opt_play_history">
@@ -49,17 +39,7 @@
     <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_button_cancel">
-    <comment>Button. Ignores the dialog and returns previous view</comment>        
-    <source>Cancel</source>
-    <translation variants="no">Cancel</translation>
-    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_news">
@@ -69,7 +49,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_opt_search_all_stations">
@@ -79,7 +59,7 @@
     <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001, FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_culture">
@@ -89,7 +69,17 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_fmradio_dblist_l1l2">
+    <comment>%L1 is amount of selected items in multiselection list. %L2 is the total amount of items on the list.</comment>        
+    <source>%L1/%L2</source>
+    <translation variants="no">%L1/%L2</translation>
+    <extra-loc-layout_id>qtl_fullscreen_dialog_counter_tiny</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_005</extra-loc-viewid>
+    <extra-loc-positionid>dblist</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_soft_rhythm_and_blues">
@@ -99,7 +89,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_country_music">
@@ -109,17 +99,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_fmradio_info_local_frequency_band_automaticall">
-    <comment>Discreet popup notification text. Displayed after region has been automatically selected.</comment>        
-    <source>Local frequency band automatically set for radio.</source>
-    <translation variants="no">Local frequency band automatically set for radio.</translation>
-    <extra-loc-layout_id>qtl_notifdialog_pri2</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_val_l1_mhz">
@@ -129,7 +109,7 @@
     <extra-loc-layout_id>qtl_list_sec2_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_rock_music">
@@ -139,7 +119,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_soft_rock">
@@ -149,7 +129,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_subhead_recently_played_songs">
@@ -159,7 +139,7 @@
     <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>subhead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_culture">
@@ -169,7 +149,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_add_to_favourites">
@@ -179,7 +159,7 @@
     <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_nostalgia">
@@ -189,7 +169,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_social_affairs">
@@ -199,17 +179,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_opt_clear_list">
-    <comment>Options list item. Empties the Recently played songs or Tagged songs list. </comment>        
-    <source>Clear list</source>
-    <translation variants="no">Clear list</translation>
-    <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
-    <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_other_music">
@@ -219,7 +189,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_rhythm_and_blues">
@@ -229,7 +199,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_religious_talk">
@@ -239,7 +209,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_activate_loudspeaker">
@@ -249,7 +219,7 @@
     <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_nostalgia">
@@ -259,17 +229,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_menu_delete">
-    <comment>Item specific menu item. Allows the user to delete a station.</comment>        
-    <source>Delete</source>
-    <translation variants="no">Delete</translation>
-    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_language">
@@ -279,7 +239,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_talk">
@@ -289,17 +249,20 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_common_menu_rename_item">
-    <comment>Item specific menu item. Allows the user to define a new name for a station.</comment>        
-    <source>Rename</source>
-    <translation variants="no">Rename</translation>
-    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+<message numerus="yes" id="txt_rad_dpophead_l1_song_information_deleted">
+    <comment>Discreet popup heading text displaying how many song information have been deleted. Displayed after song information have been deleted.</comment>        
+    <source>%Ln song information deleted.</source>
+    <translation>
+        <numerusform variants="no">(s)%Ln song information deleted.</numerusform>
+        <numerusform variants="no">(p)%Ln song information deleted.</numerusform>
+    </translation>
+    <extra-loc-layout_id>qtl_notifdialog_pri2</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
+    <extra-loc-positionid>dpophead</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_soft_rhythm_and_blues">
@@ -309,7 +272,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_national_music">
@@ -319,7 +282,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_science">
@@ -329,7 +292,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_weather">
@@ -339,7 +302,17 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_fmradio_setlabel_select_all">
+    <comment>Caption for selecting all items in multiselection list. Used in Play history and Stations views.</comment>        
+    <source>Select all</source>
+    <translation variants="no">Select all</translation>
+    <extra-loc-layout_id>qtl_fullscreen_dialog_checkbox_sec</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_005</extra-loc-viewid>
+    <extra-loc-positionid>setlabel_1</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_drama">
@@ -349,7 +322,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_national_music">
@@ -359,7 +332,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_religious_music">
@@ -369,7 +342,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_oldies_music">
@@ -379,7 +352,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_education">
@@ -389,27 +362,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_button_no">
-    <comment>Button. Pressing this button rejects the selected operation.</comment>        
-    <source>No</source>
-    <translation variants="no">No</translation>
-    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_button_ok">
-    <comment>Button. Allows the user to accept the dialog and return to previous view</comment>        
-    <source>OK</source>
-    <translation variants="no">OK</translation>
-    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_station_list_is_full_please_remove_s">
@@ -419,7 +372,7 @@
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_no_favourites_add_favourites_to_see">
@@ -429,17 +382,17 @@
     <extra-loc-layout_id>txt_rad_info_no_favourites_add_favourites_to_see</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
-<message numerus="no" id="txt_rad_info_clear_favourite_stations_list">
-    <comment>Dialog text displayed when user is about to clear the all stations in Favourite stations view.</comment>        
-    <source>Clear Favourite stations list?</source>
-    <translation variants="no">Clear Favourite stations list?</translation>
-    <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+<message numerus="no" id="txt_fmradio_title_delete_stations">
+    <comment>Heading for the full screen multiselection dialog for deleting stations in All stations view.</comment>        
+    <source>Delete stations?</source>
+    <translation variants="no">Delete stations?</translation>
+    <extra-loc-layout_id>qtl_fullscreen_dialog_heading_pri</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_005</extra-loc-viewid>
+    <extra-loc-positionid>title</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_adult_hits">
@@ -449,7 +402,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_no_favourite_stations">
@@ -459,7 +412,7 @@
     <extra-loc-layout_id>txt_rad_info_no_favourite_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_stations">
@@ -469,7 +422,7 @@
     <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_pop_music">
@@ -479,7 +432,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_fmradio_button_remove_from_favourites">
@@ -489,7 +442,7 @@
     <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_varied">
@@ -499,7 +452,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_alarm">
@@ -509,7 +462,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_other_music">
@@ -519,7 +472,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_long_caption_fm_radio">
@@ -529,7 +482,7 @@
     <extra-loc-layout_id>qtl_list_pri_large_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>list</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_childrens_programmes">
@@ -539,7 +492,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_varied">
@@ -549,7 +502,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_leisure">
@@ -559,7 +512,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_alarm">
@@ -569,7 +522,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_short_caption_fmradio">
@@ -579,7 +532,7 @@
     <extra-loc-layout_id>qtl_homescreen_shortcut</extra-loc-layout_id>    
     <extra-loc-viewid>Home_screen_001</extra-loc-viewid>
     <extra-loc-positionid>caption</extra-loc-positionid>
-    <extra-loc-feature>Ho</extra-loc-feature>
+    <extra-loc-feature>Home</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_information">
@@ -589,7 +542,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_remove_favourite">
@@ -599,7 +552,7 @@
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_title_fm_radio">
@@ -609,7 +562,7 @@
     <extra-loc-layout_id>qtl_titlebar</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>title</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_cancel">
@@ -619,7 +572,7 @@
     <extra-loc-layout_id>txt_rad_button_cancel</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_delete_station">
@@ -629,7 +582,7 @@
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_religion">
@@ -639,7 +592,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_add_to_favourites">
@@ -649,7 +602,7 @@
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_current_affairs">
@@ -659,7 +612,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_you_can_add_song_to_the_tagged_songs">
@@ -669,7 +622,7 @@
     <extra-loc-layout_id>txt_rad_info_you_can_add_song_to_the_tagged_songs</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_social_affairs">
@@ -679,7 +632,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_education">
@@ -689,7 +642,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_jazz_music">
@@ -699,7 +652,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_religious_music">
@@ -709,7 +662,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_continue_using_the_radio_in_offline">
@@ -719,7 +672,7 @@
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_list_unknown">
@@ -729,7 +682,7 @@
     <extra-loc-layout_id>qtl_list_pri_large_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>dblist</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_travel">
@@ -739,7 +692,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_song_information_is_collected_automat">
@@ -749,17 +702,7 @@
     <extra-loc-layout_id>txt_rad_info_song_information_is_collected_automat</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_clear_all_stations_list">
-    <comment>Dialog text displayed when user is about to clear the all stations in All stations view.</comment>        
-    <source>Clear All stations list?</source>
-    <translation variants="no">Clear All stations list?</translation>
-    <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_classical">
@@ -769,7 +712,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dpophead_song_was_added_to_favorite_songs">
@@ -779,7 +722,7 @@
     <extra-loc-layout_id>qtl_notifdialog_pri2_medium_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dpophead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_talk">
@@ -789,17 +732,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_button_yes">
-    <comment>Button. Pressing this button confirms the selected operation.</comment>        
-    <source>Yes</source>
-    <translation variants="no">Yes</translation>
-    <extra-loc-layout_id>qtl_dialog_softkey</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_finance">
@@ -809,7 +742,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_activate_radio_in_offline_mode">
@@ -819,7 +752,7 @@
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_searching_local_stations_please_wait">
@@ -829,7 +762,7 @@
     <extra-loc-layout_id>qtl_dialog_pri3</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_004</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz2">
@@ -839,7 +772,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_drama">
@@ -849,27 +782,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_opt_deactivate_loudspeaker">
-    <comment>Options list item. Deactivates the loudspeaker. Only available if audio can be routed to the headset</comment>        
-    <source>Deactivate loudspeaker</source>
-    <translation variants="no">Deactivate loudspeaker</translation>
-    <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_clear_tagged_songs_list">
-    <comment>Dialog text displayed when user is about to clear all tagged songs in Tagged songs view.</comment>        
-    <source>Clear Tagged songs list?</source>
-    <translation variants="no">Clear Tagged songs list?</translation>
-    <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_top_40">
@@ -879,7 +792,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_list_searching_all_available_stations_ple">
@@ -889,7 +802,7 @@
     <extra-loc-layout_id>txt_rad_list_searching_all_available_stations_ple</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_college">
@@ -899,7 +812,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_all_stations_in_stations_list_will_be">
@@ -909,7 +822,7 @@
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_tag_song">
@@ -919,7 +832,7 @@
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001, FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_no_stations_search_stations_automat">
@@ -929,7 +842,20 @@
     <extra-loc-layout_id>txt_rad_info_no_stations_search_stations_automat</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="yes" id="txt_rad_dpophead_l1_favorite_removed">
+    <comment>Discreet popup heading text displaying how many favorites have been removed. Displayed after favorite(s) have been deleted.</comment>        
+    <source>%Ln favorite removed.</source>
+    <translation>
+        <numerusform variants="no">(s)%Ln favorite removed.</numerusform>
+        <numerusform variants="no">(p)%Ln favorite removed.</numerusform>
+    </translation>
+    <extra-loc-layout_id>qtl_notifdialog_pri2</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
+    <extra-loc-positionid>dpophead</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_subhead_local_stations">
@@ -939,7 +865,7 @@
     <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>subhead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_college">
@@ -949,7 +875,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_pop_music">
@@ -959,7 +885,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_public">
@@ -969,7 +895,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_fmradio_info_fm_radio_could_not_be_started">
@@ -979,7 +905,7 @@
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_no_stations">
@@ -989,17 +915,7 @@
     <extra-loc-layout_id>txt_rad_info_no_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_opt_exit">
-    <comment>Options list item. With the exit option, the user can close the currently active application and return to the Home screen.</comment>        
-    <source>Exit</source>
-    <translation variants="no">Exit</translation>
-    <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_serious_classical">
@@ -1009,7 +925,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_religion">
@@ -1019,7 +935,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_easy_listening">
@@ -1029,7 +945,17 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_fmradio_title_remove_favorites">
+    <comment>Heading for the full screen multiselection dialog for removing favorites in Favorites view/collection.</comment>        
+    <source>Remove favorites?</source>
+    <translation variants="no">Remove favorites?</translation>
+    <extra-loc-layout_id>qtl_fullscreen_dialog_heading_pri</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_005</extra-loc-viewid>
+    <extra-loc-positionid>title</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_classical">
@@ -1039,7 +965,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dpophead_no_stations_found_try_searching">
@@ -1049,7 +975,7 @@
     <extra-loc-layout_id>qtl_notifdialog_pri2</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dpophead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_sport">
@@ -1059,7 +985,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_tsw_caption_fm_radio">
@@ -1069,7 +995,7 @@
     <extra-loc-layout_id>qtl_grid_taskswitcher_tiny</extra-loc-layout_id>    
     <extra-loc-viewid>tsw_01</extra-loc-viewid>
     <extra-loc-positionid>caption</extra-loc-positionid>
-    <extra-loc-feature>ts</extra-loc-feature>
+    <extra-loc-feature>tsw</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_remove_tag">
@@ -1079,7 +1005,7 @@
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_personality">
@@ -1089,7 +1015,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_language">
@@ -1099,7 +1025,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_subhead_tagged_songs">
@@ -1109,7 +1035,7 @@
     <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>subhead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_current_affairs">
@@ -1119,7 +1045,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_soft">
@@ -1129,7 +1055,17 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_fmradio_title_delete_song_information">
+    <comment>Heading for the full screen multiselection dialog for deleting song information in Play history view. Note that only song information is deleted. Actual songs are not stored in the device.</comment>        
+    <source>Delete song information?</source>
+    <translation variants="no">Delete song information?</translation>
+    <extra-loc-layout_id>qtl_fullscreen_dialog_heading_pri</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_005</extra-loc-viewid>
+    <extra-loc-positionid>title</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_serious_classical">
@@ -1139,7 +1075,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_sport">
@@ -1149,7 +1085,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_weather">
@@ -1159,7 +1095,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_science">
@@ -1169,7 +1105,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_classic_rock">
@@ -1179,7 +1115,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_soft_rock">
@@ -1189,7 +1125,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_light_classical">
@@ -1199,7 +1135,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_folk_music">
@@ -1209,7 +1145,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_phone_in">
@@ -1219,7 +1155,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_1_2">
@@ -1229,7 +1165,7 @@
     <extra-loc-layout_id>qtl_list_pri2_graphic_add</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>dblist</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_leisure">
@@ -1239,7 +1175,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_alarm_test">
@@ -1249,7 +1185,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_jazz_music">
@@ -1259,7 +1195,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_soft">
@@ -1269,7 +1205,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_information">
@@ -1279,7 +1215,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_alarm_test">
@@ -1289,7 +1225,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_rhythm_and_blues">
@@ -1299,7 +1235,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_unknown">
@@ -1309,17 +1245,7 @@
     <extra-loc-layout_id>qtl_list_pri_large_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>dblist</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_menu_play_music">
-    <comment>Item specific menu item. Starts to play the station when selected. Not displayed if station is already playing.</comment>        
-    <source>Play</source>
-    <translation variants="no">Play</translation>
-    <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_adult_hits">
@@ -1329,7 +1255,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_play_history_is_empty">
@@ -1339,7 +1265,7 @@
     <extra-loc-layout_id>txt_rad_info_play_history_is_empty</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_search_from_music_store">
@@ -1349,7 +1275,7 @@
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001, FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_documentary">
@@ -1359,7 +1285,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_list_seeking">
@@ -1369,7 +1295,7 @@
     <extra-loc-layout_id>txt_rad_list_seeking</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_top_40">
@@ -1379,7 +1305,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_news">
@@ -1389,7 +1315,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_connect_wired_headset1">
@@ -1399,7 +1325,7 @@
     <extra-loc-layout_id>txt_rad_info_connect_wired_headset1</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_easy_listening">
@@ -1409,7 +1335,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_finance">
@@ -1419,7 +1345,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_childrens_programmes">
@@ -1429,7 +1355,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_documentary">
@@ -1439,7 +1365,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_fm_radio">
@@ -1449,7 +1375,7 @@
     <extra-loc-layout_id>txt_rad_info_connect_wired_headset1</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_light_classical">
@@ -1459,7 +1385,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_button_deactivate_loudspeaker">
@@ -1469,7 +1395,7 @@
     <extra-loc-layout_id>txt_rad_button_stations</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>button</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_religious_talk">
@@ -1479,17 +1405,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_rad_info_travel">
-    <comment>Main view Information area item. Displayed if PTY is available. RDS Programme Type identifier for PTY code 22.</comment>        
-    <source>Travel</source>
-    <translation variants="no">Travel</translation>
-    <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
-    <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
-    <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dpophead_connect_wired_headset">
@@ -1499,7 +1415,17 @@
     <extra-loc-layout_id>qtl_notifdialog_pri2_medium_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>dpophead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="no" id="txt_rad_info_travel">
+    <comment>Main view Information area item. Displayed if PTY is available. RDS Programme Type identifier for PTY code 22.</comment>        
+    <source>Travel</source>
+    <translation variants="no">Travel</translation>
+    <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
+    <extra-loc-positionid>info</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_phone_in">
@@ -1509,7 +1435,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_subhead_favourites">
@@ -1519,7 +1445,20 @@
     <extra-loc-layout_id>qtl_groupbox_simple_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>subhead</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
+    <extra-loc-blank>False</extra-loc-blank>
+</message>
+<message numerus="yes" id="txt_rad_dpophead_l1_station_deleted">
+    <comment>Discreet popup heading text displaying how many stations have been deleted. Displayed after station(s) have been deleted via multiselection .</comment>        
+    <source>%Ln station deleted.</source>
+    <translation>
+        <numerusform variants="no">(s)%Ln station deleted.</numerusform>
+        <numerusform variants="no">(p)%Ln station deleted.</numerusform>
+    </translation>
+    <extra-loc-layout_id>qtl_notifdialog_pri2</extra-loc-layout_id>    
+    <extra-loc-viewid>FmRadio</extra-loc-viewid>
+    <extra-loc-positionid>dpophead</extra-loc-positionid>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_oldies_music">
@@ -1529,7 +1468,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_menu_search_from_other_store">
@@ -1539,7 +1478,7 @@
     <extra-loc-layout_id>qtl_menu_sec</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001, FmRadio_003</extra-loc-viewid>
     <extra-loc-positionid>menu</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_public">
@@ -1549,7 +1488,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz">
@@ -1559,7 +1498,7 @@
     <extra-loc-layout_id>qtl_list_pri_graphic_add</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_list_l1_mhz_small">
@@ -1569,7 +1508,7 @@
     <extra-loc-layout_id>txt_rad_list_l1_mhz_small</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>list</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_dblist_l1_mhz_val_country_music">
@@ -1579,7 +1518,7 @@
     <extra-loc-layout_id>qtl_list_sec_graphic</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_002</extra-loc-viewid>
     <extra-loc-positionid>dblist_val</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_remove_song_from_tagged_songs">
@@ -1589,7 +1528,7 @@
     <extra-loc-layout_id>qtl_dialog_pri5</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_classic_rock">
@@ -1599,17 +1538,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
-    <extra-loc-blank>False</extra-loc-blank>
-</message>
-<message numerus="no" id="txt_common_opt_activate_loudspeaker">
-    <comment>Options list item. Switches the audio from handset or handsfree to loudspeaker. Only available if audio can be routed to the loudspeaker.</comment>        
-    <source>Activate loudspeaker</source>
-    <translation variants="no">Activate loudspeaker</translation>
-    <extra-loc-layout_id>qtl_menu_pri</extra-loc-layout_id>    
-    <extra-loc-viewid>common</extra-loc-viewid>
-    <extra-loc-positionid>opt</extra-loc-positionid>
-    <extra-loc-feature>co</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 <message numerus="no" id="txt_rad_info_folk_music">
@@ -1619,7 +1548,7 @@
     <extra-loc-layout_id>txt_rad_info_news</extra-loc-layout_id>    
     <extra-loc-viewid>FmRadio_001</extra-loc-viewid>
     <extra-loc-positionid>info</extra-loc-positionid>
-    <extra-loc-feature>Fm</extra-loc-feature>
+    <extra-loc-feature>FmRadio</extra-loc-feature>
     <extra-loc-blank>False</extra-loc-blank>
 </message>
 </context>

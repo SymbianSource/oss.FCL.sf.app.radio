@@ -53,6 +53,8 @@ public:
     QVariant data( const int row, const int role ) const;
 
     void removeAll( bool removeTagged );
+    
+    void removeByModelIndices( QModelIndexList& indices,  bool removeTags );
 
     enum ViewMode{ ShowAll, ShowTagged };
     void setViewMode( ViewMode mode );
@@ -67,6 +69,7 @@ private:
     QSqlQuery beginTransaction();
     enum Operation{ NoOp, InsertRows, RemoveRows, ChangeData };
     void commitTransaction( QSqlQuery& query, Operation operation, int start, int end = -1 );
+    bool prepareAndExec( QSqlQuery& query, const QString& sqlStr );
 
 public: // data
 

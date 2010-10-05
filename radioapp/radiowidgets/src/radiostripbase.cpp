@@ -45,7 +45,6 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
     setFlag( QGraphicsItem::ItemClipsChildrenToShape, true );
     setContentWidget( mStripContainer );
     setFrictionEnabled( true );
-    setLongPressEnabled( false );
     setHorizontalScrollBarPolicy( HbScrollArea::ScrollBarAlwaysOff );
     setVerticalScrollBarPolicy( HbScrollArea::ScrollBarAlwaysOff );
 

@@ -209,6 +209,7 @@ private: // data
 
     int                                 mCurrentIndex;
     int                                 mTargetIndex;
+    int                                 mCurrentFrequency;
     bool                                mIsCustomFreq;
 
     CarouselInfoText::Type              mInfoTextType;

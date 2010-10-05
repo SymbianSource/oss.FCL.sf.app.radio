@@ -50,10 +50,9 @@ NONSHARABLE_CLASS( CRadioEngineImp ) : public CRadioEngine
 
 public:
 
+    static CRadioEngineImp* NewL();
+    
     ~CRadioEngineImp();
-
-    void SetSystemEventCollector( CRadioSystemEventCollector* aCollector );
-    void SetRadioSettings( CRadioSettings* aSettings );
 
 private:
 
@@ -119,6 +118,7 @@ private:
         };
 
     void ConstructL();
+    
 
     /**
      * Switches power on/off after a delay

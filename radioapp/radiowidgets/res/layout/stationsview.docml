@@ -2,10 +2,10 @@
 <hbdocument context="RadioStationsView" version="0.9">
     <object name="sv:scan_action" type="HbAction">
         <string name="text" locid="txt_rad_opt_search_all_stations" />
-    </object>
-    <object name="sv:clear_list_action" type="HbAction">
-        <string name="text" locid="txt_rad_opt_clear_list" />
-    </object>
+    </object>    
+    <object name="sv:multi_selection_action" type="HbAction">
+        <string name="text" locid="txt_common_opt_delete" />
+    </object>    
     <object name="loudspeaker_action" type="HbAction">
         <string name="text" locid="txt_common_opt_activate_loudspeaker" />
     </object>
@@ -38,7 +38,7 @@
         <icon name="nonFavoriteIcon" iconName="qtg_small_star_non_favourited" />
         <widget name="mMenu" role="HbView:menu" type="HbMenu">
             <ref object="sv:scan_action" role="HbMenu:addAction"/>
-            <ref object="sv:clear_list_action" role="HbMenu:addAction"/>
+            <ref object="sv:multi_selection_action" role="HbMenu:addAction"/>
             <ref object="loudspeaker_action" role="HbMenu:addAction"/>
             <ref object="exit_action" role="HbMenu:addAction"/>
         </widget>
@@ -140,6 +140,9 @@
         <object name="sv:favorite_stations_button">
             <bool name="checked" value="FALSE"/>
         </object>
+        <object name="sv:multi_selection_action">
+            <string name="text" locid="txt_common_opt_delete" />
+        </object>
         <widget name="sv:heading_banner">
             <string name="heading" locid="txt_rad_subhead_local_stations" />
         </widget>
@@ -159,6 +162,9 @@
         </object>
         <object name="sv:favorite_stations_button">
             <bool name="checked" value="TRUE"/>
+        </object>
+        <object name="sv:multi_selection_action">
+            <string name="text" locid="txt_common_opt_remove" />
         </object>
         <widget name="sv:heading_banner">
             <string name="heading" locid="txt_rad_subhead_favourites" />

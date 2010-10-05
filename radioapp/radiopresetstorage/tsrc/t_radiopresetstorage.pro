@@ -31,6 +31,10 @@ symbian: {
     MMP_RULES += SMPSAFE
 }
 
+CONFIG += qtestlib \
+          Hb \
+          symbian_test  
+
 DEPENDPATH += . \
     inc \
     src
@@ -45,7 +49,7 @@ INCLUDEPATH += . \
     ../../radiouiengine/inc \
     ../../../../inc
 
-CONFIG += qtestlib
+
 
 symbian:LIBS += -lfmradioenginewrapper
 symbian:LIBS += -lfmradiopresetstorage
