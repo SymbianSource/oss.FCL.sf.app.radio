@@ -1357,22 +1357,15 @@ void CFMRadioAppUi::HandleHeadsetReconnectedCallback()
     if ( !(iFMRadioVariationFlags & KFMRadioInternalAntennaSupported) &&
             iCurrentRadioState != EFMRadioStateOffForPhoneCall && 
             iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
-        {        
-        if ( !iRadioEngine->IsRadioOn() && !iRadioEngine->IsInCall() )
-            {
-            FTRACE( FPrint( _L("CFMRadioAppUi::HandleHeadsetReconnectedCallback() - Turn radio on") ) );
-            TurnRadioOn();
-            } 
+        {
         // active offline query controls radio on/off
-        else if ( iAudioLost )
+        if ( iAudioLost )
             {
-            FTRACE( FPrint( _L("CFMRadioAppUi::HandleHeadsetReconnectedCallback() - Try to resume") ) );
             TRAP_IGNORE( TryToResumeAudioL() );	
             }
         else if ( ( iGlobalOfflineQuery && !iGlobalOfflineQuery->IsActive() ) ||
               !iGlobalOfflineQuery )
             {
-            FTRACE( FPrint( _L("CFMRadioAppUi::HandleHeadsetReconnectedCallback() - Offline query") ) );
             iRadioEngine->InitializeRadio();
             }
         HandleVolumeChangedCallback();
@@ -2581,8 +2574,7 @@ void CFMRadioAppUi::ProcessCommandTailL( const TDesC8& aTail )
                         }
                     else
                         {
-                        TFMRadioRegionSetting region = iRadioEngine->GetRegionL();
-                        TBool mute = EFalse;
+                        TFMRadioRegionSetting region = iRadioEngine->GetRegionL();  
                         
                         if ( iOfflineQueryDialogActivated || 
                              iConnectHeadsetQuery || 
@@ -2593,22 +2585,11 @@ void CFMRadioAppUi::ProcessCommandTailL( const TDesC8& aTail )
                         else
                             {
                             iChannelListView->CancelMoveL();
-                            if ( iCurrentRadioState == EFMRadioStateBusyScanLocalStations )
-                                {
-                                mute = ETrue;
-                                }
                             ActivateLocalViewL( view->Id() );
                             }
                         TApaTask task( iCoeEnv->WsSession() );
                         task.SetWgId( iCoeEnv->RootWin().Identifier() );
                         task.BringToForeground();
-                        if ( mute )
-                            {
-                            // unmute if the scanning was ongoing
-                            iRadioEngine->SetMuteOn( EFalse );
-                            // just to make sure the mute status is up to date
-                            HandleVolumeChangedCallback();
-                            }
                         }
                     }
                 }
