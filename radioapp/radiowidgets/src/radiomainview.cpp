@@ -37,6 +37,7 @@
 #include "radioutil.h"
 #include "radiostationmodel.h"
 #include "radiofrequencyscanner.h"
+#include "radioapplication.h"
 
 // Constants
 const QLatin1String RADIO_MAINVIEW_ACTIVITY_ID( "FMRadioMainView" );
@@ -185,19 +186,19 @@ void RadioMainView::init()
     const bool firsTimeStart = mUiEngine->isFirstTimeStart();
     const int rowCount = mUiEngine->stationModel().rowCount();
 
-   if ( firsTimeStart && rowCount == 0 ){
-            QTimer::singleShot( 4500, this, SLOT(startFirstTimeScanning()) );
-        }
-
+   if ( firsTimeStart && rowCount == 0 ) {
+        QTimer::singleShot( 4500, this, SLOT(startFirstTimeScanning()) );
+    }
 
     Radio::connect( static_cast<HbApplication*>( qApp ),    SIGNAL(aboutToQuit()),
                     this,                                   SLOT(saveActivity()) );
 
-    emit applicationReady();
-
     QScopedPointer<AfActivityStorage> storage( new AfActivityStorage() );
     bool ok = storage->removeActivity( RADIO_MAINVIEW_ACTIVITY_ID );
     LOG_ASSERT( ok, LOG( "Failed to remove old activity from Activity Storage!" ) );
+
+    // Send a signal to notify the automated tester that the application is ready
+    QTimer::singleShot( 0, static_cast<RadioApplication*>( qApp ), SIGNAL(applicationReady()) );
 }
 
 /*!
@@ -270,7 +271,8 @@ void RadioMainView::setFrequencyFromEngine( uint frequency, int reason )
         if ( reason != TuneReason::FrequencyStrip &&
              reason != TuneReason::StationCarousel &&
              reason != TuneReason::Skip &&
-             reason != TuneReason::ManualSeekTune ) {
+             reason != TuneReason::ManualSeekTune &&
+             reason != TuneReason::StationScanFinalize ) {
             mCarousel->setFrequency( frequency, reason, Scroll::Shortest );
             mFrequencyStrip->setFrequency( frequency, reason, Scroll::Shortest );
         }
@@ -353,7 +355,7 @@ void RadioMainView::toggleFavorite()
 void RadioMainView::seekingStarted()
 {
     if ( !RadioUtil::isScannerAlive() ) {
-        mCarousel->setInfoText( CarouselInfoText::Seeking );
+        mCarousel->setScanningMode( Scan::SeekingInMainView );
     }
 }
 
@@ -432,21 +434,16 @@ void RadioMainView::saveActivity()
 
     // Draw the background and overlay
     // TODO: Uncomment when Orbit fixes the crash caused calling the pixmap() function.
-//    HbLabel* backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_BACKGROUND );
-//    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
-//    backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_OVERLAY );
-//    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+    HbLabel* backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_BACKGROUND );
+    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
+    backgroundLabel = mUiLoader->findWidget<HbLabel>( DOCML::MV_NAME_CAROUSEL_OVERLAY );
+    painter.drawPixmap( 0, 0, backgroundLabel->icon().pixmap().scaled( screenShotSize ) );
 
     mCarousel->drawOffScreen( painter );
 
     QVariantHash metadata;
     metadata.insert( "screenshot", screenShot );
-
-    #ifdef __WINS__
-        screenShot.save( "c:\\radio.bmp" );
-    #elif defined BUILD_WIN32
-        screenShot.save( "radio.bmp" );
-    #endif
+    screenShot.save( "radio.bmp" );
 
     // Update the activity to the activity manager
     QScopedPointer<AfActivityStorage> storage( new AfActivityStorage() );

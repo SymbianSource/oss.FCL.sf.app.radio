@@ -18,10 +18,14 @@
 #ifndef CRADIOACCESSORYOBSERVERSTUB_H
 #define CRADIOACCESSORYOBSERVERSTUB_H
 
+// System includes
 #include <AccessoryServer.h>
 #include <AccessoryConnection.h>
 #include <AccPolSubblockNameArray.h>
 #include <RadioStubManager.h>
+
+// User includes
+#include "cradiopropertyobserver.h"
 
 class MRadioHeadsetEventObserver;
 
@@ -33,6 +37,7 @@ class MRadioHeadsetEventObserver;
  *
  */
 NONSHARABLE_CLASS( CRadioAccessoryObserver ): public CBase
+        , private MRadioPropertyChangeObserver
 {
 public:
 
@@ -67,6 +72,15 @@ public:
      */
     TBool IsHeadsetConnectedL() const;
 
+protected:
+
+// from base class MRadioPropertyChangeObserver
+
+    void HandlePropertyChangeL( const TUid& aCategory, const TUint aKey, const TInt aValue );
+    void HandlePropertyChangeL( const TUid& aCategory, const TUint aKey, const TDesC8& aValue );
+    void HandlePropertyChangeL( const TUid& aCategory, const TUint aKey, const TDesC& aValue );
+    void HandlePropertyChangeErrorL( const TUid& aCategory, const TUint aKey, TInt aError );
+
 private:
 
     /**
@@ -84,6 +98,9 @@ private: // data
     
     // RadioStubManagerChunk handle
     RChunk iRadioStubManagerChunk;
+
+    /** handler to Publish & Subscribe interface*/
+    CRadioPropertyObserver*     iHeadsetObserver;
 
 };
 

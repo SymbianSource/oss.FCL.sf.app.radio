@@ -45,7 +45,11 @@ public:
 
     ~RadioApplication();
 
-private slots:
+Q_SIGNALS:
+
+    void applicationReady();
+
+private Q_SLOTS:
 
     void construct();
     void checkOfflineMode();

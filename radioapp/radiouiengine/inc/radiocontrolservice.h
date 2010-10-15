@@ -36,7 +36,7 @@ public:
     virtual ~RadioControlService();
 
 
-public slots:
+public Q_SLOTS:
 
     void command( int commandId );
 

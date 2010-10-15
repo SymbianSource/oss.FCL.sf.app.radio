@@ -41,6 +41,8 @@ const int DEFAULT_VOLUME_LEVEL = 4;
 
 const int VOLUME_STEP_DIVIDER = 500;
 
+const int MAX_STATION_NAME_LENGTH = 64;
+
 /**
  * UIDs for checking the offline mode
  * Values copied from CoreApplicationUIsSDKCRKeys.h
@@ -69,6 +71,7 @@ namespace RtPlus
 {
     enum Tag
     {
+        Unknown = -1, // Not an official tag
         Dummy = 0,
         Title = 1,
         Artist = 4,
@@ -109,7 +112,8 @@ namespace Scan
     {
         NotScanning,
         ScanningInMainView,
-        ScanningInStationsView
+        ScanningInStationsView,
+        SeekingInMainView
     };
 }
 

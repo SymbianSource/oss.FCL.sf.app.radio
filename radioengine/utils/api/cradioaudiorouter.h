@@ -76,9 +76,9 @@ private: // data
     MRadioAudioRoutingObserver& iAudioRoutingObserver;
 
     /**
-     * Contains routable audios.
+     * Routable audio.
      */
-    RArray<CRadioRoutableAudio*> iRoutableAudios;
+    CRadioRoutableAudio* iRoutableAudio;
 
     };
 

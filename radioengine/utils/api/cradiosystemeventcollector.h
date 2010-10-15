@@ -18,12 +18,14 @@
 #ifndef CRADIOSYSTEMEVENTCOLLECTOR_H
 #define CRADIOSYSTEMEVENTCOLLECTOR_H
 
+// System includes
 #include <e32std.h>
+#include <e32base.h>
 
 class MRadioSystemEventObserver;
 class MRadioAudioRoutingObserver;
 
-NONSHARABLE_CLASS( CRadioSystemEventCollector )
+NONSHARABLE_CLASS( CRadioSystemEventCollector ) : public CBase
     {
 public:
 

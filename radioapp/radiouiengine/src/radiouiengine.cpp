@@ -39,6 +39,7 @@
 #include "radiosettings.h"
 #include "radioscannerengine.h"
 #include "radiogenrelocalizer.h"
+#include "radiotimerpool.h"
 #include "radiologger.h"
 
 // Constants
@@ -57,6 +58,8 @@ const char WHITESPACE_REPLACEMENT = '+';
 const QLatin1String RADIO_SERVER_NAME( "radioserver.exe" );
 const QLatin1String RADIO_RANGE_USEURO( "useuro" );
 const QLatin1String RADIO_RANGE_JAPAN( "japan" );
+
+enum TimerId { PowerOff };
 
 // ====== STATIC FUNCTIONS ========
 
@@ -180,12 +183,7 @@ void RadioUiEngine::setPowerOn()
 {
     setMute( false );
 
-    Q_D( RadioUiEngine );
-    if ( d->mPowerOffTimer ) {
-        d->mPowerOffTimer->stop();
-        d->mPowerOffTimer->deleteLater();
-        d->mPowerOffTimer = NULL;
-    }
+    cancelTimer( PowerOff, this );
 }
 
 /*!
@@ -193,20 +191,14 @@ void RadioUiEngine::setPowerOn()
  */
 void RadioUiEngine::setPowerOff( int delay )
 {
-    Q_D( RadioUiEngine );
-    d->mEngineWrapper->setMute( true, false );
-
     if ( delay > 0 ) {
-        if ( !d->mPowerOffTimer ) {
-            d->mPowerOffTimer = new QTimer( this );
-            Radio::connect( d->mPowerOffTimer,  SIGNAL(timeout()),
-                            this,               SIGNAL(powerOffRequested()) );
-        }
-
-        d->mPowerOffTimer->start( delay );
+        startTimer( delay, PowerOff, this, SIGNAL(powerOffRequested()) );
     } else {
         emit powerOffRequested();
     }
+
+    Q_D( RadioUiEngine );
+    d->mEngineWrapper->setMute( true, false );
 }
 
 /*!
@@ -214,8 +206,7 @@ void RadioUiEngine::setPowerOff( int delay )
  */
 bool RadioUiEngine::isPoweringOff() const
 {
-    Q_D( const RadioUiEngine );
-    return d->mPowerOffTimer && d->mPowerOffTimer->isActive();
+    return isTimerActive( PowerOff, this );
 }
 
 /*!
@@ -473,6 +464,35 @@ void RadioUiEngine::setFrequency( uint frequency, const int reason )
         d->cancelSeeking();
         d->mEngineWrapper->setFrequency( frequency, reason );
     }
+}
+
+/*!
+ *
+ */
+void RadioUiEngine::startTimer( int msec, int id, QObject* receiver, const char* member, QVariant param )
+{
+    Q_D( RadioUiEngine );
+    d->mTimerPool->startTimer( msec, id, receiver, member, param );
+}
+
+/*!
+ *
+ */
+void RadioUiEngine::cancelTimer( int id, const QObject* receiver )
+{
+    Q_D( RadioUiEngine );
+    if ( d->mTimerPool ) {
+        d->mTimerPool->cancelTimer( id, receiver );
+    }
+}
+
+/*!
+ *
+ */
+bool RadioUiEngine::isTimerActive( int id, const QObject* receiver ) const
+{
+    Q_D( const RadioUiEngine );
+    return d->mTimerPool->isTimerActive( id, receiver );
 }
 
 /*!

@@ -46,11 +46,7 @@ public:
 
     void setScanningMode( bool scanning );
 
-signals:
-
-    void applicationReady();
-
-private slots:
+private Q_SLOTS:
 
     void setFrequencyFromWidget( uint frequency, int reason, int direction );
     void setFrequencyFromEngine( uint frequency, int reason );

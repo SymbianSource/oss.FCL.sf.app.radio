@@ -35,7 +35,7 @@
 #include "radiohswidgetprofilereader.h"
 #include "radiohswidgetradioserviceclient.h"
 #include "radioservicedef.h"
-#include "radio_global.h"
+#include "radiogenrelocalizer.h"
 #include "radiologger.h"
 
 // Constants
@@ -51,9 +51,27 @@ const QString DOCML_OBJECT_NAME_TUNER_BACKGROUND_BUTTON(
     "tunerBackgroundPushButton");
 /**  DOCML object name for tunerStackedLayout */
 const QString DOCML_OBJECT_NAME_TUNER_STACKED_LAYOUT("tunerStackedLayout");
+/**  DOCML object name for favoriteIconLayout */
+const QString DOCML_OBJECT_NAME_FAVORITE_ICON_LAYOUT("favoriteIconLayout");
+/**  DOCML object name for favoriteIcon */
+const QString DOCML_OBJECT_NAME_FAVORITE_ICON("favoriteIcon");
 /**  DOCML object name for tunerInformationStackedLayout */
 const QString DOCML_OBJECT_NAME_TUNER_INFORMATION_STACKED_LAYOUT(
     "tunerInformationStackedLayout");
+/**  DOCML object name for lonelyRowLabel */
+const QString DOCML_OBJECT_NAME_LONELY_ROW_LABEL("lonelyRowLabel");
+/**  DOCML object name for animationIcon */
+const QString DOCML_OBJECT_NAME_ANIMATION_ICON("animationIcon");
+/**  DOCML object name for oneRowWithFavoriteLayout */
+const QString DOCML_OBJECT_NAME_ONE_ROW_WITH_FAVORITE_LAYOUT("oneRowWithFavoriteLayout");
+/**  DOCML object name for oneRowWithFavoriteLabel */
+const QString DOCML_OBJECT_NAME_ONE_ROW_WITH_FAVORITE_LABEL("oneRowWithFavoriteLabel");
+/**  DOCML object name for twoRowsLayout */
+const QString DOCML_OBJECT_NAME_TWO_ROWS_LAYOUT("twoRowsLayout");
+/**  DOCML object name for firstRowWithFavoriteLabel */
+const QString DOCML_OBJECT_NAME_FIRST_ROW_WITH_FAVORITE_LABEL("firstRowWithFavoriteLabel");
+/**  DOCML object name for secondRowLabel */
+const QString DOCML_OBJECT_NAME_SECOND_ROW_LABEL("secondRowLabel");
 /**  DOCML object name for controlButtons */
 const QString DOCML_OBJECT_NAME_CONTROL_BUTTONS_LAYOUT("controlButtons");
 /**  DOCML object name for powerToggleButton */
@@ -62,16 +80,6 @@ const QString DOCML_OBJECT_NAME_POWER_BUTTON("powerButton");
 const QString DOCML_OBJECT_NAME_PREVIOUS_BUTTON("previousPushButton");
 /**  DOCML object name for nextPushButton */
 const QString DOCML_OBJECT_NAME_NEXT_BUTTON("nextPushButton");
-/**  DOCML object name for twoRowsLayout */
-const QString DOCML_OBJECT_NAME_TWO_ROWS_LAYOUT("twoRowsLayout");
-/**  DOCML object name for firstRowLabel */
-const QString DOCML_OBJECT_NAME_FIRST_ROW_LABEL("firstRowLabel");
-/**  DOCML object name for secondRowLabel */
-const QString DOCML_OBJECT_NAME_SECOND_ROW_LABEL("secondRowLabel");
-/**  DOCML object name for lonelyRowLabel */
-const QString DOCML_OBJECT_NAME_LONELY_ROW_LABEL("lonelyRowLabel");
-/**  DOCML object name for animationIcon */
-const QString DOCML_OBJECT_NAME_ANIMATION_ICON("animationIcon");
 
 /** Unknown favorite station count. */
 const int FAVORITE_STATION_COUNT_UNDEFINED(0);
@@ -113,6 +121,10 @@ const QString TUNER_BUTTON_NORMAL_OFF("qtg_fr_tuner");
 const QString TUNER_BUTTON_NORMAL_ON("qtg_fr_tuner");
 const QString TUNER_BUTTON_NORMAL_PRESSED("qtg_fr_hsitems2_pressed");
 
+// Favorite icon graphics names for favorite and non-favorite names
+const QString FAVORITE_ICON_NAME("qtg_small_favorite");
+const QString NON_FAVORITE_ICON_NAME("qtg_small_star_non_favourited");
+
 /*!
     \class RadioHsWidget
     \brief Implementation of FM Radio home screen widget.
@@ -138,10 +150,12 @@ RadioHsWidget::RadioHsWidget(QGraphicsItem* parent, Qt::WindowFlags flags)
       mNextButton(NULL),
       mInformationAreaTwoRowsLayout(NULL),
       mInformationLonelyRowLabel(NULL),
-      mInformationFirstRowLabel(NULL),
+      mInformationFirstRowWithFavoriteLabel(NULL),
       mInformationSecondRowLabel(NULL),
       mAnimationIcon(NULL),
+      mFavoriteIcon(NULL),
       mFmRadioState(FmRadio::StateUndefined),
+      mRadioRegion(RadioRegion::None),
       mFavoriteStationCount(FAVORITE_STATION_COUNT_UNDEFINED),
       mLocalStationCount(LOCAL_STATION_COUNT_UNDEFINED),
       mCurrentStationIsFavorite(false),
@@ -169,6 +183,16 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
     const QVariant &information)
 {
     LOG_METHOD;
+    
+    if ((informationType == RadioServiceNotification::RadioText
+        || informationType == RadioServiceNotification::DynamicPS) 
+        && !mRadioInformation.contains(Frequency))
+    {
+        // there's not yet station set in widget, the information is most likely from the previous station 
+        LOG("RadioHsWidget::handleRadioInformationChange: transitioning between stations, discarding update");
+        return;
+    }
+    
     switch (informationType) {
 
     case RadioServiceNotification::FavoriteCount:
@@ -202,6 +226,11 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
         if (information.canConvert(QVariant::Bool)) {
             mCurrentStationIsFavorite = information.toBool();
             LOG_FORMAT("currentIsFavorite: %d", mCurrentStationIsFavorite);
+            if (mFavoriteIcon->isVisible()) {
+                changeFavoriteIcon(true);
+            } else {
+                changeFavoriteIcon(false);
+            }
         }
         break;
 
@@ -211,22 +240,22 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
             const int status = information.toInt();
             switch (status) {
             case RadioStatus::Playing:
-                LOG("Playing");
+                LEVEL2(LOG("RadioStatus::Playing"));
                 handleRadioStateChange(FmRadio::StateRunning);
                 break;
             case RadioStatus::Muted:
-                LOG("Muted");
+                LEVEL2(LOG("RadioStatus::Muted"));
                 break;
             case RadioStatus::Seeking:
-                LEVEL2(LOG("Seeking"));
+                LEVEL2(LOG("RadioStatus::Seeking"));
                 handleRadioStateChange(FmRadio::StateSeeking);
                 break;
             case RadioStatus::NoAntenna:
-                LEVEL2(LOG("NoAntenna"));
+                LEVEL2(LOG("RadioStatus::NoAntenna"));
                 handleRadioStateChange(FmRadio::StateAntennaNotConnected);
                 break;
             case RadioStatus::PoweringOff:
-                LEVEL2(LOG("PoweringOff"));
+                LEVEL2(LOG("RadioStatus::PoweringOff"));
                 handleRadioStateChange(FmRadio::StateClosing);
                 break;
             default:
@@ -240,19 +269,16 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
         LOG("Frequency");
         // TODO: Should information.toString() be checked for too many characters? What's the limit?
         if (information.canConvert(QVariant::String)) {
-            LOG_FORMAT("frequency: %s", GETSTRING(information.toString()));
-            // TODO: Remove comment when localisation is working on device.
-            //frequencyString = hbTrId("txt_fmradiohswidget_rad_list_l1_mhz").arg(freqString);
+            LEVEL2(LOG_FORMAT("frequency: %s", GETSTRING(information.toString())));
             bool frequencyCleared = false;
-
             if (mRadioInformation.contains(Frequency)) {
                 // Clear all infromation.
                 clearRadioInformation();
                 frequencyCleared = true;
             }
             // If widget do not have any frquency information, update it.
-            bool frequencyUpdated = updateRadioInformation(Frequency,
-                information.toString());
+            QString frequencyString = hbTrId("txt_fmradiohswidget_rad_list_l1_mhz").arg(information.toString());
+            bool frequencyUpdated = updateRadioInformation(Frequency, frequencyString);
             if (frequencyCleared || frequencyUpdated) {
                 // Information changed, update the UI.
                 changeInRadioInformation();
@@ -268,7 +294,13 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
 
     case RadioServiceNotification::Genre:
         LOG("Genre");
-        handleSimilarRadioInformation(Pty, information);
+        if (information.canConvert(QVariant::Int) &&
+            mRadioRegion != RadioRegion::None) {
+            const int genre = information.toInt();
+            QString localizedGenre(RadioGenreLocalizer::genreToString(
+                mRadioRegion, genre, GenreTarget::HomeScreen));
+            handleSimilarRadioInformation(Pty, localizedGenre);
+        }
         break;
 
     case RadioServiceNotification::RadioText:
@@ -281,6 +313,38 @@ void RadioHsWidget::handleRadioInformationChange(const int informationType,
         handleSimilarRadioInformation(DynamicPsName, information);
         break;
 
+    case RadioServiceNotification::Region:
+        LOG("Region");
+        if (information.canConvert(QVariant::Int)) {
+            const int region = information.toInt();
+            switch (region) {
+            case RadioRegion::None:
+                LEVEL2(LOG("RadioRegion::None"));
+                mRadioRegion = RadioRegion::None;
+                break;
+            case RadioRegion::Default:
+                LEVEL2(LOG("RadioRegion::Default"));
+                mRadioRegion = RadioRegion::Default;
+                break;
+            case RadioRegion::Japan:
+                LEVEL2(LOG("RadioRegion::Japan"));
+                mRadioRegion = RadioRegion::Japan;
+                break;
+            case RadioRegion::America:
+                LEVEL2(LOG("RadioRegion::America"));
+                mRadioRegion = RadioRegion::America;
+                break;
+            case RadioRegion::Poland:
+                LEVEL2(LOG("RadioRegion::Poland"));
+                mRadioRegion = RadioRegion::Poland;
+                break;
+            default:
+                LOG("default case at case RadioRegion");
+                break;
+            }
+        }
+        break;
+        
     default:
         LOG("default case at notificationId");
         break;
@@ -323,7 +387,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         mCurrentStationIsFavorite = false;
         enableStationButtons();
         clearRadioInformation();
-        mInformationFirstRowLabel->setPlainText("");
+        mInformationFirstRowWithFavoriteLabel->setPlainText("");
         mInformationSecondRowLabel->setPlainText("");
         mInformationLonelyRowLabel->setPlainText(hbTrId("txt_fmradiohswidget_rad_list_fm_radio"));
         changeInformationAreaLayout(OneRow);
@@ -341,13 +405,13 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
     case FmRadio::StateRunning:
         LOG("FmRadio::StateRunning");
         mFmRadioState = FmRadio::StateRunning;
-        // Stop timer if it is running because radio is now running.
+        mRadioServiceClient->stopMonitoring();
         mRadioServiceClient->startMonitoring(
             FmRadio::VisibiltyDoNotChange);
         changeInRadioInformation();
         changePowerButtonOn(true);
         enableStationButtons();
-        changeInformationAreaLayout(OneRow);
+        changeInformationAreaLayout(OneRowWithFavorite);
         break;
     case FmRadio::StateSeeking:
         LOG("FmRadio::StateSeeking");
@@ -361,7 +425,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         mFmRadioState = FmRadio::StateAntennaNotConnected;
         mCurrentStationIsFavorite = false;
         enableStationButtons();
-        mInformationFirstRowLabel->setPlainText("");
+        mInformationFirstRowWithFavoriteLabel->setPlainText("");
         mInformationSecondRowLabel->setPlainText("");
         mInformationLonelyRowLabel->setPlainText(hbTrId(
             "txt_fmradiohswidget_rad_info_connect_wired_headset"));
@@ -376,7 +440,7 @@ void RadioHsWidget::handleRadioStateChange(const QVariant &value)
         mCurrentStationIsFavorite = false;
         enableStationButtons();
         clearRadioInformation();
-        mInformationFirstRowLabel->setPlainText("");
+        mInformationFirstRowWithFavoriteLabel->setPlainText("");
         mInformationSecondRowLabel->setPlainText("");
         mInformationLonelyRowLabel->setPlainText(hbTrId(
             "txt_fmradiohswidget_rad_list_fm_radio"));
@@ -632,6 +696,15 @@ void RadioHsWidget::load(const QString &docml)
                     DOCML_OBJECT_NAME_TUNER_INFORMATION_STACKED_LAYOUT));
                 if (tunerInformationStackedLayout) {
                 }
+                
+                // Find favorite icon.
+                mFavoriteIcon = qobject_cast<HbLabel *> (
+                    documentLoader->findWidget(
+                        DOCML_OBJECT_NAME_FAVORITE_ICON));
+                if (mFavoriteIcon) {
+                    mFavoriteIcon->setIcon(HbIcon(NON_FAVORITE_ICON_NAME));
+                    mFavoriteIcon->setVisible(false);
+                }
 
                 // Find lonely label
                 mInformationLonelyRowLabel = qobject_cast<HbLabel *> (
@@ -643,6 +716,36 @@ void RadioHsWidget::load(const QString &docml)
                         "qtc_radio_tuner_normal");
                     mInformationLonelyRowLabel->setTextColor(color);
                 }
+                
+                mAnimationIcon = qobject_cast<HbLabel *> (
+                    documentLoader->findWidget(
+                        DOCML_OBJECT_NAME_ANIMATION_ICON));
+                if (mAnimationIcon) {
+                    // Use animation manager to access anim loading animation.
+                    HbIconAnimationManager *animationManager =
+                        HbIconAnimationManager::global();
+                    // TODO: Axml extension can be removed after wk24 release.
+                    animationManager->addDefinitionFile(QLatin1String(
+                        "qtg_anim_loading.axml"));
+                    mAnimationIcon->setIcon(HbIcon("qtg_anim_loading"));
+                }
+
+                // Find layout for one row with favorite icon
+                mInformationAreaOneRowWithFavoriteLayout = qobject_cast<
+                        QGraphicsWidget *> (documentLoader->findObject(
+                        DOCML_OBJECT_NAME_ONE_ROW_WITH_FAVORITE_LAYOUT));
+                if (mInformationAreaOneRowWithFavoriteLayout) {
+                    // Find one row
+                    mInformationOneRowWithFavoriteLabel = qobject_cast<
+                        HbLabel *> (documentLoader->findWidget(
+                        DOCML_OBJECT_NAME_ONE_ROW_WITH_FAVORITE_LABEL));
+                    if (mInformationOneRowWithFavoriteLabel) {
+                        // TODO: Set the color in docml when application designer supports it.
+                        QColor color = HbColorScheme::color(
+                            "qtc_radio_tuner_normal");
+                        mInformationOneRowWithFavoriteLabel->setTextColor(color);
+                    }
+                }
 
                 // Find layout for two rows
                 mInformationAreaTwoRowsLayout = qobject_cast<
@@ -650,14 +753,14 @@ void RadioHsWidget::load(const QString &docml)
                     DOCML_OBJECT_NAME_TWO_ROWS_LAYOUT));
                 if (mInformationAreaTwoRowsLayout) {
                     // Find first row
-                    mInformationFirstRowLabel = qobject_cast<HbLabel *> (
+                    mInformationFirstRowWithFavoriteLabel = qobject_cast<HbLabel *> (
                         documentLoader->findWidget(
-                            DOCML_OBJECT_NAME_FIRST_ROW_LABEL));
-                    if (mInformationFirstRowLabel) {
+                            DOCML_OBJECT_NAME_FIRST_ROW_WITH_FAVORITE_LABEL));
+                    if (mInformationFirstRowWithFavoriteLabel) {
                         // TODO: Set the color in docml when application designer supports it.
                         QColor color = HbColorScheme::color(
                             "qtc_radio_tuner_normal");
-                        mInformationFirstRowLabel->setTextColor(color);
+                        mInformationFirstRowWithFavoriteLabel->setTextColor(color);
                     }
 
                     // Find second row
@@ -672,35 +775,23 @@ void RadioHsWidget::load(const QString &docml)
                     }
                 }
 
-                mAnimationIcon = qobject_cast<HbLabel *> (
+                // Find push button for tuner area.
+                mInformationAreaBackgroundButton = qobject_cast<HbPushButton*> (
                     documentLoader->findWidget(
-                        DOCML_OBJECT_NAME_ANIMATION_ICON));
-                if (mAnimationIcon) {
-                    // Use animation manager to access anim loading animation.
-                    HbIconAnimationManager *animationManager =
-                        HbIconAnimationManager::global();
-                    // TODO: Axml extension can be removed after wk24 release.
-                    animationManager->addDefinitionFile(QLatin1String(
-                        "qtg_anim_loading.axml"));
-                    mAnimationIcon->setIcon(HbIcon("qtg_anim_loading"));
+                        DOCML_OBJECT_NAME_TUNER_BACKGROUND_BUTTON));
+                if (mInformationAreaBackgroundButton) {
+                    // Use the frame background.
+                    HbFrameDrawer *tunerBackgroundButtonFrameDrawer =
+                        new HbFrameDrawer("qtg_fr_tuner",
+                            HbFrameDrawer::ThreePiecesHorizontal);
+                    tunerBackgroundButtonFrameDrawer->setFillWholeRect(true);
+                    mInformationAreaBackgroundButton->setFrameBackground(
+                        tunerBackgroundButtonFrameDrawer);
+                    // Connect the button's clicked signal. 
+                    Radio::connect(mInformationAreaBackgroundButton,
+                        SIGNAL(clicked()), this, SLOT(changeRadioToForeground()));
                 }
-            }
-
-            // Find push button for tuner area.
-            mInformationAreaBackgroundButton = qobject_cast<HbPushButton*> (
-                documentLoader->findWidget(
-                    DOCML_OBJECT_NAME_TUNER_BACKGROUND_BUTTON));
-            if (mInformationAreaBackgroundButton) {
-                // Use the frame background.
-                HbFrameDrawer *tunerBackgroundButtonFrameDrawer =
-                    new HbFrameDrawer("qtg_fr_tuner",
-                        HbFrameDrawer::ThreePiecesHorizontal);
-                tunerBackgroundButtonFrameDrawer->setFillWholeRect(true);
-                mInformationAreaBackgroundButton->setFrameBackground(
-                    tunerBackgroundButtonFrameDrawer);
-                // Connect the button's clicked signal. 
-                Radio::connect(mInformationAreaBackgroundButton,
-                    SIGNAL(clicked()), this, SLOT(changeRadioToForeground()));
+                
             }
 
             // Find layout for control buttons.
@@ -860,15 +951,27 @@ void RadioHsWidget::changeInRadioInformation()
     
     // If second row is empty.
     if (mRadioInformationSecondRow.isEmpty()) {
-        // Show only the lonely row.
-        mInformationLonelyRowLabel->setPlainText(mRadioInformationFirstRow);
-        changeInformationAreaLayout(OneRow);
-    }
-    else {
+        if (mCurrentStationIsFavorite) {
+            // Show favorite icon and one row.
+            mInformationOneRowWithFavoriteLabel->setPlainText(mRadioInformationFirstRow);
+            qreal width = mInformationOneRowWithFavoriteLabel->rect().width();
+            QFont font = mInformationOneRowWithFavoriteLabel->font();
+            QFontMetrics fm(font);
+            int textWidth = fm.width(mRadioInformationFirstRow);
+            if (width < textWidth) {
+                int a = 4;
+            }
+            changeInformationAreaLayout(OneRowWithFavorite);
+        } else {
+            // Show only the lonely row.
+            mInformationLonelyRowLabel->setPlainText(mRadioInformationFirstRow);
+            changeInformationAreaLayout(OneRowWithFavorite);
+        }
+    } else {
         // Else display both rows.
-        mInformationFirstRowLabel->setPlainText(mRadioInformationFirstRow);
+        mInformationFirstRowWithFavoriteLabel->setPlainText(mRadioInformationFirstRow);
         mInformationSecondRowLabel->setPlainText(mRadioInformationSecondRow);
-        changeInformationAreaLayout(TwoRows);
+        changeInformationAreaLayout(TwoRowsWithFavorite);
     }
 }
 
@@ -890,9 +993,33 @@ void RadioHsWidget::clearRadioInformation()
 void RadioHsWidget::changeInformationAreaLayout(const InformationAreaLayout layout)
 {
     LOG_METHOD_ENTER;
+    if (layout == OneRowWithFavorite || layout == TwoRowsWithFavorite) {
+        changeFavoriteIcon(true);
+    } else {
+        changeFavoriteIcon(false);
+    }
     mInformationLonelyRowLabel->setVisible(layout == OneRow);
-    mInformationAreaTwoRowsLayout->setVisible(layout == TwoRows);
+    mInformationAreaOneRowWithFavoriteLayout->setVisible(layout == OneRowWithFavorite);
+    mInformationAreaTwoRowsLayout->setVisible(layout == TwoRowsWithFavorite);
     mAnimationIcon->setVisible(layout == Animation);
+}
+
+/*!
+    Changes visibility of favorite icon. Changes also the icon between
+    favorite and unfavorite.
+
+    \param visibility \c true favorite icon is visible and \c false the icon
+    is invisible.
+ */
+void RadioHsWidget::changeFavoriteIcon(bool visibility)
+{
+    LEVEL2(LOG_METHOD);
+    if (mCurrentStationIsFavorite) {
+        mFavoriteIcon->setIcon(HbIcon(FAVORITE_ICON_NAME));
+    } else {
+        mFavoriteIcon->setIcon(HbIcon(NON_FAVORITE_ICON_NAME));
+    }
+    mFavoriteIcon->setVisible(visibility);
 }
 
 /*!
@@ -905,9 +1032,15 @@ void RadioHsWidget::changePowerButtonOn(const bool isPowerOn)
     LEVEL2(LOG_METHOD);
     if (isPowerOn) {
         LEVEL2(LOG("Power on"));
+        // TODO: Temporarily set the text to clarify the action it performs.
+        // Remove when graphics displays the difference.
+        mPowerButton->setText("Off");
         buttonEvent(Power, Latched);
     } else {
         LEVEL2(LOG("Power off"));
+        // TODO: Temporarily set the text to clarify the action it performs.
+        // Remove when graphics displays the difference.
+        mPowerButton->setText("On");
         buttonEvent(Power, Normal);
     }
 }

@@ -56,6 +56,7 @@ HEADERS += radionotificationdata.h
 HEADERS += radiogenrelocalizer.h
 HEADERS += radiocontrolservice.h
 HEADERS += radiomonitorservice.h
+HEADERS += radiotimerpool.h
 
 INTERNAL_HEADERS += radiostation_p.h
 INTERNAL_HEADERS += radiohistoryitem_p.h
@@ -81,3 +82,4 @@ SOURCES += radioscannerengine.cpp
 SOURCES += radioscannerengine_p.cpp
 SOURCES += radiocontrolservice.cpp
 SOURCES += radiomonitorservice.cpp
+SOURCES += radiotimerpool.cpp

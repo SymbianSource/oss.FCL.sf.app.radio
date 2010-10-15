@@ -22,6 +22,7 @@
 // System includes
 #include <QObject>
 #include <QString>
+#include <QVariant>
 #include <QScopedPointer>
 #include <QSharedPointer>
 
@@ -131,7 +132,11 @@ public:
      */
     void setFrequency( uint frequency, const int reason = TuneReason::Unspecified );
 
-signals:
+    void startTimer( int msec, int id, QObject* receiver, const char* member, QVariant param = QVariant() );
+    void cancelTimer( int id, const QObject* receiver );
+    bool isTimerActive( int id, const QObject* receiver ) const;
+
+Q_SIGNALS:
 
     void tunedToFrequency( uint frequency, int commandSender );
     void seekingStarted( int direction );
@@ -147,7 +152,7 @@ signals:
 
     void powerOffRequested();
 
-public slots:
+public Q_SLOTS:
 
     /*!
      * volume update command slot for the engine

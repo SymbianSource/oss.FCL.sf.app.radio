@@ -1,5 +1,5 @@
 EXPORTS
-	_ZN12CRadioEngine4NewLER23MRadioEngineInitializer @ 1 NONAME
+	_ZN12CRadioEngine4NewLEv @ 1 NONAME
 	_ZN12CRadioEngineD0Ev @ 2 NONAME
 	_ZN12CRadioEngineD1Ev @ 3 NONAME
 	_ZN12CRadioEngineD2Ev @ 4 NONAME

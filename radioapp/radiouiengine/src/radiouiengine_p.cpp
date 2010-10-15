@@ -39,6 +39,7 @@
 #include "radiostationhandlerif.h"
 #include "radiocontrolservice.h"
 #include "radiomonitorservice.h"
+#include "radiotimerpool.h"
 #include "radioservicedef.h"
 #include "radiologger.h"
 
@@ -46,8 +47,7 @@
  *
  */
 RadioUiEnginePrivate::RadioUiEnginePrivate( RadioUiEngine* engine ) :
-    q_ptr( engine ),
-    mPowerOffTimer( NULL )
+    q_ptr( engine )
 {
 }
 
@@ -79,6 +79,8 @@ RadioUiEngine& RadioUiEnginePrivate::api()
  */
 bool RadioUiEnginePrivate::init()
 {
+    mTimerPool.reset( new RadioTimerPool() );
+
     mControlService.reset( new RadioControlService( *q_ptr ) );
     mMonitorService.reset( new RadioMonitorService( *this ) );
     mStationModel.reset( new RadioStationModel( *this ) );

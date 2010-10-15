@@ -62,7 +62,7 @@ public:
 
     QString orientationSection();
 
-public slots:
+public Q_SLOTS:
 
     void activateMainView();
 
@@ -70,7 +70,7 @@ public slots:
 
     void activateHistoryView();
 
-private slots:
+private Q_SLOTS:
 
     void initView();
     void updateOrientation( Qt::Orientation orientation );

@@ -40,6 +40,11 @@ class CRadioRoutableAudio : public CBase
 
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param aAudioRouter for setting routing. Ownership is moved.
+     */
     IMPORT_C CRadioRoutableAudio( CRadioAudioRouter* aAudioRouter );
 
     IMPORT_C ~CRadioRoutableAudio();

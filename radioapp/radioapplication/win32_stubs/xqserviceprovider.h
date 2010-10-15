@@ -1,26 +1,22 @@
 /*
 * Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 * All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
 *
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, version 2.1 of the License.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Lesser General Public License for more details.
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
 *
-* You should have received a copy of the GNU Lesser General Public License
-* along with this program.  If not, 
-* see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
+* Contributors:
 *
-* Description:                                                         
+* Description:
 *
 */
 
-#ifndef XQSERVICEABSTRACTSERVICE_H
-#define XQSERVICEABSTRACTSERVICE_H
+#ifndef XQSERVICEPROVIDER_H
+#define XQSERVICEPROVIDER_H
 
 // THIS IS A STUB CLASS FOR WIN32 ENVIRONMENT!
 // It is only meant to compile, not to actually do anything
@@ -85,4 +81,4 @@ protected:
     
 };
 
-#endif
+#endif // XQSERVICEPROVIDER_H

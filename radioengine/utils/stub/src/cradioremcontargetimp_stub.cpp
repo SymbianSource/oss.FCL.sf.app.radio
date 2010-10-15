@@ -1,19 +1,19 @@
 /*
-* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
-* All rights reserved.
-* This component and the accompanying materials are made available
-* under the terms of the License "Eclipse Public License v1.0"
-* which accompanies this distribution, and is available
-* at the URL "http://www.eclipse.org/legal/epl-v10.html".
-*
-* Initial Contributors:
-* Nokia Corporation - initial contribution.
-*
-* Contributors:
-*
-* Description:
-*
-*/
+ * Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+ * All rights reserved.
+ * This component and the accompanying materials are made available
+ * under the terms of the License "Eclipse Public License v1.0"
+ * which accompanies this distribution, and is available
+ * at the URL "http://www.eclipse.org/legal/epl-v10.html".
+ *
+ * Initial Contributors:
+ * Nokia Corporation - initial contribution.
+ *
+ * Contributors:
+ *
+ * Description:
+ *
+ */
 
 // System includes
 #include <RemConCallHandlingTarget.h>
@@ -48,41 +48,40 @@ CRadioRemConTargetImp::CRadioRemConTargetImp()
 //
 void CRadioRemConTargetImp::ConstructL()
     {
-    LOG_METHOD_AUTO;;
+    LOG_METHOD_AUTO;
     // Open chunk for test configuration/control data
     TInt err = iRadioStubManagerChunk.OpenGlobal(
-            KRadioStubManagerLocalChunkName,
-            EFalse, // == Read | Write
-            EOwnerThread );
-    User::LeaveIfError( err );
-    if ( sizeof(SRadioStubManager) > iRadioStubManagerChunk.MaxSize() )
+            KRadioStubManagerLocalChunkName, EFalse, // == Read | Write
+            EOwnerThread);
+    User::LeaveIfError(err);
+    if (sizeof(SRadioStubManager) > iRadioStubManagerChunk.MaxSize())
         {
-        User::Leave( KErrTooBig );
+        User::Leave(KErrTooBig);
         }
     TUint8* basePtr = iRadioStubManagerChunk.Base();
-    User::LeaveIfNull( basePtr );
-    iRadioStubManager = (SRadioStubManager*)basePtr;
-    if ( STUB.iLeaveNewL.iError )
+    User::LeaveIfNull(basePtr);
+    iRadioStubManager = (SRadioStubManager*) basePtr;
+    if (STUB.iLeaveNewL.iError)
         {
-        User::Leave( STUB.iLeaveNewL.iError );
+        User::Leave(STUB.iLeaveNewL.iError);
         }
-    if ( STUB.iLeaveConstructL.iError )
+    if (STUB.iLeaveConstructL.iError)
         {
-        User::Leave( STUB.iLeaveConstructL.iError );
+        User::Leave(STUB.iLeaveConstructL.iError);
         }
     STUB.iRemConCoreApiTargetObserver = this;
     STUB.iRemConCallHandlingTargetObserver = this;
     RadioEngineUtils::InitializeL();
     // Create interface selector.
-        //iInterfaceSelector = CRemConInterfaceSelector::NewL();
+    //iInterfaceSelector = CRemConInterfaceSelector::NewL();
     // Create a new CRemConCoreApiTarget, owned by the interface selector.
-        //iCoreTarget = CRemConCoreApiTarget::NewL( *iInterfaceSelector, *this );
+    //iCoreTarget = CRemConCoreApiTarget::NewL( *iInterfaceSelector, *this );
     // Create a new CRemConCallHandlingTarget, owned by the interface selector.
-        //iCallTarget = CRemConCallHandlingTarget::NewL( *iInterfaceSelector, *this );
+    //iCallTarget = CRemConCallHandlingTarget::NewL( *iInterfaceSelector, *this );
     // Start being a target.
-        //iInterfaceSelector->OpenTargetL();
+    //iInterfaceSelector->OpenTargetL();
     // Create repeat timer.
-    iRepeatTimer = CPeriodic::NewL( CActive::EPriorityStandard );
+    iRepeatTimer = CPeriodic::NewL(CActive::EPriorityStandard);
     }
 
 // ---------------------------------------------------------------------------
@@ -91,9 +90,9 @@ void CRadioRemConTargetImp::ConstructL()
 //
 CRadioRemConTargetImp* CRadioRemConTargetImp::NewL()
     {
-    LOG_METHOD_AUTO;;
-    CRadioRemConTargetImp* self = new ( ELeave ) CRadioRemConTargetImp();
-    CleanupStack::PushL( self );
+    LOG_METHOD_AUTO;
+    CRadioRemConTargetImp* self = new (ELeave) CRadioRemConTargetImp();
+    CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop();
     return self;
@@ -105,8 +104,8 @@ CRadioRemConTargetImp* CRadioRemConTargetImp::NewL()
 //
 CRadioRemConTargetImp::~CRadioRemConTargetImp()
     {
-    LOG_METHOD_AUTO;;
-    if ( iRepeatTimer )
+    LOG_METHOD_AUTO;
+    if (iRepeatTimer)
         {
         iRepeatTimer->Cancel();
         }
@@ -122,9 +121,10 @@ CRadioRemConTargetImp::~CRadioRemConTargetImp()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::SetControlEventObserver( MRadioControlEventObserver* aControlEventObserver )
+void CRadioRemConTargetImp::SetControlEventObserver(
+        MRadioControlEventObserver* aControlEventObserver)
     {
-    LOG_METHOD_AUTO;;
+    LOG_METHOD_AUTO;
     iObserver = aControlEventObserver;
     }
 
@@ -132,92 +132,103 @@ void CRadioRemConTargetImp::SetControlEventObserver( MRadioControlEventObserver*
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::MrccatoCommand( TRemConCoreApiOperationId aOperationId,
-                                         TRemConCoreApiButtonAction aButtonAct )
+void CRadioRemConTargetImp::MrccatoCommand(
+        TRemConCoreApiOperationId aOperationId,
+        TRemConCoreApiButtonAction aButtonAct)
     {
     LOG_FORMAT( "aOperationId = %d, aButtonAct = %d", aOperationId, aButtonAct );
     LOG_METHOD_AUTO;
-    if ( iObserver )
+    if (iObserver)
         {
-        switch ( aOperationId )
+        switch (aOperationId)
             {
             case ERemConCoreApiChannelUp:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonClick )
+                if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->ChannelUpL( ETrue ); iObserver->ChannelUpL( EFalse ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonPress )
+                else if (aButtonAct == ERemConCoreApiButtonPress)
                     {
                     TRAP_IGNORE( iObserver->ChannelUpL( ETrue ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonRelease )
+                else if (aButtonAct == ERemConCoreApiButtonRelease)
                     {
                     TRAP_IGNORE( iObserver->ChannelUpL( EFalse ))
                     }
-                else {}
+                else
+                    {
+                    }
                 break;
                 }
             case ERemConCoreApiChannelDown:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonClick )
+                if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->ChannelDownL( ETrue ); iObserver->ChannelDownL( EFalse ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonPress )
+                else if (aButtonAct == ERemConCoreApiButtonPress)
                     {
                     TRAP_IGNORE( iObserver->ChannelDownL( ETrue ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonRelease )
+                else if (aButtonAct == ERemConCoreApiButtonRelease)
                     {
                     TRAP_IGNORE( iObserver->ChannelDownL( EFalse ))
                     }
-                else {}
+                else
+                    {
+                    }
                 break;
                 }
             case ERemConCoreApiVolumeUp:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonClick )
+                if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->VolumeUpL( ETrue ); iObserver->VolumeUpL( EFalse ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonPress )
+                else if (aButtonAct == ERemConCoreApiButtonPress)
                     {
                     iRepeatTimer->Cancel();
                     iRepeatId = ERemConCoreApiVolumeUp;
-//                  iRepeatTimer->Start( KVRVolumeTimerInitialDelay, KAknStandardKeyboardRepeatRate, TCallBack( RepeatTimerCallback, this ));
-                    iRepeatTimer->Start( KVRVolumeTimerInitialDelay, 1000000, TCallBack( RepeatTimerCallback, this ));
+                    //                  iRepeatTimer->Start( KVRVolumeTimerInitialDelay, KAknStandardKeyboardRepeatRate, TCallBack( RepeatTimerCallback, this ));
+                    iRepeatTimer->Start(KVRVolumeTimerInitialDelay, 1000000,
+                            TCallBack(RepeatTimerCallback, this));
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonRelease )
+                else if (aButtonAct == ERemConCoreApiButtonRelease)
                     {
                     iRepeatTimer->Cancel();
                     }
-                else {}
+                else
+                    {
+                    }
                 break;
                 }
             case ERemConCoreApiVolumeDown:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonClick )
+                if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->VolumeDownL( ETrue ); iObserver->VolumeDownL( EFalse ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonPress )
+                else if (aButtonAct == ERemConCoreApiButtonPress)
                     {
                     iRepeatTimer->Cancel();
                     iRepeatId = ERemConCoreApiVolumeDown;
-//                  iRepeatTimer->Start( KVRVolumeTimerInitialDelay, KAknStandardKeyboardRepeatRate, TCallBack( RepeatTimerCallback, this ));
-                    iRepeatTimer->Start( KVRVolumeTimerInitialDelay, 1000000, TCallBack( RepeatTimerCallback, this ));
+                    //                  iRepeatTimer->Start( KVRVolumeTimerInitialDelay, KAknStandardKeyboardRepeatRate, TCallBack( RepeatTimerCallback, this ));
+                    iRepeatTimer->Start(KVRVolumeTimerInitialDelay, 1000000,
+                            TCallBack(RepeatTimerCallback, this));
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonRelease )
+                else if (aButtonAct == ERemConCoreApiButtonRelease)
                     {
                     iRepeatTimer->Cancel();
                     }
-                else {}
+                else
+                    {
+                    }
                 break;
                 }
             case ERemConCoreApiStop:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonClick )
+                if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->StopL( ETrue ); iObserver->StopL( EFalse ))
                     }
@@ -226,44 +237,48 @@ void CRadioRemConTargetImp::MrccatoCommand( TRemConCoreApiOperationId aOperation
             case ERemConCoreApiBackward:
             case ERemConCoreApiRewind:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonPress )
+                if (aButtonAct == ERemConCoreApiButtonPress)
                     {
                     TRAP_IGNORE( iObserver->RewindL( ETrue ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonRelease )
+                else if (aButtonAct == ERemConCoreApiButtonRelease)
                     {
                     TRAP_IGNORE( iObserver->RewindL( EFalse ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonClick )
+                else if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->BackwardL( ETrue ); iObserver->BackwardL( EFalse ))
                     }
-                else {}
+                else
+                    {
+                    }
                 break;
                 }
             case ERemConCoreApiForward:
             case ERemConCoreApiFastForward:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonPress )
+                if (aButtonAct == ERemConCoreApiButtonPress)
                     {
                     TRAP_IGNORE( iObserver->FastForwardL( ETrue ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonRelease )
+                else if (aButtonAct == ERemConCoreApiButtonRelease)
                     {
                     TRAP_IGNORE( iObserver->FastForwardL( EFalse ))
                     }
-                else if ( aButtonAct == ERemConCoreApiButtonClick )
+                else if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->ForwardL( ETrue ); iObserver->ForwardL( EFalse ))
                     }
-                else {}
+                else
+                    {
+                    }
                 break;
                 }
             case ERemConCoreApiPlay:
             case ERemConCoreApiPause:
             case ERemConCoreApiPausePlayFunction:
                 {
-                if ( aButtonAct == ERemConCoreApiButtonClick )
+                if (aButtonAct == ERemConCoreApiButtonClick)
                     {
                     TRAP_IGNORE( iObserver->PausePlayL( ETrue ); iObserver->PausePlayL( EFalse ))
                     }
@@ -281,13 +296,14 @@ void CRadioRemConTargetImp::MrccatoCommand( TRemConCoreApiOperationId aOperation
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::MrccatoPlay( TRemConCoreApiPlaybackSpeed /*aSpeed*/,
-                                      TRemConCoreApiButtonAction aButtonAct )
+void CRadioRemConTargetImp::MrccatoPlay(
+        TRemConCoreApiPlaybackSpeed /*aSpeed*/,
+        TRemConCoreApiButtonAction aButtonAct)
     {
     LOG_METHOD_AUTO;
-    if ( iObserver )
+    if (iObserver)
         {
-        if ( aButtonAct == ERemConCoreApiButtonClick )
+        if (aButtonAct == ERemConCoreApiButtonClick)
             {
             TRAP_IGNORE( iObserver->PlayL( ETrue ); iObserver->PlayL( EFalse ))
             }
@@ -298,10 +314,9 @@ void CRadioRemConTargetImp::MrccatoPlay( TRemConCoreApiPlaybackSpeed /*aSpeed*/,
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::MrccatoTuneFunction( TBool /*aTwoPart*/,
-                                              TUint /*aMajorChannel*/,
-                                              TUint /*aMinorChannel*/,
-                                              TRemConCoreApiButtonAction /*aButtonAct*/)
+void CRadioRemConTargetImp::MrccatoTuneFunction(TBool /*aTwoPart*/,
+        TUint /*aMajorChannel*/, TUint /*aMinorChannel*/,
+        TRemConCoreApiButtonAction /*aButtonAct*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -310,8 +325,8 @@ void CRadioRemConTargetImp::MrccatoTuneFunction( TBool /*aTwoPart*/,
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::MrccatoSelectDiskFunction( TUint /*aDisk*/,
-                                                    TRemConCoreApiButtonAction /*aButtonAct*/)
+void CRadioRemConTargetImp::MrccatoSelectDiskFunction(TUint /*aDisk*/,
+        TRemConCoreApiButtonAction /*aButtonAct*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -320,8 +335,8 @@ void CRadioRemConTargetImp::MrccatoSelectDiskFunction( TUint /*aDisk*/,
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::MrccatoSelectAvInputFunction( TUint8 /*aAvInputSignalNumber*/,
-                                                       TRemConCoreApiButtonAction /*aButtonAct*/)
+void CRadioRemConTargetImp::MrccatoSelectAvInputFunction(
+        TUint8 /*aAvInputSignalNumber*/, TRemConCoreApiButtonAction /*aButtonAct*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -330,8 +345,8 @@ void CRadioRemConTargetImp::MrccatoSelectAvInputFunction( TUint8 /*aAvInputSigna
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::MrccatoSelectAudioInputFunction( TUint8 /*aAudioInputSignalNumber*/,
-                                                          TRemConCoreApiButtonAction /*aButtonAct*/)
+void CRadioRemConTargetImp::MrccatoSelectAudioInputFunction(
+        TUint8 /*aAudioInputSignalNumber*/, TRemConCoreApiButtonAction /*aButtonAct*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -340,17 +355,18 @@ void CRadioRemConTargetImp::MrccatoSelectAudioInputFunction( TUint8 /*aAudioInpu
 //
 // ---------------------------------------------------------------------------
 //
-TInt CRadioRemConTargetImp::RepeatTimerCallback( TAny* aPtr )
+TInt CRadioRemConTargetImp::RepeatTimerCallback(TAny* aPtr)
     {
     LOG_METHOD_AUTO;
 
-    CRadioRemConTargetImp* self = reinterpret_cast<CRadioRemConTargetImp*>( aPtr );
+    CRadioRemConTargetImp* self =
+            reinterpret_cast<CRadioRemConTargetImp*> (aPtr);
 
-    if ( self )
+    if (self)
         {
-        if ( self->iObserver )
+        if (self->iObserver)
             {
-            switch ( self->iRepeatId )
+            switch (self->iRepeatId)
                 {
                 case ERemConCoreApiVolumeUp:
                     {
@@ -389,7 +405,7 @@ void CRadioRemConTargetImp::AnswerCall()
 void CRadioRemConTargetImp::AnswerEndCall()
     {
     LOG_METHOD_AUTO;
-    if ( iObserver )
+    if (iObserver)
         {
         TRAP_IGNORE( iObserver->AnswerEndCallL())
         }
@@ -399,7 +415,7 @@ void CRadioRemConTargetImp::AnswerEndCall()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::DialCall( const TDesC8& /*aTelNumber*/ )
+void CRadioRemConTargetImp::DialCall(const TDesC8& /*aTelNumber*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -417,7 +433,7 @@ void CRadioRemConTargetImp::EndCall()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::GenerateDTMF( const TChar /*aChar*/ )
+void CRadioRemConTargetImp::GenerateDTMF(const TChar /*aChar*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -435,7 +451,7 @@ void CRadioRemConTargetImp::LastNumberRedial()
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::MultipartyCalling( const TDesC8& /*aData*/ )
+void CRadioRemConTargetImp::MultipartyCalling(const TDesC8& /*aData*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -444,7 +460,7 @@ void CRadioRemConTargetImp::MultipartyCalling( const TDesC8& /*aData*/ )
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::SpeedDial( const TInt /*aIndex*/ )
+void CRadioRemConTargetImp::SpeedDial(const TInt /*aIndex*/)
     {
     LOG_METHOD_AUTO;
     }
@@ -453,7 +469,7 @@ void CRadioRemConTargetImp::SpeedDial( const TInt /*aIndex*/ )
 //
 // ---------------------------------------------------------------------------
 //
-void CRadioRemConTargetImp::VoiceDial( const TBool /*aActivate*/ )
+void CRadioRemConTargetImp::VoiceDial(const TBool /*aActivate*/)
     {
     LOG_METHOD_AUTO;
     }

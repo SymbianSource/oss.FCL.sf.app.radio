@@ -23,8 +23,6 @@
 #include "radioengineutils.h"
 
 
-const TInt KVisualRadioInitialRoutableAudioArraySize( 2 );
-
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
@@ -56,7 +54,6 @@ EXPORT_C CRadioAudioRouter* CRadioAudioRouter::NewL( MRadioAudioRoutingObserver&
 EXPORT_C CRadioAudioRouter::~CRadioAudioRouter()
     {
     LEVEL3( LOG_METHOD_AUTO );
-    iRoutableAudios.Close();
     RadioEngineUtils::Release();
     }
 
@@ -68,7 +65,6 @@ void CRadioAudioRouter::ConstructL()
     {
     RadioEngineUtils::InitializeL();
     LEVEL3( LOG_METHOD_AUTO );
-    iRoutableAudios = RArray<CRadioRoutableAudio*>( KVisualRadioInitialRoutableAudioArraySize );
     }
 
 // ---------------------------------------------------------------------------
@@ -78,11 +74,11 @@ void CRadioAudioRouter::ConstructL()
 EXPORT_C void CRadioAudioRouter::SetAudioRouteL( RadioEngine::TRadioAudioRoute aAudioRoute )
     {
     LEVEL3( LOG_METHOD_AUTO );
-
-    for ( TInt i = 0; i < iRoutableAudios.Count(); ++i )
+    if ( NULL == iRoutableAudio )
         {
-        iRoutableAudios[i]->SetAudioRouteL( aAudioRoute );
+        User::Leave( KErrNotFound );
         }
+    iRoutableAudio->SetAudioRouteL( aAudioRoute );
     iAudioRoutingObserver.AudioRouteChangedL( aAudioRoute );
     }
 
@@ -93,24 +89,23 @@ EXPORT_C void CRadioAudioRouter::SetAudioRouteL( RadioEngine::TRadioAudioRoute a
 EXPORT_C void CRadioAudioRouter::RegisterRoutableAudio( CRadioRoutableAudio* aRoutableAudio )
     {
     LEVEL3( LOG_METHOD_AUTO );
-    iRoutableAudios.Append( aRoutableAudio );
+    if (iRoutableAudio)
+        {
+        LOG_FORMAT( "Reregistration, only one instance expected! Ptr1 = %p, ptr2 = %p", iRoutableAudio, aRoutableAudio );
+        __ASSERT_DEBUG( iRoutableAudio, User::Panic( _L("FMRadio" ), KErrAbort ) );
+        }
+    iRoutableAudio = aRoutableAudio;
     }
 
 // ---------------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void CRadioAudioRouter::UnRegisterRoutableAudio( CRadioRoutableAudio* aRoutableAudio )
+EXPORT_C void CRadioAudioRouter::UnRegisterRoutableAudio( CRadioRoutableAudio* DEBUGVAR( aRoutableAudio ) )
     {
     LEVEL3( LOG_METHOD_AUTO );
+    __ASSERT_DEBUG( aRoutableAudio == iRoutableAudio, User::Panic( _L("FMRadio" ), KErrAbort ) );
 
-    TInt objectIndex = iRoutableAudios.Find( aRoutableAudio );
-
-    __ASSERT_DEBUG( objectIndex != KErrNotFound, User::Panic( _L("VisualRadio" ), KErrAbort ) );
-
-    if ( objectIndex != KErrNotFound )
-        {
-        iRoutableAudios.Remove( objectIndex );
-        }
+    iRoutableAudio = NULL;
     }
 

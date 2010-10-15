@@ -98,7 +98,7 @@ public:
 
     bool isAntennaAttached() const;
 
-    void setScanningMode( bool scanning );
+    void setScanningMode( Scan::Status status );
     bool isInScanningMode() const;
 
     void cleanRdsData();
@@ -115,22 +115,21 @@ public:
 
     void setLandscape( bool landscape );
 
-signals:
+Q_SIGNALS:
 
     void frequencyChanged( uint frequency, int reason, int direction );
     void skipRequested( int skipMode );
     void scanAnimationFinished();
 
-public slots:
+public Q_SLOTS:
 
     void updateAntennaStatus( bool connected );
 
-private slots:
+private Q_SLOTS:
 
     void scrollPosChanged( const QPointF& newPosition );
     void adjustAfterScroll();
     void update( const RadioStation& station );
-    void updateRadioText( const RadioStation& station );
     void updateStations();
     void timerFired();
 
@@ -148,7 +147,7 @@ private:
 
 // from base class RadioCarouselItemObserver
 
-    void handleIconClicked( const RadioStation& station );
+    void handleIconClicked( const uint frequency );
     void handleRadiotextClicked( const RadioStation& station );
     void handleUrlClicked( const RadioStation& station );
     QString localizeGenre( int genre );
@@ -179,7 +178,7 @@ private:
 
 private: // data
 
-    enum TimerMode { NoTimer, SetFrequency, RtPlusCheck, InfoText };
+    enum TimerMode { NoTimer, SetFrequency, InfoText };
 
     RadioUiEngine*                      mUiEngine;
 
@@ -190,8 +189,6 @@ private: // data
 
     QTimer*                             mGenericTimer;
     TimerMode                           mTimerMode;
-
-    QString                             mRadioTextHolder;
 
     QWeakPointer<RadioCarouselAnimator> mAnimator;
 

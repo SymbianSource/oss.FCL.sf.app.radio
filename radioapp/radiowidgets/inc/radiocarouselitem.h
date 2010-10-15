@@ -94,7 +94,7 @@ public:
 
     void drawOffScreen( QPainter& painter );
 
-public slots:
+public Q_SLOTS:
 
     void updatePrimitives();
 
@@ -116,6 +116,8 @@ private: // data
     RadioCarouselItemObserver&          mObserver;
 
     QScopedPointer<RadioStation>        mStation;
+
+    uint                                mFrequency;
 
     HbIconItem*                         mFavoriteItem;
     HbTextItem*                         mGenreItem;

@@ -257,6 +257,25 @@ void RadioEngineWrapperPrivate::clearSong()
 /*!
  *
  */
+void RadioEngineWrapperPrivate::addRadiotext( const QString& radiotext )
+{
+    const uint frequency = mStationHandler.currentFrequency();
+    mStationHandler.setCurrentRadioText( frequency, radiotext );
+}
+
+/*!
+ *
+ */
+void RadioEngineWrapperPrivate::clearRadiotext()
+{
+    const uint frequency = mStationHandler.currentFrequency();
+    mStationHandler.setCurrentRadioText( frequency, "" );
+}
+
+
+/*!
+ *
+ */
 bool RadioEngineWrapperPrivate::isOffline() const
 {
     return mEngineSettings->value( KKeyOffline, false ).toBool();

@@ -29,7 +29,7 @@
 #include "radiohistorydatabase.h"
 #include "radiologger.h"
 
-static const QLatin1String DATABASE_NAME    ( "c:\\radioplayhistory.db" );
+static const QLatin1String DATABASE_NAME    ( "radioplayhistory.db" );
 static const QLatin1String DATABASE_DRIVER  ( "QSQLITE" );
 static const QLatin1String HISTORY_TABLE    ( "history" );
 static const QLatin1String SQL_CREATE_TABLE ( "CREATE TABLE history ("
@@ -55,6 +55,8 @@ static const QLatin1String SQL_CLEAR_TAGS   ( "UPDATE history SET tagged = 0 WHE
 
 //static static const QLatin1String SQL_FIND_ITEM_BY_ID( "SELECT * FROM history WHERE id = ?" );
 static const QLatin1String SQL_TOGGLE_TAG   ( "UPDATE history SET tagged = ? WHERE id = ?" );
+
+const int THOUSAND_HERTZ = 1000;
 
 #ifdef LOGGING_ENABLED
 #   define GET_ERR( param ) GETSTRING( param.lastError().text() )
@@ -97,7 +99,7 @@ void RadioHistoryDatabase::addItem( const QString& artist,
     query.addBindValue( artist );
     query.addBindValue( title );
     query.addBindValue( stationName );
-    query.addBindValue( static_cast<int>( frequency / 1000 ) );
+    query.addBindValue( static_cast<int>( frequency / THOUSAND_HERTZ ) );
     query.addBindValue( fromRds );
     query.addBindValue( QDateTime::currentDateTime().toTime_t() );
 

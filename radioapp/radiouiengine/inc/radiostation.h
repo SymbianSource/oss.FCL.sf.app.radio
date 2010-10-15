@@ -136,7 +136,6 @@ private:
     // Setters for non-persistent data
     void setPsType( PsType psType );
     void setRadioText( const QString& radioText );
-    void setRadioTextPlus( const int rtPlusClass, const QString& rtPlusItem );
     void setDynamicPsText( const QString& dynamicPsText );
 
 public: // Getters and setters

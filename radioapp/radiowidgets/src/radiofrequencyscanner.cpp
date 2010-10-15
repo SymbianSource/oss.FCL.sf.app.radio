@@ -88,7 +88,7 @@ void RadioFrequencyScanner::startScanning()
         mStripScrollTime = frequencyStrip->autoScrollTime();
         mCarouselScrollTime = carousel->autoScrollTime();
 
-        carousel->setScanningMode( true );
+        carousel->setScanningMode( Scan::ScanningInMainView );
         carousel->setAutoScrollTime( CAROUSEL_SCROLL_TIME );
         frequencyStrip->setAutoScrollTime( STRIP_SCROLL_TIME );
 
@@ -200,7 +200,7 @@ void RadioFrequencyScanner::restoreUiControls()
 
         RadioUtil::frequencyStrip()->setScanningMode( false );
         static_cast<RadioMainView*>( parent() )->setScanningMode( false );
-        RadioUtil::carousel()->setScanningMode( false );
+        RadioUtil::carousel()->setScanningMode( Scan::NotScanning );
     }
 
     deleteLater();

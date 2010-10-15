@@ -41,6 +41,7 @@ EXPORT_C CRadioRoutableAudio::CRadioRoutableAudio( CRadioAudioRouter* aAudioRout
 //
 EXPORT_C CRadioRoutableAudio::~CRadioRoutableAudio()
     {
+    LEVEL3( LOG_METHOD_AUTO );
     iAudioRouter->UnRegisterRoutableAudio( this );
     delete iAudioOutput;
     delete iAudioRouter;

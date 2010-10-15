@@ -25,6 +25,7 @@
 #include <HbMenu>
 #include <HbSelectionDialog>
 #include <QSortFilterProxyModel>
+#include <HbColorScheme>
 
 // User includes
 #include "radiostationsview.h"
@@ -40,6 +41,7 @@
 // Constants
 const char* REGEX_SHOW_FAVORITES = "true";
 const char* REGEX_SHOW_ALL = ".+";
+static const QLatin1String NOW_PLAYING_ICON_COLOR( "qtc_list_item_title_normal" );
 
 /*!
  *
@@ -70,6 +72,7 @@ RadioStationsView::~RadioStationsView()
 void RadioStationsView::setNowPlayingIcon( const HbIcon& nowPlayingIcon )
 {
     mNowPlayingIcon = nowPlayingIcon;
+    mNowPlayingIcon.setColor( HbColorScheme::color( NOW_PLAYING_ICON_COLOR ) );
 }
 
 /*!
@@ -133,6 +136,7 @@ void RadioStationsView::handleLongPress( HbAbstractViewItem* item, const QPointF
     Q_UNUSED( item );
 
     HbMenu* menu = mUiLoader->findObject<HbMenu>( DOCML::NAME_CONTEXT_MENU );
+    menu->setParent( this );
 
     *mSelectedStation = mFilterModel->data( item->modelIndex(), RadioRole::RadioStationRole ).value<RadioStation>();
 
@@ -431,7 +435,7 @@ void RadioStationsView::userAccepted()
  */
 void RadioStationsView::initListView()
 {
-    mStationsList->setScrollingStyle( HbListView::PanOrFlick );
+    mStationsList->setScrollingStyle( HbListView::PanWithFollowOn );
     mStationsList->setModel( mFilterModel );
     mStationsList->setSelectionMode( HbListView::NoSelection );
     mStationsList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );

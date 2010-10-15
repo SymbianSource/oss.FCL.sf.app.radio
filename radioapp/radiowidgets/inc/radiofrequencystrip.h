@@ -43,7 +43,7 @@ public:
 
     void setFrequency( const uint newFrequency, int reason, Scroll::Direction direction = Scroll::Shortest );
 
-signals:
+Q_SIGNALS:
 
     void frequencyChanged( uint frequency, int reason, int direction );
     void skipRequested( int skipMode );

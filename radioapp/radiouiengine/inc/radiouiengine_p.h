@@ -35,7 +35,7 @@ class RadioPresetStorage;
 class RadioControlService;
 class RadioMonitorService;
 class RadioScannerEngine;
-class QTimer;
+class RadioTimerPool;
 
 class RadioUiEnginePrivate : public RadioEngineWrapperObserver
 {
@@ -98,13 +98,12 @@ private: // data
 
     QScopedPointer<RadioMonitorService>     mMonitorService;
 
-    QWeakPointer<RadioScannerEngine>        mScannerEngine;
-
-    /**
-     * Power off timer
-     * Owned by public class by setting parent
+    /*!
+     * Pool of multipurpose timers
      */
-    QTimer*                                 mPowerOffTimer;
+    QScopedPointer<RadioTimerPool>          mTimerPool;
+
+    QWeakPointer<RadioScannerEngine>        mScannerEngine;
 
 };
 

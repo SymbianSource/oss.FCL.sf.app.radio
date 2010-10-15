@@ -93,11 +93,18 @@ namespace FrequencyStrip
     static const QLatin1String LEFT_BUTTON      ( "tv:left_button" );
     static const QLatin1String RIGHT_BUTTON     ( "tv:right_button" );
 
-    static const QLatin1String TEXT_COLOR_ATTRIBUTE( "text" );
-    const int MANUALSEEK_START_TIMEOUT = 400;
-    const int MANUALSEEK_END_TIMEOUT = 2000;
+    static const QLatin1String TEXT_COLOR_ATTRIBUTE( "qtc_radio_tuner_normal" );
+    const int MANUALSEEK_START_TIMEOUT = 200;
+    const int MANUALSEEK_END_TIMEOUT = 1000;
     const int MANUALSEEK_SIGNAL_DELAY = 300;
+    const int POS_ADJUST_DELAY_MS = 500;
 
+    const int DEFAULT_ITEM_HEIGHT_UNITS = 8;
+    const uint DEFAULT_MIN_FREQUENCY = 87500000;
+    const uint DEFAULT_MAX_FREQUENCY = 108000000;
+    const uint DEFAULT_FREQUENCY_STEP = 100000;
+
+    const int STATION_MARKER_SIZE = 12;
 }
 
 #endif // RADIOFREQUENCYSTRIPDEF_H

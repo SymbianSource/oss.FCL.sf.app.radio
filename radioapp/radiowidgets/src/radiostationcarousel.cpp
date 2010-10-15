@@ -39,7 +39,6 @@
 #include "radio_global.h"
 
 // Constants
-const int RTPLUS_CHECK_TIMEOUT = 700;
 const int SET_FREQUENCY_TIMEOUT = 500;
 
 // Matti testing constants
@@ -196,7 +195,7 @@ void RadioStationCarousel::init( RadioUiLoader& uiLoader, RadioUiEngine* uiEngin
     Radio::connect( mModel,         SIGNAL(stationDataChanged(RadioStation)),
                     this,           SLOT(update(RadioStation)));
     Radio::connect( mModel,         SIGNAL(radioTextReceived(RadioStation)),
-                    this,           SLOT(updateRadioText(RadioStation)));
+                    this,           SLOT(update(RadioStation)));
     Radio::connect( mModel,         SIGNAL(dynamicPsChanged(RadioStation)),
                     this,           SLOT(update(RadioStation)));
 
@@ -236,6 +235,12 @@ void RadioStationCarousel::setFrequency( uint frequency, int reason, Scroll::Dir
 {
     if ( mModel ) {
         if ( !mManualSeekMode ) {
+
+            if ( reason == TuneReason::Seek ) {
+                const RadioStation station = findStation( frequency );
+                animateNewStation( station );
+                return;
+            }
 
             if ( mModel->rowCount() <= 1 ) {
                 mItems[LeftItem]->setStation( RadioStation() );
@@ -292,15 +297,27 @@ bool RadioStationCarousel::isAntennaAttached() const
 /*!
  *
  */
-void RadioStationCarousel::setScanningMode( bool scanning )
+void RadioStationCarousel::setScanningMode( Scan::Status status )
 {
-    CALL_TO_ALL_ITEMS( setSeekLayout( scanning ) );
+    LOG_FORMAT( "RadioStationCarousel::setScanningMode status: %d", status );
+    if ( status == Scan::ScanningInMainView || Scan::SeekingInMainView ) {
+        CALL_TO_ALL_ITEMS( setSeekLayout( true ) );
+    } else {
+        CALL_TO_ALL_ITEMS( setSeekLayout( false ) );
+    }
 
-    if ( scanning ) {
+    if ( status == Scan::ScanningInMainView ) {
         setInfoText( CarouselInfoText::Scanning );
         if ( !mAnimator ) {
             mAnimator = new RadioCarouselAnimator( *this );
         }
+        mAnimator.data()->startFlashingText();
+        setFrequency( DEFAULT_MIN_FREQUENCY, TuneReason::Unspecified, Scroll::Shortest );  
+    } else if ( status == Scan::SeekingInMainView ) {
+        setInfoText( CarouselInfoText::Seeking );
+        if ( !mAnimator ) {
+            mAnimator = new RadioCarouselAnimator( *this );
+            }
         mAnimator.data()->startFlashingText();
     } else {
         if ( mAnimator ) {
@@ -310,7 +327,12 @@ void RadioStationCarousel::setScanningMode( bool scanning )
         setCenterIndex( 0 );
     }
 
-    setEnabled( !scanning );
+    if ( status == Scan::ScanningInMainView ) {
+        setEnabled( false );
+    } else {
+        setEnabled( true );
+    }
+
 }
 
 /*!
@@ -380,6 +402,11 @@ void RadioStationCarousel::setInfoText( CarouselInfoText::Type type )
  */
 void RadioStationCarousel::clearInfoText()
 {
+    // cannot clear antenna txt if antenna is not yet connected
+    if( mInfoTextType == CarouselInfoText::ConnectAntenna && 
+        !isAntennaAttached() ) {
+        return;
+    }
     if ( mInfoTextType != CarouselInfoText::None ) {
         if ( mAnimator ) {
             mAnimator.data()->stopFlashingIcon();
@@ -473,24 +500,6 @@ void RadioStationCarousel::update( const RadioStation& station )
 /*!
  * Private slot
  */
-void RadioStationCarousel::updateRadioText( const RadioStation& station )
-{
-    if ( isAntennaAttached() && !isInScanningMode() ) {
-        if ( station.radioText().isEmpty() ) {
-            mItems[CenterItem]->setRadioText( "" );
-        } else {
-            mRadioTextHolder = station.radioText();
-            mTimerMode = RtPlusCheck;
-            mGenericTimer->stop();
-            mGenericTimer->setInterval( RTPLUS_CHECK_TIMEOUT );
-            mGenericTimer->start();
-        }
-    }
-}
-
-/*!
- * Private slot
- */
 void RadioStationCarousel::updateStations()
 {
     if ( isInScanningMode() ) {
@@ -507,10 +516,6 @@ void RadioStationCarousel::timerFired()
 {
     if ( mTimerMode == SetFrequency ) {
         setCenterIndex( mCurrentIndex, NoSignal | IgnoreCenter );
-        mTimerMode = NoTimer;
-    } else if ( mTimerMode == RtPlusCheck ) {
-        //mItems[CenterItem]->mRadiotextLabel->setText( mRadioTextHolder );
-        mRadioTextHolder = "";
         mTimerMode = NoTimer;
     } else if ( mTimerMode == InfoText ) {
         clearInfoText();
@@ -617,10 +622,11 @@ void RadioStationCarousel::gestureEvent( QGestureEvent* event )
 /*!
  * \reimp
  */
-void RadioStationCarousel::handleIconClicked( const RadioStation& station )
+void RadioStationCarousel::handleIconClicked( const uint frequency )
 {
+    LOG_FORMAT( "RadioStationCarousel::handleIconClicked, frequency: %d", frequency );
     if ( mModel ) {
-        mModel->setData( QModelIndex(), station.frequency(), RadioRole::ToggleFavoriteRole );
+        mModel->setData( QModelIndex(), frequency, RadioRole::ToggleFavoriteRole );
     }
 }
 
@@ -721,8 +727,15 @@ void RadioStationCarousel::setCenterIndex( int index, ScrollMode mode )
 void RadioStationCarousel::scrollToIndex( int index, Scroll::Direction direction, ScrollMode mode )
 {
     if ( mModel && index >= 0  ) {
+        
+		// if scrolling allready, setup center index before executing
+		// additional scroll to maintain correct look 
+        if( isScrolling() ) {
+            setCenterIndex( mTargetIndex );
+        }
         mTargetIndex = index;
         const int difference = calculateDifference( index, direction );
+        LOG_FORMAT( "RadioStationCarousel::scrollToIndex difference: %d", difference );
         int scrollTime = mAutoScrollTime;
 
         int posX = direction == Scroll::Left ? -mMaxScrollPos : 0;

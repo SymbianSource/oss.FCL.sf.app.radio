@@ -25,7 +25,6 @@
 RadioHistoryItem::RadioHistoryItem() :
     mData( new RadioHistoryItemPrivate() )
 {
-    mData->ref.ref();
 }
 
 /*!
@@ -76,7 +75,6 @@ void RadioHistoryItem::reset()
     mData->ref.deref();
     mData = NULL;
     mData = new RadioHistoryItemPrivate();
-    mData->ref.ref();
 }
 
 /*!

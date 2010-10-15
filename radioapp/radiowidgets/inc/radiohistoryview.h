@@ -51,7 +51,7 @@ public:
     void setTaggedIcon( const HbIcon& taggedIcon );
     HbIcon taggedIcon() const;
 
-private slots:
+private Q_SLOTS:
 
     void updateViewMode();
     void openMultiSelection();
@@ -59,6 +59,7 @@ private slots:
     void showContextMenu( const QModelIndex& index );
     void handleLongPress( HbAbstractViewItem* item );
     void toggleTagging();
+    void handleRemoveTag( HbAction* answer );
     void openOviStore();
     void openOtherStore();
     void addSongs();            // Temporary test code

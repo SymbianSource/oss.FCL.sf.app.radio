@@ -20,6 +20,7 @@
 
 // System includes
 #include <xqserviceprovider.h>
+#include <QQueue>
 
 // User includes
 #include "radioservicedef.h"
@@ -42,12 +43,12 @@ public:
 
     void init();
 
-public slots:
+public Q_SLOTS:
 
     void requestNotifications();    // Slot called by Qt Highway
     void requestAllData();          // Slot called by Qt Highway
 
-private slots:
+private Q_SLOTS:
 
     void notifyRadioStatus();
     void notifyFavoriteCount();
@@ -70,6 +71,7 @@ private:
     QString trimHtmlTags( const QString& html );
 
     void notify( const QVariant& notification );
+    void notify( const QVariantList& list );
     void notifyList( const QVariantList& list );
 
 private: // data
@@ -80,8 +82,8 @@ private: // data
 
     RadioStatus::Status     mRadioStatus;
 
-    QVariantList            mNotificationList;
-
+    QQueue<QVariantList>    mNotificationQueue;
+	
     QTimer*                 mNotificationTimer;
 
 };

@@ -69,7 +69,7 @@ CRadioRegion* CRadioRegion::NewL( TResourceReader& aRr )
 
     CleanupStack::PushL( self );
     self->ConstructL( aRr );
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
 
     return self;
     }

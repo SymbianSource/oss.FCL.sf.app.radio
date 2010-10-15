@@ -29,12 +29,12 @@
 
 #ifndef __WINS__
 // See accpolpropgenericid.h definitions KPCNokiaAV == 0x20000,
-// Forced to use hard coded value here to avoid including from epoc32/include/internal
+// Forced to use hard coded value here to avoid including from internal folder
 const TUint KPhysicalConnectionBitmask = 0x20000 | KPCWired;
 
 #else
 // See accpolpropgenericid.h definitions KPCNokiaAV == 0x20000, 
-// Forced to use hard coded value here to avoid including from epoc32/include/internal
+// Forced to use hard coded value here to avoid including from internal folder
 const TUint KPhysicalConnectionBitmask = 0x20000 | KPCWired;
 
 #endif // __WINS__

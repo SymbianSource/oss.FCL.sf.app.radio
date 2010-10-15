@@ -18,6 +18,9 @@
 #ifndef RADIOCAROUSELITEMOBSERVER_H
 #define RADIOCAROUSELITEMOBSERVER_H
 
+// System includes
+#include <QtGlobal>
+
 class RadioStation;
 class QString;
 class HbIcon;
@@ -26,7 +29,7 @@ class RadioCarouselItemObserver
 {
 public:
 
-    virtual void handleIconClicked( const RadioStation& station ) = 0;
+    virtual void handleIconClicked( const uint frequency ) = 0;
     virtual void handleRadiotextClicked( const RadioStation& station ) = 0;
     virtual void handleUrlClicked( const RadioStation& station ) = 0;
     virtual QString localizeGenre( int genre ) = 0;
@@ -34,6 +37,7 @@ public:
     virtual HbIcon favoriteIcon() const = 0;
     virtual HbIcon nonFavoriteIcon() const = 0;
     virtual RadioStation findStation( uint frequency ) = 0;
+    virtual bool isAntennaAttached() const = 0;
 
 };
 

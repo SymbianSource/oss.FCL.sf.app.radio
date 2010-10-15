@@ -37,11 +37,11 @@ public:
 
     void setTextWithoutFading( const QString& newText );
 
-public slots:
+public Q_SLOTS:
 
     void setText( const QString& newText );
 
-private slots:
+private Q_SLOTS:
 
     void effectFinished( HbEffect::EffectStatus status );
 

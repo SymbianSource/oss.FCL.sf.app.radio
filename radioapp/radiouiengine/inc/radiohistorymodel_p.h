@@ -88,9 +88,6 @@ public: // data
 
     QScopedPointer<QSqlQueryModel>  mQueryModel;
 
-    QString                         mRtItemHolder;
-    int                             mRtItemClass;
-
     bool                            mTopItemIsPlaying;
 
     bool                            mShowDetails;

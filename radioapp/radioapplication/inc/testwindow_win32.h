@@ -39,7 +39,7 @@ public:
 
     void init();
 
-private slots:
+private Q_SLOTS:
 
     void changeOrientation();
     void volumeUp();
@@ -48,6 +48,8 @@ private slots:
     void updateWindowSize();
     void addSong();
     void clearSong();
+    void addRadiotext();
+    void clearRadiotext();
     void toggleOffline();
     void changeTheme( const QString& theme );
 
@@ -65,6 +67,9 @@ private: // data
 
     QPushButton*    mAddSongButton;
     QPushButton*    mClearSongButton;
+
+    QPushButton*    mAddRadiotextButton;
+    QPushButton*    mClearRadiotextButton;
 
     QPushButton*    mHeadsetButton;
     bool            mHeadsetConnected;

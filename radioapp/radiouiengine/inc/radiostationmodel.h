@@ -191,19 +191,30 @@ public:
      */
     int indexFromFrequency( uint frequency );
 
-signals:
+Q_SIGNALS:
 
     void stationDataChanged( const RadioStation& station );
     void radioTextReceived( const RadioStation& station );
     void dynamicPsChanged( const RadioStation& station );
     void favoriteChanged( const RadioStation& station );
+    void stationsRemoved( const QList<uint>& frequencies );
 
-private slots:
+private Q_SLOTS:
 
     /*!
      * Timer timeout slot to indicate that the dynamic PS check has ended
      */
     void dynamicPsCheckEnded();
+
+    /*!
+     * Clears the radiotext from a station after its timeout has passed
+     */
+    void clearRadiotext( int id );
+
+    /*!
+     * Handles the end of RT plus check
+     */
+    void rtPlusCheckEnd();
 
 private:
 

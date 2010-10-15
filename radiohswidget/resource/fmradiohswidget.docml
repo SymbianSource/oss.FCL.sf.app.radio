@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hbdocument version="1.1">
+<hbdocument version="1.2">
     <widget name="mainLayout" type="HbWidget">
         <widget name="contentLayout" type="HbWidget">
             <widget name="controlButtons" type="HbWidget">
@@ -38,25 +38,38 @@
                         <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-secondary)"/>
                     </widget>
                     <widget name="twoRowsLayout" type="HbWidget">
-                        <widget name="firstRowLabel" type="HbLabel">
-                            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                            <real name="z" value="1"/>
-                            <sizehint type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
-                            <string locid="label for first row in two row layout" name="plainText"/>
-                            <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-secondary)"/>
-                        </widget>
                         <widget name="secondRowLabel" type="HbLabel">
                             <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
                             <real name="z" value="2"/>
-                            <sizehint type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
+                            <sizehint height="expr(( (10un - 2 * 1.5un) - var(hb-param-margin-gene-middle-vertical) )  / 2)" type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
                             <string locid="label for second row in two row layout" name="plainText"/>
                             <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
+                        </widget>
+                        <widget name="firstRowWithFavoriteLayout" type="HbWidget">
+                            <widget name="firstRowWithFavoriteLabel" type="HbLabel">
+                                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                                <real name="z" value="0"/>
+                                <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                                <sizehint height="expr(( (10un - 2 * 1.5un) - var(hb-param-margin-gene-middle-vertical) )  / 2)" type="PREFERRED" width="expr(32un - ( 2 * (var(hb-param-graphic-size-secondary) + 2 * var(hb-param-margin-gene-middle-horizontal))))"/>
+                                <string name="toolTipText"/>
+                                <string name="windowTitle"/>
+                                <string name="textColor" value="#000000"/>
+                                <string name="plainText"/>
+                                <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-secondary)"/>
+                            </widget>
+                            <real name="z" value="4"/>
+                            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                            <sizehint height="expr(( (10un - 2 * 1.5un) - var(hb-param-margin-gene-middle-vertical) )  / 2)" type="PREFERRED" width="30.5un"/>
+                            <layout orientation="Horizontal" spacing="0un" type="linear">
+                                <contentsmargins bottom="0un" left="expr(( var(hb-param-graphic-size-secondary) + var(hb-param-margin-gene-middle-horizontal)  ))" right="0un" top="0un"/>
+                                <linearitem itemname="firstRowWithFavoriteLabel"/>
+                            </layout>
                         </widget>
                         <real name="z" value="3"/>
                         <sizehint height="expr(10un - 2 * 1.5un  )" type="PREFERRED" width="expr(32un - 2 * var(hb-param-margin-gene-middle-horizontal) )"/>
                         <layout orientation="Vertical" spacing="var(hb-param-margin-gene-middle-vertical)" type="linear">
                             <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                            <linearitem itemname="firstRowLabel"/>
+                            <linearitem itemname="firstRowWithFavoriteLayout"/>
                             <linearitem itemname="secondRowLabel"/>
                         </layout>
                     </widget>
@@ -64,23 +77,61 @@
                         <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
                         <sizehint height="var(hb-param-graphic-size-primary-medium)" type="PREFERRED" width="var(hb-param-graphic-size-primary-medium)"/>
                     </widget>
+                    <widget name="oneRowWithFavoriteLayout" type="HbWidget">
+                        <widget name="oneRowWithFavoriteLabel" type="HbLabel">
+                            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                            <real name="z" value="0"/>
+                            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                            <sizehint height="11.9403un" type="PREFERRED" width="expr(32un - ( 2 * (var(hb-param-graphic-size-secondary) + 2 * var(hb-param-margin-gene-middle-horizontal))))"/>
+                            <string name="toolTipText"/>
+                            <string name="windowTitle"/>
+                            <string name="textColor" value="#000000"/>
+                            <string name="plainText"/>
+                            <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-secondary)"/>
+                        </widget>
+                        <real name="z" value="1"/>
+                        <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                        <sizehint height="11.9403un" type="PREFERRED" width="30.5un"/>
+                        <layout orientation="Horizontal" spacing="0un" type="linear">
+                            <contentsmargins bottom="0un" left="expr(( var(hb-param-graphic-size-secondary) + var(hb-param-margin-gene-middle-horizontal)  ))" right="0un" top="0un"/>
+                            <linearitem itemname="oneRowWithFavoriteLabel"/>
+                        </layout>
+                    </widget>
                     <real name="z" value="1"/>
                     <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
                     <sizehint height="7un" type="PREFERRED" width="30.5un"/>
                     <sizehint height="expr(10un - 2 * 1.5un)" type="MINIMUM" width="expr(32un - 4   * var(hb-param-margin-gene-middle-horizontal))"/>
                     <contentsmargins bottom="1.5un" left="var(hb-param-margin-gene-middle-horizontal)" right="var(hb-param-margin-gene-middle-horizontal)" top="1.5un"/>
                     <sizehint height="2504062.01158un" type="MAXIMUM" width="2504062.01158un"/>
+                    <bool name="visible" value="TRUE"/>
                     <layout type="stacked">
                         <stackitem itemname="lonelyRowLabel"/>
                         <stackitem itemname="twoRowsLayout"/>
                         <stackitem itemname="animationIcon"/>
+                        <stackitem itemname="oneRowWithFavoriteLayout"/>
                     </layout>
                 </widget>
                 <widget name="tunerBackgroundPushButton" type="HbPushButton">
                     <sizehint height="10un" type="PREFERRED" width="32un"/>
                     <sizehint type="MINIMUM" width="32un"/>
                     <string name="text"/>
+                    <bool name="visible" value="TRUE"/>
                     <string name="state" value="normal"/>
+                </widget>
+                <widget name="favoriteIconLayout" type="HbWidget">
+                    <widget name="favoriteIcon" type="HbLabel">
+                        <icon iconName="qtg_small_favorite" name="icon"/>
+                        <real name="z" value="2"/>
+                        <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+                        <sizehint height="var(hb-param-graphic-size-secondary)" type="MAXIMUM" width="var(hb-param-graphic-size-secondary)"/>
+                        <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    </widget>
+                    <real name="z" value="0"/>
+                    <sizehint height="10un" type="PREFERRED" width="32un"/>
+                    <layout orientation="Horizontal" spacing="0un" type="linear">
+                        <contentsmargins bottom="0un" left="0.75un" right="0un" top="0.75un"/>
+                        <linearitem itemname="favoriteIcon"/>
+                    </layout>
                 </widget>
                 <real name="z" value="3"/>
                 <sizehint height="10un" type="PREFERRED" width="32un"/>
@@ -89,6 +140,7 @@
                 <layout type="stacked">
                     <stackitem itemname="tunerInformationStackedLayout"/>
                     <stackitem itemname="tunerBackgroundPushButton"/>
+                    <stackitem itemname="favoriteIconLayout"/>
                 </layout>
             </widget>
             <real name="z" value="2"/>
@@ -104,11 +156,14 @@
         </widget>
         <widget name="background" type="HbLabel">
             <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+            <icon iconName="qtg_graf_hsradio_bg" name="icon"/>
             <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
             <sizehint height="26.5un" type="FIXED" width="37un"/>
-            <icon iconName="qtg_graf_hsradio_bg" name="icon"/>
+            <sizehint height="26.5un" type="MINIMUM" width="37un"/>
+            <sizehint height="26.5un" type="MAXIMUM" width="37un"/>
         </widget>
         <real name="z" value="1"/>
+        <rect height="26.5un" name="geometry" width="37un" x="0un" y="0un"/>
         <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
         <sizehint height="26.5un" type="FIXED" width="37un"/>
         <layout type="stacked">

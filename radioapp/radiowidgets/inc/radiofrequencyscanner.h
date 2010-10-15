@@ -45,15 +45,15 @@ public:
 
     bool isAlive() const;
 
-signals:
+Q_SIGNALS:
 
     void frequencyScannerFinished();
 
-public slots:
+public Q_SLOTS:
 
     void cancelScanning();
 
-private slots:
+private Q_SLOTS:
 
     void delayedStart();
     void updateScanProgress( const RadioStation& station );

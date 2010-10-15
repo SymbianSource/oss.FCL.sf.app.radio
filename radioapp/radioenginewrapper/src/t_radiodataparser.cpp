@@ -90,7 +90,7 @@ bool T_RadioDataParser::parse()
     QFile file( KDataFile );
     if ( file.exists() ) {
         mSource.reset( new QXmlInputSource( &file ) );
-        mReader->setContentHandler( this );;
+        mReader->setContentHandler( this );
         mReader->setErrorHandler( this );
 
         return mReader->parse( mSource.data() );
@@ -279,7 +279,8 @@ void T_RadioDataParser::handleEndSetting()
             static_cast<RadioData::SettingHolder*>( popFromSettingStack( mSettingHolderStack ) ) );
     if ( mSettingHolderStack.count() == 0 )
     {
-        if ( RadioData::Setting* setting = topOfSettingStack( mSettingStack ) )
+        RadioData::Setting* setting = topOfSettingStack( mSettingStack );
+        if ( setting )
         {
             setting->setValue( *holder, *this );
         }

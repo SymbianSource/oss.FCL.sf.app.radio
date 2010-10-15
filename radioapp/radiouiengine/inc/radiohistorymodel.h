@@ -62,6 +62,8 @@ public:
 
 // New functions
 
+    void addItem( const QString& artist, const QString& title, const RadioStation& station, bool fromRds = true );
+
     /*!
      * Sets the icons to be used in the list
      */
@@ -77,12 +79,12 @@ public:
     void removeAll( bool removeTagged );
     void removeByModelIndices( QModelIndexList& indices, bool removeTags );
 
-signals:
+Q_SIGNALS:
 
     void itemAdded();
     void currentSongReset();
 
-public slots:
+public Q_SLOTS:
 
     void resetCurrentSong();
 
@@ -90,10 +92,7 @@ private:
 
     explicit RadioHistoryModel( RadioUiEngine& uiEngine );
 
-    void addItem( const QString& artist, const QString& title, const RadioStation& station );
-
     void clearRadioTextPlus();
-    void addRadioTextPlus( int rtClass, const QString& rtItem, const RadioStation& station );
 
     void reportChangedData( int start, int end = -1 );
 

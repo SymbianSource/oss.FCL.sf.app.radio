@@ -36,7 +36,7 @@ public:
     enum Profile { GeneralProfile, OfflineProfile };
     Profile currentProfile() { return GeneralProfile; }
 
-signals:
+Q_SIGNALS:
 
     void currentProfileChanged(QSystemDeviceInfo::Profile);
     

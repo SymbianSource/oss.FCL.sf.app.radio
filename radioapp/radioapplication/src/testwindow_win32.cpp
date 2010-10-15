@@ -39,7 +39,7 @@
 
 const int WINDOW_WIDTH = 360;
 const int WINDOW_HEIGHT = 640;
-const int TOOLBAR_HEIGHT = 120;
+const int TOOLBAR_HEIGHT = 140;
 const int WINDOW_EXTRA_WIDTH = 5;
 
 const QString KBtnDisconnectHeadset = "Disconnect Headset";
@@ -48,8 +48,14 @@ const QString KBtnConnectHeadset = "Connect Headset";
 const QString KBtnGoOffline = "Go Offline";
 const QString KBtnGoOnline = "Go Online";
 
-struct Song
+const int LAYOUT_MARGIN = 5;
+const int LAYOUT_SPACING = 5;
+const int THEME_CHANGE_CONNECT_WAIT = 3000;
+const int THEME_CHANGE_REQUEST = 4;
+
+class Song
 {
+public:
     const char* mArtist;
     const char* mTitle;
 };
@@ -75,6 +81,8 @@ Win32Window::Win32Window() :
     mVolDownButton( new QPushButton( "Volume Down", this ) ),
     mAddSongButton( new QPushButton( "Add Song", this ) ),
     mClearSongButton( new QPushButton( "Clear Song", this ) ),
+    mAddRadiotextButton( new QPushButton( "Add Radiotext", this ) ),
+    mClearRadiotextButton( new QPushButton( "Clear Radiotext", this ) ),
     mHeadsetButton( new QPushButton( KBtnDisconnectHeadset, this ) ),
     mHeadsetConnected( true ),
     mOfflineButton( new QPushButton( KBtnGoOffline, this ) ),
@@ -94,6 +102,8 @@ Win32Window::Win32Window() :
     Radio::connect( mHeadsetButton, SIGNAL(clicked()), this, SLOT(toggleHeadsetStatus()) );
     Radio::connect( mAddSongButton, SIGNAL(clicked()), this, SLOT(addSong()) );
     Radio::connect( mClearSongButton, SIGNAL(clicked()), this, SLOT(clearSong()) );
+    Radio::connect( mAddRadiotextButton, SIGNAL(clicked()), this, SLOT(addRadiotext()) );
+    Radio::connect( mClearRadiotextButton, SIGNAL(clicked()), this, SLOT(clearRadiotext()) );
     Radio::connect( mOfflineButton, SIGNAL(clicked()), this, SLOT(toggleOffline()) );
     Radio::connect( mThemeBox, SIGNAL(activated(QString)), this, SLOT(changeTheme(QString)) );
 
@@ -117,12 +127,12 @@ void Win32Window::addHbWindow( HbMainWindow* radioWindow )
     updateWindowSize();
 
     QVBoxLayout* layout = new QVBoxLayout( this );
-    layout->setMargin( 5 );
-    layout->setSpacing( 5 );
+    layout->setMargin( LAYOUT_MARGIN );
+    layout->setSpacing( LAYOUT_SPACING );
 
     mToolbarLayout = new QGridLayout( this );
-    mToolbarLayout->setHorizontalSpacing( 5 );
-    mToolbarLayout->setVerticalSpacing( 5 );
+    mToolbarLayout->setHorizontalSpacing( LAYOUT_SPACING );
+    mToolbarLayout->setVerticalSpacing( LAYOUT_SPACING );
 
     mToolbarLayout->addWidget( mOrientationButton, 0, 0 );
     mToolbarLayout->addWidget( mVolUpButton, 0, 1 );
@@ -130,14 +140,16 @@ void Win32Window::addHbWindow( HbMainWindow* radioWindow )
     mToolbarLayout->addWidget( mHeadsetButton, 1, 0 );
     mToolbarLayout->addWidget( mAddSongButton, 2, 0 );
     mToolbarLayout->addWidget( mClearSongButton, 2, 1 );
-    mToolbarLayout->addWidget( mOfflineButton, 3, 0 );
+    mToolbarLayout->addWidget( mAddRadiotextButton, 3, 0 );
+    mToolbarLayout->addWidget( mClearRadiotextButton, 3, 1 );
+    mToolbarLayout->addWidget( mOfflineButton, 4, 0 );
 
     QGridLayout* themeLayout = new QGridLayout( this );
     themeLayout->addWidget( new QLabel( "Theme:", this ), 0, 0 );
     themeLayout->addWidget( mThemeBox, 0, 1 );
     themeLayout->setColumnStretch( 1, 2 );
 
-    mToolbarLayout->addLayout( themeLayout, 3, 1 );
+    mToolbarLayout->addLayout( themeLayout, 4, 1 );
     mToolbarLayout->setColumnStretch( 0, 1 );
     mToolbarLayout->setColumnStretch( 1, 1 );
 
@@ -252,6 +264,22 @@ void Win32Window::clearSong()
 /*!
  * Private slot
  */
+void Win32Window::addRadiotext()
+{
+    RadioEngineWrapperPrivate::instance()->addRadiotext( "This is a long bit of radio text that spans multiple lines." );
+}
+
+/*!
+ * Private slot
+ */
+void Win32Window::clearRadiotext()
+{
+    RadioEngineWrapperPrivate::instance()->clearRadiotext();
+}
+
+/*!
+ * Private slot
+ */
 void Win32Window::toggleOffline()
 {
     bool offline = !RadioEngineWrapperPrivate::instance()->isOffline();
@@ -271,10 +299,10 @@ void Win32Window::changeTheme( const QString& theme )
     LOG_FORMAT( "Changing to theme %s", GETSTRING( theme ) );
     QLocalSocket socket;
     socket.connectToServer( "hbthemeserver" );
-    if ( socket.waitForConnected( 3000 ) ) {
+    if ( socket.waitForConnected( THEME_CHANGE_CONNECT_WAIT ) ) {
         QByteArray outputByteArray;
         QDataStream outputDataStream( &outputByteArray, QIODevice::WriteOnly );
-        outputDataStream << 4; // EThemeSelection from HbThemeServerRequest in hbthemecommon_p.h
+        outputDataStream << THEME_CHANGE_REQUEST; // EThemeSelection from HbThemeServerRequest in hbthemecommon_p.h
         outputDataStream << theme;
         socket.write( outputByteArray );
         socket.flush();

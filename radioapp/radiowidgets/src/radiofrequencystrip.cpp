@@ -47,8 +47,8 @@ void RadioFrequencyStrip::init( RadioUiEngine* engine, RadioUiLoader& uiLoader )
     RadioStationModel* stationModel = &mUiEngine->stationModel();
     Radio::connect( stationModel,   SIGNAL(rowsInserted(QModelIndex,int,int)),
                     this,           SLOT(updateStation(QModelIndex,int,int)) );
-    Radio::connect( stationModel,   SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                    this,           SLOT(removeStation(QModelIndex,int,int)) );
+    Radio::connect( stationModel,   SIGNAL(stationsRemoved(const QList<uint>&)),
+                    this,           SLOT(stationsRemoved(const QList<uint>&)) );
     Radio::connect( stationModel,   SIGNAL(modelReset()),
                     this,           SLOT(initEmptyItems()) );
 }

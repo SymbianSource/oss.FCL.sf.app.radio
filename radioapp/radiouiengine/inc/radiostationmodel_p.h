@@ -34,6 +34,8 @@ class RadioPresetStorage;
 class RadioEngineWrapper;
 class QTimer;
 
+typedef QMap<RtPlus::Tag,QString> RtPlusMap;
+
 // Class declaration
 class RadioStationModelPrivate : public RadioStationHandlerIf
                                , public RadioEngineWrapperObserver
@@ -71,9 +73,17 @@ private:
 // New functions
 
     void doSaveStation( RadioStation& station, bool persistentSave = true );
+    
+    void doRemoveStation( const RadioStation& station, bool signalFrequency = true );
 
     QList<RadioStation> favorites() const;
     QList<RadioStation> locals() const;
+
+    void startRadioTextClearTimer();
+
+    RtPlus::Tag recognizeRtPlusTag( int rtClass );
+
+    void handleRadioTextPlus( const RtPlusMap& rtItems, RadioStation& station );
 
 private: // data
 
@@ -142,6 +152,12 @@ private: // data
      * Not own.
      */
     QIcon                       mNowPlayingIcon;
+
+    /**
+     * Holders for radio text and radio text plus items during RT Plus check
+     */
+    QString                     mRadioTextHolder;
+    RtPlusMap                   mRadioTextPlusItems;
 
 };
 

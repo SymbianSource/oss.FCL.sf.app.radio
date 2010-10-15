@@ -25,8 +25,6 @@
 #include "radio_global.h"
 
 // Constants
-const QLatin1String HTML_TAG_START( "<font color='cyan'><u>" );
-const QLatin1String HTML_TAG_END( "</u></font>" );
 
 const uint LAST_CALLSIGN_CHAR_CODE = 25;
 const uint THREE_LETTER_CALLSIGN_COUNT = 72;
@@ -305,28 +303,6 @@ void RadioStation::setRadioText( const QString& radioText )
         mData->mChangeFlags |= RadioStation::RadioTextChanged;
         mData->setStationHasSentRds( true );
         ASSERT_SHARED_NULL_IS_INTACT
-    }
-}
-
-/*!
- *
- */
-void RadioStation::setRadioTextPlus( const int rtPlusClass, const QString& rtPlusItem )
-{
-    if ( !mData->mRadioText.isEmpty() &&
-         !rtPlusItem.isEmpty() &&
-         ( rtPlusClass == RtPlus::Artist || rtPlusClass == RtPlus::Title || rtPlusClass == RtPlus::Homepage) )
-    {
-        // Url is saved to its own variable and it is not highlighted from the radiotext
-        if ( rtPlusClass == RtPlus::Homepage ) {
-            setUrl( rtPlusItem );
-            return;
-        }
-
-        const QString replacement = HTML_TAG_START + rtPlusItem + HTML_TAG_END;
-
-        mData->mRadioText.replace( rtPlusItem, replacement );
-        mData->mChangeFlags |= RadioStation::RadioTextChanged;
     }
 }
 

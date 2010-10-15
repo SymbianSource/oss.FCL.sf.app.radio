@@ -29,6 +29,8 @@
 #include "radiostation_p.h"
 #include "radiologger.h"
 
+// Constants
+
 /*!
  *
  */
@@ -424,51 +426,35 @@ void RadioStationModel::removeByPresetIndex( int presetIndex )
 void RadioStationModel::removeStation( const RadioStation& station )
 {
     Q_D( RadioStationModel );
-    const uint frequency = station.frequency();
-    if ( d->mStations.contains( frequency ) ) {
-
-        // If we are removing the current station, copy its data to the current station pointer
-        // to keep all of the received RDS data still available. They will be discarded when
-        // the user tunes to another frequency, but they are available if the user decides to add it back.
-        if ( d->mCurrentStation->frequency() == frequency ) {
-            *d->mCurrentStation = station;
-        }
-
-        // Copy the station to a temporary variable that can be used as signal parameter
-        RadioStation tempStation = station;
-
-        const int row = indexFromFrequency( tempStation.frequency() );
-        beginRemoveRows( QModelIndex(), row, row );
-
-        d->mPresetStorage->deletePreset( tempStation.presetIndex() );
-        d->mStations.remove( frequency );
-
-        d->mCurrentStation = NULL;
-        d->setCurrentStation( d->mWrapper->currentFrequency() );
-
-        endRemoveRows();
-    }
+    d->doRemoveStation( station );   
 }
+
 /*!
  * Removes stations based on model indices
  */
 void RadioStationModel::removeByModelIndices( QModelIndexList& indices, bool removefavorite )
 {
+    Q_D( RadioStationModel );
     // List needs to be sorted and indices needs to go throught from largest to smallest.
     // This is for keeping QmodelIndexing in sync after begin- and endremoverows, which
     // are needed for each item separately
     qSort( indices );
     QModelIndexList::const_iterator iter = indices.constEnd();
     QModelIndexList::const_iterator begin = indices.constBegin();
+    QList<uint> frequencies;
     RadioStation station;  
     while( iter != begin ) {
-       iter--;
-       station = stationAt( (*iter).row() );
-       if( removefavorite ) {
-          setFavoriteByPreset( station.presetIndex(), false );   
-      } else {                     
-          removeStation( station );
-      }                     
+        iter--;
+        station = stationAt( (*iter).row() );
+        if( removefavorite ) {
+            setFavoriteByPreset( station.presetIndex(), false );   
+        } else {    
+            frequencies.append( station.frequency() );
+            d->doRemoveStation( station, false );
+        }                     
+    }
+    if( !removefavorite && frequencies.count() ) {
+        emit stationsRemoved( frequencies );
     }
 }
 
@@ -484,18 +470,30 @@ void RadioStationModel::removeAll( RemoveMode mode )
     }
 
     if ( mode == RemoveAll ) {
+        
+        // sace frequencies locally so that they can be used while emitting signal
+        QList<uint> frequencies = list().keys();        
+        
+        // notify changes about current station for UI to update correctly
+        d->mCurrentStation->setFavorite( false );
+        d->mCurrentStation->setUserDefinedName( "" );
+        emitChangeSignals( *d->mCurrentStation, d->mCurrentStation->changeFlags() );
+        
         beginRemoveRows( QModelIndex(), 0, rowCount() - 1 );
 
         // Preset utility deletes all presets with index -1
         bool success = d->mPresetStorage->deletePreset( -1 );
         Q_UNUSED( success );
         RADIO_ASSERT( success, "FMRadio", "Failed to remove station" );
-
+        
         d->mStations.clear();
         d->mCurrentStation = NULL;
         d->setCurrentStation( d->mWrapper->currentFrequency() );
 
         endRemoveRows();
+        
+        emit stationsRemoved( frequencies );
+        
     } else {
         foreach( const RadioStation& station, d->mStations ) {
 
@@ -655,7 +653,7 @@ void RadioStationModel::renameStation( int presetIndex, const QString& name )
     LOG_FORMAT( "RadioStationModel::renameStation, presetIndex: %d, name: %s", presetIndex, GETSTRING(name) );
     RadioStation station;
     if ( findPresetIndex( presetIndex, station ) != RadioStation::NotFound ) {
-        station.setUserDefinedName( name.left(15) ); // Only 15 characters allowed
+        station.setUserDefinedName( name.left( MAX_STATION_NAME_LENGTH ) );
         saveStation( station );
     }
 }
@@ -746,38 +744,69 @@ void RadioStationModel::dynamicPsCheckEnded()
 }
 
 /*!
+ * Private slot
+ * Clears the radiotext from a station after its timeout has passed
+ */
+void RadioStationModel::clearRadiotext( int id )
+{
+    uint frequency = static_cast<uint>( id );
+    RadioStation station = findStation( frequency );
+    if ( station.isValid() ) {
+        station.setRadioText( "" );
+        saveStation( station );
+    }
+}
+
+/*!
+ * Private slot
+ * Handles the end of RT plus check
+ */
+void RadioStationModel::rtPlusCheckEnd()
+{
+    Q_D( RadioStationModel );
+    if ( !d->mRadioTextHolder.isEmpty() ) {
+        d->mCurrentStation->setRadioText( d->mRadioTextHolder );
+        saveStation( *d->mCurrentStation );
+        d->mRadioTextHolder.clear();
+        d->startRadioTextClearTimer();
+    }
+}
+
+/*!
  * Checks the given station and emits signals based on what member variables had been changed
  */
 void RadioStationModel::emitChangeSignals( const RadioStation& station, RadioStation::Change flags )
 {
+    // Create a temporary RadioStation for the duration of the signal-slot processing
+    // The receivers can ask the station what data has changed and update accordingly
+    RadioStation tempStation( station );
+    tempStation.setChangeFlags( flags );
+
     if ( flags.testFlag( RadioStation::NameChanged ) ||
          flags.testFlag( RadioStation::GenreChanged ) ||
          flags.testFlag( RadioStation::UrlChanged ) ||
          flags.testFlag( RadioStation::TypeChanged ) ||
          flags.testFlag( RadioStation::PiCodeChanged ) ) {
 
-        // Create a temporary RadioStation for the duration of the signal-slot processing
-        // The receivers can ask the station what data has changed and update accordingly
-        RadioStation tempStation( station );
-        tempStation.setChangeFlags( flags );
         emit stationDataChanged( tempStation );
 
         emitDataChanged( tempStation );
     }
 
     if ( flags.testFlag( RadioStation::RadioTextChanged ) ) {
-        emit radioTextReceived( station );
-        emitDataChanged( station );
+
+        emit radioTextReceived( tempStation );
+        emitDataChanged( tempStation );
     }
 
     if ( flags.testFlag( RadioStation::DynamicPsChanged ) ) {
-        emit dynamicPsChanged( station );
-        emitDataChanged( station );
+        emit dynamicPsChanged( tempStation );
+        emitDataChanged( tempStation );
     }
 
     if ( flags.testFlag( RadioStation::FavoriteChanged ) && station.isValid() ) {
-        emit favoriteChanged( station );
-        emitDataChanged( station );
+        emit favoriteChanged( tempStation );
+        emitDataChanged( tempStation );
     }
 }
 

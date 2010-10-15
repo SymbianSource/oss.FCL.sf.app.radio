@@ -196,11 +196,36 @@ void RadioHistoryView::handleLongPress( HbAbstractViewItem* item )
  */
 void RadioHistoryView::toggleTagging()
 {
-    historyModel().toggleTagging( *mSelectedItem, mCurrentRow );
-    mSelectedItem->reset();
-    mCurrentRow = -1;
-    updateVisibilities();
+    bool favoriteMode = mTaggedSongsButton->isChecked();
+    if ( favoriteMode ) {
+        HbMessageBox::question( hbTrId( "txt_rad_info_remove_song_from_tagged_songs" ), this,
+                                SLOT(handleRemoveTag(HbAction*)), HbMessageBox::Yes | HbMessageBox::No );
+
+    } else {
+        historyModel().toggleTagging( *mSelectedItem, mCurrentRow );
+        mSelectedItem->reset();
+        mCurrentRow = -1;
+        updateVisibilities();
+    }
 }
+
+/*!
+ * Private slot
+ *
+ */
+void RadioHistoryView::handleRemoveTag( HbAction* answer )
+{
+    HbDialog* dlg = static_cast<HbDialog*>( sender() );
+    if( dlg->actions().first() == answer ) {
+        historyModel().toggleTagging( *mSelectedItem, mCurrentRow );
+        mSelectedItem->reset();
+        mCurrentRow = -1;
+        updateVisibilities();
+    } else {
+        // Do Nothing
+    }
+}
+
 
 /*!
  * Private slot
@@ -263,7 +288,7 @@ void RadioHistoryView::init()
     }
 
     mHistoryList = mUiLoader->findObject<HbListView>( DOCML::HV_NAME_HISTORY_LIST );
-    mHistoryList->setScrollingStyle( HbListView::PanOrFlick );
+    mHistoryList->setScrollingStyle( HbListView::PanWithFollowOn );
     mHistoryList->setModel( historyModel );
     mHistoryList->setSelectionMode( HbListView::NoSelection );
     mHistoryList->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
@@ -353,6 +378,7 @@ void RadioHistoryView::initContextMenu()
     // TODO: Get additional music stores. For now use "Amazon" for demonstration purposes
     const QString otherStoreFormatter = hbTrId( "txt_rad_menu_search_from_other_store" );
     if ( HbMenu* contextMenu = mUiLoader->findObject<HbMenu>( DOCML::HV_NAME_CONTEXT_MENU ) ) {
+        contextMenu->setParent( this );
         contextMenu->addAction( otherStoreFormatter.arg( "Amazon" ), this, SLOT(openOtherStore()) );
     }
 }

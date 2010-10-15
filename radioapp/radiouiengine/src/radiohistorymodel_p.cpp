@@ -33,7 +33,7 @@
 #include "radiostation.h"
 #include "radiologger.h"
 
-static const QLatin1String DATABASE_NAME    ( "c:\\radioplayhistory.db" );
+static const QLatin1String DATABASE_NAME    ( "radioplayhistory.db" );
 static const QLatin1String DATABASE_DRIVER  ( "QSQLITE" );
 static const QLatin1String HISTORY_TABLE    ( "history" );
 static const QLatin1String SQL_CREATE_TABLE ( "CREATE TABLE history ("
@@ -65,6 +65,7 @@ static const QLatin1String SQL_REMOVE_TAG_FORMAT_STR  ( "UPDATE history SET tagg
 static const QLatin1String OR_ID_IS_FORMAT_STR        (" OR id = %1");
 
 static const int MAX_ID_COUNT_IN_QUERY = 5;
+const int THOUSAND_HERTZ = 1000;
 
 #ifdef LOGGING_ENABLED
 #   define GET_ERR( param ) GETSTRING( param.lastError().text() )
@@ -87,7 +88,6 @@ RadioHistoryModelPrivate::RadioHistoryModelPrivate( RadioHistoryModel* model,
                                                     RadioUiEngine& uiEngine ) :
     q_ptr( model ),
     mUiEngine( uiEngine ),
-    mRtItemClass( -1 ),
     mTopItemIsPlaying( false ),
     mShowDetails( true ),
     mViewMode( ShowAll )
@@ -153,7 +153,7 @@ void RadioHistoryModelPrivate::addItem( const QString& artist,
 {
     LOG_FORMAT( "RadioHistoryModelPrivate::addItem. Artist: %s, Title: %s", GETSTRING( artist ), GETSTRING( title ) );
 
-    if ( !mQueryModel ) {
+    if ( !mQueryModel || title.isEmpty() ) {
         return;
     }
 
@@ -165,7 +165,7 @@ void RadioHistoryModelPrivate::addItem( const QString& artist,
     query.addBindValue( artist );
     query.addBindValue( title );
     query.addBindValue( station.name() );
-    query.addBindValue( static_cast<int>( station.frequency() / 1000 ) );
+    query.addBindValue( static_cast<int>( station.frequency() / THOUSAND_HERTZ ) );
     query.addBindValue( fromRds );
     query.addBindValue( QDateTime::currentDateTime().toTime_t() );
 
@@ -200,7 +200,7 @@ QVariant RadioHistoryModelPrivate::data( const int row, const int role ) const
 
             const QString title = record.value( RadioHistoryValue::Title ).toString();
             const QString station = record.value( RadioHistoryValue::Station ).toString();
-            const uint frequency = record.value( RadioHistoryValue::Frequency ).toUInt() * 1000;
+            const uint frequency = record.value( RadioHistoryValue::Frequency ).toUInt() * THOUSAND_HERTZ;
 
             QStringList list;
             if ( mShowDetails ) {

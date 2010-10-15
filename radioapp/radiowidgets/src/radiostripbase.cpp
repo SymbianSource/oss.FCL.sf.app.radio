@@ -34,7 +34,7 @@ RadioStripBase::RadioStripBase( QGraphicsItem* parent ) :
     mIsCyclic( true ),
     mAutoCenter( false ),
     mOverlap( 0 ),
-    mItemPoolParent( new QGraphicsWidget( NULL ) ),
+    mItemPoolParent( new QGraphicsWidget( this ) ),
     mCurrentIndex( 0 ),
     mPressedIndex( 0 ),
     mStripLength( 0 ),

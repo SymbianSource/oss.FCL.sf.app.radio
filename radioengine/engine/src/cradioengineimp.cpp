@@ -59,7 +59,7 @@ const TInt KRadioVolumeStepsWins = 20;
 const TInt KRadioRadioSwitchDelay = 300; // In milliseconds
 
 const TInt KRadioThousand = 1000;
-const TInt KRadioMillion = KRadioThousand * KRadioThousand;
+const TInt KRadioVolumeRampUpDelay = 200000;
 
 // Country order from timezones.rss. Default = 0, Japan = 1, America = 2.
 const TUint KCityGroupRegions[] =
@@ -569,10 +569,11 @@ void CRadioEngineImp::PowerOn()
         OkToPlay( iSettings->EngineSettings().TunedFrequency() ) )
         {
         SetAudioMode( iSettings->EngineSettings().OutputMode() );
-        iPlayerUtility->SetVolumeRamp( TTimeIntervalMicroSeconds( MAKE_TINT64( 0, KRadioMillion ) ) );
+        iPlayerUtility->SetVolumeRamp( TTimeIntervalMicroSeconds( MAKE_TINT64( 0, KRadioVolumeRampUpDelay ) ) );
         iPlayerUtility->SetVolume( TunerVolumeForUiVolume( iSettings->EngineSettings().Volume() ) );
 
         iPlayerUtility->Mute( iSettings->EngineSettings().IsVolMuted() );
+        iTunerUtility->SetSquelch( EFalse );
         iTunerUtility->SetFrequency( iSettings->EngineSettings().TunedFrequency() );
         iFreqEventReason = RadioEngine::ERadioFrequencyEventReasonImplicit;
 

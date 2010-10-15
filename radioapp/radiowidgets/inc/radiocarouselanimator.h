@@ -61,7 +61,7 @@ public:
 
     void stopAll();
 
-private slots:
+private Q_SLOTS:
 
     void handleTimeout();
     void updateNumberScroll( int value );

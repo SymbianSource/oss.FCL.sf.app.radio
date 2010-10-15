@@ -1,0 +1,75 @@
+;
+; Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+; All rights reserved.
+; This component and the accompanying materials are made available
+; under the terms of "Eclipse Public License v1.0"
+; which accompanies this distribution, and is available
+; at the URL "http://www.eclipse.org/legal/epl-v10.html".
+;
+; Initial Contributors:
+; Nokia Corporation - initial contribution.
+;
+; Contributors:
+;
+; Description:
+; Package file for FMRadio
+;
+
+; Languages
+&EN
+
+; Package header
+#{"fmradio"}, (0x2002FF53), 1, 0, 0, TYPE=SA, RU
+
+; Localised Vendor name
+%{"Nokia"}
+
+; Unique Vendor name
+:"Nokia"
+
+; Platform Dependency
+[0x101F7961],0,0,0,{"S60ProductID"}
+[0x20032DE7 ],0,0,0,{"S60ProductID"} ; Symbian^4
+
+; -------- files --------
+
+;; application files
+"/epoc32/release/armv5/urel/fmradio.exe"                            - "c:/sys/bin/fmradio.exe"
+"/epoc32/data/z/resource/apps/fmradio.rsc"                          - "c:/resource/apps/fmradio.rsc"
+"/epoc32/data/z/resource/apps/fmradio.r01"                          - "c:/resource/apps/fmradio.r01"
+"/epoc32/data/z/resource/apps/fmradio.mif"                          - "c:/resource/apps/fmradio.mif"
+"/epoc32/data/z/private/10003a3f/import/apps/fmradio_reg.rsc"       - "c:/private/10003a3f/import/apps/fmradio_reg.rsc"
+
+;; Localization
+"/epoc32/data/z/resource/qt/translations/fmradio_en.qm"           - "c:/resource/qt/translations/fmradio.qm"
+"/epoc32/data/z/resource/qt/translations/radiohswidget.qm"          - "c:/resource/qt/translations/radiohswidget.qm"
+
+;; Engine QT wrapper, ui engine and preset utility wrapper
+"/epoc32/release/armv5/urel/fmradioenginewrapper.dll"               - "c:/sys/bin/fmradioenginewrapper.dll"
+"/epoc32/release/armv5/urel/fmradiopresetstorage.dll"               - "c:/sys/bin/fmradiopresetstorage.dll"
+"/epoc32/release/armv5/urel/fmradiouiengine.dll"                    - "c:/sys/bin/fmradiouiengine.dll"
+"/epoc32/release/armv5/urel/fmradiowidgets.dll"                     - "c:/sys/bin/fmradiowidgets.dll"
+"/epoc32/release/armv5/urel/fmradiowidgetsplugin.dll"               - "c:/sys/bin/fmradiowidgetsplugin.dll"
+"/epoc32/data/z/resource/plugins/fmradiowidgetsplugin.qtplugin"     - "c:/resource/plugins/fmradiowidgetsplugin.qtplugin"
+
+;; Engine
+"/epoc32/release/armv5/urel/fmradioengine.dll"                      - "c:/sys/bin/fmradioengine.dll"
+"/epoc32/release/armv5/urel/fmradioengineutils.dll"                 - "c:/sys/bin/fmradioengineutils.dll"
+"/epoc32/release/armv5/urel/fmradioenginesettings.dll"              - "c:/sys/bin/fmradioenginesettings.dll"
+"/epoc32/data/z/resource/fmradioenginesettings.rsc"                 - "c:/resource/fmradioenginesettings.rsc"
+
+;; Cenrep update
+@"radioenginecenrep.sisx", (0x10202BE9)
+
+;; Splash Screen
+"/epoc32/data/z/resource/hb/splashml/fmradio.splashml"              - "!:/resource/hb/splashml/fmradio.splashml"
+"/epoc32/data/z/resource/hb/splashml/fmradio.docml"                 - "!:/resource/hb/splashml/fmradio.docml"
+
+; -------- FM Radio homesceen widget --------
+
+"../radiohswidget/resource/fmradiohswidget.manifest"                                        - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidget.manifest",FM,"application/hs-widget-uninstall+xml",RR,RW
+ 
+"/epoc32/release/armv5/urel/fmradiohswidget.dll"                                            - "c:/sys/bin/fmradiohswidget.dll"
+"/epoc32/data/z/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidget.qtplugin"   - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidget.qtplugin"
+"../radiohswidget/resource/fmradiohswidget.manifest"                                        - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidget.manifest"
+"../radiohswidget/resource/fmradiohswidget.xml"                                             - "c:/private/20022F35/import/widgetregistry/2002E6D6/fmradiohswidget.xml"

@@ -59,7 +59,7 @@ public:
     void setNonFavoriteIcon( const HbIcon& nonFavoriteIcon );
     HbIcon nonFavoriteIcon() const;
 
-private slots:
+private Q_SLOTS:
 
     void handleClick( const QModelIndex& index );
     void handleLongPress( HbAbstractViewItem* item, const QPointF& coords );

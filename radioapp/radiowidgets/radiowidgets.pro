@@ -26,6 +26,7 @@ symbian:TARGET.UID3 = 0x2002FF4C
 
 INCLUDEPATH += inc
 INCLUDEPATH += ../radiouiengine/inc
+INCLUDEPATH += ../radioapplication/inc
 INCLUDEPATH += ../../common
 
 LIBS        += -lfmradiouiengine

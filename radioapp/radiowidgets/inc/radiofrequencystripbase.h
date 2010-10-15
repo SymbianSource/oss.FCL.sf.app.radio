@@ -23,6 +23,7 @@
 #include <QHash>
 #include <HbEffect>
 #include <QColor>
+#include <HbIcon>
 
 // User includes
 #include "radiostripbase.h"
@@ -47,6 +48,7 @@ class RadioFrequencyStripBase : public RadioStripBase
 public:
 
     RadioFrequencyStripBase( QGraphicsItem* parent = 0 );
+    ~RadioFrequencyStripBase();
 
     void setItemHeight( int itemHeight );
     int itemHeight() const;
@@ -65,18 +67,18 @@ public:
 
     void updateFavorite( uint frequency );
 
-public slots:
-
-    void setScanningMode( bool isScanning );
-
-signals:
+Q_SIGNALS:
 
     void manualSeekChanged( bool manualSeek );
 
-private slots:
+public Q_SLOTS:
+
+    void setScanningMode( bool isScanning );
+
+private Q_SLOTS:
 
     void initEmptyItems();
-    void removeStation( const QModelIndex& parent, int first, int last );
+    void stationsRemoved( const QList<uint>& frequencies );
     void updateStation( const QModelIndex& parent, int first, int last );
     void handleLeftButton();
     void handleRightButton();
@@ -220,6 +222,9 @@ private: // data
     QColor                      mForegroundColor;
 
     bool                        mIgnoreScrollingEnd;
+
+    HbIcon                      mStationIcon;
+    HbIcon                      mFavoriteIcon;
 
 };
 

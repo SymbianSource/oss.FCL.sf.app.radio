@@ -21,6 +21,9 @@
 // System includes
 #include <HbWidget>
 
+// User includes
+#include "radio_global.h"
+
 // Forward declarations
 class HbLabel;
 class HbPushButton;
@@ -75,7 +78,8 @@ private:
     enum InformationAreaLayout
     {
         OneRow,
-        TwoRows,
+        OneRowWithFavorite,
+        TwoRowsWithFavorite,
         Animation
     };
 
@@ -192,6 +196,7 @@ private:
     void clearRadioInformation();
     
     void changeInformationAreaLayout(const InformationAreaLayout layout);
+    void changeFavoriteIcon(bool visibility);
     void changePowerButtonOn(const bool isPowerOn);
     void enableStationButtons();
     void defineButton(HbPushButton &target, const QString &graphicsId,
@@ -217,20 +222,29 @@ private:
     HbPushButton *mPreviousButton;
     /*! Control button for next station. */
     HbPushButton *mNextButton;
-    /*! Layout for information area. */
+    /*! Layout for one row with favorite icon in information area. */
+    QGraphicsWidget *mInformationAreaOneRowWithFavoriteLayout;
+    /*! Label that is shown when there is only one row of information and
+        favorite icon is shown. */
+    HbLabel *mInformationOneRowWithFavoriteLabel;
+    /*! Layout for two rows in information area. */
     QGraphicsWidget *mInformationAreaTwoRowsLayout;
     /*! Label that is shown when there is only one row of information. */
     HbLabel *mInformationLonelyRowLabel;
     /*! Label for first row when there is two rows of information. */
-    HbLabel *mInformationFirstRowLabel;
+    HbLabel *mInformationFirstRowWithFavoriteLabel;
     // TODO: This label should be modified to support marquee scrolling when Orbit supports it.
     /*! Label for first second when there is two rows of information. */
     HbLabel *mInformationSecondRowLabel;
     /*! Label for displaying animation. */
     HbLabel *mAnimationIcon;
+    /*! Icon for displaying favorite/unfavorite star. */
+    HbLabel *mFavoriteIcon;
     
     /*! Stores the state of the FM Radio application. */
     FmRadio::State mFmRadioState;
+    /*! Stores the region of the FM Radio. Needed for the genre localization. */
+    RadioRegion::Region mRadioRegion;
 
     /*! Stores the count of favorite stations. */
     int mFavoriteStationCount;

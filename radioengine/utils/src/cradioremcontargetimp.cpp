@@ -70,7 +70,7 @@ CRadioRemConTargetImp* CRadioRemConTargetImp::NewL()
     CRadioRemConTargetImp* self = new ( ELeave ) CRadioRemConTargetImp();
     CleanupStack::PushL( self );
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 

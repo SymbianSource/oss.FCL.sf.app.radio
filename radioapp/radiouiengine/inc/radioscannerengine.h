@@ -76,7 +76,7 @@ public:
      */
     void addScannedFrequency( const uint frequency );
 
-signals:
+Q_SIGNALS:
 
     void stationFound( const RadioStation& station );
 

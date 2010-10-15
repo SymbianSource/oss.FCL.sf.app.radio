@@ -96,10 +96,13 @@ public:
 
     void clearSong();
 
+    void addRadiotext( const QString& radiotext );
+    void clearRadiotext();
+
     bool isOffline() const;
     void setOffline( bool offline );
 
-private slots:
+private Q_SLOTS:
 
     void frequencyEvent();
     void addSongTags();

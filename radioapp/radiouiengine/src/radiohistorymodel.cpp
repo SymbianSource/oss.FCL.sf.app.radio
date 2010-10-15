@@ -85,6 +85,18 @@ void RadioHistoryModel::resetCurrentSong()
 }
 
 /*!
+ *
+ */
+void RadioHistoryModel::addItem( const QString& artist,
+                                 const QString& title,
+                                 const RadioStation& station,
+                                 bool fromRds )
+{
+    Q_D( RadioHistoryModel );
+    d->addItem( artist, title, station, fromRds );
+}
+
+/*!
  * Sets the icons to be used in the list
  */
 void RadioHistoryModel::setIcons( const QIcon& nonTaggedIcon, const QIcon& taggedIcon )
@@ -161,54 +173,9 @@ void RadioHistoryModel::removeByModelIndices( QModelIndexList& indices,  bool re
 /*!
  *
  */
-void RadioHistoryModel::addItem( const QString& artist, const QString& title, const RadioStation& station )
-{
-    Q_D( RadioHistoryModel );
-    d->addItem( artist, title, station );
-}
-
-/*!
- *
- */
 void RadioHistoryModel::clearRadioTextPlus()
 {
-    Q_D( RadioHistoryModel );
-    d->mRtItemHolder = "";
     resetCurrentSong();
-}
-
-/*!
- *
- */
-void RadioHistoryModel::addRadioTextPlus( int rtClass, const QString& rtItem, const RadioStation& station )
-{
-    if ( rtClass == RtPlus::Dummy || rtClass == RtPlus::Artist || rtClass == RtPlus::Title ) {
-        Q_D( RadioHistoryModel );
-        if ( d->mRtItemClass == -1 ) {
-            d->mRtItemClass = rtClass;
-            d->mRtItemHolder = rtItem;
-        } else {
-            // Received: Artist - Title
-            if ( d->mRtItemClass == RtPlus::Artist && rtClass == RtPlus::Title ) {
-                addItem( d->mRtItemHolder, rtItem, station );
-
-            // Received: Title - Artist
-            } else if ( rtClass == RtPlus::Artist && d->mRtItemClass == RtPlus::Title ) {
-                addItem( rtItem, d->mRtItemHolder, station );
-
-            // Received: Dummy - Title
-            } else if ( d->mRtItemClass == RtPlus::Dummy && rtClass == RtPlus::Title ) {
-                addItem( "", rtItem, station );
-
-            // Received: Title - Dummy
-            } else if ( rtClass == RtPlus::Dummy && d->mRtItemClass == RtPlus::Title ) {
-                addItem( "", d->mRtItemHolder, station );
-            }
-
-            d->mRtItemHolder = "";
-            d->mRtItemClass = -1;
-        }
-    }
 }
 
 /*!

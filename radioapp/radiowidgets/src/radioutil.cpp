@@ -29,8 +29,6 @@
 
 // Constants
 
-static RadioUtil* theInstance = 0;
-
 /*!
  *
  */
@@ -202,9 +200,7 @@ void RadioUtil::mapToSource( const QModelIndexList& proxyIndices,
  */
 RadioUtil& RadioUtil::instance()
 {
-    if ( !::theInstance ) {
-        ::theInstance = new RadioUtil;
-    }
-    return *::theInstance;
+    static RadioUtil gInstance;
+    return gInstance;
 }
 

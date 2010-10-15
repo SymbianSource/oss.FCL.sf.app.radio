@@ -87,7 +87,9 @@ void RadioMonitorService::init()
                     this,           SLOT(notifyStationChange(RadioStation)) );
     Radio::connect( stationModel,   SIGNAL(radioTextReceived(RadioStation)),
                     this,           SLOT(notifyStationChange(RadioStation)) );
-
+    Radio::connect( stationModel,   SIGNAL(dynamicPsChanged(RadioStation)),
+                    this,           SLOT(notifyStationChange(RadioStation)) );
+    
     RadioUiEngine* uiEngine = &mUiEngine.api();
     Radio::connect( uiEngine,       SIGNAL(seekingStarted(int)),
                     this,           SLOT(notifyRadioStatus()) );
@@ -95,8 +97,8 @@ void RadioMonitorService::init()
                     this,           SLOT(notifyRadioStatus()) );
     Radio::connect( uiEngine,       SIGNAL(antennaStatusChanged(bool)),
                     this,           SLOT(notifyRadioStatus()) );
-    Radio::connect( uiEngine,       SIGNAL(powerOffRequested()),
-                    this,           SLOT(notifyRadioStatus()) );
+//    Radio::connect( uiEngine,       SIGNAL(powerOffRequested()),
+//                    this,           SLOT(notifyRadioStatus()) );
 
     mUiEngine.wrapper().addObserver( this );
 
@@ -178,7 +180,8 @@ void RadioMonitorService::notifyRadioStatus()
 
     if ( radioStatus != mRadioStatus ) {
         if ( radioStatus == RadioStatus::Seeking ) {
-            if ( RadioScannerEngine* scannerEngine = mUiEngine.api().scannerEngine() ) {
+            RadioScannerEngine* scannerEngine = mUiEngine.api().scannerEngine();
+            if ( scannerEngine ) {
                 Radio::connect( scannerEngine,  SIGNAL(destroyed()),
                                 this,           SLOT(notifyRadioStatus()) );
             }
@@ -197,10 +200,7 @@ void RadioMonitorService::notifyFavoriteCount()
 {
     const int favoriteCount = mUiEngine.api().stationModel().favoriteCount();
     RUN_NOTIFY( FavoriteCount, favoriteCount );
-
-    if ( favoriteCount == 1 ) {
-        checkIfCurrentStationIsFavorite();
-    }
+    checkIfCurrentStationIsFavorite();
 }
 
 /*!
@@ -248,7 +248,8 @@ void RadioMonitorService::notifyStationChange( const RadioStation& station )
         list.append( notification );
     }
 
-    notifyList( list );
+    notify( list );
+
 }
 
 /*!
@@ -257,8 +258,15 @@ void RadioMonitorService::notifyStationChange( const RadioStation& station )
  */
 void RadioMonitorService::sendNotifications()
 {
-    notifyList( mNotificationList );
-    mNotificationList.clear();
+
+    if ( !mNotificationQueue.isEmpty() )
+    {
+        notifyList( mNotificationQueue.dequeue() );
+    }
+    if ( !mNotificationQueue.isEmpty() )
+    {
+        mNotificationTimer->start();
+    }
 }
 
 /*!
@@ -268,6 +276,11 @@ void RadioMonitorService::tunedToFrequency( uint frequency, int reason )
 {
     Q_UNUSED( reason );
     if ( !mUiEngine.api().isScanning() ) {
+
+        // frequency changed, cancel any pending notification as it has become invalid
+        mNotificationTimer->stop();
+        mNotificationQueue.clear();
+        
         RUN_NOTIFY( Frequency, RadioStation::parseFrequency( frequency ) );
         RadioStation station;
         if ( mUiEngine.api().stationModel().findFrequency( frequency, station ) && !station.name().isEmpty() ) {
@@ -275,9 +288,7 @@ void RadioMonitorService::tunedToFrequency( uint frequency, int reason )
         }
 
         const int favoriteCount = mUiEngine.api().stationModel().favoriteCount();
-        if ( favoriteCount == 1 ) {
-            checkIfCurrentStationIsFavorite();
-        }
+        checkIfCurrentStationIsFavorite();
     }
 }
 
@@ -326,9 +337,21 @@ QString RadioMonitorService::trimHtmlTags( const QString& html )
  */
 void RadioMonitorService::notify( const QVariant& notification )
 {
-    mNotificationTimer->stop();
-    mNotificationList.append( notification );
-    mNotificationTimer->start();
+    QVariantList list;
+    list.append( notification );
+    notify( list );
+}
+
+/*!
+ *
+ */
+void RadioMonitorService::notify( const QVariantList& list )
+{
+    mNotificationQueue.enqueue( list );
+    if ( !mNotificationTimer->isActive() )
+    {
+        mNotificationTimer->start();
+    }
 }
 
 /*!

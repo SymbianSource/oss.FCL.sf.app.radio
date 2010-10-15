@@ -56,6 +56,7 @@ static void registerAndCheck( const QString& file ) {
  */
 RadioCarouselItem::RadioCarouselItem( RadioCarouselItemObserver& observer, QGraphicsItem* parent, bool registerCss ) :
     HbWidget( parent ),
+    mFrequency( 0 ),
     mObserver( observer ),
     mFavoriteItem( NULL ),
     mGenreItem( NULL ),
@@ -169,7 +170,7 @@ void RadioCarouselItem::gestureEvent( QGestureEvent* event )
             if ( mFlags.testFlag( FavoriteTouchable ) &&
                     mFavoriteTouchArea->sceneBoundingRect().contains( mappedHotSpot ) ) {
 
-                mObserver.handleIconClicked( *mStation );
+                mObserver.handleIconClicked( mFrequency );
 
             } else if ( mFlags.testFlag( RadiotextTouchable ) &&
                     mRadiotextItem->sceneBoundingRect().contains( mappedHotSpot ) ) {
@@ -284,6 +285,7 @@ void RadioCarouselItem::setSeekLayout( bool seekLayout )
 void RadioCarouselItem::setStation( const RadioStation& station )
 {
     *mStation = station;
+    mFrequency = station.frequency();
 
     updateLayout();
 
@@ -295,7 +297,7 @@ void RadioCarouselItem::setStation( const RadioStation& station )
  */
 uint RadioCarouselItem::frequency() const
 {
-    return mStation->frequency();
+    return mFrequency;
 }
 
 /*!
@@ -305,6 +307,7 @@ void RadioCarouselItem::update( const RadioStation* station )
 {
     if ( station ) {
         *mStation = *station;
+        mFrequency = station->frequency();
         updateLayout();
     }
 
@@ -325,26 +328,29 @@ void RadioCarouselItem::update( const RadioStation* station )
             mNameItem->setText( mStation->frequencyString() );
         }
 
-        if ( mStation->hasRadiotext() ) {
-            mRadiotextItem->setText( mStation->radioText() );
-        } else {
-            if ( mStation->hasDynamicPs() ) {
-                mRadiotextItem->setText( mStation->dynamicPsText() );
-            } else if ( hasName ) {
-                const QString loc = hbTrId( "txt_rad_list_l1_mhz_small" );
-                mRadiotextItem->setText( loc.arg( mStation->frequencyString() ) );
-            } else {
-                mRadiotextItem->setText( "" );
-            }
-        }
+        if ( mObserver.isAntennaAttached() ) {
 
-        mUrlItem->setText( mStation->url() );
-        if ( mStation->hasUrl() ) {
-            HbStyle::setItemName( mUrlItem, URL_LABEL );
-            setFlags( UrlVisible | UrlTouchable );
-        } else {
-            HbStyle::setItemName( mUrlItem, "" ); // Clear the name so the item disappears from layout
-            clearFlags( UrlVisible | UrlTouchable );
+            if ( mStation->hasRadiotext() ) {
+                mRadiotextItem->setText( mStation->radioText() );
+            } else {
+                if ( mStation->hasDynamicPs() ) {
+                    mRadiotextItem->setText( mStation->dynamicPsText() );
+                } else if ( hasName ) {
+                    const QString loc = hbTrId( "txt_rad_list_l1_mhz_small" );
+                    mRadiotextItem->setText( loc.arg( mStation->frequencyString() ) );
+                } else {
+                    mRadiotextItem->setText( "" );
+                }
+            }
+
+            mUrlItem->setText( mStation->url() );
+            if ( mStation->hasUrl() ) {
+                HbStyle::setItemName( mUrlItem, URL_LABEL );
+                setFlags( UrlVisible | UrlTouchable );
+            } else {
+                HbStyle::setItemName( mUrlItem, "" ); // Clear the name so the item disappears from layout
+                clearFlags( UrlVisible | UrlTouchable );
+            }
         }
 
         updateFavoriteIcon( mStation->isFavorite() );
@@ -360,16 +366,12 @@ void RadioCarouselItem::setFrequency( uint frequency )
 {
     LOG_FORMAT( "RadioCarouselItem::setFrequency: %d", frequency );
 
-    if ( mStation->hasName() && mStation->frequency() == frequency ) {
-        mNameItem->setText( mStation->name() );
-    } else {
-        mNameItem->setText( RadioStation::parseFrequency( frequency ) );
-    }
-
-
+    QString text = RadioStation::parseFrequency( frequency );
     if ( !mObserver.isInManualSeek() ) {
         *mStation = mObserver.findStation( frequency );
     }
+    mFrequency = frequency;
+    mNameItem->setText( text );
 }
 
 /*!

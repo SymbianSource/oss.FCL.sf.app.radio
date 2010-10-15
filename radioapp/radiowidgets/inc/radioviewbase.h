@@ -68,13 +68,13 @@ public:
 
     void bringToForeground();
 
-protected slots:
+protected Q_SLOTS:
 
     void updateAudioRouting( bool loudspeaker );
     void activatePreviousView();
     void quit();
 
-private slots:
+private Q_SLOTS:
 
     void handleUserAnswer( HbAction* answer );   // Needed by HbMessageBox inconvenience API
 
