@@ -788,6 +788,8 @@ class CFMRadioAppUi : public CAknViewAppUi,
         TUid iPendingViewId;
         // Boolean for region change, force rescanning
         TBool iRegionChanged;
+        // flag for indicating if the radio is ready to play with the default/last used frequency
+        TBool iRadioInitializedWithFrequency;
     };
 
 #endif

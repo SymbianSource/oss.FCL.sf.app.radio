@@ -100,7 +100,8 @@ CFMRadioAppUi::CFMRadioAppUi() :
     iTuneFromWizardActivated( EFalse ),
     iInfoNoteOn( EFalse ),
     iPendingViewId( KNullUid ),
-    iRegionChanged( EFalse )
+    iRegionChanged( EFalse ),
+    iRadioInitializedWithFrequency( EFalse )
     {
     }
 
@@ -1240,6 +1241,7 @@ void CFMRadioAppUi::HandleVolumeChangedCallback()
 void CFMRadioAppUi::HandleInitializedCallbackL()
     {
     FTRACE( FPrint( _L("CFMRadioAppUi::HandleInitializedCallbackL()  Start") ) );
+    iRadioInitializedWithFrequency = ETrue;
     if( iCurrentRadioState != EFMRadioStateOffForPhoneCall && 
         iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
         {
@@ -1350,23 +1352,24 @@ void CFMRadioAppUi::HandleHeadsetReconnectedCallback()
     if ( iConnectHeadsetQuery )
         {
         delete iConnectHeadsetQuery;
-        iConnectHeadsetQuery = NULL;	
+        iConnectHeadsetQuery = NULL;
         }
     
     //compare bitmask to see if feature supported
-    if ( !(iFMRadioVariationFlags & KFMRadioInternalAntennaSupported) &&
-            iCurrentRadioState != EFMRadioStateOffForPhoneCall && 
-            iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
+    if ( iRadioInitializedWithFrequency &&
+         !( iFMRadioVariationFlags & KFMRadioInternalAntennaSupported ) &&
+         iCurrentRadioState != EFMRadioStateOffForPhoneCall && 
+         iCurrentRadioState != EFMRadioStateOffBeforePhoneCall )
         {
         // active offline query controls radio on/off
         if ( iAudioLost )
             {
-            TRAP_IGNORE( TryToResumeAudioL() );	
+            TRAP_IGNORE( TryToResumeAudioL() ); 
             }
         else if ( ( iGlobalOfflineQuery && !iGlobalOfflineQuery->IsActive() ) ||
               !iGlobalOfflineQuery )
             {
-            iRadioEngine->InitializeRadio();
+            TurnRadioOn();
             }
         HandleVolumeChangedCallback();
         }
